@@ -52,6 +52,11 @@ export const router = new Router({
           component: () => import('./views/admin-academy/Academy.vue')
         },
         {
+          path: '/academy/courses',
+          name: 'academy-courses',
+          component: () => import('./views/admin-academy/CourseManager.vue')
+        },
+        {
           path: '/academy/subjects',
           name: 'academy-subjects',
           component: () => import('./views/admin-academy/SubjectsManager')

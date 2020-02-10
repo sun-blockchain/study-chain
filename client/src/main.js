@@ -9,6 +9,12 @@ import store from './_store/store';
 import './assets/vendor/sasu/home.css';
 import BootstrapVue from 'bootstrap-vue';
 import './vee-validate';
+import ElementUI from 'element-ui';
+import locale from 'element-ui/lib/locale';
+import 'element-ui/lib/theme-chalk/index.css';
+import lang from 'element-ui/lib/locale/lang/en';
+locale.use(lang);
+Vue.use(ElementUI);
 
 Vue.config.productionTip = false;
 
