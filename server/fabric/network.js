@@ -39,12 +39,7 @@ exports.connectToNetwork = async function(user, cli = false) {
 
     let identity = user.username;
 
-    const ccpPath = path.resolve(
-      __dirname,
-      '../..',
-      'version2.0/network',
-      `connection-${orgMSP}.json`
-    );
+    const ccpPath = path.resolve(__dirname, '../..', 'network', `connection-${orgMSP}.json`);
     let walletPath = path.join(process.cwd(), `/cli/wallet/wallet-${orgMSP}`);
 
     if (cli) {
@@ -71,7 +66,7 @@ exports.connectToNetwork = async function(user, cli = false) {
       await gateway.connect(ccpPath, {
         wallet: wallet,
         identity: identity,
-        discovery: { enabled: true, asLocalhost: false }
+        discovery: { enabled: true, asLocalhost: true }
       });
 
       const network = await gateway.getNetwork('certificatechannel');
@@ -263,7 +258,7 @@ exports.registerStudentOnBlockchain = async function(createdUser) {
     await gateway.connect(ccpPath, {
       wallet,
       identity: process.env.ADMIN_STUDENT_USERNAME,
-      discovery: { enabled: true, asLocalhost: false }
+      discovery: { enabled: true, asLocalhost: true }
     });
 
     // Get the CA client object from the gateway for interacting with the CA.
