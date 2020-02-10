@@ -64,12 +64,7 @@ async function main() {
 
     let nameMSP = await changeCaseFirstLetter(orgMSP);
 
-    const ccpPath = path.resolve(
-      __dirname,
-      '../..',
-      'version2.0/network',
-      `connection-${orgMSP}.json`
-    );
+    const ccpPath = path.resolve(__dirname, '../..', 'network', `connection-${orgMSP}.json`);
 
     // Create a new file system based wallet for managing identities.
     const walletPath = path.join(process.cwd(), `/wallet/wallet-${orgMSP}`);
@@ -95,7 +90,7 @@ async function main() {
     await gateway.connect(ccpPath, {
       wallet,
       identity: admin,
-      discovery: { enabled: true, asLocalhost: false }
+      discovery: { enabled: true, asLocalhost: true }
     });
 
     // Get the CA client object from the gateway for interacting with the CA.
