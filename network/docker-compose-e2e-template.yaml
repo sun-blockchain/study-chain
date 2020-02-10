@@ -1,0 +1,90 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+volumes:
+  orderer.certificate.com:
+  peer0.academy.certificate.com:
+  peer1.academy.certificate.com:
+  peer0.student.certificate.com:
+  peer1.student.certificate.com:
+
+networks:
+  certificate:
+services:
+  ca0:
+    image: hyperledger/fabric-ca:$IMAGE_TAG
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-academy
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.academy.certificate.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CA1_PRIVATE_KEY
+    ports:
+      - '7054:7054'
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.academy.certificate.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA1_PRIVATE_KEY -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/academy.certificate.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerAcademy
+    networks:
+      - certificate
+
+  ca1:
+    image: hyperledger/fabric-ca:$IMAGE_TAG
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-student
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.student.certificate.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CA2_PRIVATE_KEY
+    ports:
+      - '8054:7054'
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.student.certificate.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA2_PRIVATE_KEY -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/student.certificate.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerStudent
+    networks:
+      - certificate
+
+  orderer.certificate.com:
+    extends:
+      file: base/docker-compose-base.yaml
+      service: orderer.certificate.com
+    container_name: orderer.certificate.com
+    networks:
+      - certificate
+
+  peer0.academy.certificate.com:
+    container_name: peer0.academy.certificate.com
+    extends:
+      file: base/docker-compose-base.yaml
+      service: peer0.academy.certificate.com
+    networks:
+      - certificate
+
+  peer1.academy.certificate.com:
+    container_name: peer1.academy.certificate.com
+    extends:
+      file: base/docker-compose-base.yaml
+      service: peer1.academy.certificate.com
+    networks:
+      - certificate
+
+  peer0.student.certificate.com:
+    container_name: peer0.student.certificate.com
+    extends:
+      file: base/docker-compose-base.yaml
+      service: peer0.student.certificate.com
+    networks:
+      - certificate
+
+  peer1.student.certificate.com:
+    container_name: peer1.student.certificate.com
+    extends:
+      file: base/docker-compose-base.yaml
+      service: peer1.student.certificate.com
+    networks:
+      - certificate

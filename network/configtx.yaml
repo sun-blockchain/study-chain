@@ -1,0 +1,180 @@
+---
+Organizations:
+  - &OrdererOrg
+    Name: OrdererOrg
+    ID: OrdererMSP
+    MSPDir: crypto-config/ordererOrganizations/certificate.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('OrdererMSP.admin')"
+  - &Academy
+    Name: AcademyMSP
+    ID: AcademyMSP
+    MSPDir: crypto-config/peerOrganizations/academy.certificate.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('AcademyMSP.admin', 'AcademyMSP.peer', 'AcademyMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('AcademyMSP.admin', 'AcademyMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('AcademyMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('AcademyMSP.peer')"
+    AnchorPeers:
+      - Host: peer0.academy.certificate.com
+        Port: 7051
+  - &Student
+    Name: StudentMSP
+    ID: StudentMSP
+    MSPDir: crypto-config/peerOrganizations/student.certificate.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('StudentMSP.admin', 'StudentMSP.peer', 'StudentMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('StudentMSP.admin', 'StudentMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('StudentMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('StudentMSP.peer')"
+    AnchorPeers:
+      - Host: peer0.student.certificate.com
+        Port: 9051
+Capabilities:
+  Channel: &ChannelCapabilities
+    V2_0: true
+  Orderer: &OrdererCapabilities
+    V2_0: true
+  Application: &ApplicationCapabilities
+    V2_0: true
+Application: &ApplicationDefaults
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: 'ANY Readers'
+    Writers:
+      Type: ImplicitMeta
+      Rule: 'ANY Writers'
+    Admins:
+      Type: ImplicitMeta
+      Rule: 'MAJORITY Admins'
+    LifecycleEndorsement:
+      Type: ImplicitMeta
+      Rule: 'MAJORITY Endorsement'
+    Endorsement:
+      Type: ImplicitMeta
+      Rule: 'MAJORITY Endorsement'
+  Capabilities:
+    <<: *ApplicationCapabilities
+Orderer: &OrdererDefaults
+  OrdererType: etcdraft
+  Addresses:
+    - orderer.certificate.com:7050
+  BatchTimeout: 2s
+  BatchSize:
+    MaxMessageCount: 10
+    AbsoluteMaxBytes: 99 MB
+    PreferredMaxBytes: 512 KB
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: 'ANY Readers'
+    Writers:
+      Type: ImplicitMeta
+      Rule: 'ANY Writers'
+    Admins:
+      Type: ImplicitMeta
+      Rule: 'MAJORITY Admins'
+    BlockValidation:
+      Type: ImplicitMeta
+      Rule: 'ANY Writers'
+Channel: &ChannelDefaults
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: 'ANY Readers'
+    Writers:
+      Type: ImplicitMeta
+      Rule: 'ANY Writers'
+    Admins:
+      Type: ImplicitMeta
+      Rule: 'MAJORITY Admins'
+  Capabilities:
+    <<: *ChannelCapabilities
+Profiles:
+  TwoOrgsChannel:
+    Consortium: SampleConsortium
+    <<: *ChannelDefaults
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *Academy
+        - *Student
+      Capabilities:
+        <<: *ApplicationCapabilities
+
+  SampleMultiNodeEtcdRaft:
+    <<: *ChannelDefaults
+    Capabilities:
+      <<: *ChannelCapabilities
+    Orderer:
+      <<: *OrdererDefaults
+      OrdererType: etcdraft
+      EtcdRaft:
+        Consenters:
+          - Host: orderer.certificate.com
+            Port: 7050
+            ClientTLSCert: crypto-config/ordererOrganizations/certificate.com/orderers/orderer.certificate.com/tls/server.crt
+            ServerTLSCert: crypto-config/ordererOrganizations/certificate.com/orderers/orderer.certificate.com/tls/server.crt
+          - Host: orderer2.certificate.com
+            Port: 8050
+            ClientTLSCert: crypto-config/ordererOrganizations/certificate.com/orderers/orderer2.certificate.com/tls/server.crt
+            ServerTLSCert: crypto-config/ordererOrganizations/certificate.com/orderers/orderer2.certificate.com/tls/server.crt
+          - Host: orderer3.certificate.com
+            Port: 9050
+            ClientTLSCert: crypto-config/ordererOrganizations/certificate.com/orderers/orderer3.certificate.com/tls/server.crt
+            ServerTLSCert: crypto-config/ordererOrganizations/certificate.com/orderers/orderer3.certificate.com/tls/server.crt
+          - Host: orderer4.certificate.com
+            Port: 10050
+            ClientTLSCert: crypto-config/ordererOrganizations/certificate.com/orderers/orderer4.certificate.com/tls/server.crt
+            ServerTLSCert: crypto-config/ordererOrganizations/certificate.com/orderers/orderer4.certificate.com/tls/server.crt
+          - Host: orderer5.certificate.com
+            Port: 11050
+            ClientTLSCert: crypto-config/ordererOrganizations/certificate.com/orderers/orderer5.certificate.com/tls/server.crt
+            ServerTLSCert: crypto-config/ordererOrganizations/certificate.com/orderers/orderer5.certificate.com/tls/server.crt
+      Addresses:
+        - orderer.certificate.com:7050
+        - orderer2.certificate.com:8050
+        - orderer3.certificate.com:9050
+        - orderer4.certificate.com:10050
+        - orderer5.certificate.com:11050
+
+      Organizations:
+        - *OrdererOrg
+      Capabilities:
+        <<: *OrdererCapabilities
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - <<: *OrdererOrg
+    Consortiums:
+      SampleConsortium:
+        Organizations:
+          - *Academy
+          - *Student

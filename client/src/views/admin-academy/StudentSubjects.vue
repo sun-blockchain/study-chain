@@ -1,0 +1,89 @@
+<template>
+  <div>
+    <div class="container-fluid">
+      <h1 class="h3 mb-2 text-gray-800">Quản Lý Môn Học</h1>
+      <p class="mb-4 mt-4"></p>
+      <div class="card shadow mb-4">
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-primary"></h6>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <b-table
+              show-empty
+              stacked="md"
+              :items="subjectOfStudent ? subjectOfStudent : []"
+              :fields="fields"
+              :current-page="currentPage"
+              :per-page="perPage"
+            >
+              <template slot="SubjectID" slot-scope="row">{{ row.item.SubjectID }}</template>
+
+              <template slot="Name" slot-scope="row">{{ row.item.Name }}</template>
+            </b-table>
+          </div>
+
+          <b-row>
+            <b-col md="6" class="my-1">
+              <b-pagination
+                :total-rows="subjectOfStudent ? subjectOfStudent.length : 0"
+                :per-page="perPage"
+                v-model="currentPage"
+                class="my-0"
+              />
+            </b-col>
+          </b-row>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { mapState, mapActions } from "vuex";
+export default {
+  data() {
+    return {
+      form: {
+        Name: ""
+      },
+      newSubject: {
+        Name: ""
+      },
+      infoModal: {
+        SubjectID: "info-modal"
+      },
+      fields: [
+        {
+          key: "SubjectID",
+          label: "SubjectID",
+          class: "text-center",
+          sortable: true
+        },
+        {
+          key: "Name",
+          label: "Name Subject",
+          class: "text-center",
+          sortable: true
+        }
+      ],
+      currentPage: 1,
+      perPage: 12,
+      pageOptions: [12, 24, 36]
+    };
+  },
+  computed: {
+    ...mapState("adminAcademy", ["subjectOfStudent"])
+  },
+  methods: {
+    ...mapActions("adminAcademy", ["getSubjectsOfStudent"]),
+    info(item, index, button) {
+      this.form.Name = item.Name;
+      this.$root.$emit("bv::show::modal", this.infoModal.SubjectID, button);
+    }
+  },
+  created() {
+    this.getSubjectsOfStudent(this.$route.params.id);
+  }
+};
+</script>

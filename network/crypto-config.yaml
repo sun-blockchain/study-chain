@@ -1,0 +1,24 @@
+OrdererOrgs:
+  - Name: Orderer
+    Domain: certificate.com
+    Specs:
+      - Hostname: orderer
+      - Hostname: orderer2
+      - Hostname: orderer3
+      - Hostname: orderer4
+      - Hostname: orderer5
+PeerOrgs:
+  - Name: Academy
+    Domain: academy.certificate.com
+    EnableNodeOUs: true
+    Template:
+      Count: 2
+    Users:
+      Count: 1
+  - Name: Student
+    Domain: student.certificate.com
+    EnableNodeOUs: true
+    Template:
+      Count: 2
+    Users:
+      Count: 1

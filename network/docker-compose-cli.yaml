@@ -1,0 +1,93 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+volumes:
+  orderer.certificate.com:
+  peer0.academy.certificate.com:
+  peer1.academy.certificate.com:
+  peer0.student.certificate.com:
+  peer1.student.certificate.com:
+
+networks:
+  certificate:
+
+services:
+  orderer.certificate.com:
+    extends:
+      file: base/docker-compose-base.yaml
+      service: orderer.certificate.com
+    container_name: orderer.certificate.com
+    networks:
+      - certificate
+
+  peer0.academy.certificate.com:
+    container_name: peer0.academy.certificate.com
+    extends:
+      file: base/docker-compose-base.yaml
+      service: peer0.academy.certificate.com
+    networks:
+      - certificate
+
+  peer1.academy.certificate.com:
+    container_name: peer1.academy.certificate.com
+    extends:
+      file: base/docker-compose-base.yaml
+      service: peer1.academy.certificate.com
+    networks:
+      - certificate
+
+  peer0.student.certificate.com:
+    container_name: peer0.student.certificate.com
+    extends:
+      file: base/docker-compose-base.yaml
+      service: peer0.student.certificate.com
+    networks:
+      - certificate
+
+  peer1.student.certificate.com:
+    container_name: peer1.student.certificate.com
+    extends:
+      file: base/docker-compose-base.yaml
+      service: peer1.student.certificate.com
+    networks:
+      - certificate
+
+  cli:
+    container_name: cli
+    image: hyperledger/fabric-tools:$IMAGE_TAG
+    tty: true
+    stdin_open: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=peer0.academy.certificate.com:7051
+      - CORE_PEER_LOCALMSPID=AcademyMSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/academy.certificate.com/peers/peer0.academy.certificate.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/academy.certificate.com/peers/peer0.academy.certificate.com/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/academy.certificate.com/peers/peer0.academy.certificate.com/tls/ca.crt
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/academy.certificate.com/users/Admin@academy.certificate.com/msp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./../chaincode/:/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode
+      - $GOPATH/src/github.com/hyperledger:/opt/gopath/src/github.com/hyperledger
+      - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+      - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+      - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+    depends_on:
+      - orderer.certificate.com
+      - peer0.academy.certificate.com
+      - peer1.academy.certificate.com
+      - peer0.student.certificate.com
+      - peer1.student.certificate.com
+    networks:
+      - certificate
