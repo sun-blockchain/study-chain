@@ -12,6 +12,14 @@ import (
 type SmartContract struct {
 }
 
+type Course struct {
+	CourseID    string
+	CourseCode  string
+	CourseName  string
+	Description string
+	Subjects    []string
+}
+
 type Subject struct {
 	SubjectID       string
 	Name            string
@@ -117,6 +125,12 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return GetScoresBySubject(stub, args)
 	} else if function == "GetScoresBySubjectOfTeacher" {
 		return GetScoresBySubjectOfTeacher(stub, args)
+	} else if function == "CreateCourse" {
+		return CreateCourse(stub, args)
+	} else if function == "QueryCourse" {
+		return QueryCourse(stub, args)
+	} else if function == "GetAllCourses" {
+		return GetAllCourses(stub)
 	}
 
 	return shim.Error("Invalid Smart Contract function name!")
@@ -269,6 +283,40 @@ func QuerySubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	}
 
 	return shim.Success(subjectAsBytes)
+}
+
+func QueryCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	var CourseID string
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	// MSPID, err := cid.GetMSPID(stub)
+
+	// if err != nil {
+	// 	shim.Error("Error - cid.GetMSPID()")
+	// }
+
+	// if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
+	// 	shim.Error("WHO ARE YOU ?")
+	// }
+
+	CourseID = args[0]
+
+	key := "Course-" + CourseID
+	courseAsBytes, err := stub.GetState(key)
+
+	if err != nil {
+		return shim.Error("Failed")
+	}
+
+	if courseAsBytes == nil {
+		return shim.Error("Course does not exist - " + args[0])
+	}
+
+	return shim.Success(courseAsBytes)
 }
 
 func QueryStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
@@ -482,6 +530,47 @@ func GetAllSubjects(stub shim.ChaincodeStubInterface) sc.Response {
 		subject := Subject{}
 		json.Unmarshal(record.Value, &subject)
 		tlist = append(tlist, subject)
+	}
+
+	jsonRow, err := json.Marshal(tlist)
+
+	if err != nil {
+		return shim.Error("Failed")
+	}
+
+	return shim.Success(jsonRow)
+}
+
+func GetAllCourses(stub shim.ChaincodeStubInterface) sc.Response {
+
+	// MSPID, err := cid.GetMSPID(stub)
+
+	// if err != nil {
+	// 	fmt.Println("Error - cid.GetMSPID()")
+	// }
+
+	// if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
+	// 	shim.Error("WHO ARE YOU ?")
+	// }
+
+	allCourses, _ := getListCourses(stub)
+
+	defer allCourses.Close()
+
+	var tlist []Course
+	var i int
+
+	for i = 0; allCourses.HasNext(); i++ {
+
+		record, err := allCourses.Next()
+
+		if err != nil {
+			return shim.Success(nil)
+		}
+
+		course := Course{}
+		json.Unmarshal(record.Value, &course)
+		tlist = append(tlist, course)
 	}
 
 	jsonRow, err := json.Marshal(tlist)

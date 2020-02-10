@@ -125,6 +125,45 @@ func CreateSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 	return shim.Success(nil)
 }
 
+func CreateCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		return shim.Error("Error - cide.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		return shim.Error("WHO ARE YOU")
+	}
+
+	if len(args) != 4 {
+		return shim.Error("Incorrect number of arguments. Expecting 4")
+	}
+
+	fmt.Println("Start Create Subject!")
+
+	CourseID := args[0]
+	CourseCode := args[1]
+	CourseName := args[2]
+	Description := args[3]
+
+	keyCourse := "Course-" + CourseID
+	checkCourseExist, err := getCourse(stub, keyCourse)
+
+	if err == nil {
+		fmt.Println(checkCourseExist)
+		return shim.Error("This course already exists - " + CourseID)
+	}
+
+	var course = Course{CourseID: CourseID, CourseCode: CourseCode, CourseName: CourseName, Description: Description, Subjects: nil}
+
+	courseAsBytes, _ := json.Marshal(course)
+
+	stub.PutState(keyCourse, courseAsBytes)
+
+	return shim.Success(nil)
+}
+
 func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	MSPID, err := cid.GetMSPID(stub)

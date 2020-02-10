@@ -80,6 +80,10 @@ Query All student with role academy admin:
 ```
 
 ```bash
+	node query.js --username=adminacademy --func=GetAllCourses
+```
+
+```bash
 	node query.js --username=adminacademy --func=GetAllSubjects
 ```
 
@@ -126,6 +130,10 @@ Query Score with role admin student with studentId and subjectId
 - argument {String} (optional: depend of function call)
 
 #### Example:
+
+```bash
+ node invoke.js --username=adminacademy --func=CreateCourse --coursecode=BC01 --coursename=Blockchain --description=Blockchain
+```
 
 ```bash
  node invoke.js --username=adminacademy --func=CreateSubject --subjectid=ethereum --subjectname=tantr
