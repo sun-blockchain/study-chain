@@ -97,9 +97,15 @@ if [ "${NO_CHAINCODE}" != "true" ]; then
 	## at first we package the chaincode
 	packageChaincode 1 0 1
 
-	## Install chaincode on peer0.academy and peer0.student
+	## Install chaincode on peer0.academy
 	echo "Installing chaincode on peer0.academy..."
 	installChaincode 0 1
+
+  ## Install chaincode on peer1.academy
+	echo "Installing chaincode on peer1.academy..."
+	installChaincode 1 1
+
+	## Install chaincode on peer0.student
 	echo "Install chaincode on peer0.student..."
 	installChaincode 0 2
 

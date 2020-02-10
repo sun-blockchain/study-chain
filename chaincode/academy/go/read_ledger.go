@@ -64,6 +64,25 @@ func getSubject(stub shim.ChaincodeStubInterface, compoundKey string) (Subject, 
 	return subject, nil
 }
 
+func getCourse(stub shim.ChaincodeStubInterface, compoundKey string) (Course, error) {
+
+	var course Course
+
+	courseAsBytes, err := stub.GetState(compoundKey)
+
+	if err != nil {
+		return course, errors.New("Failed to get course - " + compoundKey)
+	}
+
+	if courseAsBytes == nil {
+		return course, errors.New("Course does not exist - " + compoundKey)
+	}
+
+	json.Unmarshal(courseAsBytes, &course)
+
+	return course, nil
+}
+
 func getScore(stub shim.ChaincodeStubInterface, compoundKey string) (Score, error) {
 
 	var score Score
@@ -106,6 +125,19 @@ func getListSubjects(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorI
 
 	startKey := "Subject-"
 	endKey := "Subject-zzzzzzzz"
+
+	resultIter, err := stub.GetStateByRange(startKey, endKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return resultIter, nil
+}
+
+func getListCourses(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface, error) {
+
+	startKey := "Course-"
+	endKey := "Course-zzzzzzzz"
 
 	resultIter, err := stub.GetStateByRange(startKey, endKey)
 	if err != nil {

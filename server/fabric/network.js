@@ -153,12 +153,7 @@ exports.registerTeacherOnBlockchain = async function(networkObj, createdUser) {
   var nameMSP = 'Academy';
 
   try {
-    const ccpPath = path.resolve(
-      __dirname,
-      '../..',
-      'version2.0/network',
-      `connection-${orgMSP}.json`
-    );
+    const ccpPath = path.resolve(__dirname, '../..', 'network', `connection-${orgMSP}.json`);
     const walletPath = path.join(process.cwd(), `/cli/wallet/wallet-${orgMSP}`);
     const wallet = new FileSystemWallet(walletPath);
 
@@ -235,12 +230,7 @@ exports.registerStudentOnBlockchain = async function(createdUser) {
   var nameMSP = 'Student';
 
   try {
-    const ccpPath = path.resolve(
-      __dirname,
-      '../..',
-      'version2.0/network',
-      `connection-${orgMSP}.json`
-    );
+    const ccpPath = path.resolve(__dirname, '../..', 'network', `connection-${orgMSP}.json`);
     const walletPath = path.join(process.cwd(), `/cli/wallet/wallet-${orgMSP}`);
     const wallet = new FileSystemWallet(walletPath);
 
@@ -333,6 +323,37 @@ exports.createSubject = async function(networkObj, subject) {
       'CreateSubject',
       subject.subjectID,
       subject.subjectName
+    );
+    let response = {
+      success: true,
+      msg: 'Create success!'
+    };
+
+    await networkObj.gateway.disconnect();
+    return response;
+  } catch (error) {
+    let response = {
+      success: false,
+      msg: error
+    };
+    return response;
+  }
+};
+
+exports.createCourse = async function(networkObj, course) {
+  if (!course.courseID || !course.courseCode || !course.courseName) {
+    let response = {};
+    response.error = 'Error! You need to fill all fields before you can register!';
+    return response;
+  }
+
+  try {
+    await networkObj.contract.submitTransaction(
+      'CreateCourse',
+      course.courseID,
+      course.courseCode,
+      course.courseName,
+      course.description
     );
     let response = {
       success: true,
