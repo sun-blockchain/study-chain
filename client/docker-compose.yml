@@ -1,0 +1,7 @@
+version: "3.7"
+services:
+  app:
+    image: conglt/study-chain-client
+    ports:
+      - "80:80"
+    restart: unless-stopped

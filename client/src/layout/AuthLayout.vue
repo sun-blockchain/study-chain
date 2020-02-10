@@ -1,0 +1,80 @@
+<template>
+  <div class="main-content bg-default">
+    <div class="container">
+      <slide-y-up-transition mode="out-in" origin="center top">
+        <router-view></router-view>
+      </slide-y-up-transition>
+    </div>
+  </div>
+</template>
+<script>
+import { SlideYUpTransition } from "vue2-transitions";
+
+export default {
+  name: "auth-layout",
+  components: {
+    SlideYUpTransition
+  },
+  data() {
+    return {
+      year: new Date().getFullYear(),
+      showMenu: false
+    };
+  }
+};
+</script>
+<style >
+.btnSubmit {
+  width: 50%;
+  border-radius: 1rem;
+  padding: 1.5%;
+  border: none;
+  cursor: pointer;
+}
+
+.login-container {
+  margin-top: 5%;
+  margin-bottom: 5%;
+}
+.login-form-1 {
+  padding: 5%;
+  box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2), 0 9px 26px 0 rgba(0, 0, 0, 0.19);
+}
+.login-form-1 h3 {
+  text-align: center;
+  color: #333;
+}
+.login-form-2 {
+  padding: 5%;
+  background: #6dadf3;
+  box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2), 0 9px 26px 0 rgba(0, 0, 0, 0.19);
+}
+.login-form-2 h3 {
+  text-align: center;
+  color: #fff;
+}
+.login-container form {
+  padding: 10%;
+}
+
+.login-form-2 .btnSubmit {
+  font-weight: 600;
+  color: #0062cc;
+  background-color: #fff;
+}
+.login-form-2 .ForgetPwd {
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+.login-form-1 .ForgetPwd {
+  color: #0062cc;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-form-2 label {
+  color: #fff;
+}
+</style>
+
