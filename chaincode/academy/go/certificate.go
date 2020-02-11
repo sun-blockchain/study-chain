@@ -133,6 +133,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return GetAllCourses(stub)
 	} else if function == "EditCourseInfo" {
 		return EditCourseInfo(stub, args)
+	} else if function == "DeleteCourse" {
+		return DeleteCourse(stub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name!")
@@ -292,6 +294,38 @@ func EditCourseInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response
 		courseAsBytes, _ := json.Marshal(course)
 
 		stub.PutState(keyCourse, courseAsBytes)
+
+		return shim.Success(nil)
+	}
+}
+
+func DeleteCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		return shim.Error("Error - cide.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		return shim.Error("WHO ARE YOU")
+	}
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	CourseID := args[0]
+
+	keyCourse := "Course-" + CourseID
+	_, err = getCourse(stub, keyCourse)
+
+	if err != nil {
+
+		return shim.Error("Course does not exist !")
+
+	} else {
+
+		stub.DelState(keyCourse)
 
 		return shim.Success(nil)
 	}

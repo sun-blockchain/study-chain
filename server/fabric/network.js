@@ -402,6 +402,30 @@ exports.editCourseInfo = async function(networkObj, course) {
   }
 };
 
+exports.deleteCourse = async function(networkObj, courseID) {
+  if (!courseID) {
+    let response = {};
+    response.error = 'Error! You need to fill all fields before you can register!';
+    return response;
+  }
+
+  try {
+    await networkObj.contract.submitTransaction('DeleteCourse', courseID);
+    let response = {
+      success: true,
+      msg: 'Edit success!'
+    };
+    await networkObj.gateway.disconnect();
+    return response;
+  } catch (error) {
+    let response = {
+      success: false,
+      msg: error
+    };
+    return response;
+  }
+};
+
 exports.createScore = async function(networkObj, score) {
   if (!score.subjectID || !score.studentUsername || !score.scoreValue) {
     let response = {};
