@@ -66,6 +66,29 @@ async function main() {
           await conn.createCourse(networkObj, course);
           console.log('Transaction has been submitted');
           process.exit(0);
+        } else if (functionName === 'EditCourseInfo' && user.role === USER_ROLES.ADMIN_ACADEMY) {
+          /**
+           * Create Course
+           * @param  {String} courseid course id (required)
+           * @param  {String} coursecode course Code (required)
+           * @param  {String} coursename course Name (required)
+           * @param  {String} description course description (required)
+           */
+          let CourseID = argv.courseid.toString();
+          let CourseCode = argv.coursecode.toString();
+          let CourseName = argv.coursename.toString();
+          let Description = argv.description.toString();
+
+          let course = {
+            courseID: CourseID,
+            courseCode: CourseCode,
+            courseName: CourseName,
+            description: Description
+          };
+
+          await conn.editCourseInfo(networkObj, course);
+          console.log('Transaction has been submitted');
+          process.exit(0);
         } else if (functionName === 'CreateCertificate' && user.role === USER_ROLES.ADMIN_ACADEMY) {
           /**
            * Create Certificate
