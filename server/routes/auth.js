@@ -2,7 +2,7 @@ const router = require('express').Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
-const { check, validationResult } = require('express-validator');
+const { body, validationResult } = require('express-validator');
 let secretJWT = require('../configs/secret').secret;
 const USER_ROLES = require('../configs/constant').USER_ROLES;
 const network = require('../fabric/network');
@@ -15,13 +15,23 @@ const OAUTH_TYPES = require('../configs/constant').OAUTH_TYPES;
 router.post(
   '/register',
   [
-    check('username')
+    body('username')
       .not()
       .isEmpty()
       .trim()
       .escape(),
-    check('password').isLength({ min: 6 }),
-    check('fullname').isLength({ min: 6 })
+    body('password')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape()
+      .isLength({ min: 6 }),
+    body('fullname')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape()
+      .isLength({ min: 6 })
   ],
   async (req, res, next) => {
     const errors = validationResult(req);
@@ -71,12 +81,17 @@ router.post(
 router.post(
   '/login',
   [
-    check('username')
+    body('username')
       .not()
       .isEmpty()
       .trim()
       .escape(),
-    check('password').isLength({ min: 6 })
+    body('password')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape()
+      .isLength({ min: 6 })
   ],
   async (req, res, next) => {
     const errors = validationResult(req);
