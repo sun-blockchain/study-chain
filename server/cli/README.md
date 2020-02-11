@@ -34,7 +34,7 @@ enrollAdmin Org academy:
 Register 20156425 in studen (student):
 
 ```bash
-	node registerUser.js --username=20156425 --orgMSP=student --fullname=TrinhVanTan --password=123456
+	node registerUser.js --username=20156425 --orgMSP=student --password=123456 --fullname=TrinhVanTan
 ```
 
 Register GV00 in academy (teacher):

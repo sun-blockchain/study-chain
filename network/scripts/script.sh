@@ -143,8 +143,8 @@ if [ "${NO_CHAINCODE}" != "true" ]; then
 	chaincodeQuery 0 1 100
 
 	# Invoke chaincode on peer0.academy and peer0.student
-	echo "Sending invoke transaction on peer0.academy peer0.student..."
-	chaincodeInvoke 0 0 1 0 2
+	# echo "Sending invoke transaction on peer0.academy peer0.student..."
+	# chaincodeInvoke 0 0 1 0 2
 
 	# Query chaincode on peer0.academy
 	echo "Querying chaincode on peer0.academy..."

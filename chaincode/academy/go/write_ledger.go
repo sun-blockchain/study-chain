@@ -40,7 +40,7 @@ func CreateStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		return shim.Error("This student already exists - " + Username)
 	}
 
-	var student = Student{Username: Username, Fullname: Fullname, Subjects: nil}
+	var student = Student{Username: Username, Fullname: Fullname}
 
 	studentAsBytes, _ := json.Marshal(student)
 

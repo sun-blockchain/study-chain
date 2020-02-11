@@ -40,16 +40,17 @@ async function main() {
       username = argv.username.toString();
     }
 
+    if (!argv.fullname) {
+      console.log(`Fullname cannot undefined`);
+      return;
+    } else {
+      username = argv.fullname.toString();
+    }
+
     if (!argv.password) {
       console.log(`Password cannot undefined`);
     } else {
       password = argv.password.toString();
-    }
-
-    if (!argv.fullname) {
-      console.log(`Fullname cannot undefined`);
-    } else {
-      fullname = argv.fullname.toString();
     }
 
     if (argv.orgMSP) {
