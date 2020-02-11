@@ -460,7 +460,7 @@ chaincodeInvoke() {
     CCARGS='{"Args":[]}'
     INIT_ARG="--isInit"
   else
-    CCARGS='{"Args":["CreateStudent","20156426","TrinhVanTan"]}'
+    CCARGS='{"Args":["CreateStudent","St02","TrinhVanTan"]}'
     INIT_ARG=""
   fi
 

@@ -36,7 +36,17 @@ type Teacher struct {
 type Student struct {
 	Username string
 	Fullname string
-	Subjects []string
+	Info     Information
+	Courses  []string
+}
+
+type Information struct {
+	PhoneNumber string
+	Email       string
+	Address     string
+	Sex         string
+	Birthday    string
+	Avatar      string
 }
 
 type Score struct {
@@ -54,9 +64,9 @@ type Certificate struct {
 }
 
 func (s *SmartContract) Init(stub shim.ChaincodeStubInterface) sc.Response {
-	key := "Student-20156425"
+	key := "Student-St01"
 
-	var student = Student{Username: "St01", Fullname: "Trinh Van Tan", Subjects: nil}
+	var student = Student{Username: "St01", Courses: nil}
 
 	studentAsBytes, _ := json.Marshal(student)
 
@@ -205,54 +215,55 @@ func TeacherRegisterSubject(stub shim.ChaincodeStubInterface, args []string) sc.
 
 func StudentRegisterSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	var StudentUsername string
+	// var StudentUsername string
 
-	StudentUsername, ok, err := cid.GetAttributeValue(stub, "username")
+	// StudentUsername, ok, err := cid.GetAttributeValue(stub, "username")
 
-	if err != nil {
-		return shim.Error("Error - cid.GetAttributeValue()")
-	}
+	// if err != nil {
+	// 	return shim.Error("Error - cid.GetAttributeValue()")
+	// }
 
-	if ok == false {
-		return shim.Error("WHO ARE YOU")
-	}
+	// if ok == false {
+	// 	return shim.Error("WHO ARE YOU")
+	// }
 
-	SubjectID := args[0]
+	// SubjectID := args[0]
 
-	keySubject := "Subject-" + SubjectID
-	keyStudent := "Student-" + StudentUsername
+	// keySubject := "Subject-" + SubjectID
+	// keyStudent := "Student-" + StudentUsername
 
-	subject, err := getSubject(stub, keySubject)
+	// subject, err := getSubject(stub, keySubject)
 
-	if err != nil {
+	// if err != nil {
 
-		return shim.Error("Subject does not exist !")
+	// 	return shim.Error("Subject does not exist !")
 
-	} else {
+	// } else {
 
-		student, err := getStudent(stub, keyStudent)
+	// 	student, err := getStudent(stub, keyStudent)
 
-		if err != nil {
+	// 	if err != nil {
 
-			return shim.Error("Student does not exist !")
+	// 		return shim.Error("Student does not exist !")
 
-		} else {
+	// 	} else {
 
-			student.Subjects = append(student.Subjects, SubjectID)
+	// 		student.Subjects = append(student.Subjects, SubjectID)
 
-			subject.Students = append(subject.Students, StudentUsername)
+	// 		subject.Students = append(subject.Students, StudentUsername)
 
-			subjectAsBytes, _ := json.Marshal(subject)
+	// 		subjectAsBytes, _ := json.Marshal(subject)
 
-			studentAsBytes, _ := json.Marshal(student)
+	// 		studentAsBytes, _ := json.Marshal(student)
 
-			stub.PutState(keyStudent, studentAsBytes)
+	// 		stub.PutState(keyStudent, studentAsBytes)
 
-			stub.PutState(keySubject, subjectAsBytes)
+	// 		stub.PutState(keySubject, subjectAsBytes)
 
-			return shim.Success(nil)
-		}
-	}
+	// 		return shim.Success(nil)
+	// 	}
+	// }
+	return shim.Success(nil)
 }
 
 func EditCourseInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response {
@@ -430,8 +441,25 @@ func QueryStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	} else {
 
-		return shim.Success(studentAsBytes)
+		// infoAsBytes, err := stub.GetState("Info- Student- " + Username)
 
+		// if err != nil {
+		// 	return shim.Error("Failed")
+		// }
+
+		// if infoAsBytes == nil {
+		// 	return shim.Success(studentAsBytes)
+		// }
+
+		// student := Student{}
+		// json.Unmarshal(studentAsBytes, &student)
+		// info := Info{}
+		// json.Unmarshal(infoAsBytes, &info)
+		// student.Info = info
+
+		// jsonRow, err := json.Marshal(student)
+
+		return shim.Success(studentAsBytes)
 	}
 }
 
@@ -849,52 +877,53 @@ func GetMyCerts(stub shim.ChaincodeStubInterface) sc.Response {
 
 func GetMySubjects(stub shim.ChaincodeStubInterface) sc.Response {
 
-	MSPID, err := cid.GetMSPID(stub)
+	// MSPID, err := cid.GetMSPID(stub)
 
-	if err != nil {
-		return shim.Error("Error - cide.GetMSPID()")
-	}
+	// if err != nil {
+	// 	return shim.Error("Error - cide.GetMSPID()")
+	// }
 
-	if MSPID != "StudentMSP" {
-		return shim.Error("WHO ARE YOU ?")
-	}
+	// if MSPID != "StudentMSP" {
+	// 	return shim.Error("WHO ARE YOU ?")
+	// }
 
-	StudentUsername, ok, err := cid.GetAttributeValue(stub, "username")
+	// StudentUsername, ok, err := cid.GetAttributeValue(stub, "username")
 
-	if err != nil {
-		return shim.Error("Error - Can not Get StudentUsername")
-	}
+	// if err != nil {
+	// 	return shim.Error("Error - Can not Get StudentUsername")
+	// }
 
-	if !ok {
-		return shim.Error("WHO ARE YOU ?")
-	}
+	// if !ok {
+	// 	return shim.Error("WHO ARE YOU ?")
+	// }
 
-	student, err := getStudent(stub, "Student-"+StudentUsername)
+	// student, err := getStudent(stub, "Student-"+StudentUsername)
 
-	if err != nil {
-		return shim.Error("Student dose not exist - " + StudentUsername)
-	}
+	// if err != nil {
+	// 	return shim.Error("Student dose not exist - " + StudentUsername)
+	// }
 
-	var tlist []Subject
-	var i int
+	// var tlist []Subject
+	// var i int
 
-	for i = 0; i < len(student.Subjects); i++ {
+	// for i = 0; i < len(student.Subjects); i++ {
 
-		subject, err := getSubject(stub, "Subject-"+student.Subjects[i])
-		if err != nil {
-			return shim.Error("Subject does not exist - " + student.Subjects[i])
-		}
-		subject.Students = nil
-		tlist = append(tlist, subject)
-	}
+	// 	subject, err := getSubject(stub, "Subject-"+student.Subjects[i])
+	// 	if err != nil {
+	// 		return shim.Error("Subject does not exist - " + student.Subjects[i])
+	// 	}
+	// 	subject.Students = nil
+	// 	tlist = append(tlist, subject)
+	// }
 
-	jsonRow, err := json.Marshal(tlist)
+	// jsonRow, err := json.Marshal(tlist)
 
-	if err != nil {
-		return shim.Error("Failed")
-	}
+	// if err != nil {
+	// 	return shim.Error("Failed")
+	// }
 
-	return shim.Success(jsonRow)
+	// return shim.Success(jsonRow)
+	return shim.Success(nil)
 }
 
 func GetMyScores(stub shim.ChaincodeStubInterface) sc.Response {
@@ -966,38 +995,40 @@ func GetSubjectsByStudent(stub shim.ChaincodeStubInterface, args []string) sc.Re
 	// 	shim.Error("WHO ARE YOU ?")
 	// }
 
-	if len(args) != 1 {
-		return shim.Error("Incorrect number of arguments. Expecting 1")
-	}
+	// if len(args) != 1 {
+	// 	return shim.Error("Incorrect number of arguments. Expecting 1")
+	// }
 
-	StudentUsername := args[0]
+	// StudentUsername := args[0]
 
-	student, err := getStudent(stub, "Student-"+StudentUsername)
+	// student, err := getStudent(stub, "Student-"+StudentUsername)
 
-	if err != nil {
-		return shim.Error("Student dose not exist - " + StudentUsername)
-	}
+	// if err != nil {
+	// 	return shim.Error("Student dose not exist - " + StudentUsername)
+	// }
 
-	var tlist []Subject
-	var i int
+	// var tlist []Subject
+	// var i int
 
-	for i = 0; i < len(student.Subjects); i++ {
+	// for i = 0; i < len(student.Subjects); i++ {
 
-		subject, err := getSubject(stub, "Subject-"+student.Subjects[i])
-		if err != nil {
-			return shim.Error("Subject does not exist - " + student.Subjects[i])
-		}
-		subject.Students = nil
-		tlist = append(tlist, subject)
-	}
+	// 	subject, err := getSubject(stub, "Subject-"+student.Subjects[i])
+	// 	if err != nil {
+	// 		return shim.Error("Subject does not exist - " + student.Subjects[i])
+	// 	}
+	// 	subject.Students = nil
+	// 	tlist = append(tlist, subject)
+	// }
 
-	jsonRow, err := json.Marshal(tlist)
+	// jsonRow, err := json.Marshal(tlist)
 
-	if err != nil {
-		return shim.Error("Failed")
-	}
+	// if err != nil {
+	// 	return shim.Error("Failed")
+	// }
 
-	return shim.Success(jsonRow)
+	// return shim.Success(jsonRow)
+
+	return shim.Success(nil)
 }
 
 func GetCertificatesByStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
@@ -1234,38 +1265,39 @@ func GetStudentsBySubject(stub shim.ChaincodeStubInterface, args []string) sc.Re
 	// 	shim.Error("WHO ARE YOU ?")
 	// }
 
-	if len(args) != 1 {
-		return shim.Error("Incorrect number of arguments. Expecting 1")
-	}
+	// if len(args) != 1 {
+	// 	return shim.Error("Incorrect number of arguments. Expecting 1")
+	// }
 
-	SubjectID := args[0]
+	// SubjectID := args[0]
 
-	subject, err := getSubject(stub, "Subject-"+SubjectID)
+	// subject, err := getSubject(stub, "Subject-"+SubjectID)
 
-	if err != nil {
-		return shim.Error("Subject dose not exist - " + SubjectID)
-	}
+	// if err != nil {
+	// 	return shim.Error("Subject dose not exist - " + SubjectID)
+	// }
 
-	var tlist []Student
-	var i int
+	// var tlist []Student
+	// var i int
 
-	for i = 0; i < len(subject.Students); i++ {
+	// for i = 0; i < len(subject.Students); i++ {
 
-		student, err := getStudent(stub, "Student-"+subject.Students[i])
-		if err != nil {
-			return shim.Error("Student dose not exist - " + subject.Students[i])
-		}
-		student.Subjects = nil
-		tlist = append(tlist, student)
-	}
+	// 	student, err := getStudent(stub, "Student-"+subject.Students[i])
+	// 	if err != nil {
+	// 		return shim.Error("Student dose not exist - " + subject.Students[i])
+	// 	}
+	// 	student.Subjects = nil
+	// 	tlist = append(tlist, student)
+	// }
 
-	jsonRow, err := json.Marshal(tlist)
+	// jsonRow, err := json.Marshal(tlist)
 
-	if err != nil {
-		return shim.Error("Failed")
-	}
+	// if err != nil {
+	// 	return shim.Error("Failed")
+	// }
 
-	return shim.Success(jsonRow)
+	// return shim.Success(jsonRow)
+	return shim.Success(nil)
 }
 
 func GetCertificatesBySubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {

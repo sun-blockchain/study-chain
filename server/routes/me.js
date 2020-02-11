@@ -26,10 +26,13 @@ router.get('/', async (req, res) => {
         msg: response.msg
       });
     }
+    let student = JSON.parse(response.msg);
     return res.json({
       success: true,
-      username: response.msg.Username,
-      fullname: response.msg.Fullname
+      username: student.Username,
+      fullname: student.Fullname,
+      info: student.Info,
+      courses: student.Courses
     });
   } else if (user.role === USER_ROLES.TEACHER) {
     const networkObj = await network.connectToNetwork(user);

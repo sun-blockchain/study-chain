@@ -9,14 +9,15 @@ const UserSchema = new Schema({
     lowercase: true,
     match: [/^[a-zA-Z0-9]+$/, 'is invalid']
   },
-  fullname: {
-    type: String
-  },
   password: {
     type: String
   },
-  oauthType: Number,
-  role: Number
+  oauthType: {
+    type: Number
+  },
+  role: {
+    type: Number
+  }
 });
 
 UserSchema.pre('save', function(next) {

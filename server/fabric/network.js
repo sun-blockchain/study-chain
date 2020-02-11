@@ -263,7 +263,6 @@ exports.registerStudentOnBlockchain = async function(createdUser) {
       username: identity,
       oauthType: createdUser.oauthType,
       password: createdUser.password ? createdUser.password : '',
-      fullname: createdUser.fullname,
       role: USER_ROLES.STUDENT
     });
 
