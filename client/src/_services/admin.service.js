@@ -2,6 +2,10 @@ import { authHeader } from '../_helpers/auth-header.js';
 import axios from 'axios';
 
 export const adminService = {
+  createCourse,
+  updateCourse,
+  deleteCourse,
+  getAllCourses,
   getAllSubjects,
   createSubject,
   updateSubject,
@@ -20,7 +24,54 @@ export const adminService = {
   getCertificatesOfSubject,
   confirmCertificate
 };
+async function getAllCourses() {
+  try {
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/academy/courses`, {
+      headers: authHeader()
+    });
+    return respone.data.subjects;
+  } catch (error) {
+    throw error;
+  }
+}
+async function updateCourse(course) {
 
+  try {
+    let respone = await axios.put(`${process.env.VUE_APP_API_BACKEND}/academy/course`,
+    { courseId: course.CourseID ,courseCode: course.CourseCode,courseName: course.CourseName,description: course.Description },    
+    {
+      headers: authHeader()
+    });
+    return respone.data.subjects;
+  } catch (error) {
+    throw error;
+  }
+}
+async function deleteCourse(courseId) {
+  
+  try {
+    let respone = await axios.post(`${process.env.VUE_APP_API_BACKEND}/academy/deleteCourse`,{courseId:courseId}, {
+
+      headers: authHeader(),
+    });
+
+    return respone.data.subjects;
+  } catch (error) {
+    throw error;
+  }
+}
+async function createCourse(course) {
+  try {
+    let respone = await axios.post(`${process.env.VUE_APP_API_BACKEND}/academy/course`,
+    { courseCode: course.CourseCode,courseName: course.CourseName,description: course.Description },
+    {
+      headers: authHeader()
+    });
+    return respone.data.subjects;
+  } catch (error) {
+    throw error;
+  }
+}
 // Subjects Manager
 async function getAllSubjects() {
   try {

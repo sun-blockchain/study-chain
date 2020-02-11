@@ -2,6 +2,7 @@ import { adminService } from '../_services/admin.service';
 import { router } from '../router';
 
 const state = {
+  listCourses: [],
   listSubjects: [],
   listTeachers: [],
   listStudents: [],
@@ -12,6 +13,54 @@ const state = {
 };
 
 const actions = {
+  async getAllCourses({ commit }) {
+    try {
+      let listCourses = await adminService.getAllCourses();
+      commit('getAllCourses', listCourses);
+      return listCourses;
+    } catch (error) {
+      console.log(error);
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
+  },
+  async createCourse({ commit },course) {
+    try {
+      let listCourses = await adminService.createCourse(course);
+      commit('createCourse', listCourses);
+      return listCourses;
+    } catch (error) {
+      console.log(error);
+      // if (error.response.status === 403) {
+      //   router.push('/403');
+      // }
+    }
+  },
+  async updateCourse({ commit },course) {
+    try {
+      let listCourses = await adminService.updateCourse(course);
+      commit('updateCourse', listCourses);
+      return listCourses;
+    } catch (error) {
+      console.log(error);
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
+  },
+  async deleteCourse({ commit }, courseId) {
+    
+    try {
+      let listCourses = await adminService.deleteCourse(courseId);
+      commit('deleteCourse', listCourses);
+    } catch (error) {
+      console.log(error);
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
+  },
   // Subjects Manager
   async getAllSubjects({ commit }) {
     try {
@@ -224,6 +273,18 @@ const actions = {
 };
 
 const mutations = {
+  getAllCourses(state, listCourses) {
+    state.listCourses = listCourses;
+  },
+  createCourse(state, listCourses) {
+    state.listCourses = listCourses;
+  },
+  updateCourse(state, listCourses) {
+    state.listCourses = listCourses;
+  },
+  deleteCourse(state, listCourses) {
+    state.listCourses = listCourses;
+  },
   // Subjects Manager
   getAllSubjects(state, listSubjects) {
     state.listSubjects = listSubjects;
