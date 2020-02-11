@@ -7,6 +7,12 @@
       </router-link>
     </li>
     <li class="nav-item">
+      <router-link class="nav-link color-black" to="/academy/courses">
+        <i class="color-999 fas fa-book-open"></i>
+        Khóa Học
+      </router-link>
+    </li>
+    <li class="nav-item">
       <router-link class="nav-link color-black" to="/academy/subjects">
         <i class="color-999 fas fa-layer-group"></i>
         Môn Học
