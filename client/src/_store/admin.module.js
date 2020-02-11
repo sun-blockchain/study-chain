@@ -17,6 +17,7 @@ const actions = {
     try {
       let listSubjects = await adminService.getAllSubjects();
       commit('getAllSubjects', listSubjects);
+      return listSubjects;
     } catch (error) {
       console.log(error);
       if (error.response.status === 403) {
@@ -28,6 +29,7 @@ const actions = {
     try {
       let listSubjects = await adminService.createSubject(subject);
       commit('createSubject', listSubjects);
+      return listSubjects;
     } catch (error) {
       console.log(error);
       if (error.response.status === 403) {
