@@ -68,7 +68,7 @@ async function main() {
           process.exit(0);
         } else if (functionName === 'EditCourseInfo' && user.role === USER_ROLES.ADMIN_ACADEMY) {
           /**
-           * Create Course
+           * Edit Course Info
            * @param  {String} courseid course id (required)
            * @param  {String} coursecode course Code (required)
            * @param  {String} coursename course Name (required)
@@ -87,6 +87,16 @@ async function main() {
           };
 
           await conn.editCourseInfo(networkObj, course);
+          console.log('Transaction has been submitted');
+          process.exit(0);
+        } else if (functionName === 'DeleteCourse' && user.role === USER_ROLES.ADMIN_ACADEMY) {
+          /**
+           * Delete Course
+           * @param  {String} courseid course Id (required)
+           */
+
+          let CourseID = argv.courseid.toString();
+          await conn.deleteCourse(networkObj, CourseID);
           console.log('Transaction has been submitted');
           process.exit(0);
         } else if (functionName === 'CreateCertificate' && user.role === USER_ROLES.ADMIN_ACADEMY) {
