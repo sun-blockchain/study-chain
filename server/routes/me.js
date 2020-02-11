@@ -23,7 +23,7 @@ router.get('/', async (req, res) => {
     if (!response.success) {
       return res.status(500).json({
         success: false,
-        msg: response.msg
+        msg: response.msg.toString()
       });
     }
     let student = JSON.parse(response.msg);
@@ -52,10 +52,12 @@ router.get('/', async (req, res) => {
         msg: response.msg.toString()
       });
     }
+    let teacher = JSON.parse(response.msg);
     return res.json({
       success: true,
-      username: response.msg.Username,
-      fullname: response.msg.Fullname
+      username: teacher.Username,
+      fullname: teacher.Fullname,
+      info: teacher.Info
     });
   } else if (user.role === USER_ROLES.ADMIN_ACADEMY || user.role === USER_ROLES.ADMIN_STUDENT) {
     return res.json({ success: true, username: user.username, role: user.role });

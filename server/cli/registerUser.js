@@ -44,7 +44,7 @@ async function main() {
       console.log(`Fullname cannot undefined`);
       return;
     } else {
-      username = argv.fullname.toString();
+      fullname = argv.fullname.toString();
     }
 
     if (!argv.password) {

@@ -66,7 +66,7 @@ async function main() {
           await conn.createCourse(networkObj, course);
           console.log('Transaction has been submitted');
           process.exit(0);
-        } else if (functionName === 'EditCourseInfo' && user.role === USER_ROLES.ADMIN_ACADEMY) {
+        } else if (functionName === 'UpdateCourseInfo' && user.role === USER_ROLES.ADMIN_ACADEMY) {
           /**
            * Edit Course Info
            * @param  {String} courseid course id (required)
@@ -86,7 +86,7 @@ async function main() {
             description: Description
           };
 
-          await conn.editCourseInfo(networkObj, course);
+          await conn.updateCourseInfo(networkObj, course);
           console.log('Transaction has been submitted');
           process.exit(0);
         } else if (functionName === 'DeleteCourse' && user.role === USER_ROLES.ADMIN_ACADEMY) {
@@ -97,6 +97,35 @@ async function main() {
 
           let CourseID = argv.courseid.toString();
           await conn.deleteCourse(networkObj, CourseID);
+          console.log('Transaction has been submitted');
+          process.exit(0);
+        } else if (
+          functionName === 'UpdateUserInfo' &&
+          (user.role === USER_ROLES.STUDENT || user.role === USER_ROLES.TEACHER)
+        ) {
+          /**
+           * Update User Info
+           */
+          let Fullname = argv.fullname ? argv.fullname.toString() : '';
+          let PhoneNumber = argv.phonenumber ? argv.phonenumber.toString() : '';
+          let Email = argv.email ? argv.email.toString() : '';
+          let Address = argv.email ? argv.address.toString() : '';
+          let Sex = argv.sex ? argv.email.toString() : '';
+          let Birthday = argv.birthday ? argv.birthday.toString() : '';
+          let Avatar = argv.avatar ? argv.avatar.toString() : '';
+
+          let updatedUser = {
+            username: user.username,
+            fullname: Fullname,
+            phoneNumber: PhoneNumber,
+            email: Email,
+            address: Address,
+            sex: Sex,
+            birthday: Birthday,
+            avatar: Avatar
+          };
+
+          await conn.updateUserInfo(networkObj, updatedUser);
           console.log('Transaction has been submitted');
           process.exit(0);
         } else if (functionName === 'CreateCertificate' && user.role === USER_ROLES.ADMIN_ACADEMY) {
