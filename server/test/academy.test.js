@@ -94,6 +94,83 @@ describe('#GET /academy/courses', () => {
   });
 });
 
+describe('#GET /academy/course/:courseId', () => {
+  let connect;
+  let query;
+  let courseId = '4ca7fc39-7523-424d-984e-87ea590cac68';
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+  });
+
+  it('permission denied when access routes with student', (done) => {
+    request(app)
+      .get(`/academy/course/${courseId}`)
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('permission denied when access routes with teacher', (done) => {
+    request(app)
+      .get(`/academy/course/${courseId}`)
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('success query all courses', (done) => {
+    let data = JSON.stringify({
+      CourseID: '4ca7fc39-7523-424d-984e-87ea590cac68',
+      CourseName: 'Blockchain101',
+      CourseCode: 'BC101',
+      Description: 'Blockchain'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .get(`/academy/course/${courseId}`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        done();
+      });
+  });
+
+  it('do not success query all courses because error query chaincode', (done) => {
+    query.returns({
+      success: false,
+      msg: 'Error query chaincode'
+    });
+
+    request(app)
+      .get(`/academy/course/${courseId}`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+});
+
 describe('#PUT /academy/course', () => {
   let connect;
   let query;

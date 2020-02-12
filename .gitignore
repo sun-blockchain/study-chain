@@ -2,4 +2,4 @@
 /vendor
 go.mod
 go.sum
-fabric-samples
+fabric-samples/

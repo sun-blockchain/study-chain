@@ -29,7 +29,7 @@ async function getAllCourses() {
     let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/academy/courses`, {
       headers: authHeader()
     });
-    return respone.data.subjects;
+    return respone.data.courses;
   } catch (error) {
     throw error;
   }
@@ -48,7 +48,7 @@ async function updateCourse(course) {
         headers: authHeader()
       }
     );
-    return respone.data.subjects;
+    return respone.data.courses;
   } catch (error) {
     throw error;
   }
@@ -63,7 +63,7 @@ async function deleteCourse(courseId) {
       }
     );
 
-    return respone.data.subjects;
+    return respone.data.courses;
   } catch (error) {
     throw error;
   }
@@ -81,7 +81,7 @@ async function createCourse(course) {
         headers: authHeader()
       }
     );
-    return respone.data.subjects;
+    return respone.data.courses;
   } catch (error) {
     throw error;
   }
