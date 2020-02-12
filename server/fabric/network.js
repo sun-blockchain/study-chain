@@ -412,7 +412,7 @@ exports.deleteCourse = async function(networkObj, courseID) {
     await networkObj.contract.submitTransaction('DeleteCourse', courseID);
     let response = {
       success: true,
-      msg: 'Edit success!'
+      msg: 'Delete success!'
     };
     await networkObj.gateway.disconnect();
     return response;

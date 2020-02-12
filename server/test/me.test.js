@@ -79,17 +79,20 @@ describe('GET /account/me/', () => {
   });
 
   it('success query info of user student', (done) => {
-    query.withArgs('QueryStudent');
     connect.returns({ error: null });
+
+    let data = JSON.stringify({
+      Username: 'hoangdd',
+      Fullname: 'Do Hoang',
+      Info: { Avatar: 'https://google.com', Sex: 'Male', Phone: '123456789' },
+      Courses: 'Blockchain101'
+    });
 
     query.returns({
       success: true,
-      msg: {
-        Username: 'hoangdd',
-        Fullname: 'Do Hoang',
-        Subjects: ['1', '2']
-      }
+      msg: data
     });
+
     request(app)
       .get('/account/me')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
@@ -381,7 +384,7 @@ describe('POST /account/me/createscore', () => {
       .post('/account/me/createscore')
       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
       .send({
-        subjectID: '123',
+        subjectId: '123',
         studentUsername: 'tantrinh',
         scoreValue: '9.0'
       })
@@ -399,7 +402,7 @@ describe('POST /account/me/createscore', () => {
       .post('/account/me/createscore')
       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
       .send({
-        subjectID: '123',
+        subjectId: '123',
         studentUsername: 'tantrinh',
         scoreValue: ''
       })
@@ -417,7 +420,7 @@ describe('POST /account/me/createscore', () => {
       .post('/account/me/createscore')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        subjectID: '123',
+        subjectId: '123',
         studentUsername: 'tantrinh',
         scoreValue: '9.0'
       })
@@ -435,7 +438,7 @@ describe('POST /account/me/createscore', () => {
       .post('/account/me/createscore')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
-        subjectID: '123',
+        subjectId: '123',
         studentUsername: 'tantrinh',
         scoreValue: '9.0'
       })
@@ -453,7 +456,7 @@ describe('POST /account/me/createscore', () => {
       .post('/account/me/createscore')
       .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
       .send({
-        subjectID: '123',
+        subjectId: '123',
         studentUsername: 'tantrinh',
         scoreValue: '9.0'
       })

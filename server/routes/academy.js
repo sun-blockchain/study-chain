@@ -81,13 +81,6 @@ router.put(
         description: description
       };
 
-      if (!courseId || !courseCode || !courseName || !description) {
-        return res.status(400).json({
-          success: false,
-          msg: 'Data can not empty'
-        });
-      }
-
       const response = await network.editCourseInfo(networkObj, course);
 
       if (!response.success) {
@@ -112,11 +105,6 @@ router.post(
   '/course',
   checkJWT,
   [
-    body('courseId')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape(),
     body('courseCode')
       .not()
       .isEmpty()
@@ -150,13 +138,6 @@ router.post(
       const networkObj = await network.connectToNetwork(user);
 
       const { courseCode, courseName, description } = req.body;
-
-      if (!courseCode || !courseName || !description) {
-        return res.status(400).json({
-          success: false,
-          msg: 'Data can not empty'
-        });
-      }
 
       let course = {
         courseID: uuidv4(),
@@ -209,13 +190,6 @@ router.post(
       const networkObj = await network.connectToNetwork(user);
 
       const { courseId } = req.body;
-
-      if (!courseId) {
-        return res.status(400).json({
-          success: false,
-          msg: 'Please choose course to delete'
-        });
-      }
 
       const response = await network.deleteCourse(networkObj, courseId);
       console.log(response);
