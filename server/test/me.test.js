@@ -104,17 +104,18 @@ describe('GET /account/me/', () => {
   });
 
   it('success query info of user teacher', (done) => {
-    query.withArgs('QueryTeacher');
     connect.returns({ error: null });
+    let data = JSON.stringify({
+      Username: 'hoangdd',
+      Fullname: 'Do Hoang',
+      Info: { Avatar: 'https://google.com', Sex: 'Male', Phone: '123456789' }
+    });
 
     query.returns({
       success: true,
-      msg: {
-        Username: 'hoangdd',
-        Fullname: 'Do Hoang',
-        Subjects: ['1', '2']
-      }
+      msg: data
     });
+
     request(app)
       .get('/account/me')
       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)

@@ -81,7 +81,7 @@ router.put(
         description: description
       };
 
-      const response = await network.editCourseInfo(networkObj, course);
+      const response = await network.updateCourseInfo(networkObj, course);
 
       if (!response.success) {
         return res.status(500).json({
