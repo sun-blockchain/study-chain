@@ -10,7 +10,12 @@
       :btnEdit="true"
       :nameFunctionEdit="`modalEdit`"
       :btnDelete="true"
-      :listProperties="[{prop:'SubjectID', label:'SubjectID' },{prop:'Name', label:'Name' } ]"
+      :nameFunctionDelete="`delSubject`"
+      :listProperties="[
+        { prop: 'SubjectID', label: 'SubjectID' },
+        { prop: 'Name', label: 'Name Subject' }
+      ]"
+      @delSubject="delSubject($event)"
       @detailSubject="detailSubject($event)"
       @modalEdit="modalEdit($event)"
     ></table-admin>
@@ -29,10 +34,12 @@
               <b-form-input
                 type="text"
                 v-model="editSubject.Name"
-                :state="errors[0] ? false : (valid ? true : null)"
+                :state="errors[0] ? false : valid ? true : null"
                 placeholder="Subject Name"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{ errors[0] }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
         </b-form>
@@ -54,10 +61,12 @@
               <b-form-input
                 type="text"
                 v-model="newSubject.Name"
-                :state="errors[0] ? false : (valid ? true : null)"
+                :state="errors[0] ? false : valid ? true : null"
                 placeholder="Subject Name"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{ errors[0] }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
         </b-form>
@@ -67,9 +76,9 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
-import { ValidationObserver, ValidationProvider } from "vee-validate";
-import TableAdmin from "@/components/admin-academy/TableAdmin";
+import { mapState, mapActions } from 'vuex';
+import { ValidationObserver, ValidationProvider } from 'vee-validate';
+import TableAdmin from '@/components/admin-academy/TableAdmin';
 export default {
   components: {
     ValidationObserver,
@@ -79,82 +88,79 @@ export default {
   data() {
     return {
       editSubject: {
-        Name: ""
+        Name: ''
       },
       newSubject: {
-        Name: ""
+        Name: ''
       },
       fullscreenLoading: false,
       loadingData: true
     };
   },
   methods: {
-    ...mapActions("adminAcademy", [
-      "getAllSubjects",
-      "createSubject",
-      "updateSubject",
-      "deleteSubject"
+    ...mapActions('adminAcademy', [
+      'getAllSubjects',
+      'createSubject',
+      'updateSubject',
+      'deleteSubject'
     ]),
     detailSubject(row) {
       this.$router.push({ path: `subjects/${row.SubjectID}/students` });
     },
     modalEdit(row) {
-      console.log(row);
-      this.editSubject.Name = item.Name;
-      this.$root.$emit("bv::show::modal", this.infoModal.id, button);
+      this.editSubject.Name = row.Name;
+      this.$root.$emit('bv::show::modal', 'modal-edit');
     },
     async handleCreate() {
       this.fullscreenLoading = true;
       let response = await this.createSubject(this.newSubject);
       if (response) {
-        this.$refs["modal-create"].hide();
+        this.$refs['modal-create'].hide();
         await this.resetInfoModalCreate();
       }
       this.fullscreenLoading = false;
     },
     async handleUpdate() {
-      this.$refs["modal-edit"].hide();
+      this.$refs['modal-edit'].hide();
       await this.updateSubject(this.editSubject);
       await this.resetInfoModalEdit();
     },
     resetInfoModalEdit() {
-      this.editSubject.Name = "";
+      this.editSubject.Name = '';
     },
     resetInfoModalCreate() {
-      this.newSubject.Name = "";
+      this.newSubject.Name = '';
       requestAnimationFrame(() => {
         this.$refs.observer.reset();
       });
     },
     delSubject(subject) {
       this.$swal({
-        title: "Are you sure?",
+        title: 'Are you sure?',
         text: "You won't be able to revert this!",
-        type: "warning",
+        type: 'warning',
         showCancelButton: true,
-        cancelButtonColor: "#d33",
-        confirmButtonColor: "#28a745",
-        confirmButtonText: "Yes, delete it!",
+        cancelButtonColor: '#d33',
+        confirmButtonColor: '#28a745',
+        confirmButtonText: 'Yes, delete it!',
         reverseButtons: true
-      }).then(result => {
+      }).then((result) => {
         if (result.value) {
           this.deleteSubject(subject);
-          this.$swal("Deleted!", "Your file has been deleted.", "success");
+          this.$swal('Deleted!', 'Your file has been deleted.', 'success');
         }
       });
     },
     btnCreate(item, button) {
-      this.$root.$emit("bv::show::modal", button);
+      this.$root.$emit('bv::show::modal', button);
     }
   },
   computed: {
-    ...mapState("adminAcademy", ["listSubjects"])
+    ...mapState('adminAcademy', ['listSubjects'])
   },
   async created() {
-    let response = await this.getAllSubjects();
-    if (response) {
-      this.loadingData = false;
-    }
+    await this.getAllSubjects();
+    this.loadingData = false;
   }
 };
 </script>

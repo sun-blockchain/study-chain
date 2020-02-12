@@ -35,25 +35,33 @@ async function getAllCourses() {
   }
 }
 async function updateCourse(course) {
-
   try {
-    let respone = await axios.put(`${process.env.VUE_APP_API_BACKEND}/academy/course`,
-    { courseId: course.CourseID ,courseCode: course.CourseCode,courseName: course.CourseName,description: course.Description },    
-    {
-      headers: authHeader()
-    });
+    let respone = await axios.put(
+      `${process.env.VUE_APP_API_BACKEND}/academy/course`,
+      {
+        courseId: course.CourseID,
+        courseCode: course.CourseCode,
+        courseName: course.CourseName,
+        description: course.Description
+      },
+      {
+        headers: authHeader()
+      }
+    );
     return respone.data.subjects;
   } catch (error) {
     throw error;
   }
 }
 async function deleteCourse(courseId) {
-  
   try {
-    let respone = await axios.post(`${process.env.VUE_APP_API_BACKEND}/academy/deleteCourse`,{courseId:courseId}, {
-
-      headers: authHeader(),
-    });
+    let respone = await axios.post(
+      `${process.env.VUE_APP_API_BACKEND}/academy/deleteCourse`,
+      { courseId: courseId },
+      {
+        headers: authHeader()
+      }
+    );
 
     return respone.data.subjects;
   } catch (error) {
@@ -62,11 +70,17 @@ async function deleteCourse(courseId) {
 }
 async function createCourse(course) {
   try {
-    let respone = await axios.post(`${process.env.VUE_APP_API_BACKEND}/academy/course`,
-    { courseCode: course.CourseCode,courseName: course.CourseName,description: course.Description },
-    {
-      headers: authHeader()
-    });
+    let respone = await axios.post(
+      `${process.env.VUE_APP_API_BACKEND}/academy/course`,
+      {
+        courseCode: course.CourseCode,
+        courseName: course.CourseName,
+        description: course.Description
+      },
+      {
+        headers: authHeader()
+      }
+    );
     return respone.data.subjects;
   } catch (error) {
     throw error;
@@ -144,10 +158,10 @@ async function getStudentsOfSubject(subjectId) {
   }
 }
 
-async function deleteStudentOfSubject(subjectId, Username) {
+async function deleteStudentOfSubject(SubjectID, Username) {
   try {
     let respone = await axios.delete(
-      `${process.env.VUE_APP_API_BACKEND}/subject/${subjectId}/delete/${Username}`,
+      `${process.env.VUE_APP_API_BACKEND}/subject/${SubjectID}/delete/${Username}`,
       {
         headers: authHeader()
       }
@@ -198,13 +212,31 @@ async function deleteTeacher(teacher) {
 //  Subjects of Teacher
 async function getSubjectsOfTeacher(username) {
   try {
-    let respone = await axios.get(
-      `${process.env.VUE_APP_API_BACKEND}/account/teacher/${username}/subjects`,
-      {
-        headers: authHeader()
-      }
-    );
-    return respone.data;
+    // let respone = await axios.get(
+    //   `${process.env.VUE_APP_API_BACKEND}/account/teacher/${username}/subjects`,
+    //   {
+    //     headers: authHeader()
+    //   }
+    // );
+    // return respone.data;
+    return {
+      success: true,
+      subjects: [
+        {
+          SubjectID: '61e3b1bb-77a7-4830-bbd2-23b35fcc24eb',
+          Name: 'Hyperledger',
+          TeacherUsername: 'Teacher01',
+          Students: ['st01']
+        },
+        {
+          SubjectID: '65640531-cc2f-4967-9b30-c548c7190c2e',
+          Name: 'a',
+          TeacherUsername: 'Teacher01',
+          Students: null
+        }
+      ],
+      subjectsNoTeacher: []
+    };
   } catch (error) {
     throw error;
   }
@@ -267,13 +299,27 @@ async function getAllStudents() {
 // Subjects of student
 async function getSubjectsOfStudent(username) {
   try {
-    let respone = await axios.get(
-      `${process.env.VUE_APP_API_BACKEND}/account/student/${username}/subjects`,
+    // let respone = await axios.get(
+    //   `${process.env.VUE_APP_API_BACKEND}/account/student/${username}/subjects`,
+    //   {
+    //     headers: authHeader()
+    //   }
+    // );
+    // return respone.data.subjects;
+    return [
       {
-        headers: authHeader()
+        SubjectID: '61e3b1bb-77a7-4830-bbd2-23b35fcc24eb',
+        Name: 'Hyperledger',
+        TeacherUsername: 'Teacher01',
+        Students: ['st01']
+      },
+      {
+        SubjectID: '65640531-cc2f-4967-9b30-c548c7190c2e',
+        Name: 'a',
+        TeacherUsername: 'Teacher01',
+        Students: null
       }
-    );
-    return respone.data.subjects;
+    ];
   } catch (error) {
     throw error;
   }
@@ -281,13 +327,39 @@ async function getSubjectsOfStudent(username) {
 
 // Student Subject Certificate
 async function getCertificatesOfSubject(subjectId) {
-  let respone = await axios.get(
-    `${process.env.VUE_APP_API_BACKEND}/subject/${subjectId}/certificates`,
-    {
-      headers: authHeader()
-    }
-  );
-  return respone.data;
+  // let respone = await axios.get(
+  //   `${process.env.VUE_APP_API_BACKEND}/subject/${subjectId}/certificates`,
+  //   {
+  //     headers: authHeader()
+  //   }
+  // );
+  // return respone.data;
+  return {
+    success: true,
+    students: [
+      {
+        Username: 'st00',
+        Fullname: 'student00',
+        Subjects: null,
+        statusCertificate: 0,
+        ScoreValue: 10
+      },
+      {
+        Username: 'st01',
+        Fullname: 'student01',
+        Subjects: null,
+        statusCertificate: 1,
+        ScoreValue: 10
+      },
+      {
+        Username: 'st02',
+        Fullname: 'student02',
+        Subjects: null,
+        statusCertificate: 2,
+        ScoreValue: 10
+      }
+    ]
+  };
 }
 
 async function confirmCertificate(studentUsername, subjectId) {
