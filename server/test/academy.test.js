@@ -97,18 +97,18 @@ describe('#GET /academy/courses', () => {
 describe('#PUT /academy/course', () => {
   let connect;
   let query;
-  let editCourse;
+  let updateCourseInfo;
 
   beforeEach(() => {
     connect = sinon.stub(network, 'connectToNetwork');
     query = sinon.stub(network, 'query');
-    editCourse = sinon.stub(network, 'editCourseInfo');
+    updateCourseInfo = sinon.stub(network, 'updateCourseInfo');
   });
 
   afterEach(() => {
     connect.restore();
     query.restore();
-    editCourse.restore();
+    updateCourseInfo.restore();
   });
 
   it('permission denied when access routes with student', (done) => {
@@ -149,7 +149,7 @@ describe('#PUT /academy/course', () => {
       }
     );
 
-    editCourse.returns({
+    updateCourseInfo.returns({
       success: true,
       msg: 'Edit success!'
     });
@@ -192,7 +192,7 @@ describe('#PUT /academy/course', () => {
   });
 
   it('edit course info fail when call editCouseInfo function', (done) => {
-    editCourse.returns({
+    updateCourseInfo.returns({
       success: false,
       msg: 'Error chaincode'
     });
