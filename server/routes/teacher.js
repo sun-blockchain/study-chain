@@ -2,18 +2,18 @@ const router = require('express').Router();
 const USER_ROLES = require('../configs/constant').USER_ROLES;
 const network = require('../fabric/network');
 const User = require('../models/User');
-const { check, validationResult, sanitizeParam } = require('express-validator');
+const { body, validationResult } = require('express-validator');
 
 router.post(
   '/create',
   [
-    check('username')
+    body('username')
       .not()
       .isEmpty()
       .trim()
       .escape(),
 
-    check('fullname')
+    body('fullname')
       .isLength({ min: 6 })
       .not()
       .isEmpty()
@@ -101,56 +101,48 @@ router.get('/all', async (req, res, next) => {
   });
 });
 
-router.get(
-  '/:username',
-  [
-    sanitizeParam('username')
-      .trim()
-      .escape()
-  ],
-  async (req, res, next) => {
-    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
-      return res.status(403).json({
+router.get('/:username', async (req, res, next) => {
+  if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
+    return res.status(403).json({
+      success: false,
+      msg: 'Permission Denied'
+    });
+  }
+
+  let username = req.params.username;
+
+  try {
+    let teacher = await User.findOne({ username: username, role: USER_ROLES.TEACHER });
+
+    if (!teacher) {
+      res.status(404).json({
         success: false,
-        msg: 'Permission Denied'
+        msg: 'teacher is not exists'
       });
     }
 
-    let username = req.params.username;
+    const networkObj = await network.connectToNetwork(req.decoded.user);
+    const response = await network.query(networkObj, 'QueryTeacher', username);
+    let subjects = await network.query(networkObj, 'GetSubjectsByTeacher', username);
 
-    try {
-      let teacher = await User.findOne({ username: username, role: USER_ROLES.TEACHER });
-
-      if (!teacher) {
-        res.status(404).json({
-          success: false,
-          msg: 'teacher is not exists'
-        });
-      }
-
-      const networkObj = await network.connectToNetwork(req.decoded.user);
-      const response = await network.query(networkObj, 'QueryTeacher', username);
-      let subjects = await network.query(networkObj, 'GetSubjectsByTeacher', username);
-
-      if (!response.success || !subjects.success) {
-        return res.status(500).json({
-          success: false,
-          msg: response.msg.toString()
-        });
-      }
-      return res.json({
-        success: true,
-        msg: response.msg.toString(),
-        subjects: JSON.parse(subjects.msg)
-      });
-    } catch (error) {
+    if (!response.success || !subjects.success) {
       return res.status(500).json({
         success: false,
-        msg: 'Internal Server Error'
+        msg: response.msg.toString()
       });
     }
+    return res.json({
+      success: true,
+      msg: response.msg.toString(),
+      subjects: JSON.parse(subjects.msg)
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      msg: 'Internal Server Error'
+    });
   }
-);
+});
 
 router.get('/:username/subjects', async (req, res, next) => {
   if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {

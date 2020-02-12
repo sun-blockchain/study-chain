@@ -1,16 +1,17 @@
 <template>
   <div>
     <div class="container-fluid">
-      <h1 class="h3 mb-2 text-gray-800">{{title}}</h1>
+      <h1 class="h3 mb-2 text-gray-800">{{ title }}</h1>
       <p class="mb-4 mt-4"></p>
-      <div class="card shadow mb-4">
+      <div class="card shadow mb-4 border-radius-15px">
         <div class="card-header py-3">
           <h6 class="m-0 font-weight-bold text-primary">
             <el-button
               v-if="btnCreate"
               type="success"
               icon="fas fa-plus"
-              circle
+              size="medium"
+              round
               v-b-modal.modal-create
             ></el-button>
             <div v-else class="box-defaul-header"></div>
@@ -26,6 +27,7 @@
               :data="listPagination"
             >
               <el-table-column
+                sortable
                 v-for="(attibute, index) in listProperties"
                 :label="attibute.label"
                 :prop="attibute.prop"
@@ -44,10 +46,19 @@
                   <el-tooltip v-if="btnDetail" class="item" content="Detail" placement="top">
                     <el-button
                       plain
-                      icon="el-icon-info"
+                      icon="fas fa-layer-group"
                       round
                       size="mini"
                       @click="callFunctionDetail(scope.row)"
+                    ></el-button>
+                  </el-tooltip>
+                  <el-tooltip v-if="btnInfo" class="item" content="Information" placement="top">
+                    <el-button
+                      icon="fa fa-info"
+                      type="info"
+                      round
+                      size="mini"
+                      @click="callFunctionInfo(scope.row)"
                     ></el-button>
                   </el-tooltip>
                   <el-tooltip v-if="btnEdit" class="item" content="Edit" placement="top">
@@ -67,6 +78,35 @@
                       round
                       @click="callFunctionDelete(scope.row)"
                     ></el-button>
+                  </el-tooltip>
+                  <el-tooltip
+                    v-if="btnConfirm && scope.row.statusCertificate === STATUS_CERT.NO_CERT"
+                    class="item"
+                    content="Confirm"
+                    placement="top"
+                  >
+                    <el-button
+                      size="mini"
+                      type="success"
+                      icon="el-icon-check"
+                      round
+                      @click="callFunctionConfirm(scope.row)"
+                    ></el-button>
+                  </el-tooltip>
+                  <el-tooltip
+                    v-if="btnCert && scope.row.statusCertificate === STATUS_CERT.CERTIFICATED"
+                    class="item"
+                    content="Certificated"
+                    placement="top"
+                  >
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      icon="fas fa-graduation-cap"
+                      round
+                      @click="callFunctionCert(scope.row)"
+                    >
+                    </el-button>
                   </el-tooltip>
                 </template>
               </el-table-column>
@@ -95,10 +135,11 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
-import { ValidationObserver, ValidationProvider } from "vee-validate";
+import { mapState, mapActions } from 'vuex';
+import { ValidationObserver, ValidationProvider } from 'vee-validate';
+import { STATUS_CERT } from '../../_helpers/constants';
 export default {
-  name: "common-view-admin",
+  name: 'common-view-admin',
   components: {
     ValidationObserver,
     ValidationProvider
@@ -108,21 +149,28 @@ export default {
     btnCreate: Boolean,
     listAll: Array,
     btnDetail: Boolean,
+    btnInfo: Boolean,
     nameFunctionDetail: String,
+    nameFunctionInfo: String,
     btnEdit: Boolean,
     nameFunctionEdit: String,
     btnDelete: Boolean,
     nameFunctionDelete: String,
+    btnConfirm: Boolean,
+    nameFunctionConfirm: String,
+    btnCert: Boolean,
+    nameFunctionCert: String,
     loadingData: Boolean,
     listProperties: Array
   },
   data() {
     return {
+      STATUS_CERT: STATUS_CERT,
       currentPage: 1,
       pageOptions: [10, 20, 50, 100],
       fullscreenLoading: false,
       pageSize: 10,
-      search: "",
+      search: '',
       listQuery: this.listAll,
       listPagination: [],
       total: this.listAll ? this.listAll.length : 0
@@ -150,13 +198,13 @@ export default {
       );
     },
     searchHandle() {
-      let statment = "!this.search";
+      let statment = '!this.search';
       this.listProperties.forEach((attr, index) => {
         if (attr) {
           statment += ` || data.${attr.prop}.toLowerCase().includes(this.search.toLowerCase()) `;
         }
       });
-      this.listQuery = eval(`this.listAll.filter(data => ${statment})`);
+      this.listQuery = this.listAll ? eval(`this.listAll.filter(data => ${statment})`) : [];
       this.setlistPagination();
     },
     callFunctionEdit(row) {
@@ -165,8 +213,17 @@ export default {
     callFunctionDetail(row) {
       this.$emit(this.nameFunctionDetail, row);
     },
+    callFunctionInfo(row) {
+      this.$emit(this.nameFunctionInfo, row);
+    },
     callFunctionDelete(row) {
       this.$emit(this.nameFunctionDelete, row);
+    },
+    callFunctionConfirm(row) {
+      this.$emit(this.nameFunctionConfirm, row);
+    },
+    callFunctionCert(row) {
+      this.$emit(this.nameFunctionCert, row);
     }
   }
 };

@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
+const csrf = require('csurf');
 const checkJWT = require('./middlewares/check-jwt');
 
 const app = express();
@@ -18,6 +19,7 @@ const certificateRoutes = require('./routes/certificate');
 const studentRoutes = require('./routes/student');
 const scoreRoutes = require('./routes/score');
 const meRoutes = require('./routes/me');
+const academyRoutes = require('./routes/academy');
 
 // Connect database
 mongoose.connect(
@@ -29,7 +31,9 @@ mongoose.connect(
 );
 mongoose.set('useCreateIndex', true);
 
-// security with helmet
+app.use(express.json({ limit: '5mb' }));
+
+// security
 app.use(helmet());
 
 // show log
@@ -56,10 +60,7 @@ app.use('/subject', checkJWT, subjectRoutes);
 app.use('/score', checkJWT, scoreRoutes);
 app.use('/certificate', certificateRoutes);
 app.use('/account/me', checkJWT, meRoutes);
-app.get('/hello', (req, res) => {
-  res.writeHead(200);
-  res.end('Hello World');
-});
+app.use('/academy', checkJWT, academyRoutes);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

@@ -25,7 +25,7 @@ const actions = {
       }
     }
   },
-  async createCourse({ commit },course) {
+  async createCourse({ commit }, course) {
     try {
       let listCourses = await adminService.createCourse(course);
       commit('createCourse', listCourses);
@@ -37,7 +37,7 @@ const actions = {
       // }
     }
   },
-  async updateCourse({ commit },course) {
+  async updateCourse({ commit }, course) {
     try {
       let listCourses = await adminService.updateCourse(course);
       commit('updateCourse', listCourses);
@@ -50,7 +50,6 @@ const actions = {
     }
   },
   async deleteCourse({ commit }, courseId) {
-    
     try {
       let listCourses = await adminService.deleteCourse(courseId);
       commit('deleteCourse', listCourses);
@@ -121,9 +120,9 @@ const actions = {
       }
     }
   },
-  async deleteStudentOfSubject({ commit }, { subjectId, Username }) {
+  async deleteStudentOfSubject({ commit }, { SubjectID, Username }) {
     try {
-      let listSubjects = await adminService.deleteStudentOfSubject(subjectId, Username);
+      let listSubjects = await adminService.deleteStudentOfSubject(SubjectID, Username);
       commit('deleteStudentOfSubject', listSubjects);
     } catch (error) {
       console.log(error);
@@ -222,7 +221,6 @@ const actions = {
   async getAllStudents({ commit }) {
     try {
       let listStudents = await adminService.getAllStudents();
-      console.log(listStudents);
       commit('getAllStudents', listStudents);
     } catch (error) {
       console.log(error);
