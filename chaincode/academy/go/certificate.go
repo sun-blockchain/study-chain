@@ -30,6 +30,7 @@ type Subject struct {
 type Teacher struct {
 	Username string
 	Fullname string
+	Info     Information
 	Subjects []string
 }
 
@@ -141,10 +142,12 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return QueryCourse(stub, args)
 	} else if function == "GetAllCourses" {
 		return GetAllCourses(stub)
-	} else if function == "EditCourseInfo" {
-		return EditCourseInfo(stub, args)
+	} else if function == "UpdateCourseInfo" {
+		return UpdateCourseInfo(stub, args)
 	} else if function == "DeleteCourse" {
 		return DeleteCourse(stub, args)
+	} else if function == "UpdateUserInfo" {
+		return UpdateUserInfo(stub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name!")
@@ -266,7 +269,7 @@ func StudentRegisterSubject(stub shim.ChaincodeStubInterface, args []string) sc.
 	return shim.Success(nil)
 }
 
-func EditCourseInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+func UpdateCourseInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	MSPID, err := cid.GetMSPID(stub)
 
@@ -305,6 +308,107 @@ func EditCourseInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response
 		courseAsBytes, _ := json.Marshal(course)
 
 		stub.PutState(keyCourse, courseAsBytes)
+
+		return shim.Success(nil)
+	}
+}
+
+func UpdateUserInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		return shim.Error("Error - cide.GetMSPID()")
+	}
+
+	if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
+		return shim.Error("WHO ARE YOU?")
+	}
+
+	if len(args) != 8 {
+		return shim.Error("Incorrect number of arguments. Expecting 8")
+	}
+
+	Username := args[0]
+	Fullname := args[1]
+	PhoneNumber := args[2]
+	Email := args[3]
+	Address := args[4]
+	Sex := args[5]
+	Birthday := args[6]
+	Avatar := args[7]
+
+	if MSPID == "StudentMSP" {
+		keyUser := "Student-" + Username
+		user, err := getStudent(stub, keyUser)
+
+		if err != nil {
+
+			return shim.Error("User does not exist !")
+
+		}
+
+		if Fullname != "" {
+			user.Fullname = Fullname
+		}
+		if PhoneNumber != "" {
+			user.Info.PhoneNumber = PhoneNumber
+		}
+		if Email != "" {
+			user.Info.Email = Email
+		}
+		if Address != "" {
+			user.Info.Address = Address
+		}
+		if Sex != "" {
+			user.Info.Sex = Sex
+		}
+		if Birthday != "" {
+			user.Info.Birthday = Birthday
+		}
+		if Avatar != "" {
+			user.Info.Avatar = Avatar
+		}
+
+		userAsBytes, _ := json.Marshal(user)
+
+		stub.PutState(keyUser, userAsBytes)
+
+		return shim.Success(nil)
+	} else {
+		keyUser := "Teacher-" + Username
+		user, err := getTeacher(stub, keyUser)
+
+		if err != nil {
+
+			return shim.Error("User does not exist !")
+
+		}
+
+		if Fullname != "" {
+			user.Fullname = Fullname
+		}
+		if PhoneNumber != "" {
+			user.Info.PhoneNumber = PhoneNumber
+		}
+		if Email != "" {
+			user.Info.Email = Email
+		}
+		if Address != "" {
+			user.Info.Address = Address
+		}
+		if Sex != "" {
+			user.Info.Sex = Sex
+		}
+		if Birthday != "" {
+			user.Info.Birthday = Birthday
+		}
+		if Avatar != "" {
+			user.Info.Avatar = Avatar
+		}
+
+		userAsBytes, _ := json.Marshal(user)
+
+		stub.PutState(keyUser, userAsBytes)
 
 		return shim.Success(nil)
 	}

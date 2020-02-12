@@ -34,7 +34,7 @@ enrollAdmin Org academy:
 Register 20156425 in studen (student):
 
 ```bash
-	node registerUser.js --username=20156425 --orgMSP=student --password=123456 --fullname=TrinhVanTan
+	node registerUser.js --username=st01 --orgMSP=student --password=123456 --fullname=TrinhVanTan
 ```
 
 Register GV00 in academy (teacher):
@@ -136,7 +136,11 @@ Query Score with role admin student with studentId and subjectId
 ```
 
 ```bash
- node invoke.js --username=adminacademy --func=EditCourseInfo --courseid=xxxx  --coursecode=BC01 --coursename=Blockchain --description=Blockchain
+ node invoke.js --username=adminacademy --func=UpdateCourseInfo --courseid=xxxx  --coursecode=BC01 --coursename=Blockchain --description=Blockchain
+```
+
+```bash
+ node invoke.js --username=st01 --func=UpdateUserInfo --phonenumber=0382794668  --email=BC01 --address=KienGiang
 ```
 
 ```bash

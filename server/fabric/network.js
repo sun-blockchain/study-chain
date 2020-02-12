@@ -370,7 +370,7 @@ exports.createCourse = async function(networkObj, course) {
   }
 };
 
-exports.editCourseInfo = async function(networkObj, course) {
+exports.updateCourseInfo = async function(networkObj, course) {
   if (!course.courseID || !course.courseCode || !course.courseName || !course.description) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can register!';
@@ -379,7 +379,7 @@ exports.editCourseInfo = async function(networkObj, course) {
 
   try {
     await networkObj.contract.submitTransaction(
-      'EditCourseInfo',
+      'UpdateCourseInfo',
       course.courseID,
       course.courseCode,
       course.courseName,
@@ -387,7 +387,42 @@ exports.editCourseInfo = async function(networkObj, course) {
     );
     let response = {
       success: true,
-      msg: 'Edit success!'
+      msg: 'Update success!'
+    };
+
+    await networkObj.gateway.disconnect();
+    return response;
+  } catch (error) {
+    let response = {
+      success: false,
+      msg: error
+    };
+    return response;
+  }
+};
+
+exports.updateUserInfo = async function(networkObj, updateUser) {
+  if (!updateUser.username) {
+    let response = {};
+    response.error = 'Error! You need to fill all fields before you can register!';
+    return response;
+  }
+
+  try {
+    await networkObj.contract.submitTransaction(
+      'UpdateUserInfo',
+      updateUser.username,
+      updateUser.fullname,
+      updateUser.phoneNumber,
+      updateUser.email,
+      updateUser.address,
+      updateUser.sex,
+      updateUser.birthday,
+      updateUser.avatar
+    );
+    let response = {
+      success: true,
+      msg: 'Update success!'
     };
 
     await networkObj.gateway.disconnect();
