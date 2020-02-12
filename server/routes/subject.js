@@ -2,7 +2,7 @@ const router = require('express').Router();
 const USER_ROLES = require('../configs/constant').USER_ROLES;
 const STATUS_CERT = require('../configs/constant').STATUS_CERT;
 const network = require('../fabric/network');
-const { check, validationResult, sanitizeParam } = require('express-validator');
+const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const checkJWT = require('../middlewares/check-jwt');
 const uuidv4 = require('uuid/v4');
@@ -24,7 +24,7 @@ router.post(
   '/create',
   checkJWT,
   [
-    check('subjectname')
+    body('subjectname')
       .not()
       .isEmpty()
       .trim()
@@ -66,12 +66,12 @@ router.post(
   '/addsubjectforteacher',
   checkJWT,
   [
-    check('teacherusername')
+    body('teacherusername')
       .not()
       .isEmpty()
       .trim()
       .escape(),
-    check('subjectId')
+    body('subjectId')
       .not()
       .isEmpty()
       .trim()

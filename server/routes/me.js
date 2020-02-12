@@ -3,7 +3,7 @@ const USER_ROLES = require('../configs/constant').USER_ROLES;
 const STATUS_REGISTERED = require('../configs/constant').STATUS_REGISTERED;
 const network = require('../fabric/network.js');
 const User = require('../models/User');
-const { validationResult, sanitizeParam, check } = require('express-validator');
+const { validationResult, body } = require('express-validator');
 const checkJWT = require('../middlewares/check-jwt');
 
 router.get('/', async (req, res) => {
@@ -163,46 +163,38 @@ router.get('/subjects', async (req, res) => {
   });
 });
 
-router.get(
-  '/subjects/:subjectId/scores',
-  [
-    sanitizeParam('subjectId')
-      .trim()
-      .escape()
-  ],
-  async (req, res) => {
-    const user = req.decoded.user;
-    if (user.role !== USER_ROLES.TEACHER) {
-      return res.status(403).json({
-        success: false,
-        msg: 'Permission Denied'
-      });
-    }
-
-    const networkObj = await network.connectToNetwork(user);
-    var subjectID = req.params.subjectId;
-
-    if (!networkObj) {
-      return res.status(500).json({
-        success: false,
-        msg: 'Failed connect to blockchain'
-      });
-    }
-
-    const response = await network.query(networkObj, 'GetScoresBySubjectOfTeacher', subjectID);
-
-    if (!response.success) {
-      return res.status(500).json({
-        success: false,
-        subjects: response.msg.toString()
-      });
-    }
-    return res.json({
-      success: true,
-      scores: JSON.parse(response.msg)
+router.get('/subjects/:subjectId/scores', async (req, res) => {
+  const user = req.decoded.user;
+  if (user.role !== USER_ROLES.TEACHER) {
+    return res.status(403).json({
+      success: false,
+      msg: 'Permission Denied'
     });
   }
-);
+
+  const networkObj = await network.connectToNetwork(user);
+  var subjectID = req.params.subjectId;
+
+  if (!networkObj) {
+    return res.status(500).json({
+      success: false,
+      msg: 'Failed connect to blockchain'
+    });
+  }
+
+  const response = await network.query(networkObj, 'GetScoresBySubjectOfTeacher', subjectID);
+
+  if (!response.success) {
+    return res.status(500).json({
+      success: false,
+      subjects: response.msg.toString()
+    });
+  }
+  return res.json({
+    success: true,
+    scores: JSON.parse(response.msg)
+  });
+});
 
 router.get('/certificates', async (req, res) => {
   const user = req.decoded.user;
@@ -270,7 +262,7 @@ router.get('/scores', async (req, res) => {
 router.post(
   '/registersubject',
   [
-    check('subjectId')
+    body('subjectId')
       .not()
       .isEmpty()
       .trim()
@@ -331,34 +323,37 @@ router.get('/createscore', async (req, res) => {
 router.post(
   '/createscore',
   [
-    (check('subjectId')
+    body('subjectId')
       .not()
       .isEmpty()
       .trim()
       .escape(),
-    check('studentUsername')
+    body('studentUsername')
       .not()
       .isEmpty()
       .trim()
       .escape(),
-    check('scoreValue')
+    body('scoreValue')
       .not()
       .isEmpty()
       .trim()
-      .escape())
+      .escape()
   ],
   async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({ success: false, errors: errors.array() });
     }
+
     if (req.decoded.user.role !== USER_ROLES.TEACHER) {
       return res.status(403).json({
         success: false,
         msg: 'Permission Denied'
       });
     }
+
     let identity = req.body.studentUsername;
+
     User.findOne({ username: identity, role: USER_ROLES.STUDENT }, async (err, student) => {
       if (err) {
         res.status(500).json({

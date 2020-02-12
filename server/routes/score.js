@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const USER_ROLES = require('../configs/constant').USER_ROLES;
 const network = require('../fabric/network');
-const { check, validationResult, sanitizeParam } = require('express-validator');
+const { check, validationResult } = require('express-validator');
 const User = require('../models/User');
 const checkJWT = require('../middlewares/check-jwt');
 
@@ -9,12 +9,12 @@ router.get(
   '/:subjectId/:studentUsername',
   checkJWT,
   [
-    (sanitizeParam('subjectId')
+    check('subjectId')
       .trim()
       .escape(),
-    sanitizeParam('studentUsername')
+    check('studentUsername')
       .trim()
-      .escape())
+      .escape()
   ],
   async (req, res, next) => {
     const errors = validationResult(req);
