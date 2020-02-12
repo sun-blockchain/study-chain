@@ -64,6 +64,82 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.put('/info', async (req, res) => {
+  const user = req.decoded.user;
+  let networkObj = await network.connectToNetwork(user);
+
+  if (!networkObj) {
+    return res.status(500).json({
+      success: false,
+      msg: 'Failed connect to blockchain'
+    });
+  }
+  let identity = user.username;
+  let response;
+  if (user.role === USER_ROLES.STUDENT) {
+    response = await network.query(networkObj, 'QueryStudent', identity);
+  }
+  if (user.role === USER_ROLES.TEACHER) {
+    response = await network.query(networkObj, 'QueryTeacher', identity);
+  }
+  if (!response.success) {
+    return res.status(500).json({
+      success: false,
+      msg: response.msg.toString()
+    });
+  }
+  networkObj = await network.connectToNetwork(user);
+  let userInfo = JSON.parse(response.msg);
+
+  let fullname = req.body.fullname ? req.body.fullname : '';
+  let phoneNumber = req.body.phonenumber ? req.body.phonenumber : '';
+  let email = req.body.email ? req.body.email : '';
+  let address = req.body.address ? req.body.address : '';
+  let sex = req.body.sex ? req.body.sex : '';
+  let birthday = req.body.birthday ? req.body.birthday : '';
+  let avatar = req.body.avatar ? req.body.avatar : '';
+
+  if (
+    fullname === userInfo.Fullname &&
+    phoneNumber === userInfo.Info.PhoneNumber &&
+    email === userInfo.Info.Email &&
+    address === userInfo.Info.Address &&
+    sex === userInfo.Info.Sex &&
+    birthday === userInfo.Info.Birthday &&
+    avatar === userInfo.Info.Avatar
+  ) {
+    return res.status(500).json({
+      success: false,
+      msg: 'No changes!'
+    });
+  }
+
+  let updatedUser = {
+    username: user.username,
+    fullname: fullname,
+    phoneNumber: phoneNumber,
+    email: email,
+    address: address,
+    sex: sex,
+    birthday: birthday,
+    avatar: avatar
+  };
+
+  response = await network.updateUserInfo(networkObj, updatedUser);
+
+  if (!response.success) {
+    return res.status(500).json({
+      success: false,
+      msg: response.msg
+    });
+  }
+
+  return res.json({
+    success: true,
+    msg: response.msg
+  });
+});
+
 router.get('/mysubjects', async (req, res) => {
   const user = req.decoded.user;
   if (user.role === USER_ROLES.STUDENT) {

@@ -401,8 +401,8 @@ exports.updateCourseInfo = async function(networkObj, course) {
   }
 };
 
-exports.updateUserInfo = async function(networkObj, updateUser) {
-  if (!updateUser.username) {
+exports.updateUserInfo = async function(networkObj, newInfo) {
+  if (!newInfo.username) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can register!';
     return response;
@@ -411,14 +411,14 @@ exports.updateUserInfo = async function(networkObj, updateUser) {
   try {
     await networkObj.contract.submitTransaction(
       'UpdateUserInfo',
-      updateUser.username,
-      updateUser.fullname,
-      updateUser.phoneNumber,
-      updateUser.email,
-      updateUser.address,
-      updateUser.sex,
-      updateUser.birthday,
-      updateUser.avatar
+      newInfo.username,
+      newInfo.fullname,
+      newInfo.phoneNumber,
+      newInfo.email,
+      newInfo.address,
+      newInfo.sex,
+      newInfo.birthday,
+      newInfo.avatar
     );
     let response = {
       success: true,

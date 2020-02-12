@@ -105,10 +105,12 @@ describe('GET /account/me/', () => {
 
   it('success query info of user teacher', (done) => {
     connect.returns({ error: null });
+
     let data = JSON.stringify({
       Username: 'hoangdd',
       Fullname: 'Do Hoang',
-      Info: { Avatar: 'https://google.com', Sex: 'Male', Phone: '123456789' }
+      Info: { Avatar: 'https://google.com', Sex: 'Male', Phone: '123456789' },
+      Courses: 'Blockchain101'
     });
 
     query.returns({
@@ -152,6 +154,177 @@ describe('GET /account/me/', () => {
         expect(res.body.success).equal(true);
         expect(res.body.username).equal('hoangdd');
         expect(res.body.role).equal(3);
+        done();
+      });
+  });
+});
+
+describe('PUT /account/me/info', () => {
+  let connect;
+  let query;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+    updateUserInfo = sinon.stub(network, 'updateUserInfo');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+    updateUserInfo.restore();
+  });
+
+  it('failed connect to blockchain', (done) => {
+    connect.returns(null);
+
+    request(app)
+      .put('/account/me/info')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain');
+        done();
+      });
+  });
+
+  it('failed to query info student in chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    query.returns({ success: false, msg: 'Error' });
+
+    request(app)
+      .put('/account/me/info')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Error');
+        done();
+      });
+  });
+
+  it('failed to query info teacher in chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.TEACHER }
+    });
+
+    query.returns({ success: false, msg: 'Error' });
+
+    request(app)
+      .put('/account/me/info')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Error');
+        done();
+      });
+  });
+
+  it('No changes', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    let data = JSON.stringify({
+      Username: 'st01',
+      Fullname: 'Trinh Van Tan',
+      Info: {
+        Avatar: 'https://google.com',
+        Sex: 'Male',
+        PhoneNumber: '123456789',
+        Email: 'abc',
+        Address: 'KG',
+        Birthday: 'ABC'
+      }
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .put('/account/me/info')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        username: 'st01',
+        fullname: 'Trinh Van Tan',
+        phonenumber: '123456789',
+        email: 'abc',
+        address: 'KG',
+        sex: 'Male',
+        birthday: 'ABC',
+        avatar: 'https://google.com'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('No changes!');
+        done();
+      });
+  });
+
+  it('Success', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    let data = JSON.stringify({
+      Username: 'st01',
+      Fullname: 'Trinh Van Tan',
+      Info: {
+        Avatar: 'https://google.com',
+        Sex: 'Male',
+        PhoneNumber: '123456789',
+        Email: 'abc',
+        Address: 'KG',
+        Birthday: 'ABC'
+      }
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    updateUserInfo.returns({
+      success: true,
+      msg: 'Update success!'
+    });
+
+    request(app)
+      .put('/account/me/info')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        username: 'st01',
+        fullname: 'Trinh Van Tan',
+        phonenumber: '0382794668',
+        email: 'abc',
+        address: 'KG',
+        sex: 'Male',
+        birthday: 'ABC',
+        avatar: 'https://google.com'
+      })
+      .then((res) => {
+        expect(res.body.success).equal(true);
+        expect(res.body.msg).equal('Update success!');
         done();
       });
   });
