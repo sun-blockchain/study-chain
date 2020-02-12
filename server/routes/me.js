@@ -8,6 +8,7 @@ const checkJWT = require('../middlewares/check-jwt');
 const cloudinary = require('cloudinary').v2;
 const multipart = require('connect-multiparty');
 const multipartMiddleware = multipart();
+const validatePhoneNumber = require('validate-phone-number-node-js');
 
 router.get('/', async (req, res) => {
   const user = req.decoded.user;
@@ -97,14 +98,10 @@ router.put(
         return true;
       }
     }),
-    body('phoneNumber').custom((phonenumber) => {
-      if (phonenumber) {
-        let phoneRegex = /(([+][(]?[0-9]{1,3}[)]?)|([(]?[0-9]{4}[)]?))\s*[)]?[-\s\.]?[(]?[0-9]{1,3}[)]?([-\s\.]?[0-9]{3})([-\s\.]?[0-9]{3,4})/;
-        if (phoneRegex.test(phonenumber)) {
-          return true;
-        } else {
-          throw new Error('Wrong format phone number');
-        }
+    body('phoneNumber').custom((phoneNumber) => {
+      if (phoneNumber) {
+        let result = validatePhoneNumber.validate(phoneNumber);
+        return result;
       } else {
         return true;
       }
@@ -573,7 +570,7 @@ router.post('/avatar', checkJWT, multipartMiddleware, async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      msg: error
+      msg: error.message
     });
   }
 });

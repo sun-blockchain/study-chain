@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="main-content">
+    <div class="main-content" v-loading.fullscreen.lock="fullscreenLoading">
       <!-- Header -->
       <div class="header pb-8 pt-5 pt-lg-8 d-flex align-items-center header-profile">
         <!-- Mask -->
@@ -12,145 +12,128 @@
       </div>
       <!-- Page content -->
       <div class="container-fluid mt--7">
-        <div class="row">
-          <div class="col-xl-4 order-xl-2 mb-5 mb-xl-0">
-            <div class="card card-profile shadow">
-              <div class="row justify-content-center">
-                <div class="col-lg-3 order-lg-2">
-                  <div class="card-profile-image">
-                    <a href="#">
-                      <img
-                        src="https://raw.githack.com/creativetimofficial/argon-dashboard/master/assets/img/theme/team-4-800x800.jpg"
-                        class="rounded-circle"
-                      />
-                    </a>
-                  </div>
-                </div>
-              </div>
-              <div class="card-header text-center border-0 pt-8 pt-md-4 pb-0 pb-md-4">
-                <div class="d-flex justify-content-between"></div>
-              </div>
-              <div class="card-body pt-0 pt-md-4">
-                <div class="row">
-                  <div class="col">
-                    <div class="card-profile-stats d-flex justify-content-center mt-md-5">
-                      <div>
-                        <span class="heading">22</span>
-                        <span class="description">Friends</span>
-                      </div>
-                      <div>
-                        <span class="heading">10</span>
-                        <span class="description">Photos</span>
-                      </div>
-                      <div>
-                        <span class="heading">89</span>
-                        <span class="description">Comments</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="text-center">
-                  <h3>
-                    Jessica Jones
-                    <span class="font-weight-light">, 27</span>
-                  </h3>
-                  <div class="h5 font-weight-300">
-                    <i class="ni location_pin mr-2"></i>Bucharest, Romania
-                  </div>
-                  <div class="h5 mt-4">
-                    <i class="ni business_briefcase-24 mr-2"></i>Solution Manager - Creative Tim Officer
-                  </div>
-                  <div>
-                    <i class="ni education_hat mr-2"></i>University of Computer Science
-                  </div>
-                  <hr class="my-4" />
-                  <p>Ryan — the name taken by Melbourne-raised, Brooklyn-based Nick Murphy — writes, performs and records all of his own music.</p>
-                  <a href="#">Show more</a>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-xl-8 order-xl-1">
+        <div class="row d-flex justify-content-center">
+          <div class="col-xl-10 order-xl-1">
             <div class="card bg-secondary shadow">
               <b-card no-body>
                 <b-tabs card>
                   <b-tab title="My account" active>
                     <div class="card-body">
-                      <form>
-                        <h6 class="heading-small text-muted mb-4">User information</h6>
-                        <div class="pl-lg-4">
+                      <el-form
+                        :model="ruleForm"
+                        :rules="rules"
+                        ref="ruleForm"
+                        class="demo-ruleForm"
+                      >
+                        <div class="row mb-5">
+                          <div class="col-sm-8">
+                            <h3 class="heading-small text-muted mb-4">User information</h3>
+                          </div>
+                          <div class="col-sm-4">
+                            <div class="box-upload float-sm-right">
+                              <el-upload
+                                ref="upload"
+                                class="rounded-circle hover-upload-avatar"
+                                action
+                                :auto-upload="false"
+                                :show-file-list="false"
+                                :multiple="false"
+                                :limit="1"
+                                :on-change="submitUploadAvatar"
+                              >
+                                <img
+                                  v-if="ruleForm.avatar"
+                                  :src="ruleForm.avatar"
+                                  class="avatar-img-upload rounded-circle"
+                                />
+                                <img
+                                  v-else
+                                  src="@/assets/img/avatar-default.png"
+                                  class="avatar-img-upload rounded-circle"
+                                />
+                                <div class="hover-upload">
+                                  <i class="el-icon-upload" />
+                                </div>
+                              </el-upload>
+                              <!-- <el-button
+                                size="small"
+                                type="primary"
+                                class="btn-upload-server"
+                                @click="submitUploadAvatar"
+                              >upload to server</el-button>-->
+                            </div>
+                          </div>
+                        </div>
+                        <el-form-item required>
                           <div class="row">
-                            <div class="col-lg-6">
-                              <div class="form-group focused">
-                                <input
-                                  type="text"
-                                  id="input-username"
-                                  class="form-control form-control-alternative"
-                                  placeholder="Username"
-                                />
-                              </div>
+                            <div class="col-sm-6 mt-2">
+                              <el-form-item prop="username">
+                                <h6 class="el-input__inner">{{ ruleForm.username }}</h6>
+                              </el-form-item>
                             </div>
-                            <div class="col-lg-6">
-                              <div class="form-group">
-                                <input
-                                  type="email"
-                                  id="input-email"
-                                  class="form-control form-control-alternative"
-                                  placeholder="Email"
-                                />
-                              </div>
+                            <div class="col-sm-6 mt-2">
+                              <el-form-item prop="fullname">
+                                <el-input v-model="ruleForm.fullname" placeholder="Full name"></el-input>
+                              </el-form-item>
                             </div>
                           </div>
+                        </el-form-item>
+                        <el-form-item>
                           <div class="row">
-                            <div class="col-lg-6">
-                              <div class="form-group focused">
-                                <input
-                                  type="text"
-                                  id="input-first-name"
-                                  class="form-control form-control-alternative"
-                                  placeholder="First name"
-                                />
-                              </div>
+                            <div class="col-sm-6 mt-sm-1 mt-2">
+                              <el-form-item prop="email">
+                                <el-input v-model="ruleForm.email" placeholder="Email"></el-input>
+                              </el-form-item>
                             </div>
-                            <div class="col-lg-6">
-                              <div class="form-group focused">
-                                <input
-                                  type="text"
-                                  id="input-last-name"
-                                  class="form-control form-control-alternative"
-                                  placeholder="Last name"
-                                />
-                              </div>
+                            <div class="col-sm-6 mt-sm-1 mt-2">
+                              <el-form-item prop="phonenumber" class="style-input-phonenumber">
+                                <vue-tel-input
+                                  v-model="ruleForm.phonenumber"
+                                  @validate="inputNumberPhone"
+                                ></vue-tel-input>
+                              </el-form-item>
                             </div>
-                            <div class="col-lg-6">
-                              <div class="form-group focused">
-                                <input
-                                  id="input-address"
-                                  class="form-control form-control-alternative"
-                                  placeholder="Address"
-                                  type="text"
-                                />
+                          </div>
+                        </el-form-item>
+                        <el-form-item>
+                          <div class="row">
+                            <div class="col-sm-6 mt-2">
+                              <el-form-item prop="address">
+                                <el-input v-model="ruleForm.address" placeholder="Address"></el-input>
+                              </el-form-item>
+                            </div>
+                            <div class="col-sm-6 mt-2">
+                              <div class="row">
+                                <div class="col-sm-6 mt-1 mt-sm-0">
+                                  <el-form-item prop="sex">
+                                    <el-select v-model="ruleForm.sex" placeholder="Gender">
+                                      <el-option label="Male" value="0"></el-option>
+                                      <el-option label="Female" value="1"></el-option>
+                                      <el-option label="Other" value="2"></el-option>
+                                    </el-select>
+                                  </el-form-item>
+                                </div>
+                                <div class="col-sm-6 mt-3 mt-sm-0">
+                                  <el-form-item prop="birthday">
+                                    <el-date-picker
+                                      v-model="ruleForm.birthday"
+                                      type="date"
+                                      placeholder="Birthday"
+                                      format="dd-MM-yyyy"
+                                      value-format="dd-MM-yyyy"
+                                      :picker-options="pickerOptions"
+                                    ></el-date-picker>
+                                  </el-form-item>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                        <hr class="my-4" />
-                        <!-- Description -->
-                        <h6 class="heading-small text-muted mb-4">About me</h6>
-                        <div class="pl-lg-4">
-                          <div class="form-group focused">
-                            <label>About Me</label>
-                            <textarea
-                              rows="4"
-                              class="form-control form-control-alternative"
-                              placeholder="A few words about you ..."
-                            ></textarea>
-                          </div>
-                        </div>
-                        <div class="col-4 text-right float-right">
-                          <a href="#" class="btn btn-sm btn-primary">Update</a>
-                        </div>
-                      </form>
+                        </el-form-item>
+
+                        <el-form-item>
+                          <el-button type="primary" @click="submitForm('ruleForm')">Update</el-button>
+                        </el-form-item>
+                      </el-form>
                     </div>
                   </b-tab>
                   <b-tab title="Change Password">
@@ -204,7 +187,185 @@
 </template>
 
 <script>
-export default {};
+import {
+  Upload,
+  Form,
+  FormItem,
+  Input,
+  RadioGroup,
+  Radio,
+  Button,
+  Select,
+  Option,
+  DatePicker
+} from "element-ui";
+import { mapState, mapActions } from "vuex";
+import { Message } from "element-ui";
+import axios from "axios";
+import { VueTelInput } from "vue-tel-input";
+export default {
+  components: {
+    "el-upload": Upload,
+    "el-form": Form,
+    "el-form-item": FormItem,
+    "el-input": Input,
+    "el-radio-group": RadioGroup,
+    "el-radio": Radio,
+    "el-button": Button,
+    "el-select": Select,
+    "el-option": Option,
+    "el-date-picker": DatePicker,
+    VueTelInput
+  },
+  data() {
+    var validateEmail = (rule, value, callback) => {
+      if (value) {
+        var mailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+        if (mailRegex.test(value)) {
+          callback();
+        } else {
+          callback(new Error("Wrong email format"));
+        }
+      } else {
+        callback();
+      }
+    };
+    return {
+      imageUrl: "",
+      validPhoneNumber: false,
+      fullscreenLoading: false,
+      ruleForm: {
+        username: "",
+        fullname: "",
+        phonenumber: "",
+        email: "",
+        address: "",
+        birthday: "",
+        sex: "",
+        avatar: ""
+      },
+      rules: {
+        fullname: [
+          {
+            required: true,
+            message: "fullname is required",
+            trigger: "blur"
+          },
+          {
+            min: 6,
+            message: "fullname must be at least 6 characters",
+            trigger: "blur"
+          }
+        ],
+        email: [{ validator: validateEmail, trigger: "blur" }],
+        phonenumber: [
+          {
+            validator: this.validatePhoneNumber,
+            trigger: "blur"
+          }
+        ]
+      },
+      pickerOptions: {
+        disabledDate(time) {
+          return time.getTime() > Date.now();
+        }
+      }
+    };
+  },
+  methods: {
+    ...mapActions("account", ["getProfile", "pushProfile"]),
+    inputNumberPhone(number) {
+      this.validPhoneNumber = number.valid;
+    },
+    validatePhoneNumber(rule, value, callback) {
+      if (value) {
+        if (this.validPhoneNumber) {
+          callback();
+        } else {
+          callback(new Error("Wrong phone number format"));
+        }
+      } else {
+        callback();
+      }
+    },
+    submitUploadAvatar() {
+      if (this.$refs.upload.uploadFiles.length >= 1) {
+        let user = JSON.parse(localStorage.getItem("user"));
+        if (user && user.token) {
+          this.fullscreenLoading = true;
+          var formData = new FormData();
+          formData.append("image", this.$refs.upload.uploadFiles[0].raw);
+          axios
+            .post(
+              `${process.env.VUE_APP_API_BACKEND}/account/me/avatar`,
+              formData,
+              {
+                headers: {
+                  authorization: user.token,
+                  "Content-Type": "multipart/form-data"
+                }
+              }
+            )
+            .then(async response => {
+              this.ruleForm.avatar = response.data.imageUrl;
+              this.ruleForm = await this.getProfile();
+              await this.$refs.upload.clearFiles();
+              Message.success("Update avatar success!");
+              this.fullscreenLoading = false;
+            })
+            .catch(errors => {
+              Message.error("Update avatar error!");
+              this.fullscreenLoading = false;
+              console.log(errors);
+            });
+        }
+      } else {
+        Message.error("Input avatar is empty!");
+      }
+    },
+    changeInputFile(file) {
+      const isJPG = file.raw.type === "image/jpeg";
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isJPG) {
+        Message.error("Avatar picture must be JPG format!");
+        this.$refs.upload.clearFiles();
+        return false;
+      }
+      if (!isLt2M) {
+        Message.error("Avatar picture size can not exceed 2MB!");
+        this.$refs.upload.clearFiles();
+        return false;
+      }
+      this.imageUrl = URL.createObjectURL(file.raw);
+    },
+    submitForm(formName) {
+      let self = this;
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          this.fullscreenLoading = true;
+          let data = await self.pushProfile(self.ruleForm);
+          if (data.success) {
+            self.ruleForm = await self.getProfile();
+            Message.success("Update Success!");
+          } else {
+            Message.error(data.msg);
+          }
+          self.fullscreenLoading = false;
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
+    }
+  },
+  async created() {
+    let ruleForm = await this.getProfile();
+    if (ruleForm) {
+      this.ruleForm = ruleForm;
+      this.imageUrl = this.ruleForm.avatar;
+    }
+  }
+};
 </script>
 
 <style scoped>

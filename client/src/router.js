@@ -205,6 +205,9 @@ router.beforeEach((to, from, next) => {
     if (to.matched[1].parent.name === 'student' && user.role === 4) {
       return next();
     }
+    if (to.fullPath === '/profile' && user.role) {
+      return next();
+    }
     return next('/403');
   } else if (afterlogin && loggedIn) {
     if (user.role === 1) {

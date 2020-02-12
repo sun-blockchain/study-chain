@@ -137,11 +137,18 @@
 import { mapState, mapActions } from 'vuex';
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 import { STATUS_CERT } from '../../_helpers/constants';
+import { Button, Table, TableColumn, Pagination, Input, Tooltip } from 'element-ui';
 export default {
   name: 'common-view-admin',
   components: {
     ValidationObserver,
-    ValidationProvider
+    ValidationProvider,
+    'el-button': Button,
+    'el-table': Table,
+    'el-table-column': TableColumn,
+    'el-pagination': Pagination,
+    'el-input': Input,
+    'el-tooltip': Tooltip
   },
   props: {
     title: String,

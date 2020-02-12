@@ -30,6 +30,7 @@
     "fabric-ca-client": "~1.4.0",
     "fabric-network": "~1.4.0",
     "helmet": "^3.21.2",
+    "intl-tel-input": "^16.0.11",
     "jsonwebtoken": "^8.5.1",
     "mockery": "^2.1.0",
     "mongodb": "^3.3.2",
@@ -45,7 +46,8 @@
     "supertest": "^4.0.2",
     "util": "^0.12.1",
     "uuid": "^3.3.3",
-    "yargs": "^14.0.0"
+    "yargs": "^14.0.0",
+    "validate-phone-number-node-js": "^0.0.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",

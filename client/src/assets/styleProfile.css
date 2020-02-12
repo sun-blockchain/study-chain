@@ -626,3 +626,72 @@ textarea[resize='horizontal'] {
   background-size: cover;
   background-position: center top;
 }
+
+.avatar-uploader .el-upload {
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  display: block;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409eff;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  line-height: 178px;
+  text-align: center;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+}
+.avatar-img-upload {
+  width: 178px;
+  height: 178px;
+  display: block;
+}
+
+.btn-upload-server {
+  width: 178px;
+}
+
+.box-upload {
+  margin: 0 auto;
+  width: 178px;
+}
+
+.el-date-editor.el-input {
+  width: 100%;
+}
+
+.vti__dropdown {
+  padding: 0px 10px !important;
+}
+
+.style-input-phonenumber > .el-form-item__content {
+  line-height: 35px;
+}
+
+.hover-upload {
+  width: 178px;
+  height: 89px;
+  position: absolute;
+  bottom: 0;
+  background: aliceblue;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s, opacity 0.5s linear;
+  border-radius: 0 0 178px 178px;
+}
+
+.hover-upload > i {
+  font-size: 36px;
+  margin-top: 15px;
+  color: #007bff;
+}
+
+.hover-upload-avatar:hover .hover-upload {
+  visibility: visible;
+  opacity: 0.78;
+}

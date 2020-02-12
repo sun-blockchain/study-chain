@@ -1,10 +1,13 @@
 import axios from 'axios';
+import { authHeader } from '../_helpers/auth-header.js';
 
 export const authService = {
   login,
   register,
   logout,
-  loginGoogle
+  loginGoogle,
+  getProfile,
+  pushProfile
 };
 
 async function login(username, password) {
@@ -55,6 +58,45 @@ async function loginGoogle(code) {
   }
 
   return new Error(user);
+}
+
+//  Get Profile
+async function getProfile() {
+  try {
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/me`, {
+      headers: authHeader()
+    });
+    let { username, fullname, phonenumber, email, address, sex, birthday, avatar } = respone.data;
+    let info = respone.data.info;
+    let student = { username, fullname, phonenumber, email, address, sex, birthday, avatar };
+    return student;
+  } catch (error) {
+    throw error;
+  }
+}
+
+//  Get Profile
+async function pushProfile(user) {
+  try {
+    let respone = await axios.put(
+      `${process.env.VUE_APP_API_BACKEND}/account/me/info`,
+      {
+        username: user.username,
+        fullname: user.fullname,
+        phoneNumber: user.phonenumber.replace(/\s+/g, ''),
+        email: user.email,
+        address: user.address,
+        birthday: user.birthday,
+        sex: user.sex
+      },
+      {
+        headers: authHeader()
+      }
+    );
+    return respone.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
 async function handleResponse(response) {
