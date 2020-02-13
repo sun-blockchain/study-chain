@@ -88,7 +88,6 @@ router.put('/info', async (req, res) => {
       msg: response.msg.toString()
     });
   }
-  networkObj = await network.connectToNetwork(user);
   let userInfo = JSON.parse(response.msg);
 
   let fullname = req.body.fullname ? req.body.fullname : '';
@@ -97,7 +96,6 @@ router.put('/info', async (req, res) => {
   let address = req.body.address ? req.body.address : '';
   let sex = req.body.sex ? req.body.sex : '';
   let birthday = req.body.birthday ? req.body.birthday : '';
-  let avatar = req.body.avatar ? req.body.avatar : '';
 
   if (
     fullname === userInfo.Fullname &&
@@ -105,8 +103,7 @@ router.put('/info', async (req, res) => {
     email === userInfo.Info.Email &&
     address === userInfo.Info.Address &&
     sex === userInfo.Info.Sex &&
-    birthday === userInfo.Info.Birthday &&
-    avatar === userInfo.Info.Avatar
+    birthday === userInfo.Info.Birthday
   ) {
     return res.status(500).json({
       success: false,
@@ -121,10 +118,9 @@ router.put('/info', async (req, res) => {
     email: email,
     address: address,
     sex: sex,
-    birthday: birthday,
-    avatar: avatar
+    birthday: birthday
   };
-
+  networkObj = await network.connectToNetwork(user);
   response = await network.updateUserInfo(networkObj, updatedUser);
 
   if (!response.success) {

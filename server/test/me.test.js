@@ -243,7 +243,6 @@ describe('PUT /account/me/info', () => {
       Username: 'st01',
       Fullname: 'Trinh Van Tan',
       Info: {
-        Avatar: 'https://google.com',
         Sex: 'Male',
         PhoneNumber: '123456789',
         Email: 'abc',
@@ -267,8 +266,7 @@ describe('PUT /account/me/info', () => {
         email: 'abc',
         address: 'KG',
         sex: 'Male',
-        birthday: 'ABC',
-        avatar: 'https://google.com'
+        birthday: 'ABC'
       })
       .then((res) => {
         expect(res.status).equal(500);
@@ -290,7 +288,6 @@ describe('PUT /account/me/info', () => {
       Username: 'st01',
       Fullname: 'Trinh Van Tan',
       Info: {
-        Avatar: 'https://google.com',
         Sex: 'Male',
         PhoneNumber: '123456789',
         Email: 'abc',
@@ -319,8 +316,7 @@ describe('PUT /account/me/info', () => {
         email: 'abc',
         address: 'KG',
         sex: 'Male',
-        birthday: 'ABC',
-        avatar: 'https://google.com'
+        birthday: 'ABC'
       })
       .then((res) => {
         expect(res.body.success).equal(true);

@@ -417,9 +417,67 @@ exports.updateUserInfo = async function(networkObj, newInfo) {
       newInfo.email,
       newInfo.address,
       newInfo.sex,
-      newInfo.birthday,
-      newInfo.avatar
+      newInfo.birthday
     );
+    let response = {
+      success: true,
+      msg: 'Update success!'
+    };
+
+    await networkObj.gateway.disconnect();
+    return response;
+  } catch (error) {
+    let response = {
+      success: false,
+      msg: error
+    };
+    return response;
+  }
+};
+
+exports.updateUserInfo = async function(networkObj, newInfo) {
+  if (!newInfo.username) {
+    let response = {};
+    response.error = 'Error! You need to fill all fields before you can register!';
+    return response;
+  }
+
+  try {
+    await networkObj.contract.submitTransaction(
+      'UpdateUserInfo',
+      newInfo.username,
+      newInfo.fullname,
+      newInfo.phoneNumber,
+      newInfo.email,
+      newInfo.address,
+      newInfo.sex,
+      newInfo.birthday
+    );
+    let response = {
+      success: true,
+      msg: 'Update success!'
+    };
+
+    await networkObj.gateway.disconnect();
+    return response;
+  } catch (error) {
+    let response = {
+      success: false,
+      msg: error
+    };
+    return response;
+  }
+};
+
+exports.updateUserAvatar = async function(networkObj, avatar) {
+  if (!avatar) {
+    let response = {};
+    response.error = 'Error! You need to fill all fields before you can register!';
+    return response;
+  }
+
+  try {
+    await networkObj.contract.submitTransaction('UpdateUserAvatar', avatar);
     let response = {
       success: true,
       msg: 'Update success!'
