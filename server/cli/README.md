@@ -144,6 +144,10 @@ Query Score with role admin student with studentId and subjectId
 ```
 
 ```bash
+ node invoke.js --username=st01 --func=UpdateUserAvatar --avatar=Avatar
+```
+
+```bash
  node invoke.js --username=adminacademy --func=DeleteCourse --courseid=xxxx
 ```
 

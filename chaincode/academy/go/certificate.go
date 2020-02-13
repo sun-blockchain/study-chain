@@ -148,6 +148,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return DeleteCourse(stub, args)
 	} else if function == "UpdateUserInfo" {
 		return UpdateUserInfo(stub, args)
+	} else if function == "UpdateUserAvatar" {
+		return UpdateUserAvatar(stub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name!")
@@ -324,8 +326,8 @@ func UpdateUserInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response
 		return shim.Error("WHO ARE YOU?")
 	}
 
-	if len(args) != 8 {
-		return shim.Error("Incorrect number of arguments. Expecting 8")
+	if len(args) != 7 {
+		return shim.Error("Incorrect number of arguments. Expecting 7")
 	}
 
 	Username := args[0]
@@ -335,7 +337,6 @@ func UpdateUserInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response
 	Address := args[4]
 	Sex := args[5]
 	Birthday := args[6]
-	Avatar := args[7]
 
 	if MSPID == "StudentMSP" {
 		keyUser := "Student-" + Username
@@ -364,9 +365,6 @@ func UpdateUserInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response
 		}
 		if Birthday != "" {
 			user.Info.Birthday = Birthday
-		}
-		if Avatar != "" {
-			user.Info.Avatar = Avatar
 		}
 
 		userAsBytes, _ := json.Marshal(user)
@@ -402,6 +400,48 @@ func UpdateUserInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response
 		if Birthday != "" {
 			user.Info.Birthday = Birthday
 		}
+
+		userAsBytes, _ := json.Marshal(user)
+
+		stub.PutState(keyUser, userAsBytes)
+
+		return shim.Success(nil)
+	}
+}
+
+func UpdateUserAvatar(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		return shim.Error("Error - cide.GetMSPID()")
+	}
+
+	if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
+		return shim.Error("WHO ARE YOU?")
+	}
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	Avatar := args[0]
+
+	Username, _, err := cid.GetAttributeValue(stub, "username")
+
+	if err != nil {
+		return shim.Error("Error - cid.GetAttributeValue()")
+	}
+
+	if MSPID == "StudentMSP" {
+		keyUser := "Student-" + Username
+		user, err := getStudent(stub, keyUser)
+
+		if err != nil {
+
+			return shim.Error("User does not exist !")
+
+		}
+
 		if Avatar != "" {
 			user.Info.Avatar = Avatar
 		}
@@ -411,6 +451,27 @@ func UpdateUserInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response
 		stub.PutState(keyUser, userAsBytes)
 
 		return shim.Success(nil)
+
+	} else {
+		keyUser := "Teacher-" + Username
+		user, err := getTeacher(stub, keyUser)
+
+		if err != nil {
+
+			return shim.Error("User does not exist !")
+
+		}
+
+		if Avatar != "" {
+			user.Info.Avatar = Avatar
+		}
+
+		userAsBytes, _ := json.Marshal(user)
+
+		stub.PutState(keyUser, userAsBytes)
+
+		return shim.Success(nil)
+
 	}
 }
 
