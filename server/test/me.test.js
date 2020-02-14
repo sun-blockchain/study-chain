@@ -181,6 +181,14 @@ describe('PUT /account/me/info', () => {
     request(app)
       .put('/account/me/info')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        fullname: 'Trinh Van Tan',
+        phoneNumber: '+123456789',
+        email: 'abc@gmail.com',
+        address: 'KG',
+        sex: 'Male',
+        birthday: 'ABC'
+      })
       .then((res) => {
         expect(res.status).equal(500);
         expect(res.body.success).equal(false);
@@ -202,6 +210,14 @@ describe('PUT /account/me/info', () => {
     request(app)
       .put('/account/me/info')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        fullname: 'Trinh Van Tan',
+        phoneNumber: '+123456789',
+        email: 'abc@gmail.com',
+        address: 'KG',
+        sex: 'Male',
+        birthday: 'ABC'
+      })
       .then((res) => {
         expect(res.status).equal(500);
         expect(res.body.success).equal(false);
@@ -223,6 +239,14 @@ describe('PUT /account/me/info', () => {
     request(app)
       .put('/account/me/info')
       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .send({
+        fullname: 'Trinh Van Tan',
+        phoneNumber: '+123456789',
+        email: 'abc@gmail.com',
+        address: 'KG',
+        sex: 'Male',
+        birthday: 'ABC'
+      })
       .then((res) => {
         expect(res.status).equal(500);
         expect(res.body.success).equal(false);
@@ -244,8 +268,8 @@ describe('PUT /account/me/info', () => {
       Fullname: 'Trinh Van Tan',
       Info: {
         Sex: 'Male',
-        PhoneNumber: '123456789',
-        Email: 'abc',
+        PhoneNumber: '+123456789',
+        Email: 'abc@gmail.com',
         Address: 'KG',
         Birthday: 'ABC'
       }
@@ -261,8 +285,8 @@ describe('PUT /account/me/info', () => {
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         fullname: 'Trinh Van Tan',
-        phonenumber: '123456789',
-        email: 'abc',
+        phoneNumber: '+123456789',
+        email: 'abc@gmail.com',
         address: 'KG',
         sex: 'Male',
         birthday: 'ABC'
@@ -311,8 +335,8 @@ describe('PUT /account/me/info', () => {
       .send({
         username: 'hoangdd',
         fullname: 'Trinh Van Tan',
-        phonenumber: '0382794668',
-        email: 'abc',
+        phoneNumber: '+84382794668',
+        email: 'bcd@gmail.com',
         address: 'KG',
         sex: 'Male',
         birthday: 'ABC'

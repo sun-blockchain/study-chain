@@ -112,6 +112,7 @@ async function main() {
           let Address = argv.email ? argv.address.toString() : '';
           let Sex = argv.sex ? argv.email.toString() : '';
           let Birthday = argv.birthday ? argv.birthday.toString() : '';
+          let Avatar = argv.avatar ? argv.avatar.toString() : '';
 
           let updatedUser = {
             username: user.username,
@@ -120,23 +121,11 @@ async function main() {
             email: Email,
             address: Address,
             sex: Sex,
-            birthday: Birthday
+            birthday: Birthday,
+            avatar: Avatar
           };
 
           await conn.updateUserInfo(networkObj, updatedUser);
-          console.log('Transaction has been submitted');
-          process.exit(0);
-        } else if (
-          functionName === 'UpdateUserAvatar' &&
-          (user.role === USER_ROLES.STUDENT || user.role === USER_ROLES.TEACHER)
-        ) {
-          /**
-           * Update Avatar
-           */
-
-          let Avatar = argv.avatar ? argv.avatar.toString() : '';
-
-          await conn.updateUserAvatar(networkObj, Avatar);
           console.log('Transaction has been submitted');
           process.exit(0);
         } else if (functionName === 'CreateCertificate' && user.role === USER_ROLES.ADMIN_ACADEMY) {
