@@ -5,6 +5,9 @@ const network = require('../fabric/network.js');
 const User = require('../models/User');
 const { validationResult, body } = require('express-validator');
 const checkJWT = require('../middlewares/check-jwt');
+const cloudinary = require('cloudinary').v2;
+const multipart = require('connect-multiparty');
+const multipartMiddleware = multipart();
 
 router.get('/', async (req, res) => {
   const user = req.decoded.user;
@@ -500,6 +503,31 @@ router.get('/:subjectId/students', checkJWT, async (req, res, next) => {
     success: true,
     students: listStudents
   });
+});
+
+router.post('/avatar', checkJWT, multipartMiddleware, async (req, res) => {
+  try {
+    const user = req.decoded.user;
+    let imageFile = req.files.image.path;
+
+    const image = await cloudinary.uploader.upload(imageFile, { tags: `${user.username}` });
+    const networkObj = await network.connectToNetwork(user);
+    const response = await network.updateUserAvatar(networkObj, image.secure_url);
+
+    if (!response.success) {
+      return res.status(500).json({
+        success: false,
+        msg: response.msg.toString()
+      });
+    }
+
+    return res.json({ success: true, imageUrl: image.secure_url });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      msg: error
+    });
+  }
 });
 
 module.exports = router;
