@@ -236,11 +236,11 @@ describe('PUT /account/me/info', () => {
       contract: 'academy',
       network: 'certificatechannel',
       gateway: 'gateway',
-      user: { username: 'st01', role: USER_ROLES.STUDENT }
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
     });
 
     let data = JSON.stringify({
-      Username: 'st01',
+      Username: 'hoangdd',
       Fullname: 'Trinh Van Tan',
       Info: {
         Sex: 'Male',
@@ -260,7 +260,6 @@ describe('PUT /account/me/info', () => {
       .put('/account/me/info')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        username: 'st01',
         fullname: 'Trinh Van Tan',
         phonenumber: '123456789',
         email: 'abc',
@@ -281,11 +280,11 @@ describe('PUT /account/me/info', () => {
       contract: 'academy',
       network: 'certificatechannel',
       gateway: 'gateway',
-      user: { username: 'st01', role: USER_ROLES.STUDENT }
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
     });
 
     let data = JSON.stringify({
-      Username: 'st01',
+      Username: 'hoangdd',
       Fullname: 'Trinh Van Tan',
       Info: {
         Sex: 'Male',
@@ -310,7 +309,7 @@ describe('PUT /account/me/info', () => {
       .put('/account/me/info')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        username: 'st01',
+        username: 'hoangdd',
         fullname: 'Trinh Van Tan',
         phonenumber: '0382794668',
         email: 'abc',

@@ -47,7 +47,7 @@ router.get(
     } else {
       const user = req.decoded.user;
       const networkObj = await network.connectToNetwork(user);
-      const response = await network.query(networkObj, 'QueryCourse');
+      const response = await network.query(networkObj, 'QueryCourse', req.params.courseId);
 
       if (!response.success) {
         res.status(500).send({

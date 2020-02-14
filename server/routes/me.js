@@ -31,8 +31,12 @@ router.get('/', async (req, res) => {
       success: true,
       username: student.Username,
       fullname: student.Fullname,
-      info: student.Info,
-      courses: student.Courses
+      phonenumber: student.Info.PhoneNumber,
+      email: student.Info.Email,
+      address: student.Info.Address,
+      sex: student.Info.Sex,
+      birthday: student.Info.Birthday,
+      avatar: student.Info.Avatar
     });
   } else if (user.role === USER_ROLES.TEACHER) {
     const networkObj = await network.connectToNetwork(user);
@@ -57,7 +61,12 @@ router.get('/', async (req, res) => {
       success: true,
       username: teacher.Username,
       fullname: teacher.Fullname,
-      info: teacher.Info
+      phonenumber: teacher.Info.PhoneNumber,
+      email: teacher.Info.Email,
+      address: teacher.Info.Address,
+      birthday: teacher.Info.Birthday,
+      sex: teacher.Info.Sex,
+      avatar: teacher.Info.Avatar
     });
   } else if (user.role === USER_ROLES.ADMIN_ACADEMY || user.role === USER_ROLES.ADMIN_STUDENT) {
     return res.json({ success: true, username: user.username, role: user.role });
@@ -89,7 +98,6 @@ router.put('/info', async (req, res) => {
     });
   }
   let userInfo = JSON.parse(response.msg);
-
   let fullname = req.body.fullname ? req.body.fullname : '';
   let phoneNumber = req.body.phonenumber ? req.body.phonenumber : '';
   let email = req.body.email ? req.body.email : '';
