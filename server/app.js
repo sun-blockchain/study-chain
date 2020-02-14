@@ -40,7 +40,10 @@ app.use(express.json({ limit: '5mb' }));
 
 // security
 app.use(helmet());
-app.use(limiter);
+
+if (process.env.NODE_ENV !== 'test') {
+  app.use(limiter);
+}
 
 // show log
 app.use(logger('dev'));
