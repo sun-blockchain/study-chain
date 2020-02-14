@@ -136,8 +136,8 @@ func CreateCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("WHO ARE YOU")
 	}
 
-	if len(args) != 4 {
-		return shim.Error("Incorrect number of arguments. Expecting 4")
+	if len(args) != 5 {
+		return shim.Error("Incorrect number of arguments. Expecting 5")
 	}
 
 	fmt.Println("Start Create Subject!")
@@ -145,7 +145,9 @@ func CreateCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	CourseID := args[0]
 	CourseCode := args[1]
 	CourseName := args[2]
-	Description := args[3]
+	ShortDescription := args[3]
+	Description := args[4]
+
 
 	keyCourse := "Course-" + CourseID
 	checkCourseExist, err := getCourse(stub, keyCourse)
@@ -155,7 +157,7 @@ func CreateCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("This course already exists - " + CourseID)
 	}
 
-	var course = Course{CourseID: CourseID, CourseCode: CourseCode, CourseName: CourseName, Description: Description, Subjects: nil}
+	var course = Course{CourseID: CourseID, CourseCode: CourseCode, CourseName: CourseName,ShortDescription: ShortDescription, Description: Description, Subjects: nil}
 
 	courseAsBytes, _ := json.Marshal(course)
 

@@ -54,6 +54,7 @@ async function updateCourse(course) {
         courseId: course.CourseID,
         courseCode: course.CourseCode,
         courseName: course.CourseName,
+        shortDescription: course.ShortDescription,
         description: course.Description
       },
       {
@@ -87,6 +88,7 @@ async function createCourse(course) {
       {
         courseCode: course.CourseCode,
         courseName: course.CourseName,
+        shortDescription: course.ShortDescription,
         description: course.Description
       },
       {

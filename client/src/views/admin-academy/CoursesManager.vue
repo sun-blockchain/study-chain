@@ -14,7 +14,7 @@
       :listProperties="[
         { prop: 'CourseCode', label: 'CourseCode' },
         { prop: 'CourseName', label: 'CourseName' },
-        { prop: 'Description', label: 'Description' }
+        { prop: 'ShortDescription', label: 'Description' }
       ]"
       @detailCourses="detailCourse($event)"
       @modalEdit="modalEdit($event)"
@@ -51,6 +51,23 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Course Name"
               ></b-form-input>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
+            </b-form-group>
+          </ValidationProvider>
+          <ValidationProvider
+            rules="required"
+            name="Course Short Description"
+            v-slot="{ valid, errors }"
+          >
+            <b-form-group>
+              <b-form-textarea
+                type="text"
+                v-model="editCourse.ShortDescription"
+                :state="errors[0] ? false : valid ? true : null"
+                placeholder="Course Short Description"
+              ></b-form-textarea>
               <b-form-invalid-feedback id="inputLiveFeedback">
                 {{ errors[0] }}
               </b-form-invalid-feedback>
@@ -109,7 +126,19 @@
               </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
-          <ValidationProvider rules="required" name="Course Description" v-slot="{ valid, errors }">
+          <ValidationProvider rules="required" name="Course Short Description" v-slot="{ valid, errors }">
+            <b-form-group>
+              <b-form-textarea
+                v-model="newCourse.ShortDescription"
+                :state="errors[0] ? false : valid ? true : null"
+                placeholder="Course Short Description"
+              ></b-form-textarea>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
+            </b-form-group>
+          </ValidationProvider>
+                    <ValidationProvider rules="required" name="Course Description" v-slot="{ valid, errors }">
             <b-form-group>
               <b-form-textarea
                 v-model="newCourse.Description"
@@ -121,6 +150,7 @@
               </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
+        </b-form>
         </b-form>
       </b-modal>
     </ValidationObserver>
@@ -143,11 +173,13 @@ export default {
         CourseID: '',
         CourseCode: '',
         CourseName: '',
+        ShortDescription: '',
         Description: ''
       },
       newCourse: {
         CourseCode: '',
         CourseName: '',
+        ShortDescription: '',
         Description: ''
       },
       fullscreenLoading: false,
@@ -168,6 +200,7 @@ export default {
       this.editCourse.CourseID = row.CourseID;
       this.editCourse.CourseCode = row.CourseCode;
       this.editCourse.CourseName = row.CourseName;
+      this.editCourse.ShortDescription = row.ShortDescription;
       this.editCourse.Description = row.Description;
 
       this.$root.$emit('bv::show::modal', 'modal-edit');
@@ -181,6 +214,7 @@ export default {
       }
       await this.getAllCourses();
       this.fullscreenLoading = false;
+      this.$swal('Success!', 'Course has been created.', 'success');
     },
     async handleUpdate() {
       this.$refs['modal-edit'].hide();
@@ -189,15 +223,18 @@ export default {
       await this.resetInfoModalEdit();
       this.fullscreenLoading = false;
       await this.getAllCourses();
+      this.$swal('Success!', 'Course has been edited.', 'success');
     },
     resetInfoModalEdit() {
       this.editCourse.CourseCode = '';
       this.editCourse.CourseName = '';
+      this.editCourse.ShortDescription = '';
       this.editCourse.Description = '';
     },
     resetInfoModalCreate() {
       this.newCourse.CourseCode = '';
       this.newCourse.CourseName = '';
+      this.newCourse.ShortDescription = '';
       this.newCourse.Description = '';
       requestAnimationFrame(() => {
         this.$refs.observer.reset();
