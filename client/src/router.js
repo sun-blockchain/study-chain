@@ -51,15 +51,25 @@ export const router = new Router({
           name: 'academyPage',
           component: () => import('./views/admin-academy/Academy.vue')
         },
-                {
+        {
           path: '/academy/courses',
           name: 'academy-courses',
           component: () => import('./views/admin-academy/CoursesManager.vue')
         },
         {
+          path: '/academy/courses/:id/course-detail',
+          name: 'academy-courses-detail',
+          component: () => import('./views/admin-academy/CoursesDetail.vue')
+        },
+        {
           path: '/academy/subjects',
           name: 'academy-subjects',
           component: () => import('./views/admin-academy/SubjectsManager')
+        },
+        {
+          path: '/academy/subjects/:id/classes',
+          name: 'academy-subject-detail',
+          component: () => import('./views/admin-academy/SubjectDetail')
         },
         {
           path: '/academy/subjects/:id/students',

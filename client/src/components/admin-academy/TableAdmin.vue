@@ -105,8 +105,7 @@
                       icon="fas fa-graduation-cap"
                       round
                       @click="callFunctionCert(scope.row)"
-                    >
-                    </el-button>
+                    ></el-button>
                   </el-tooltip>
                 </template>
               </el-table-column>

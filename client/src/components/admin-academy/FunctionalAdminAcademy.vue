@@ -41,6 +41,6 @@
 
 <script>
 export default {
-  name: "functionalAdminAcademy"
+  name: 'functionalAdminAcademy'
 };
 </script>

@@ -2,6 +2,7 @@ import { authHeader } from '../_helpers/auth-header.js';
 import axios from 'axios';
 
 export const adminService = {
+  getCourse,
   createCourse,
   updateCourse,
   deleteCourse,
@@ -22,6 +23,7 @@ export const adminService = {
   getAllStudents,
   getSubjectsOfStudent,
   getCertificatesOfSubject,
+  getStudentsOfCourse,
   confirmCertificate
 };
 async function getAllCourses() {
@@ -30,6 +32,16 @@ async function getAllCourses() {
       headers: authHeader()
     });
     return respone.data.courses;
+  } catch (error) {
+    throw error;
+  }
+}
+async function getCourse(courseId) {
+  try {
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/academy/course/${courseId}`, {
+      headers: authHeader()
+    });
+    return respone.data.course;
   } catch (error) {
     throw error;
   }
@@ -361,7 +373,31 @@ async function getCertificatesOfSubject(subjectId) {
     ]
   };
 }
-
+async function getStudentsOfCourse() {
+  try {
+    // let respone = await axios.get(
+    //   `${process.env.VUE_APP_API_BACKEND}/account/student/${username}/subjects`,
+    //   {
+    //     headers: authHeader()
+    //   }
+    // );
+    // return respone.data.subjects;
+    return [
+      {
+        StudentCode: '61e3b1bb-77a7-4830-bbd2-23b35fcc24eb',
+        StudentName: 'Le Van A',
+        Class: 'Spring 01'
+      },
+      {
+        StudentCode: '61e3b1bb-77a7-4830-bbd2-23b35fcc24eb',
+        StudentName: 'Le Van A',
+        Class: 'Spring 01'
+      }
+    ];
+  } catch (error) {
+    throw error;
+  }
+}
 async function confirmCertificate(studentUsername, subjectId) {
   try {
     let respone = await axios.post(
