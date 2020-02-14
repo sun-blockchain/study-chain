@@ -340,7 +340,13 @@ exports.createSubject = async function(networkObj, subject) {
 };
 
 exports.createCourse = async function(networkObj, course) {
-  if (!course.courseID || !course.courseCode || !course.courseName) {
+  if (
+    !course.courseID ||
+    !course.courseCode ||
+    !course.courseName ||
+    !course.shortDescription ||
+    !course.description
+  ) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can register!';
     return response;
@@ -352,6 +358,7 @@ exports.createCourse = async function(networkObj, course) {
       course.courseID,
       course.courseCode,
       course.courseName,
+      course.shortDescription,
       course.description
     );
     let response = {
@@ -371,7 +378,13 @@ exports.createCourse = async function(networkObj, course) {
 };
 
 exports.updateCourseInfo = async function(networkObj, course) {
-  if (!course.courseID || !course.courseCode || !course.courseName || !course.description) {
+  if (
+    !course.courseID ||
+    !course.courseCode ||
+    !course.courseName ||
+    !course.shortDescription ||
+    !course.description
+  ) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can register!';
     return response;
@@ -383,6 +396,7 @@ exports.updateCourseInfo = async function(networkObj, course) {
       course.courseID,
       course.courseCode,
       course.courseName,
+      course.shortDescription,
       course.description
     );
     let response = {

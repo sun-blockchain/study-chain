@@ -16,6 +16,7 @@ type Course struct {
 	CourseID    string
 	CourseCode  string
 	CourseName  string
+	ShortDescription string
 	Description string
 	Subjects    []string
 }
@@ -290,7 +291,8 @@ func UpdateCourseInfo(stub shim.ChaincodeStubInterface, args []string) sc.Respon
 	CourseID := args[0]
 	CourseCode := args[1]
 	CourseName := args[2]
-	Description := args[3]
+	ShortDescription := args[3]
+	Description := args[4]
 
 	keyCourse := "Course-" + CourseID
 	course, err := getCourse(stub, keyCourse)
@@ -304,6 +306,8 @@ func UpdateCourseInfo(stub shim.ChaincodeStubInterface, args []string) sc.Respon
 		course.CourseCode = CourseCode
 
 		course.CourseName = CourseName
+
+		course.ShortDescription = ShortDescription
 
 		course.Description = Description
 

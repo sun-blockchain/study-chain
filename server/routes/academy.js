@@ -84,6 +84,11 @@ router.put(
       .isEmpty()
       .trim()
       .escape(),
+    body('shortDescription')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
     body('description')
       .not()
       .isEmpty()
@@ -106,12 +111,13 @@ router.put(
       const user = req.decoded.user;
       const networkObj = await network.connectToNetwork(user);
 
-      const { courseId, courseCode, courseName, description } = req.body;
+      const { courseId, courseCode, courseName, shortDescription, description } = req.body;
 
       let course = {
         courseID: courseId,
         courseCode: courseCode,
         courseName: courseName,
+        shortDescription: shortDescription,
         description: description
       };
 
@@ -149,6 +155,11 @@ router.post(
       .isEmpty()
       .trim()
       .escape(),
+    body('shortDescription')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
     body('description')
       .not()
       .isEmpty()
@@ -171,12 +182,13 @@ router.post(
       const user = req.decoded.user;
       const networkObj = await network.connectToNetwork(user);
 
-      const { courseCode, courseName, description } = req.body;
+      const { courseCode, courseName, shortDescription, description } = req.body;
 
       let course = {
         courseID: uuidv4(),
         courseCode: courseCode,
         courseName: courseName,
+        shortDescription: shortDescription,
         description: description
       };
 
