@@ -1,24 +1,24 @@
 <template>
   <div>
     <table-admin
-      :title="`Courses Manager`"
+      :title="`Subject Detail`"
       :btnCreate="true"
-      :listAll="listCourses"
+      :listAll="listClasss"
       :loadingData="loadingData"
       :btnDetail="true"
-      :nameFunctionDetail="`detailCourses`"
+      :nameFunctionDetail="`detailClasss`"
       :btnEdit="true"
       :nameFunctionEdit="`modalEdit`"
-      :nameFunctionDelete="`delCourse`"
+      :nameFunctionDelete="`delClass`"
       :btnDelete="true"
       :listProperties="[
-        { prop: 'CourseCode', label: 'CourseCode' },
-        { prop: 'CourseName', label: 'CourseName' },
+        { prop: 'ClassCode', label: 'ClassCode' },
+        { prop: 'ClassName', label: 'ClassName' },
         { prop: 'Description', label: 'Description' }
       ]"
-      @detailCourses="detailCourse($event)"
+      @detailClasss="detailClass($event)"
       @modalEdit="modalEdit($event)"
-      @delCourse="delCourse($event)"
+      @delClass="delClass($event)"
     ></table-admin>
 
     <ValidationObserver ref="observer" v-slot="{ passes }">
@@ -30,43 +30,45 @@
         title="Cập Nhật Khóa Học"
       >
         <b-form>
-          <ValidationProvider rules="required" name="Course Code" v-slot="{ valid, errors }">
+          <ValidationProvider rules="required" name="Class Code" v-slot="{ valid, errors }">
             <b-form-group>
               <b-form-input
                 type="text"
-                v-model="editCourse.CourseCode"
+                v-model="editClass.ClassCode"
                 :state="errors[0] ? false : valid ? true : null"
-                placeholder="Course Code"
+                placeholder="Class Code"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
-          <ValidationProvider rules="required" name="Course Name" v-slot="{ valid, errors }">
+          <ValidationProvider rules="required" name="Class Name" v-slot="{ valid, errors }">
             <b-form-group>
               <b-form-input
                 type="text"
-                v-model="editCourse.CourseName"
+                v-model="editClass.ClassName"
                 :state="errors[0] ? false : valid ? true : null"
-                placeholder="Course Name"
+                placeholder="Class Name"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
+            { path: '/academy/courses', name: 'academy-courses', component: () =>
+            import('./views/admin-academy/ClasssManager.vue') },
           </ValidationProvider>
-          <ValidationProvider rules="required" name="Course Description" v-slot="{ valid, errors }">
+          <ValidationProvider rules="required" name="Class Description" v-slot="{ valid, errors }">
             <b-form-group>
               <b-form-textarea
                 type="text"
-                v-model="editCourse.Description"
+                v-model="editClass.Description"
                 :state="errors[0] ? false : valid ? true : null"
-                placeholder="Course Description"
+                placeholder="Class Description"
               ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
         </b-form>
@@ -83,42 +85,42 @@
         v-loading.fullscreen.lock="fullscreenLoading"
       >
         <b-form>
-          <ValidationProvider rules="required" name="Course Code" v-slot="{ valid, errors }">
+          <ValidationProvider rules="required" name="Class Code" v-slot="{ valid, errors }">
             <b-form-group>
               <b-form-input
                 type="text"
-                v-model="newCourse.CourseCode"
+                v-model="newClass.ClassCode"
                 :state="errors[0] ? false : valid ? true : null"
-                placeholder="Course Code"
+                placeholder="Class Code"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
-          <ValidationProvider rules="required" name="Course Name" v-slot="{ valid, errors }">
+          <ValidationProvider rules="required" name="Class Name" v-slot="{ valid, errors }">
             <b-form-group>
               <b-form-input
                 type="text"
-                v-model="newCourse.CourseName"
+                v-model="newClass.ClassName"
                 :state="errors[0] ? false : valid ? true : null"
-                placeholder="Course Name"
+                placeholder="Class Name"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
-          <ValidationProvider rules="required" name="Course Description" v-slot="{ valid, errors }">
+          <ValidationProvider rules="required" name="Class Description" v-slot="{ valid, errors }">
             <b-form-group>
               <b-form-textarea
-                v-model="newCourse.Description"
+                v-model="newClass.Description"
                 :state="errors[0] ? false : valid ? true : null"
-                placeholder="Course Description"
+                placeholder="Class Description"
               ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
         </b-form>
@@ -139,71 +141,66 @@ export default {
   },
   data() {
     return {
-      editCourse: {
-        CourseID: '',
-        CourseCode: '',
-        CourseName: '',
+      editClass: {
+        ClassID: '',
+        ClassCode: '',
+        ClassName: '',
         Description: ''
       },
-      newCourse: {
-        CourseCode: '',
-        CourseName: '',
+      newClass: {
+        ClassCode: '',
+        ClassName: '',
         Description: ''
       },
       fullscreenLoading: false,
-      loadingData: false
+      loadingData: true
     };
   },
   methods: {
-    ...mapActions('adminAcademy', [
-      'getAllCourses',
-      'createCourse',
-      'updateCourse',
-      'deleteCourse'
-    ]),
-    detailCourse(row) {
-      this.$router.push({ path: `courses/${row.CourseID}/course-detail` });
+    ...mapActions('adminAcademy', ['getAllClasss', 'createClass', 'updateClass', 'deleteClass']),
+    detailClass(row) {
+      this.$router.push({ path: `subjects/${row.ClassID}/classes` });
     },
     modalEdit(row) {
-      this.editCourse.CourseID = row.CourseID;
-      this.editCourse.CourseCode = row.CourseCode;
-      this.editCourse.CourseName = row.CourseName;
-      this.editCourse.Description = row.Description;
+      this.editClass.ClassID = row.ClassID;
+      this.editClass.ClassCode = row.ClassCode;
+      this.editClass.ClassName = row.ClassName;
+      this.editClass.Description = row.Description;
 
       this.$root.$emit('bv::show::modal', 'modal-edit');
     },
     async handleCreate() {
       this.$refs['modal-create'].hide();
       this.fullscreenLoading = true;
-      let response = await this.createCourse(this.newCourse);
+      let response = await this.createClass(this.newClass);
       if (response) {
         await this.resetInfoModalCreate();
       }
-      await this.getAllCourses();
       this.fullscreenLoading = false;
+      await this.getAllClasss();
     },
     async handleUpdate() {
       this.$refs['modal-edit'].hide();
       this.fullscreenLoading = true;
-      await this.updateCourse(this.editCourse);
+      await this.updateClass(this.editClass);
       await this.resetInfoModalEdit();
       this.fullscreenLoading = false;
-      await this.getAllCourses();
+      await this.getAllClasss();
     },
     resetInfoModalEdit() {
-      this.editCourse.CourseCode = '';
-      this.editCourse.CourseName = '';
-      this.editCourse.Description = '';
+      this.editClass.ClassCode = '';
+      this.editClass.ClassName = '';
+      this.editClass.Description = '';
     },
     resetInfoModalCreate() {
-      this.newCourse.CourseCode = '';
-      this.newCourse.CourseName = '';
-      this.newCourse.Description = '';
+      this.newClass.ClassCode = '';
+      this.newClass.ClassName = '';
+      this.newClass.Description = '';
       requestAnimationFrame(() => {
         this.$refs.observer.reset();
       });
     },
-    async delCourse(row) {
+    async delClass(row) {
       this.$swal({
         title: 'Are you sure?',
         text: "You won't be able to revert this!",
@@ -216,11 +213,11 @@ export default {
       }).then(async (result) => {
         if (result.value) {
           this.fullscreenLoading = true;
-          await this.deleteCourse(row.CourseID);
-          await this.getAllCourses();
+          await this.deleteClass(row.ClassID);
+          await this.getAllClasss();
           this.fullscreenLoading = false;
 
-          this.$swal('Deleted!', 'Course has been deleted.', 'success');
+          this.$swal('Deleted!', 'Your file has been deleted.', 'success');
         }
       });
     },
@@ -229,10 +226,10 @@ export default {
     }
   },
   computed: {
-    ...mapState('adminAcademy', ['listCourses'])
+    ...mapState('adminAcademy', ['listClasss'])
   },
   async created() {
-    let response = await this.getAllCourses();
+    let response = await this.getAllClasss();
     if (response) {
       this.loadingData = false;
     }

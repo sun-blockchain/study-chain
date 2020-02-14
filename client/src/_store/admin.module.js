@@ -13,6 +13,20 @@ const state = {
 };
 
 const actions = {
+  async getCourse({ commit }, courseId) {
+    console.log(courseId);
+
+    try {
+      let listCourses = await adminService.getCourse(courseId);
+      commit('getCourse', listCourses);
+      return listCourses;
+    } catch (error) {
+      console.log(error);
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
+  },
   async getAllCourses({ commit }) {
     try {
       let listCourses = await adminService.getAllCourses();
@@ -229,7 +243,17 @@ const actions = {
       }
     }
   },
-
+  async getStudentsOfCourse({ commit }) {
+    try {
+      let listStudents = await adminService.getStudentsOfCourse();
+      commit('getStudentsOfCourse', listStudents);
+    } catch (error) {
+      console.log(error);
+      // if (error.response.status === 403) {
+      //   router.push('/403');
+      // }
+    }
+  },
   // Subjects of student
   async getSubjectsOfStudent({ commit }, Username) {
     try {
@@ -271,6 +295,9 @@ const actions = {
 };
 
 const mutations = {
+  getCourse(state, listCourses) {
+    state.listCourses = listCourses;
+  },
   getAllCourses(state, listCourses) {
     state.listCourses = listCourses;
   },
@@ -347,6 +374,9 @@ const mutations = {
   },
   confirmCertificate(state, studentsOfSubject) {
     state.studentsOfSubject = studentsOfSubject;
+  },
+  getStudentsOfCourse(state, listStudents) {
+    state.listStudents = listStudents;
   }
 };
 
