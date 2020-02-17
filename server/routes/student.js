@@ -2,6 +2,9 @@ const router = require('express').Router();
 const USER_ROLES = require('../configs/constant').USER_ROLES;
 const network = require('../fabric/network.js');
 const User = require('../models/User');
+const checkJWT = require('../middlewares/check-jwt');
+const { body, validationResult, check } = require('express-validator');
+const uuidv4 = require('uuid/v4');
 
 router.get('/all', async (req, res) => {
   if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {

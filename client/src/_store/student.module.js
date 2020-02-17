@@ -5,10 +5,35 @@ const user = JSON.parse(localStorage.getItem('user'));
 const state = {
   listSubjects: [],
   mySubjects: [],
-  myCertificates: []
+  myCertificates: [],
+  listCourses: []
 };
 
 const actions = {
+  async getCourse({ commit }, courseId) {
+    try {
+      let listCourses = await studentService.getCourse(courseId);
+      commit('getCourse', listCourses);
+      return listCourses;
+    } catch (error) {
+      console.log(error);
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
+  },
+  async getAllCourses({ commit }) {
+    try {
+      let listCourses = await studentService.getAllCourses();
+      commit('getAllCourses', listCourses);
+      return listCourses;
+    } catch (error) {
+      console.log(error);
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
+  },
   async getAllSubjects({ commit }, username) {
     try {
       let listSubjects = await studentService.getAllSubjects(username);
@@ -57,6 +82,12 @@ const actions = {
 };
 
 const mutations = {
+  getCourse(state, listCourses) {
+    state.listCourses = listCourses;
+  },
+  getAllCourses(state, listCourses) {
+    state.listCourses = listCourses;
+  },
   getAllSubjects(state, listSubjects) {
     state.listSubjects = listSubjects;
   },
