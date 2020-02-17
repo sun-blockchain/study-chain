@@ -126,7 +126,11 @@
               </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
-          <ValidationProvider rules="required" name="Course Short Description" v-slot="{ valid, errors }">
+          <ValidationProvider
+            rules="required"
+            name="Course Short Description"
+            v-slot="{ valid, errors }"
+          >
             <b-form-group>
               <b-form-textarea
                 v-model="newCourse.ShortDescription"
@@ -138,7 +142,7 @@
               </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
-                    <ValidationProvider rules="required" name="Course Description" v-slot="{ valid, errors }">
+          <ValidationProvider rules="required" name="Course Description" v-slot="{ valid, errors }">
             <b-form-group>
               <b-form-textarea
                 v-model="newCourse.Description"
@@ -150,7 +154,6 @@
               </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
-        </b-form>
         </b-form>
       </b-modal>
     </ValidationObserver>

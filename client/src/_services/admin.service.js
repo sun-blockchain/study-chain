@@ -12,6 +12,7 @@ export const adminService = {
   updateSubject,
   deleteSubject,
   getStudentsOfSubject,
+  getClassesOfSubject,
   deleteStudentOfSubject,
   getAllTeachers,
   deleteTeacher,
@@ -185,7 +186,34 @@ async function deleteStudentOfSubject(SubjectID, Username) {
     throw error;
   }
 }
-
+async function getClassesOfSubject(subjectId) {
+  try {
+    // let respone = await axios.get(
+    //   `${process.env.VUE_APP_API_BACKEND}/account/teacher/${username}/subjects`,
+    //   {
+    //     headers: authHeader()
+    //   }
+    // );
+    // return respone.data;
+    return {
+      success: true,
+      classes: [
+        {
+          ClassCode: 'ClassA',
+          ClassName: 'Hyperledger',
+          Description: 'abc'
+        },
+        {
+          listClasses: 'ClassB',
+          ClassName: 'a',
+          Description: 'xyz'
+        }
+      ]
+    };
+  } catch (error) {
+    throw error;
+  }
+}
 // -Teacher Manager
 async function getAllTeachers() {
   try {

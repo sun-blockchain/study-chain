@@ -37,9 +37,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Subject Name"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
         </b-form>
@@ -64,9 +64,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Subject Name"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
         </b-form>
@@ -105,7 +105,7 @@ export default {
       'deleteSubject'
     ]),
     detailSubject(row) {
-      this.$router.push({ path: `subjects/${row.SubjectID}/students` });
+      this.$router.push({ path: `subjects/${row.SubjectID}/classes` });
     },
     modalEdit(row) {
       this.editSubject.Name = row.Name;

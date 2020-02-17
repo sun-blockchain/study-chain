@@ -1,9 +1,24 @@
 <template>
-  <div>
+  <div class="container-fluid">
+    <h1 class="bannerTitle_1wzmt7u">Tên môn học</h1>
+    <b-breadcrumb>
+      <b-breadcrumb-item href="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
+      <b-breadcrumb-item href="/academy/subjects">Subject</b-breadcrumb-item>
+      <b-breadcrumb-item active>Subject Detail</b-breadcrumb-item>
+    </b-breadcrumb>
+    <div class="mb-5">
+      <div>
+        <div class="card-body">
+          <h1 class="h3 mb-2 text-gray-800">About this subject</h1>
+
+          <p>Description</p>
+        </div>
+      </div>
+    </div>
     <table-admin
-      :title="`Subject Detail`"
+      :title="`Classes list`"
       :btnCreate="true"
-      :listAll="listClasss"
+      :listAll="listClasses"
       :loadingData="loadingData"
       :btnDetail="true"
       :nameFunctionDetail="`detailClasss`"
@@ -38,9 +53,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Code"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Class Name" v-slot="{ valid, errors }">
@@ -51,9 +66,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Name"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
             { path: '/academy/courses', name: 'academy-courses', component: () =>
             import('./views/admin-academy/ClasssManager.vue') },
@@ -66,9 +81,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Description"
               ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
         </b-form>
@@ -93,9 +108,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Code"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Class Name" v-slot="{ valid, errors }">
@@ -106,9 +121,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Name"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Class Description" v-slot="{ valid, errors }">
@@ -118,9 +133,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Description"
               ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
         </b-form>
@@ -153,11 +168,16 @@ export default {
         Description: ''
       },
       fullscreenLoading: false,
-      loadingData: true
+      loadingData: false
     };
   },
   methods: {
-    ...mapActions('adminAcademy', ['getAllClasss', 'createClass', 'updateClass', 'deleteClass']),
+    ...mapActions('adminAcademy', [
+      'getClassesOfSubject',
+      'createClass',
+      'updateClass',
+      'deleteClass'
+    ]),
     detailClass(row) {
       this.$router.push({ path: `subjects/${row.ClassID}/classes` });
     },
@@ -226,12 +246,13 @@ export default {
     }
   },
   computed: {
-    ...mapState('adminAcademy', ['listClasss'])
+    ...mapState('adminAcademy', ['listClasses', 'listSubject'])
   },
   async created() {
-    let response = await this.getAllClasss();
-    if (response) {
+    let classes = await this.getClassesOfSubject(this.$route.params.id);
+    if (classes) {
       this.loadingData = false;
+      console.log(response);
     }
   }
 };
