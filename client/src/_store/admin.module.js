@@ -6,6 +6,7 @@ const state = {
   listSubjects: [],
   listTeachers: [],
   listStudents: [],
+  listClasses: [],
   studentsOfSubject: [],
   subjectsOfTeacher: [],
   subjectOfStudent: [],
@@ -14,8 +15,6 @@ const state = {
 
 const actions = {
   async getCourse({ commit }, courseId) {
-    console.log(courseId);
-
     try {
       let listCourses = await adminService.getCourse(courseId);
       commit('getCourse', listCourses);
@@ -254,6 +253,18 @@ const actions = {
       // }
     }
   },
+  async getClassesOfSubject({ commit }, subjectId) {
+    try {
+      let listClasses = await adminService.getClassesOfSubject(subjectId);
+
+      commit('getClassesOfSubject', listClasses.classes);
+    } catch (error) {
+      console.log(error);
+      // if (error.response.status === 403) {
+      //   router.push('/403');
+      // }
+    }
+  },
   // Subjects of student
   async getSubjectsOfStudent({ commit }, Username) {
     try {
@@ -331,7 +342,9 @@ const mutations = {
   deleteStudentOfSubject(state, listStudents) {
     state.studentsOfSubject = listStudents;
   },
-
+  getClassesOfSubject(state, listClasses) {
+    state.listClasses = listClasses;
+  },
   // Teacher Manager
   getAllTeachers(state, listTeachers) {
     state.listTeachers = listTeachers;
