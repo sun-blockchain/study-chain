@@ -132,23 +132,23 @@ Query Score with role admin student with studentId and subjectId
 #### Example:
 
 ```bash
- node invoke.js --username=adminacademy --func=CreateCourse --coursecode=BC01 --coursename=Blockchain --description=Blockchain
+ node invoke.js --username=adminacademy --func=CreateCourse --courseCode=BC01 --courseName=Blockchain --description=Blockchain --shortDescription=Blockchain
 ```
 
 ```bash
- node invoke.js --username=adminacademy --func=UpdateCourseInfo --courseid=xxxx  --coursecode=BC01 --coursename=Blockchain --description=Blockchain
+ node invoke.js --username=adminacademy --func=UpdateCourseInfo --courseId=xxxx  --courseCode=BC01 --courseName=Blockchain --description=Blockchain --shortDescription=Blockchain
 ```
 
 ```bash
- node invoke.js --username=st01 --func=UpdateUserInfo --phonenumber=0382794668  --email=BC01 --address=KienGiang
+ node invoke.js --username=st01 --func=UpdateUserInfo --phoneNumber=0382794668  --email=BC01 --address=KienGiang --fullName=TrinhVanTan
 ```
 
 ```bash
- node invoke.js --username=adminacademy --func=DeleteCourse --courseid=xxxx
+ node invoke.js --username=adminacademy --func=DeleteCourse --courseId=xxxx
 ```
 
 ```bash
- node invoke.js --username=adminacademy --func=CreateSubject --subjectid=ethereum --subjectname=tantr
+ node invoke.js --username=adminacademy --func=CreateSubject --subjectCode=ET01 --subjectName=Ethereum --shortDescription=Ethereum --description=Ethereum
 ```
 
 ```bash
