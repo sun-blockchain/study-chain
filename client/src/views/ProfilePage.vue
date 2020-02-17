@@ -138,42 +138,58 @@
                   </b-tab>
                   <b-tab title="Change Password">
                     <div class="card-body">
-                      <form>
-                        <div class="pl-lg-4">
-                          <div class="row">
-                            <div class="col-lg-12">
-                              <div class="form-group focused">
-                                <input
-                                  type="password"
-                                  class="form-control form-control-alternative"
-                                  placeholder="Current Password"
-                                />
-                              </div>
-                            </div>
-                            <div class="col-lg-12">
-                              <div class="form-group focused">
-                                <input
-                                  type="password"
-                                  class="form-control form-control-alternative"
-                                  placeholder="New Password"
-                                />
-                              </div>
-                            </div>
-                            <div class="col-lg-12">
-                              <div class="form-group">
-                                <input
-                                  type="password"
-                                  class="form-control form-control-alternative"
-                                  placeholder="Re Password"
-                                />
-                              </div>
-                            </div>
+                      <el-form
+                        :model="changePassword"
+                        status-icon
+                        :rules="ruleChangePass"
+                        ref="changePassword"
+                        class="demo-ruleForm"
+                      >
+                        <div class="row justify-content-center">
+                          <div class="col-lg-8">
+                            <el-form-item prop="oldPass">
+                              <el-input
+                                type="password"
+                                v-model="changePassword.oldPass"
+                                autocomplete="off"
+                                placeholder="Current Password"
+                                clearable
+                              ></el-input>
+                            </el-form-item>
+                          </div>
+                          <div class="col-lg-8">
+                            <el-form-item prop="newPass">
+                              <el-input
+                                type="password"
+                                v-model="changePassword.newPass"
+                                autocomplete="off"
+                                placeholder="New Password"
+                                clearable
+                              ></el-input>
+                            </el-form-item>
+                          </div>
+                          <div class="col-lg-8">
+                            <el-form-item prop="confirmPass">
+                              <el-input
+                                type="password"
+                                v-model="changePassword.confirmPass"
+                                autocomplete="off"
+                                placeholder="Comfirm Password"
+                                clearable
+                              ></el-input>
+                            </el-form-item>
+                          </div>
+                          <div class="col-lg-8">
+                            <el-form-item>
+                              <el-button
+                                type="primary"
+                                @click="submitChangePassword('changePassword')"
+                              >Change</el-button>
+                              <el-button @click="resetFormChangePass('changePassword')">Reset</el-button>
+                            </el-form-item>
                           </div>
                         </div>
-                        <div class="col-4 text-right float-right">
-                          <a href="#" class="btn btn-sm btn-primary">Update</a>
-                        </div>
-                      </form>
+                      </el-form>
                     </div>
                   </b-tab>
                 </b-tabs>
@@ -230,6 +246,24 @@ export default {
         callback();
       }
     };
+
+    var valiRePass = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("confirm password is required"));
+      } else if (value !== this.changePassword.newPass) {
+        console.log("value", typeof value);
+        console.log(
+          "this.changePassword.newPass",
+          typeof this.changePassword.newPass
+        );
+
+        callback(
+          new Error("new password and confirm password does not match!")
+        );
+      } else {
+        callback();
+      }
+    };
     return {
       imageUrl: "",
       validPhoneNumber: false,
@@ -243,6 +277,11 @@ export default {
         birthday: "",
         sex: "",
         avatar: ""
+      },
+      changePassword: {
+        oldPass: "",
+        newPass: "",
+        confirmPass: ""
       },
       rules: {
         fullname: [
@@ -265,6 +304,43 @@ export default {
           }
         ]
       },
+      ruleChangePass: {
+        oldPass: [
+          {
+            required: true,
+            message: "current password is required",
+            trigger: "blur"
+          },
+          {
+            min: 6,
+            message: "current password must be at least 6 characters",
+            trigger: "blur"
+          }
+        ],
+        newPass: [
+          {
+            required: true,
+            message: "new password is required",
+            trigger: "blur"
+          },
+          {
+            min: 6,
+            message: "new password must be at least 6 characters",
+            trigger: "blur"
+          }
+        ],
+        confirmPass: [
+          {
+            validator: valiRePass,
+            trigger: "blur"
+          },
+          {
+            min: 6,
+            message: "confirm password must be at least 6 characters",
+            trigger: "blur"
+          }
+        ]
+      },
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now();
@@ -273,7 +349,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions("account", ["getProfile", "pushProfile"]),
+    ...mapActions("account", ["getProfile", "pushProfile", "changePass"]),
     inputNumberPhone(number) {
       this.validPhoneNumber = number.valid;
     },
@@ -356,6 +432,27 @@ export default {
           return false;
         }
       });
+    },
+    submitChangePassword(formName) {
+      let self = this;
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          this.fullscreenLoading = true;
+          let data = await this.changePass(self.changePassword);
+          if (data.success) {
+            Message.success("Your password has been changed successfully!");
+          } else {
+            Message.error(data.msg);
+          }
+          self.fullscreenLoading = false;
+        } else {
+          console.log("Something went wrong, please try again!");
+          return false;
+        }
+      });
+    },
+    resetFormChangePass(formName) {
+      this.$refs[formName].resetFields();
     }
   },
   async created() {
