@@ -42,11 +42,13 @@ const actions = {
       }
     );
   },
+
   logout({ commit }) {
     authService.logout();
     commit('logout');
     router.push('/login');
   },
+
   loginGoogle({ dispatch, commit }, code) {
     authService.loginGoogle(code).then(
       (user) => {
@@ -58,6 +60,28 @@ const actions = {
         dispatch('alert/error', error, { root: true });
       }
     );
+  },
+  async getProfile() {
+    try {
+      let info = await authService.getProfile();
+      return info;
+    } catch (error) {
+      console.log(error);
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
+  },
+  async pushProfile({}, user) {
+    try {
+      let data = await authService.pushProfile(user);
+      return data;
+    } catch (error) {
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+      return error.response.data;
+    }
   }
 };
 

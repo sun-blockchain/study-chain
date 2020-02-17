@@ -193,6 +193,10 @@ ul.social-network li {
   border-radius: 15px;
 }
 
+.color-606266 {
+  color: #606266;
+}
+
 @media (max-width: 768px) {
   .table-responsive {
     overflow-x: auto;

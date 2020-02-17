@@ -22,13 +22,13 @@
           />
         </svg>
       </button>
-      <b-navbar-brand href="/" class="margin-left-15">Certificate Verify</b-navbar-brand>
+      <b-navbar-brand href="/" class="margin-left-15">Study Chain</b-navbar-brand>
 
       <b-navbar-toggle target="nav-collapse">
         <em>
           <img
-            src="https://images.viblo.asia/60x60/66e3b1f8-0b62-44e2-8a6a-deae3a61c125.jpg"
-            srcset="https://images.viblo.asia/120x120/66e3b1f8-0b62-44e2-8a6a-deae3a61c125.jpg 2x"
+            src="@/assets/img/avatar-default.png"
+            srcset="@/assets/img/avatar-default.png"
             class="avatar avatar--md rounded-circle"
             aria-describedby="el-popover-8083"
             tabindex="0"
@@ -49,8 +49,8 @@
             <template v-slot:button-content>
               <em>
                 <img
-                  src="https://images.viblo.asia/60x60/66e3b1f8-0b62-44e2-8a6a-deae3a61c125.jpg"
-                  srcset="https://images.viblo.asia/120x120/66e3b1f8-0b62-44e2-8a6a-deae3a61c125.jpg 2x"
+                  src="@/assets/img/avatar-default.png"
+                  srcset="@/assets/img/avatar-default.png"
                   class="avatar avatar--md rounded-circle"
                   aria-describedby="el-popover-8083"
                   tabindex="0"
@@ -58,7 +58,7 @@
                 />
               </em>
             </template>
-            <b-dropdown-item to="/profile">Profile</b-dropdown-item>
+            <b-dropdown-item to="/profile" v-if="user.role !== 1">Profile</b-dropdown-item>
             <b-dropdown-item @click="logout">Sign Out</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
@@ -68,17 +68,20 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapState } from 'vuex';
 export default {
-  name: "navbar-header",
+  name: 'navbar-header',
+  computed: {
+    ...mapState('account', ['user'])
+  },
   data() {
     return {
-      username: "Ngo Van Nghia"
+      username: 'Ngo Van Nghia'
     };
   },
   methods: {
-    ...mapActions(["changeStatusSidebar"]),
-    ...mapActions("account", ["logout"])
+    ...mapActions(['changeStatusSidebar']),
+    ...mapActions('account', ['logout'])
   }
 };
 </script>
