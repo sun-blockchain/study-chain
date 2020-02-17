@@ -243,7 +243,8 @@ describe('#PUT /academy/course', () => {
         courseId: '123-456-789',
         courseCode: 'BC101',
         courseName: 'Blockchain 101',
-        description: 'Blockchain'
+        shortDescription: 'Blockchain',
+        description: 'Blockchain for beginer'
       })
       .then((res) => {
         expect(res.status).equal(200);
@@ -281,7 +282,8 @@ describe('#PUT /academy/course', () => {
         courseId: '123-456-789',
         courseCode: 'BC101',
         courseName: 'Blockchain 101',
-        description: 'Blockchain'
+        shortDescription: 'Blockchain',
+        description: 'Blockchain for beginer'
       })
       .then((res) => {
         expect(res.status).equal(500);
@@ -362,7 +364,8 @@ describe('#POST /academy/course', () => {
       .send({
         courseCode: 'BC101',
         courseName: 'Blockchain 101',
-        description: 'Blockchain'
+        shortDescription: 'Blockchain',
+        description: 'Full course blockchain'
       })
       .then((res) => {
         expect(res.status).equal(200);
@@ -398,7 +401,8 @@ describe('#POST /academy/course', () => {
       .send({
         courseCode: 'BC101',
         courseName: 'Blockchain 101',
-        description: 'Blockchain'
+        shortDescription: 'Blockchain',
+        description: 'Blockchain 101 for beginer'
       })
       .then((res) => {
         expect(res.status).equal(500);
