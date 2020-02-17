@@ -6,6 +6,7 @@ const sinon = require('sinon');
 const User = require('../models/User');
 const network = require('../fabric/network');
 const USER_ROLES = require('../configs/constant').USER_ROLES;
+const bcrypt = require('bcryptjs');
 const app = require('../app');
 
 require('dotenv').config();
@@ -977,6 +978,108 @@ describe('GET /account/me/:subjectId/students', () => {
         expect(res.status).equal(200);
         expect(res.body.success).equal(true);
 
+        done();
+      });
+  });
+});
+
+describe('POST /account/me/changePassword', () => {
+  let findOneUserStub;
+  let hashPass;
+  let compareHash;
+
+  beforeEach(() => {
+    findOneUserStub = sinon.stub(User, 'findOne');
+    hashPass = sinon.stub(bcrypt, 'hash');
+    compareHash = sinon.stub(bcrypt, 'compare');
+  });
+
+  afterEach(() => {
+    findOneUserStub.restore();
+    hashPass.restore();
+    compareHash.restore();
+  });
+
+  it('do not success change password because length < 6', (done) => {
+    request(app)
+      .post('/account/me/changePassword')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        oldPass: '123123',
+        newPass: '12345',
+        confirmPass: '12345'
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        done();
+      });
+  });
+
+  it('do not success change password empty', (done) => {
+    request(app)
+      .post('/account/me/changePassword')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        oldPass: '',
+        newPass: '12345',
+        confirmPass: '12345'
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        done();
+      });
+  });
+
+  it('do not success change password because oldPass like newPass', (done) => {
+    findOneUserStub.resolves({ username: 'tantrinh' });
+
+    request(app)
+      .post('/account/me/changePassword')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        oldPass: '123123',
+        newPass: '123123',
+        confirmPass: '123123'
+      })
+      .then((res) => {
+        expect(res.status).equal(400);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('do not success change password because confirmPass do not like newPass', (done) => {
+    findOneUserStub.resolves({ username: 'tantrinh' });
+
+    request(app)
+      .post('/account/me/changePassword')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        oldPass: '123123',
+        newPass: '123456',
+        confirmPass: '123457'
+      })
+      .then((res) => {
+        expect(res.status).equal(400);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('do not success because account is not exist', (done) => {
+    findOneUserStub.resolves(null);
+
+    request(app)
+      .post('/account/me/changePassword')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        oldPass: '123123',
+        newPass: '123456',
+        confirmPass: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(404);
+        expect(res.body.success).equal(false);
         done();
       });
   });
