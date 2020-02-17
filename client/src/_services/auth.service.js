@@ -7,7 +7,8 @@ export const authService = {
   logout,
   loginGoogle,
   getProfile,
-  pushProfile
+  pushProfile,
+  changePass
 };
 
 async function login(username, password) {
@@ -88,6 +89,26 @@ async function pushProfile(user) {
         address: user.address,
         birthday: user.birthday,
         sex: user.sex
+      },
+      {
+        headers: authHeader()
+      }
+    );
+    return respone.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+//  change password
+async function changePass(changePass) {
+  try {
+    let respone = await axios.post(
+      `${process.env.VUE_APP_API_BACKEND}/account/me/changePassword`,
+      {
+        oldPass: changePass.oldPass,
+        newPass: changePass.newPass,
+        confirmPass: changePass.confirmPass
       },
       {
         headers: authHeader()

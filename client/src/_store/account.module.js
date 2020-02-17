@@ -82,6 +82,17 @@ const actions = {
       }
       return error.response.data;
     }
+  },
+  async changePass({}, changePass) {
+    try {
+      let data = await authService.changePass(changePass);
+      return data;
+    } catch (error) {
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+      return error.response.data;
+    }
   }
 };
 
