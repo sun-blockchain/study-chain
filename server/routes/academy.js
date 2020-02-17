@@ -299,4 +299,65 @@ router.post(
     }
   }
 );
+
+// Create subject
+router.post(
+  '/subject',
+  checkJWT,
+  [
+    body('subjectName')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('subjectCode')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('shortDescription')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('description')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape()
+  ],
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, errors: errors.array() });
+    }
+
+    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied'
+      });
+    }
+    let subject = {
+      subjectID: uuidv4(),
+      subjectName: req.body.subjectName,
+      subjectCode: req.body.subjectCode,
+      shortDescription: req.body.shortDescription,
+      description: req.body.description
+    };
+    const networkObj = await network.connectToNetwork(req.decoded.user);
+    const response = await network.createSubject(networkObj, subject);
+    if (!response.success) {
+      return res.status(500).json({
+        success: false,
+        msg: response.msg
+      });
+    }
+    const listNew = await network.query(networkObj, 'GetAllSubjects');
+    return res.json({
+      success: true,
+      subjects: JSON.parse(listNew.msg)
+    });
+  }
+);
 module.exports = router;

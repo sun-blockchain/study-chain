@@ -17,7 +17,6 @@
     </div>
     <table-admin
       :title="`Classes list`"
-      :btnCreate="true"
       :listAll="listClasses"
       :loadingData="loadingData"
       :btnDetail="true"
@@ -36,7 +35,18 @@
       @detailClasss="detailClass($event)"
       @modalEdit="modalEdit($event)"
       @delClass="delClass($event)"
-    ></table-admin>
+    >
+      <template v-slot:btn-create>
+        <el-button
+          type="success"
+          icon="fas fa-plus"
+          size="medium"
+          round
+          v-b-modal.modal-create
+        ></el-button>
+        <!-- <div class="box-defaul-header"></div> -->
+      </template>
+    </table-admin>
 
     <ValidationObserver ref="observer" v-slot="{ passes }">
       <b-modal
@@ -55,9 +65,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Code"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Class Name" v-slot="{ valid, errors }">
@@ -68,9 +78,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Name"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
             { path: '/academy/courses', name: 'academy-courses', component: () =>
             import('./views/admin-academy/ClasssManager.vue') },
@@ -83,9 +93,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Description"
               ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
         </b-form>
@@ -110,9 +120,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Code"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Room" v-slot="{ valid, errors }">
@@ -123,9 +133,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class room"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Time" v-slot="{ valid, errors }">
@@ -136,9 +146,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Time"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Short Description" v-slot="{ valid, errors }">
@@ -149,9 +159,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Short Description"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Class Description" v-slot="{ valid, errors }">
@@ -161,9 +171,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Description"
               ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
         </b-form>
@@ -176,11 +186,13 @@
 import { mapState, mapActions } from 'vuex';
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 import TableAdmin from '@/components/admin-academy/TableAdmin';
+import { Button } from 'element-ui';
 export default {
   components: {
     ValidationObserver,
     ValidationProvider,
-    TableAdmin
+    TableAdmin,
+    'el-button': Button
   },
   data() {
     return {

@@ -197,9 +197,18 @@ ul.social-network li {
   color: #606266;
 }
 
+.modal-with-create .el-dialog {
+  width: 30%;
+  border-radius: 10px;
+}
+
 @media (max-width: 768px) {
   .table-responsive {
     overflow-x: auto;
+  }
+
+  .modal-with-create .el-dialog {
+    width: 100%;
   }
 }
 

@@ -2,7 +2,6 @@
   <div>
     <table-admin
       :title="`Teachers Manager`"
-      :btnCreate="true"
       :listAll="listTeachers"
       :loadingData="loadingData"
       :btnDetail="true"
@@ -18,7 +17,18 @@
       @delTeacher="delTeacher($event)"
       @info="info($event)"
       @detailTeacher="detailTeacher($event)"
-    ></table-admin>
+    >
+      <template v-slot:btn-create>
+        <el-button
+          type="success"
+          icon="fas fa-plus"
+          size="medium"
+          round
+          v-b-modal.modal-create
+        ></el-button>
+        <!-- <div class="box-defaul-header"></div> -->
+      </template>
+    </table-admin>
 
     <b-modal
       id="info-modal"
@@ -73,9 +83,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Username"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider
@@ -90,9 +100,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Fullname"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
         </b-form>
@@ -105,11 +115,13 @@
 import { mapState, mapActions } from 'vuex';
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 import TableAdmin from '@/components/admin-academy/TableAdmin';
+import { Button } from 'element-ui';
 export default {
   components: {
     ValidationObserver,
     ValidationProvider,
-    TableAdmin
+    TableAdmin,
+    'el-button': Button
   },
   data() {
     return {

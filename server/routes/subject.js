@@ -21,48 +21,6 @@ router.get('/create', async (req, res) => {
 });
 
 router.post(
-  '/create',
-  checkJWT,
-  [
-    body('subjectname')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape()
-  ],
-  async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
-    }
-
-    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
-      return res.status(403).json({
-        success: false,
-        msg: 'Permission Denied'
-      });
-    }
-    let subject = {
-      subjectID: uuidv4(),
-      subjectName: req.body.subjectname
-    };
-    const networkObj = await network.connectToNetwork(req.decoded.user);
-    const response = await network.createSubject(networkObj, subject);
-    if (!response.success) {
-      return res.status(500).json({
-        success: false,
-        msg: response.msg
-      });
-    }
-    const listNew = await network.query(networkObj, 'GetAllSubjects');
-    return res.json({
-      success: true,
-      subjects: JSON.parse(listNew.msg)
-    });
-  }
-);
-
-router.post(
   '/addsubjectforteacher',
   checkJWT,
   [

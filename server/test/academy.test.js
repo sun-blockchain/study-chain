@@ -359,6 +359,7 @@ describe('#POST /academy/deleteCourse', () => {
       });
   });
 });
+
 describe('#POST /academy/class', () => {
   let connect;
   let query;
@@ -479,6 +480,231 @@ describe('#POST /academy/class', () => {
       .then((res) => {
         expect(res.status).equal(500);
         expect(res.body.success).equal(false);
+        done();
+      });
+  });
+});
+
+describe('#POST /academy/subject', () => {
+  let connect;
+  let createSubjectStub;
+  let query;
+  let findOneStub;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    createSubjectStub = sinon.stub(network, 'createSubject');
+    query = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    createSubjectStub.restore();
+    query.restore();
+  });
+
+  it('do not create success subject with empty req.body', (done) => {
+    request(app)
+      .post('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .send({
+        subjectName: '',
+        subjectCode: '',
+        shortDescription: '',
+        description: ''
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('do not create success subject with empty subjectName', (done) => {
+    request(app)
+      .post('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .send({
+        subjectName: '',
+        subjectCode: 'bc001',
+        shortDescription: 'lorem',
+        description: 'lorem...'
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('do not create success subject with empty subjectCode', (done) => {
+    request(app)
+      .post('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .send({
+        subjectName: 'php',
+        subjectCode: '',
+        shortDescription: 'lorem',
+        description: 'lorem...'
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('do not create success subject with empty shortDescription', (done) => {
+    request(app)
+      .post('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .send({
+        subjectName: 'php',
+        subjectCode: '123',
+        shortDescription: '',
+        description: 'lorem...'
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('do not create success subject with empty description', (done) => {
+    request(app)
+      .post('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .send({
+        subjectName: 'php',
+        subjectCode: '123',
+        shortDescription: 'lorem',
+        description: ''
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('do not create success subject with admin student', (done) => {
+    request(app)
+      .post('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .send({
+        subjectName: 'blockchain',
+        subjectCode: 'bc001',
+        shortDescription: 'lorem',
+        description: 'lorem...'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('do not create success subject with teacher', (done) => {
+    request(app)
+      .post('/academy/subject')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .send({
+        subjectName: 'blockchain',
+        subjectCode: 'bc001',
+        shortDescription: 'lorem',
+        description: 'lorem...'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('do not create success subject with student', (done) => {
+    request(app)
+      .post('/academy/subject')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        subjectName: 'blockchain',
+        subjectCode: 'bc001',
+        shortDescription: 'lorem',
+        description: 'lorem...'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('do not create success subject with admin academy - error chaincode', (done) => {
+    createSubjectStub.returns({
+      success: false,
+      msg: 'error'
+    });
+
+    request(app)
+      .post('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        subjectName: 'blockchain',
+        subjectCode: 'bc001',
+        shortDescription: 'lorem',
+        description: 'lorem...'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('error');
+        done();
+      });
+  });
+
+  it('create success subject with admin academy', (done) => {
+    let data = JSON.stringify(
+      {
+        SubjectID: '00',
+        SubjectCode: 'bc001',
+        SubjectName: 'Blockchain',
+        ShortDescription: 'lorem01',
+        Description: 'lorem01...'
+      },
+      {
+        SubjectID: '01',
+        SubjectCode: 'etc002',
+        SubjectName: 'ETC',
+        ShortDescription: 'lorem02',
+        Description: 'lorem02...'
+      }
+    );
+
+    createSubjectStub.returns({
+      success: true,
+      msg: 'created'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .post('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        subjectName: 'blockchain02',
+        subjectCode: 'bc002',
+        shortDescription: 'lorem3',
+        description: 'lorem3...'
+      })
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
         done();
       });
   });
