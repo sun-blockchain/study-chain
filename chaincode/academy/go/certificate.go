@@ -13,19 +13,20 @@ type SmartContract struct {
 }
 
 type Course struct {
-	CourseID    string
-	CourseCode  string
-	CourseName  string
+	CourseID         string
+	CourseCode       string
+	CourseName       string
 	ShortDescription string
-	Description string
-	Subjects    []string
+	Description      string
+	Subjects         []string
 }
 
 type Subject struct {
-	SubjectID       string
-	Name            string
-	TeacherUsername string
-	Students        []string
+	SubjectID        string
+	SubjectCode      string
+	SubjectName      string
+	ShortDescription string
+	Description      string
 }
 
 type Teacher struct {
@@ -158,65 +159,65 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 
 func TeacherRegisterSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	var TeacherUsername string
+	// var TeacherUsername string
 
-	MSPID, err := cid.GetMSPID(stub)
+	// MSPID, err := cid.GetMSPID(stub)
 
-	if err != nil {
-		return shim.Error("Error - cid.GetMSPID()")
-	}
+	// if err != nil {
+	// 	return shim.Error("Error - cid.GetMSPID()")
+	// }
 
-	if MSPID != "AcademyMSP" {
-		return shim.Error("WHO ARE YOU ?")
-	}
+	// if MSPID != "AcademyMSP" {
+	// 	return shim.Error("WHO ARE YOU ?")
+	// }
 
-	TeacherUsername, ok, err := cid.GetAttributeValue(stub, "username")
+	// TeacherUsername, ok, err := cid.GetAttributeValue(stub, "username")
 
-	if err != nil {
-		return shim.Error("Error - cid.GetAttributeValue()")
-	}
+	// if err != nil {
+	// 	return shim.Error("Error - cid.GetAttributeValue()")
+	// }
 
-	if !ok {
-		TeacherUsername = args[1]
-	}
+	// if !ok {
+	// 	TeacherUsername = args[1]
+	// }
 
-	SubjectID := args[0]
+	// SubjectID := args[0]
 
-	keySubject := "Subject-" + SubjectID
-	keyTeacher := "Teacher-" + TeacherUsername
+	// keySubject := "Subject-" + SubjectID
+	// keyTeacher := "Teacher-" + TeacherUsername
 
-	subject, err := getSubject(stub, keySubject)
+	// subject, err := getSubject(stub, keySubject)
 
-	if err != nil {
+	// if err != nil {
 
-		return shim.Error("Subject does not exist !")
+	// 	return shim.Error("Subject does not exist !")
 
-	} else {
+	// } else {
 
-		teacher, err := getTeacher(stub, keyTeacher)
+	// 	teacher, err := getTeacher(stub, keyTeacher)
 
-		if err != nil {
+	// 	if err != nil {
 
-			return shim.Error("Student does not exist !")
+	// 		return shim.Error("Student does not exist !")
 
-		} else {
+	// 	} else {
 
-			teacher.Subjects = append(teacher.Subjects, SubjectID)
+	// 		teacher.Subjects = append(teacher.Subjects, SubjectID)
 
-			subject.TeacherUsername = TeacherUsername
+	// 		subject.TeacherUsername = TeacherUsername
 
-			subjectAsBytes, _ := json.Marshal(subject)
+	// 		subjectAsBytes, _ := json.Marshal(subject)
 
-			teacherAsBytes, _ := json.Marshal(teacher)
+	// 		teacherAsBytes, _ := json.Marshal(teacher)
 
-			stub.PutState(keyTeacher, teacherAsBytes)
+	// 		stub.PutState(keyTeacher, teacherAsBytes)
 
-			stub.PutState(keySubject, subjectAsBytes)
+	// 		stub.PutState(keySubject, subjectAsBytes)
 
-			return shim.Success(nil)
-		}
-	}
-
+	// 		return shim.Success(nil)
+	// 	}
+	// }
+	return shim.Success(nil)
 }
 
 func StudentRegisterSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
@@ -284,8 +285,8 @@ func UpdateCourseInfo(stub shim.ChaincodeStubInterface, args []string) sc.Respon
 		return shim.Error("WHO ARE YOU")
 	}
 
-	if len(args) != 4 {
-		return shim.Error("Incorrect number of arguments. Expecting 4")
+	if len(args) != 5 {
+		return shim.Error("Incorrect number of arguments. Expecting 5")
 	}
 
 	CourseID := args[0]
@@ -1311,116 +1312,119 @@ func GetSubjectsByTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Re
 	// 	shim.Error("WHO ARE YOU ?")
 	// }
 
-	if len(args) != 1 {
-		return shim.Error("Incorrect number of arguments. Expecting 1")
-	}
+	// if len(args) != 1 {
+	// 	return shim.Error("Incorrect number of arguments. Expecting 1")
+	// }
 
-	TeacherUsername := args[0]
+	// TeacherUsername := args[0]
 
-	allSubjects, _ := getListSubjects(stub)
+	// allSubjects, _ := getListSubjects(stub)
 
-	defer allSubjects.Close()
+	// defer allSubjects.Close()
 
-	var tlist []Subject
-	var i int
+	// var tlist []Subject
+	// var i int
 
-	for i = 0; allSubjects.HasNext(); i++ {
+	// for i = 0; allSubjects.HasNext(); i++ {
 
-		record, err := allSubjects.Next()
+	// 	record, err := allSubjects.Next()
 
-		if err != nil {
-			return shim.Success(nil)
-		}
+	// 	if err != nil {
+	// 		return shim.Success(nil)
+	// 	}
 
-		subject := Subject{}
-		json.Unmarshal(record.Value, &subject)
-		if subject.TeacherUsername == TeacherUsername {
-			tlist = append(tlist, subject)
-		}
-	}
+	// 	subject := Subject{}
+	// 	json.Unmarshal(record.Value, &subject)
+	// 	if subject.TeacherUsername == TeacherUsername {
+	// 		tlist = append(tlist, subject)
+	// 	}
+	// }
 
-	jsonRow, err := json.Marshal(tlist)
+	// jsonRow, err := json.Marshal(tlist)
 
-	if err != nil {
-		return shim.Error("Failed")
-	}
+	// if err != nil {
+	// 	return shim.Error("Failed")
+	// }
 
-	return shim.Success(jsonRow)
+	// return shim.Success(jsonRow)
+
+	return shim.Success(nil)
 }
 
 func GetScoresBySubjectOfTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 1 {
-		return shim.Error("Incorrect number of arguments. Expecting 1")
-	}
+	// if len(args) != 1 {
+	// 	return shim.Error("Incorrect number of arguments. Expecting 1")
+	// }
 
-	MSPID, err := cid.GetMSPID(stub)
+	// MSPID, err := cid.GetMSPID(stub)
 
-	if err != nil {
-		fmt.Println("Error - cid.GetMSPID()")
-	}
+	// if err != nil {
+	// 	fmt.Println("Error - cid.GetMSPID()")
+	// }
 
-	if MSPID != "AcademyMSP" {
-		return shim.Error("WHO ARE YOU ?")
-	}
+	// if MSPID != "AcademyMSP" {
+	// 	return shim.Error("WHO ARE YOU ?")
+	// }
 
-	TeacherUsername, ok, err := cid.GetAttributeValue(stub, "username")
+	// TeacherUsername, ok, err := cid.GetAttributeValue(stub, "username")
 
-	if err != nil {
-		return shim.Error("Error - Can not Get TeacherUsername")
-	}
+	// if err != nil {
+	// 	return shim.Error("Error - Can not Get TeacherUsername")
+	// }
 
-	if !ok {
-		return shim.Error("WHO ARE YOU ?")
-	}
+	// if !ok {
+	// 	return shim.Error("WHO ARE YOU ?")
+	// }
 
-	_, err = getTeacher(stub, "Teacher-"+TeacherUsername)
+	// _, err = getTeacher(stub, "Teacher-"+TeacherUsername)
 
-	if err != nil {
-		return shim.Error("Error - Teacher Does not exist !")
-	}
+	// if err != nil {
+	// 	return shim.Error("Error - Teacher Does not exist !")
+	// }
 
-	SubjectID := args[0]
+	// SubjectID := args[0]
 
-	subject, err := getSubject(stub, "Subject-"+SubjectID)
+	// subject, err := getSubject(stub, "Subject-"+SubjectID)
 
-	if err != nil {
-		return shim.Error("Subject dose not exist - " + SubjectID)
-	}
+	// if err != nil {
+	// 	return shim.Error("Subject dose not exist - " + SubjectID)
+	// }
 
-	if subject.TeacherUsername != TeacherUsername {
-		return shim.Error("WHO ARE YOU ?")
-	}
+	// if subject.TeacherUsername != TeacherUsername {
+	// 	return shim.Error("WHO ARE YOU ?")
+	// }
 
-	allScores, _ := getListScores(stub)
+	// allScores, _ := getListScores(stub)
 
-	defer allScores.Close()
+	// defer allScores.Close()
 
-	var tlist []Score
-	var i int
+	// var tlist []Score
+	// var i int
 
-	for i = 0; allScores.HasNext(); i++ {
+	// for i = 0; allScores.HasNext(); i++ {
 
-		record, err := allScores.Next()
+	// 	record, err := allScores.Next()
 
-		if err != nil {
-			return shim.Success(nil)
-		}
+	// 	if err != nil {
+	// 		return shim.Success(nil)
+	// 	}
 
-		score := Score{}
-		json.Unmarshal(record.Value, &score)
-		if score.SubjectID == SubjectID {
-			tlist = append(tlist, score)
-		}
-	}
+	// 	score := Score{}
+	// 	json.Unmarshal(record.Value, &score)
+	// 	if score.SubjectID == SubjectID {
+	// 		tlist = append(tlist, score)
+	// 	}
+	// }
 
-	jsonRow, err := json.Marshal(tlist)
+	// jsonRow, err := json.Marshal(tlist)
 
-	if err != nil {
-		return shim.Error("Failed")
-	}
+	// if err != nil {
+	// 	return shim.Error("Failed")
+	// }
 
-	return shim.Success(jsonRow)
+	// return shim.Success(jsonRow)
+	return shim.Success(nil)
 }
 
 func GetStudentsBySubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {

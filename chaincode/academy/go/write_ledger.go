@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 
 	"fmt"
-	"strconv"
 
 	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -99,14 +98,17 @@ func CreateSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		return shim.Error("WHO ARE YOU")
 	}
 
-	if len(args) != 2 {
-		return shim.Error("Incorrect number of arguments. Expecting 2")
+	if len(args) != 5 {
+		return shim.Error("Incorrect number of arguments. Expecting 5")
 	}
 
 	fmt.Println("Start Create Subject!")
 
 	SubjectID := args[0]
-	Name := args[1]
+	SubjectCode := args[1]
+	SubjectName := args[2]
+	ShortDescription := args[3]
+	Description := args[4]
 
 	keySubject := "Subject-" + SubjectID
 	checkSubjectExist, err := getSubject(stub, keySubject)
@@ -116,7 +118,7 @@ func CreateSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		return shim.Error("This subject already exists - " + SubjectID)
 	}
 
-	var subject = Subject{SubjectID: SubjectID, Name: Name, TeacherUsername: "", Students: nil}
+	var subject = Subject{SubjectID: SubjectID, SubjectCode: SubjectCode, SubjectName: SubjectName, ShortDescription: ShortDescription, Description: Description}
 
 	subjectAsBytes, _ := json.Marshal(subject)
 
@@ -148,7 +150,6 @@ func CreateCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	ShortDescription := args[3]
 	Description := args[4]
 
-
 	keyCourse := "Course-" + CourseID
 	checkCourseExist, err := getCourse(stub, keyCourse)
 
@@ -157,7 +158,7 @@ func CreateCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("This course already exists - " + CourseID)
 	}
 
-	var course = Course{CourseID: CourseID, CourseCode: CourseCode, CourseName: CourseName,ShortDescription: ShortDescription, Description: Description, Subjects: nil}
+	var course = Course{CourseID: CourseID, CourseCode: CourseCode, CourseName: CourseName, ShortDescription: ShortDescription, Description: Description}
 
 	courseAsBytes, _ := json.Marshal(course)
 
@@ -168,67 +169,67 @@ func CreateCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	MSPID, err := cid.GetMSPID(stub)
+	// MSPID, err := cid.GetMSPID(stub)
 
-	if err != nil {
-		fmt.Println("Error - cide.GetMSPID()")
-	}
+	// if err != nil {
+	// 	fmt.Println("Error - cide.GetMSPID()")
+	// }
 
-	if MSPID != "AcademyMSP" {
-		return shim.Error("You Are Not Teacher!")
-	}
+	// if MSPID != "AcademyMSP" {
+	// 	return shim.Error("You Are Not Teacher!")
+	// }
 
-	TeacherUsername, found, err := cid.GetAttributeValue(stub, "username")
+	// TeacherUsername, found, err := cid.GetAttributeValue(stub, "username")
 
-	if err != nil {
-		return shim.Error("Error - cide.GetMSPID()?")
-	}
+	// if err != nil {
+	// 	return shim.Error("Error - cide.GetMSPID()?")
+	// }
 
-	if !found {
-		return shim.Error("WHO ARE YOU ?")
-	}
+	// if !found {
+	// 	return shim.Error("WHO ARE YOU ?")
+	// }
 
-	fmt.Println("Start Create Score!")
+	// fmt.Println("Start Create Score!")
 
-	if len(args) != 3 {
-		return shim.Error("Incorrect number of arguments. Expecting 3")
-	}
+	// if len(args) != 3 {
+	// 	return shim.Error("Incorrect number of arguments. Expecting 3")
+	// }
 
-	SubjectID := args[0]
-	StudentUsername := args[1]
-	ScoreValue, err := strconv.ParseFloat(args[2], 64)
+	// SubjectID := args[0]
+	// StudentUsername := args[1]
+	// ScoreValue, err := strconv.ParseFloat(args[2], 64)
 
-	checkStudentExist, err := getStudent(stub, "Student-"+StudentUsername)
+	// checkStudentExist, err := getStudent(stub, "Student-"+StudentUsername)
 
-	if err != nil {
-		fmt.Println(checkStudentExist)
-		return shim.Error("Student dose not exist - " + StudentUsername)
-	}
+	// if err != nil {
+	// 	fmt.Println(checkStudentExist)
+	// 	return shim.Error("Student dose not exist - " + StudentUsername)
+	// }
 
-	checkSubjectExist, err := getSubject(stub, "Subject-"+SubjectID)
+	// checkSubjectExist, err := getSubject(stub, "Subject-"+SubjectID)
 
-	if err != nil {
-		fmt.Println(checkSubjectExist)
-		return shim.Error("Subject does not exist - " + SubjectID)
-	}
+	// if err != nil {
+	// 	fmt.Println(checkSubjectExist)
+	// 	return shim.Error("Subject does not exist - " + SubjectID)
+	// }
 
-	if checkSubjectExist.TeacherUsername != TeacherUsername {
-		return shim.Error("WHO ARE YOU ?")
-	}
+	// if checkSubjectExist.TeacherUsername != TeacherUsername {
+	// 	return shim.Error("WHO ARE YOU ?")
+	// }
 
-	key := "Score-" + " " + "Subject-" + SubjectID + " " + "Student-" + StudentUsername
-	checkScoreExist, err := getScore(stub, key)
+	// key := "Score-" + " " + "Subject-" + SubjectID + " " + "Student-" + StudentUsername
+	// checkScoreExist, err := getScore(stub, key)
 
-	if err == nil {
-		fmt.Println(checkScoreExist)
-		return shim.Error("This score already exists.")
-	}
+	// if err == nil {
+	// 	fmt.Println(checkScoreExist)
+	// 	return shim.Error("This score already exists.")
+	// }
 
-	var score = Score{SubjectID: SubjectID, StudentUsername: StudentUsername, ScoreValue: ScoreValue, Certificated: false}
+	// var score = Score{SubjectID: SubjectID, StudentUsername: StudentUsername, ScoreValue: ScoreValue, Certificated: false}
 
-	scoreAsBytes, _ := json.Marshal(score)
+	// scoreAsBytes, _ := json.Marshal(score)
 
-	stub.PutState(key, scoreAsBytes)
+	// stub.PutState(key, scoreAsBytes)
 
 	return shim.Success(nil)
 }

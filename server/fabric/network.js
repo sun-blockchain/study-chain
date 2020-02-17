@@ -311,7 +311,13 @@ exports.registerStudentOnBlockchain = async function(createdUser) {
 };
 
 exports.createSubject = async function(networkObj, subject) {
-  if (!subject.subjectID || !subject.subjectName) {
+  if (
+    !subject.subjectId ||
+    !subject.subjectName ||
+    !subject.subjectCode ||
+    !subject.shortDescription ||
+    !subject.description
+  ) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can register!';
     return response;
@@ -320,8 +326,11 @@ exports.createSubject = async function(networkObj, subject) {
   try {
     await networkObj.contract.submitTransaction(
       'CreateSubject',
-      subject.subjectID,
-      subject.subjectName
+      subject.subjectId,
+      subject.subjectCode,
+      subject.subjectName,
+      subject.shortDescription,
+      subject.description
     );
     let response = {
       success: true,
@@ -341,7 +350,7 @@ exports.createSubject = async function(networkObj, subject) {
 
 exports.createCourse = async function(networkObj, course) {
   if (
-    !course.courseID ||
+    !course.courseId ||
     !course.courseCode ||
     !course.courseName ||
     !course.shortDescription ||
@@ -355,7 +364,7 @@ exports.createCourse = async function(networkObj, course) {
   try {
     await networkObj.contract.submitTransaction(
       'CreateCourse',
-      course.courseID,
+      course.courseId,
       course.courseCode,
       course.courseName,
       course.shortDescription,
@@ -379,7 +388,7 @@ exports.createCourse = async function(networkObj, course) {
 
 exports.updateCourseInfo = async function(networkObj, course) {
   if (
-    !course.courseID ||
+    !course.courseId ||
     !course.courseCode ||
     !course.courseName ||
     !course.shortDescription ||
@@ -393,7 +402,7 @@ exports.updateCourseInfo = async function(networkObj, course) {
   try {
     await networkObj.contract.submitTransaction(
       'UpdateCourseInfo',
-      course.courseID,
+      course.courseId,
       course.courseCode,
       course.courseName,
       course.shortDescription,
@@ -426,41 +435,7 @@ exports.updateUserInfo = async function(networkObj, newInfo) {
     await networkObj.contract.submitTransaction(
       'UpdateUserInfo',
       newInfo.username,
-      newInfo.fullname,
-      newInfo.phoneNumber,
-      newInfo.email,
-      newInfo.address,
-      newInfo.sex,
-      newInfo.birthday
-    );
-    let response = {
-      success: true,
-      msg: 'Update success!'
-    };
-
-    await networkObj.gateway.disconnect();
-    return response;
-  } catch (error) {
-    let response = {
-      success: false,
-      msg: error
-    };
-    return response;
-  }
-};
-
-exports.updateUserInfo = async function(networkObj, newInfo) {
-  if (!newInfo.username) {
-    let response = {};
-    response.error = 'Error! You need to fill all fields before you can register!';
-    return response;
-  }
-
-  try {
-    await networkObj.contract.submitTransaction(
-      'UpdateUserInfo',
-      newInfo.username,
-      newInfo.fullname,
+      newInfo.fullName,
       newInfo.phoneNumber,
       newInfo.email,
       newInfo.address,
@@ -508,15 +483,15 @@ exports.updateUserAvatar = async function(networkObj, avatar) {
   }
 };
 
-exports.deleteCourse = async function(networkObj, courseID) {
-  if (!courseID) {
+exports.deleteCourse = async function(networkObj, courseId) {
+  if (!courseId) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can register!';
     return response;
   }
 
   try {
-    await networkObj.contract.submitTransaction('DeleteCourse', courseID);
+    await networkObj.contract.submitTransaction('DeleteCourse', courseId);
     let response = {
       success: true,
       msg: 'Delete success!'

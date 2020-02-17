@@ -31,15 +31,25 @@ async function main() {
         if (functionName === 'CreateSubject' && user.role === USER_ROLES.ADMIN_ACADEMY) {
           /**
            * Create Subject
-           * @param  {String} subjectid Subject Id (required)
-           * @param  {String} subjectname Subject Name (required)
-           * @param  {String} teacher Teacher Username (required)
+           * @param  {String} subjectCode Subject Code (required)
+           * @param  {String} subjectName Subject Name (required)
+           * @param  {String} shortDescription Subject Short Description (required)
+           * @param  {String} description Subject Full Description (required)
            */
 
-          let SubjectID = argv.subjectid.toString();
-          let Name = argv.subjectname.toString();
+          let subjectId = uuidv4();
+          let subjectCode = argv.subjectCode.toString();
+          let subjectName = argv.subjectName.toString();
+          let shortDescription = argv.shortDescription.toString();
+          let description = argv.description.toString();
 
-          let subject = { subjectID: SubjectID, subjectName: Name };
+          let subject = {
+            subjectId: subjectId,
+            subjectCode: subjectCode,
+            subjectName: subjectName,
+            shortDescription: shortDescription,
+            description: description
+          };
 
           await conn.createSubject(networkObj, subject);
           console.log('Transaction has been submitted');
@@ -47,20 +57,23 @@ async function main() {
         } else if (functionName === 'CreateCourse' && user.role === USER_ROLES.ADMIN_ACADEMY) {
           /**
            * Create Course
-           * @param  {String} coursecode course Code (required)
-           * @param  {String} coursename course Name (required)
+           * @param  {String} courseCode course Code (required)
+           * @param  {String} courseName course Name (required)
+           * @param  {String} shortDescription course short description (required)
            * @param  {String} description course description (required)
            */
-          let CourseID = uuidv4();
-          let CourseCode = argv.coursecode.toString();
-          let CourseName = argv.coursename.toString();
-          let Description = argv.description.toString();
+          let courseId = uuidv4();
+          let courseCode = argv.courseCode.toString();
+          let courseName = argv.courseName.toString();
+          let shortDescription = argv.shortDescription.toString();
+          let description = argv.description.toString();
 
           let course = {
-            courseID: CourseID,
-            courseCode: CourseCode,
-            courseName: CourseName,
-            description: Description
+            courseId: courseId,
+            courseCode: courseCode,
+            courseName: courseName,
+            shortDescription: shortDescription,
+            description: description
           };
 
           await conn.createCourse(networkObj, course);
@@ -69,21 +82,23 @@ async function main() {
         } else if (functionName === 'UpdateCourseInfo' && user.role === USER_ROLES.ADMIN_ACADEMY) {
           /**
            * Edit Course Info
-           * @param  {String} courseid course id (required)
-           * @param  {String} coursecode course Code (required)
-           * @param  {String} coursename course Name (required)
+           * @param  {String} courseId course id (required)
+           * @param  {String} courseCode course Code (required)
+           * @param  {String} courseName course Name (required)
            * @param  {String} description course description (required)
            */
-          let CourseID = argv.courseid.toString();
-          let CourseCode = argv.coursecode.toString();
-          let CourseName = argv.coursename.toString();
-          let Description = argv.description.toString();
+          let courseId = argv.courseId.toString();
+          let courseCode = argv.courseCode.toString();
+          let courseName = argv.courseName.toString();
+          let shortDescription = argv.shortDescription.toString();
+          let description = argv.description.toString();
 
           let course = {
-            courseID: CourseID,
-            courseCode: CourseCode,
-            courseName: CourseName,
-            description: Description
+            courseId: courseId,
+            courseCode: courseCode,
+            courseName: courseName,
+            shortDescription: shortDescription,
+            description: description
           };
 
           await conn.updateCourseInfo(networkObj, course);
@@ -92,11 +107,11 @@ async function main() {
         } else if (functionName === 'DeleteCourse' && user.role === USER_ROLES.ADMIN_ACADEMY) {
           /**
            * Delete Course
-           * @param  {String} courseid course Id (required)
+           * @param  {String} courseId course Id (required)
            */
 
-          let CourseID = argv.courseid.toString();
-          await conn.deleteCourse(networkObj, CourseID);
+          let courseId = argv.courseId.toString();
+          await conn.deleteCourse(networkObj, courseId);
           console.log('Transaction has been submitted');
           process.exit(0);
         } else if (
@@ -106,23 +121,21 @@ async function main() {
           /**
            * Update User Info
            */
-          let Fullname = argv.fullname ? argv.fullname.toString() : '';
-          let PhoneNumber = argv.phonenumber ? argv.phonenumber.toString() : '';
-          let Email = argv.email ? argv.email.toString() : '';
-          let Address = argv.email ? argv.address.toString() : '';
-          let Sex = argv.sex ? argv.email.toString() : '';
-          let Birthday = argv.birthday ? argv.birthday.toString() : '';
-          let Avatar = argv.avatar ? argv.avatar.toString() : '';
+          let fullName = argv.fullName ? argv.fullName.toString() : '';
+          let phoneNumber = argv.phoneNumber ? argv.phoneNumber.toString() : '';
+          let email = argv.email ? argv.email.toString() : '';
+          let address = argv.email ? argv.address.toString() : '';
+          let sex = argv.sex ? argv.email.toString() : '';
+          let birthday = argv.birthday ? argv.birthday.toString() : '';
 
           let updatedUser = {
             username: user.username,
-            fullname: Fullname,
-            phoneNumber: PhoneNumber,
-            email: Email,
-            address: Address,
-            sex: Sex,
-            birthday: Birthday,
-            avatar: Avatar
+            fullName: fullName,
+            phoneNumber: phoneNumber,
+            email: email,
+            address: address,
+            sex: sex,
+            birthday: birthday
           };
 
           await conn.updateUserInfo(networkObj, updatedUser);
