@@ -24,7 +24,6 @@ router.post(
       .not()
       .isEmpty()
       .trim()
-      .escape()
       .isLength({ min: 6 }),
     body('fullname')
       .not()
@@ -90,7 +89,6 @@ router.post(
       .not()
       .isEmpty()
       .trim()
-      .escape()
       .isLength({ min: 6 })
   ],
   async (req, res, next) => {
