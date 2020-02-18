@@ -35,7 +35,7 @@ export VERBOSE=false
 # Print the usage message
 function printHelp() {
   echo "Usage: "
-  echo "  byfn.sh <mode> [-c <channel name>] [-t <timeout>] [-d <delay>] [-f <docker-compose-file>] [-s <dbtype>] [-l <language>] [-o <consensus-type>] [-i <imagetag>] [-a] [-n] [-v]"
+  echo "  network.sh <mode> [-c <channel name>] [-t <timeout>] [-d <delay>] [-f <docker-compose-file>] [-s <dbtype>] [-l <language>] [-o <consensus-type>] [-i <imagetag>] [-a] [-n] [-v]"
   echo "    <mode> - one of 'up', 'down', 'restart', 'generate' or 'upgrade'"
   echo "      - 'up' - bring up the network with docker-compose up"
   echo "      - 'down' - clear the network with docker-compose down"
@@ -51,22 +51,22 @@ function printHelp() {
   echo "    -a - launch certificate authorities (no certificate authorities are launched by default)"
   echo "    -n - do not deploy chaincode (abstore chaincode is deployed by default)"
   echo "    -v - verbose mode"
-  echo "  byfn.sh -h (print this message)"
+  echo "  network.sh -h (print this message)"
   echo
   echo "Typically, one would first generate the required certificates and "
   echo "genesis block, then bring up the network. e.g.:"
   echo
-  echo "	byfn.sh generate -c mychannel"
-  echo "	byfn.sh up -c mychannel -s couchdb"
-  echo "        byfn.sh up -c mychannel -s couchdb -i 1.4.0"
-  echo "	byfn.sh up -l javascript"
-  echo "	byfn.sh down -c mychannel"
-  echo "        byfn.sh upgrade -c mychannel"
+  echo "	network.sh generate -c mychannel"
+  echo "	network.sh up -c mychannel -s couchdb"
+  echo "        network.sh up -c mychannel -s couchdb -i 1.4.0"
+  echo "	network.sh up -l javascript"
+  echo "	network.sh down -c mychannel"
+  echo "        network.sh upgrade -c mychannel"
   echo
   echo "Taking all defaults:"
-  echo "	byfn.sh generate"
-  echo "	byfn.sh up"
-  echo "	byfn.sh down"
+  echo "	network.sh generate"
+  echo "	network.sh up"
+  echo "	network.sh down"
 }
 
 # Ask user for confirmation to proceed
@@ -135,13 +135,13 @@ function checkPrereqs() {
   for UNSUPPORTED_VERSION in $BLACKLISTED_VERSIONS; do
     echo "$LOCAL_VERSION" | grep -q $UNSUPPORTED_VERSION
     if [ $? -eq 0 ]; then
-      echo "ERROR! Local Fabric binary version of $LOCAL_VERSION does not match this newer version of BYFN and is unsupported. Either move to a later version of Fabric or checkout an earlier version of fabric-samples."
+      echo "ERROR! Local Fabric binary version of $LOCAL_VERSION does not match this newer version of network and is unsupported. Either move to a later version of Fabric or checkout an earlier version of fabric-samples."
       exit 1
     fi
 
     echo "$DOCKER_IMAGE_VERSION" | grep -q $UNSUPPORTED_VERSION
     if [ $? -eq 0 ]; then
-      echo "ERROR! Fabric Docker image version of $DOCKER_IMAGE_VERSION does not match this newer version of BYFN and is unsupported. Either move to a later version of Fabric or checkout an earlier version of fabric-samples."
+      echo "ERROR! Fabric Docker image version of $DOCKER_IMAGE_VERSION does not match this newer version of network and is unsupported. Either move to a later version of Fabric or checkout an earlier version of fabric-samples."
       exit 1
     fi
   done
@@ -371,7 +371,7 @@ function generateChannelArtifacts() {
   echo "##########################################################"
   # Note: For some unknown reason (at least for now) the block file can't be
   # named orderer.genesis.block or the orderer will fail to launch!
-  configtxgen -profile SampleMultiNodeEtcdRaft -channelID byfn-sys-channel -outputBlock ./channel-artifacts/genesis.block
+  configtxgen -profile SampleMultiNodeEtcdRaft -channelID network-sys-channel -outputBlock ./channel-artifacts/genesis.block
   res=$?
   if [ $res -ne 0 ]; then
     echo "Failed to generate orderer genesis block..."
@@ -440,7 +440,7 @@ COMPOSE_FILE_CA=docker-compose-ca.yaml
 # use go as the default language for chaincode
 CC_SRC_LANGUAGE=go
 # default image tag
-IMAGETAG="latest"
+IMAGETAG="2.0.0"
 # Parse commandline args
 if [ "$1" = "-m" ]; then # supports old usage, muscle memory is powerful!
   shift
@@ -513,9 +513,11 @@ askProceed
 
 #Create the network using docker compose
 if [ "${MODE}" == "up" ]; then
+  export CERTIFICATE_AUTHORITIES="true"
   networkUp
 elif [ "${MODE}" == "down" ]; then ## Clear the network
   networkDown
+  docker rm $(docker ps -aq)
 elif [ "${MODE}" == "generate" ]; then ## Generate Artifacts
   generateCerts
   generateChannelArtifacts

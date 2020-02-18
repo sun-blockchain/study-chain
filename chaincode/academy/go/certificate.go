@@ -165,6 +165,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return UpdateUserInfo(stub, args)
 	} else if function == "UpdateUserAvatar" {
 		return UpdateUserAvatar(stub, args)
+	} else if function == "UpdateSubjectInfo" {
+		return UpdateSubjectInfo(stub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name!")
@@ -425,6 +427,56 @@ func UpdateUserInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response
 
 		return shim.Success(nil)
 	}
+}
+
+func UpdateSubjectInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		return shim.Error("Error - cide.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		return shim.Error("WHO ARE YOU?")
+	}
+
+	if len(args) != 5 {
+		return shim.Error("Incorrect number of arguments. Expecting 5")
+	}
+
+	SubjectID := args[0]
+	SubjectCode := args[1]
+	SubjectName := args[2]
+	ShortDescription := args[3]
+	Description := args[4]
+
+	keySubject := "Subject-" + SubjectID
+	subject, err := getSubject(stub, keySubject)
+
+	if err != nil {
+
+		return shim.Error("Subject does not exist !")
+
+	}
+
+	if SubjectCode != "" {
+		subject.SubjectCode = SubjectCode
+	}
+	if SubjectName != "" {
+		subject.SubjectName = SubjectName
+	}
+	if ShortDescription != "" {
+		subject.ShortDescription = ShortDescription
+	}
+	if Description != "" {
+		subject.Description = Description
+	}
+
+	subjectAsBytes, _ := json.Marshal(subject)
+
+	stub.PutState(keySubject, subjectAsBytes)
+
+	return shim.Success(nil)
 }
 
 func UpdateUserAvatar(stub shim.ChaincodeStubInterface, args []string) sc.Response {
