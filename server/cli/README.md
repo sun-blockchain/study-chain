@@ -156,6 +156,10 @@ node invoke.js --username=adminacademy --func=UpdateSubjectInfo --subjectId=xxxx
 ```
 
 ```bash
+node invoke.js --username=adminacademy --func=AddSubjectToCourse --courseId=xxxx --subjectId=xxxx
+```
+
+```bash
 node invoke.js --username=adminacademy --func=TeacherRegisterSubject --subjectid=ethereum --teacher=gv01
 ```
 

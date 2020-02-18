@@ -167,6 +167,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return UpdateUserAvatar(stub, args)
 	} else if function == "UpdateSubjectInfo" {
 		return UpdateSubjectInfo(stub, args)
+	} else if function == "AddSubjectToCourse" {
+		return AddSubjectToCourse(stub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name!")
@@ -288,12 +290,56 @@ func StudentRegisterSubject(stub shim.ChaincodeStubInterface, args []string) sc.
 	return shim.Success(nil)
 }
 
+func AddSubjectToCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		return shim.Error("Error - cid.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		return shim.Error("WHO ARE YOU")
+	}
+
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2")
+	}
+
+	CourseID := args[0]
+	SubjectID := args[1]
+
+	keyCourse := "Course-" + CourseID
+	course, err := getCourse(stub, keyCourse)
+
+	if err != nil {
+
+		return shim.Error("Course does not exist!")
+
+	}
+
+	keySubject := "Subject-" + SubjectID
+	_, err = getSubject(stub, keySubject)
+
+	if err != nil {
+		return shim.Error("Subject does not exist!")
+	}
+
+	course.Subjects = append(course.Subjects, SubjectID)
+
+	courseAsBytes, _ := json.Marshal(course)
+
+	stub.PutState(keyCourse, courseAsBytes)
+
+	return shim.Success(nil)
+}
+
 func UpdateCourseInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	MSPID, err := cid.GetMSPID(stub)
 
 	if err != nil {
-		return shim.Error("Error - cide.GetMSPID()")
+		return shim.Error("Error - cid.GetMSPID()")
 	}
 
 	if MSPID != "AcademyMSP" {
@@ -316,30 +362,28 @@ func UpdateCourseInfo(stub shim.ChaincodeStubInterface, args []string) sc.Respon
 	if err != nil {
 
 		return shim.Error("Course does not exist !")
-
-	} else {
-
-		course.CourseCode = CourseCode
-
-		course.CourseName = CourseName
-
-		course.ShortDescription = ShortDescription
-
-		course.Description = Description
-
-		courseAsBytes, _ := json.Marshal(course)
-
-		stub.PutState(keyCourse, courseAsBytes)
-
-		return shim.Success(nil)
 	}
+
+	course.CourseCode = CourseCode
+
+	course.CourseName = CourseName
+
+	course.ShortDescription = ShortDescription
+
+	course.Description = Description
+
+	courseAsBytes, _ := json.Marshal(course)
+
+	stub.PutState(keyCourse, courseAsBytes)
+
+	return shim.Success(nil)
 }
 
 func UpdateUserInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	MSPID, err := cid.GetMSPID(stub)
 
 	if err != nil {
-		return shim.Error("Error - cide.GetMSPID()")
+		return shim.Error("Error - cid.GetMSPID()")
 	}
 
 	if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
@@ -433,7 +477,7 @@ func UpdateSubjectInfo(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 	MSPID, err := cid.GetMSPID(stub)
 
 	if err != nil {
-		return shim.Error("Error - cide.GetMSPID()")
+		return shim.Error("Error - cid.GetMSPID()")
 	}
 
 	if MSPID != "AcademyMSP" {
@@ -483,7 +527,7 @@ func UpdateUserAvatar(stub shim.ChaincodeStubInterface, args []string) sc.Respon
 	MSPID, err := cid.GetMSPID(stub)
 
 	if err != nil {
-		return shim.Error("Error - cide.GetMSPID()")
+		return shim.Error("Error - cid.GetMSPID()")
 	}
 
 	if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
@@ -549,7 +593,7 @@ func DeleteCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	MSPID, err := cid.GetMSPID(stub)
 
 	if err != nil {
-		return shim.Error("Error - cide.GetMSPID()")
+		return shim.Error("Error - cid.GetMSPID()")
 	}
 
 	if MSPID != "AcademyMSP" {
@@ -969,7 +1013,7 @@ func GetAllStudents(stub shim.ChaincodeStubInterface) sc.Response {
 	// MSPID, err := cid.GetMSPID(stub)
 
 	// if err != nil {
-	// 	shim.Error("Error - cide.GetMSPID()")
+	// 	shim.Error("Error - cid.GetMSPID()")
 	// }
 
 	// if MSPID != "AcademyMSP" {
@@ -1010,7 +1054,7 @@ func GetAllTeachers(stub shim.ChaincodeStubInterface) sc.Response {
 	// MSPID, err := cid.GetMSPID(stub)
 
 	// if err != nil {
-	// 	shim.Error("Error - cide.GetMSPID()")
+	// 	shim.Error("Error - cid.GetMSPID()")
 	// }
 
 	// if MSPID != "AcademyMSP" {
@@ -1051,7 +1095,7 @@ func GetAllScores(stub shim.ChaincodeStubInterface) sc.Response {
 	MSPID, err := cid.GetMSPID(stub)
 
 	if err != nil {
-		shim.Error("Error - cide.GetMSPID()")
+		shim.Error("Error - cid.GetMSPID()")
 	}
 
 	if MSPID != "AcademyMSP" {
@@ -1096,7 +1140,7 @@ func GetMyCerts(stub shim.ChaincodeStubInterface) sc.Response {
 	MSPID, err := cid.GetMSPID(stub)
 
 	if err != nil {
-		return shim.Error("Error - cide.GetMSPID()")
+		return shim.Error("Error - cid.GetMSPID()")
 	}
 
 	if MSPID != "StudentMSP" {
@@ -1154,7 +1198,7 @@ func GetMySubjects(stub shim.ChaincodeStubInterface) sc.Response {
 	// MSPID, err := cid.GetMSPID(stub)
 
 	// if err != nil {
-	// 	return shim.Error("Error - cide.GetMSPID()")
+	// 	return shim.Error("Error - cid.GetMSPID()")
 	// }
 
 	// if MSPID != "StudentMSP" {
@@ -1205,7 +1249,7 @@ func GetMyScores(stub shim.ChaincodeStubInterface) sc.Response {
 	MSPID, err := cid.GetMSPID(stub)
 
 	if err != nil {
-		return shim.Error("Error - cide.GetMSPID()")
+		return shim.Error("Error - cid.GetMSPID()")
 	}
 
 	if MSPID != "StudentMSP" {
