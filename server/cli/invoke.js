@@ -144,7 +144,7 @@ async function main() {
           process.exit(0);
         } else if (functionName === 'UpdateSubjectInfo' && user.role === USER_ROLES.ADMIN_ACADEMY) {
           /**
-           * Update Course Info
+           * Update Subject Info
            * @param  {String} subjectId subject Id (required)
            * @param  {String} subjectCode subject Code (required)
            * @param  {String} subjectName subject Name (required)
@@ -167,6 +167,22 @@ async function main() {
           };
 
           await conn.updateSubjectInfo(networkObj, subject);
+          console.log('Transaction has been submitted');
+          process.exit(0);
+        } else if (
+          functionName === 'AddSubjectToCourse' &&
+          user.role === USER_ROLES.ADMIN_ACADEMY
+        ) {
+          /**
+           * Add Subject To Course
+           * @param  {String} courseId course Id (required)
+           * @param  {String} subjectId subject Id (required)
+           */
+
+          let courseId = argv.courseId.toString();
+          let subjectId = argv.subjectId.toString();
+
+          await conn.addSubjectToCourse(networkObj, courseId, subjectId);
           console.log('Transaction has been submitted');
           process.exit(0);
         } else if (functionName === 'CreateCertificate' && user.role === USER_ROLES.ADMIN_ACADEMY) {
