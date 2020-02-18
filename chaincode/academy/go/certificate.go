@@ -28,7 +28,16 @@ type Subject struct {
 	ShortDescription string
 	Description      string
 }
-
+type Class struct {
+	ClassID string
+	ClassCode string
+	Room string
+	Time string
+	Status bool
+	ShortDescription string
+	Description string
+	Students []string
+}
 type Teacher struct {
 	Username string
 	Fullname string
@@ -86,6 +95,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return CreateStudent(stub, args)
 	} else if function == "CreateSubject" {
 		return CreateSubject(stub, args)
+	} else if function == "CreateClass" {
+		return CreateClass(stub, args)
 	} else if function == "CreateScore" {
 		return CreateScore(stub, args)
 	} else if function == "CreateCertificate" {
@@ -106,6 +117,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return QueryTeacher(stub, args)
 	} else if function == "GetAllSubjects" {
 		return GetAllSubjects(stub)
+	}else if function == "GetAllClasses" {
+		return GetAllClasses(stub)
 	} else if function == "GetAllStudents" {
 		return GetAllStudents(stub)
 	} else if function == "GetAllScores" {
@@ -859,7 +872,46 @@ func GetAllCourses(stub shim.ChaincodeStubInterface) sc.Response {
 
 	return shim.Success(jsonRow)
 }
+func GetAllClasses(stub shim.ChaincodeStubInterface) sc.Response {
 
+	// MSPID, err := cid.GetMSPID(stub)
+
+	// if err != nil {
+	// 	fmt.Println("Error - cid.GetMSPID()")
+	// }
+
+	// if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
+	// 	shim.Error("WHO ARE YOU ?")
+	// }
+
+	allClasses, _ := getListClasses(stub)
+
+	defer allClasses.Close()
+
+	var tlist []Class
+	var i int
+
+	for i = 0; allClasses.HasNext(); i++ {
+
+		record, err := allClasses.Next()
+
+		if err != nil {
+			return shim.Success(nil)
+		}
+
+		class := Class{}
+		json.Unmarshal(record.Value, &class)
+		tlist = append(tlist, class)
+	}
+
+	jsonRow, err := json.Marshal(tlist)
+
+	if err != nil {
+		return shim.Error("Failed")
+	}
+
+	return shim.Success(jsonRow)
+}
 func GetAllStudents(stub shim.ChaincodeStubInterface) sc.Response {
 
 	// MSPID, err := cid.GetMSPID(stub)

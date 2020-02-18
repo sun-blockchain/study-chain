@@ -359,3 +359,127 @@ describe('#POST /academy/deleteCourse', () => {
       });
   });
 });
+describe('#POST /academy/class', () => {
+  let connect;
+  let query;
+  let createClass;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+    createClass = sinon.stub(network, 'createClass');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+    createClass.restore();
+  });
+
+  it('permission denied when access routes with student', (done) => {
+    request(app)
+      .post('/academy/class')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('permission denied when access routes with teacher', (done) => {
+    request(app)
+      .post('/academy/class')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('success create class', (done) => {
+    let data = JSON.stringify(
+      {
+        classCode: 'CACLC2',
+        room: 'Blockchain101',
+        time: '12122020',
+        shortDescription: 'short',
+        description: 'Blockchain'
+      },
+      {
+        classCode: 'CACLC1',
+        room: 'Blockchain101',
+        time: '12122020',
+        shortDescription: 'short',
+        description: 'long'
+      }
+    );
+
+    createClass.returns({
+      success: true,
+      msg: 'Create success!'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .post('/academy/class')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classCode: 'CACLC1',
+        room: 'Blockchain101',
+        time: '12122020',
+        shortDescription: 'short',
+        description: 'long'
+      })
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        done();
+      });
+  });
+
+  it('do not success create class because req.body invalid', (done) => {
+    request(app)
+      .post('/academy/class')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classCode: '',
+        room: 'Blockchain101',
+        time: '12122020',
+        shortDescription: 'short',
+        description: 'long'
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        done();
+      });
+  });
+
+  it('create class fail when call createClass function', (done) => {
+    createClass.returns({
+      success: false,
+      msg: 'Error'
+    });
+
+    request(app)
+      .post('/academy/class')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classCode: 'CACLC1',
+        room: 'Blockchain101',
+        time: '12122020',
+        shortDescription: 'short',
+        description: 'long'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+});
