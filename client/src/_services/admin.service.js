@@ -27,9 +27,10 @@ export const adminService = {
   getStudentsOfCourse,
   confirmCertificate
 };
+
 async function getAllCourses() {
   try {
-    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/academy/courses`, {
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/common/courses`, {
       headers: authHeader()
     });
     return respone.data.courses;
@@ -37,9 +38,10 @@ async function getAllCourses() {
     throw error;
   }
 }
+
 async function getCourse(courseId) {
   try {
-    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/academy/course/${courseId}`, {
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/common/course/${courseId}`, {
       headers: authHeader()
     });
     return respone.data.course;
@@ -47,6 +49,7 @@ async function getCourse(courseId) {
     throw error;
   }
 }
+
 async function updateCourse(course) {
   try {
     let respone = await axios.put(
@@ -67,6 +70,7 @@ async function updateCourse(course) {
     throw error;
   }
 }
+
 async function deleteCourse(courseId) {
   try {
     let respone = await axios.post(
@@ -82,6 +86,7 @@ async function deleteCourse(courseId) {
     throw error;
   }
 }
+
 async function createCourse(course) {
   try {
     let respone = await axios.post(

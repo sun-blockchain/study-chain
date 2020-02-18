@@ -7,9 +7,9 @@
       </router-link>
     </li>
     <li class="nav-item">
-      <router-link class="nav-link color-black" :to="`/student/mysubjects`">
-        <i class="color-999 fas fa-layer-group"></i>
-        My Subjects
+      <router-link class="nav-link color-black" to="/student/courses">
+        <i class="color-999 fas fa-book-open"></i>
+        Courses
       </router-link>
     </li>
     <li class="nav-item">

@@ -128,9 +128,9 @@ export const router = new Router({
           component: () => import('./views/student/Dashboard.vue')
         },
         {
-          path: '/student/mysubjects',
-          name: 'student-mysubjects',
-          component: () => import('./views/student/MySubjects')
+          path: '/student/courses',
+          name: 'coursesPage',
+          component: () => import('./views/student/Courses.vue')
         },
         {
           path: '/student/mycertificates',

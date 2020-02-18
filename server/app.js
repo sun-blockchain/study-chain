@@ -20,6 +20,7 @@ const studentRoutes = require('./routes/student');
 const scoreRoutes = require('./routes/score');
 const meRoutes = require('./routes/me');
 const academyRoutes = require('./routes/academy');
+const commonRoutes = require('./routes/common');
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -70,6 +71,7 @@ app.use('/score', checkJWT, scoreRoutes);
 app.use('/certificate', certificateRoutes);
 app.use('/account/me', checkJWT, meRoutes);
 app.use('/academy', checkJWT, academyRoutes);
+app.use('/common', checkJWT, commonRoutes);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
