@@ -22,6 +22,18 @@ const actions = {
       }
     }
   },
+  async getSubjectsOfCourse({ commit }, courseId) {
+    try {
+      let listSubjects = await studentService.getSubjectsOfCourse(courseId);
+      commit('getSubjectsOfCourse', listSubjects);
+      return listSubjects;
+    } catch (error) {
+      console.log(error);
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
+  },
   async getAllCourses({ commit }) {
     try {
       let listCourses = await studentService.getAllCourses();
@@ -84,6 +96,9 @@ const actions = {
 const mutations = {
   getCourse(state, listCourses) {
     state.listCourses = listCourses;
+  },
+  getSubjectsOfCourse(state, listSubjects) {
+    state.listSubjects = listSubjects;
   },
   getAllCourses(state, listCourses) {
     state.listCourses = listCourses;

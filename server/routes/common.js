@@ -28,26 +28,24 @@ router.get(
     .trim()
     .escape(),
   async (req, res) => {
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
+    const courseId = req.params.courseId;
 
     const user = req.decoded.user;
     const networkObj = await network.connectToNetwork(user);
-    const response = await network.query(networkObj, 'QueryCourse', req.params.courseId);
+    const response = await network.query(networkObj, 'QueryCourse', courseId);
+    const listSubjects = await network.query(networkObj, 'QuerySubjectsOfCourse', courseId);
 
-    if (!response.success) {
+    if (!response.success || !listSubjects.success) {
       return res.status(500).send({
         success: false,
-        msg: response.msg.toString()
+        msg: 'Query course failed'
       });
     }
 
     return res.json({
       success: true,
-      course: JSON.parse(response.msg)
+      course: JSON.parse(response.msg),
+      listSubjects: JSON.parse(listSubjects.msg)
     });
   }
 );

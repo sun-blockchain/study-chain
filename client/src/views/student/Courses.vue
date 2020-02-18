@@ -1,6 +1,6 @@
 <template>
   <div>
-    <table-admin
+    <table-student
       :title="`List Courses`"
       :listAll="listCourses"
       :loadingData="loadingData"
@@ -12,19 +12,19 @@
         { prop: 'ShortDescription', label: 'Description' }
       ]"
       @detailCourses="detailCourse($event)"
-    ></table-admin>
+    ></table-student>
   </div>
 </template>
 
 <script>
 import { mapState, mapActions } from "vuex";
 import { ValidationObserver, ValidationProvider } from "vee-validate";
-import TableAdmin from "@/components/admin-academy/TableAdmin";
+import TableStudent from "@/components/student/TableStudent";
 export default {
   components: {
     ValidationObserver,
     ValidationProvider,
-    TableAdmin
+    TableStudent
   },
   data() {
     return {
