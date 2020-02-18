@@ -152,7 +152,7 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return UpdateUserInfo(stub, args)
 	} else if function == "UpdateUserAvatar" {
 		return UpdateUserAvatar(stub, args)
-	}
+	} else if function == "UpdateSubjectInfo"
 
 	return shim.Error("Invalid Smart Contract function name!")
 }
