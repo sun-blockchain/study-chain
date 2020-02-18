@@ -35,7 +35,7 @@ jobs:
           command: |
             if [[ true ]];  then
               curl -X POST -H "X-ChatWorkToken: $CHATWORK_TOKEN" -d \
-                "body=[info][title][info]BUIL SUCCESS (flex)[/info] $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME[/title]Repository name: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME%0AAuthor: $CIRCLE_USERNAME%0ABranch: $CIRCLE_BRANCH%0APull: $CIRCLE_PULL_REQUEST%0ACommit: https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/commit/$CIRCLE_SHA1%0ABuild link: https://circleci.com/gh/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$CIRCLE_BUILD_NUM[/info]" \
+                "body=[info][title][info]BUIL SUCCESS (flex)[/info] $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME[/title]Repository name: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME%0AAuthor: $CIRCLE_PR_USERNAME%0ABranch: $CIRCLE_BRANCH%0APull: $CIRCLE_PULL_REQUEST%0ACommit: https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/commit/$CIRCLE_SHA1%0ABuild link: https://circleci.com/gh/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$CIRCLE_BUILD_NUM[/info]" \
                 "https://api.chatwork.com/v2/rooms/$CHATWORK_ROOM/messages"
             fi
       - run:
@@ -44,7 +44,7 @@ jobs:
           command: |
             if [[ true ]];  then
               curl -X POST -H "X-ChatWorkToken: $CHATWORK_TOKEN" -d \
-                "body=[info][title][info]BUIL FAILED (anger)[/info]$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME[/title]Repository name: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME%0AAuthor: $CIRCLE_USERNAME%0ABranch: $CIRCLE_BRANCH%0APull: $CIRCLE_PULL_REQUEST%0ACommit: https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/commit/$CIRCLE_SHA1%0ABuild link: https://circleci.com/gh/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$CIRCLE_BUILD_NUM[/info]" \
+                "body=[info][title][info]BUIL FAILED (anger)[/info]$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME[/title]Repository name: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME%0AAuthor: $CIRCLE_PR_USERNAME%0ABranch: $CIRCLE_BRANCH%0APull: $CIRCLE_PULL_REQUEST%0ACommit: https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/commit/$CIRCLE_SHA1%0ABuild link: https://circleci.com/gh/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$CIRCLE_BUILD_NUM[/info]" \
                 "https://api.chatwork.com/v2/rooms/$CHATWORK_ROOM/messages"
             fi
       - save_cache:

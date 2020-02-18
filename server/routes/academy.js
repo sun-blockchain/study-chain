@@ -83,6 +83,58 @@ router.put(
 
 // Create new course
 router.post(
+  '/addSubjectToCourse',
+  checkJWT,
+  [
+    body('courseId')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('subjectId')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape()
+  ],
+  async (req, res) => {
+    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied'
+      });
+    }
+    let errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    let user = req.decoded.user;
+    let networkObj = await network.connectToNetwork(user);
+
+    let courseId = req.body.courseId;
+    let subjectId = req.body.subjectId;
+
+    let response = await network.addSubjectToCourse(networkObj, courseId, subjectId);
+
+    if (!response.success) {
+      return res.status(500).json({
+        success: false,
+        msg: response.msg
+      });
+    }
+
+    const course = await network.query(networkObj, 'QueryCourse', courseId);
+
+    return res.json({
+      success: true,
+      course: JSON.parse(course.msg)
+    });
+  }
+);
+
+router.post(
   '/course',
   checkJWT,
   [
