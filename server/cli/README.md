@@ -11,13 +11,13 @@ node enrollAdmin.js --orgMSP=[OrgName] --username=[username]
 enrollAdmin Org student:
 
 ```bash
-	node enrollAdmin.js --username=adminstudent
+node enrollAdmin.js --username=adminstudent
 ```
 
 enrollAdmin Org academy:
 
 ```bash
-	node enrollAdmin.js --orgMSP=academy --username=adminacademy
+node enrollAdmin.js --orgMSP=academy --username=adminacademy
 ```
 
 ## 2. Register user
@@ -26,7 +26,7 @@ enrollAdmin Org academy:
 - userid {String} (required)
 
 ```bash
-	node registerUser.js --username=[username] --orgMSP=[OrgName] --fullname=[Fullname]
+node registerUser.js --username=[username] --orgMSP=[OrgName] --fullname=[Fullname]
 ```
 
 #### Example:
@@ -34,13 +34,13 @@ enrollAdmin Org academy:
 Register 20156425 in studen (student):
 
 ```bash
-	node registerUser.js --username=st01 --orgMSP=student --password=123456 --fullname=TrinhVanTan
+node registerUser.js --username=st01 --orgMSP=student --password=123456 --fullname=TrinhVanTan
 ```
 
 Register GV00 in academy (teacher):
 
 ```bash
-	node registerUser.js --username=GV00 --orgMSP=academy --fullname=ABC --password=123456
+node registerUser.js --username=GV00 --orgMSP=academy --fullname=ABC --password=123456
 ```
 
 ## Enroll admin and register user with `intit.sh`
@@ -58,7 +58,7 @@ chmod +x ./init.sh
 - args {String} argument of function (optional)
 
 ```bash
-	node query.js --userid=[UserId] --org=[OrgName] --func=[FunctionName] --args=[Argument]
+node query.js --userid=[UserId] --org=[OrgName] --func=[FunctionName] --args=[Argument]
 ```
 
 #### Example:
@@ -66,60 +66,66 @@ chmod +x ./init.sh
 Query student id is 1 with role academy admin:
 
 ```bash
-	node query.js --username=adminacademy --func=QueryStudent --args=st01
+node query.js --username=adminacademy --func=QueryStudent --args=st01
 ```
 
 ```bash
-	node query.js --username=adminacademy --func=QueryTeacher --args=gv01
+node query.js --username=adminacademy --func=QueryTeacher --args=gv01
 ```
 
 Query All student with role academy admin:
 
 ```bash
-	node query.js --username=adminacademy --func=GetAllStudents
+node query.js --username=adminacademy --func=GetAllStudents
 ```
 
 ```bash
-	node query.js --username=adminacademy --func=GetAllCourses
+node query.js --username=adminacademy --func=GetAllCourses
 ```
 
 ```bash
-	node query.js --username=adminacademy --func=GetAllSubjects
+node query.js --username=adminacademy --func=GetAllSubjects
 ```
 
 ```bash
-	node query.js --username=adminacademy --func=QuerySubject --args=ethereum
+node query.js --username=adminacademy --func=QuerySubject --args=ethereum
 ```
 
 ```bash
-	node query.js --username=adminacademy --func=GetScoresByStudent --args=st01
+node query.js --username=adminacademy --func=GetScoresByStudent --args=st01
 ```
 
 ```bash
-	node query.js --username=adminacademy --func=GetAllScores
+node query.js --username=adminacademy --func=GetAllScores
 ```
 
 ```bash
-	node query.js --username=adminacademy --func=GetScoresBySubject --args=ethereum
+node query.js --username=adminacademy --func=GetScoresBySubject --args=ethereum
 ```
 
 ```bash
-	node query.js --username=adminacademy --func=GetSubjectsByStudent --args=st01
+node query.js --username=adminacademy --func=GetSubjectsByStudent --args=st01
 ```
 
 ```bash
-	node query.js --username=adminacademy --func=GetCertificatesByStudent --args=st01
+node query.js --username=adminacademy --func=GetCertificatesByStudent --args=st01
 ```
 
 ```bash
-	node query.js --username=adminacademy --func=GetCertificatesBySubject --args=ethereum
+node query.js --username=adminacademy --func=GetCertificatesBySubject --args=ethereum
 ```
 
 Query Score with role admin student with studentId and subjectId
 
 ```bash
-	// arguments = [StudentId, SubjectId]
-	node query.js --username=trinh --func=QueryScore --args=10 --args=160212
+// arguments = [StudentId, SubjectId]
+node query.js --username=trinh --func=QueryScore --args=10 --args=160212
+```
+
+Query all Subject of Course by CourseID
+
+```bash
+node query.js --username=adminacademy --func=QuerySubjectsOfCourse --args=xxx
 ```
 
 ## Invoke Ledger
@@ -132,23 +138,23 @@ Query Score with role admin student with studentId and subjectId
 #### Example:
 
 ```bash
- node invoke.js --username=adminacademy --func=CreateCourse --courseCode=BC01 --courseName=Blockchain --description=Blockchain --shortDescription=Blockchain
+node invoke.js --username=adminacademy --func=CreateCourse --courseCode=BC01 --courseName=Blockchain --description=Blockchain --shortDescription=Blockchain
 ```
 
 ```bash
- node invoke.js --username=adminacademy --func=UpdateCourseInfo --courseId=xxxx  --courseCode=BC01 --courseName=Blockchain --description=Blockchain --shortDescription=Blockchain
+node invoke.js --username=adminacademy --func=UpdateCourseInfo --courseId=xxxx  --courseCode=BC01 --courseName=Blockchain --description=Blockchain --shortDescription=Blockchain
 ```
 
 ```bash
- node invoke.js --username=st01 --func=UpdateUserInfo --phoneNumber=0382794668  --email=BC01 --address=KienGiang --fullName=TrinhVanTan
+node invoke.js --username=st01 --func=UpdateUserInfo --phoneNumber=0382794668  --email=BC01 --address=KienGiang --fullName=TrinhVanTan
 ```
 
 ```bash
- node invoke.js --username=adminacademy --func=DeleteCourse --courseId=xxxx
+node invoke.js --username=adminacademy --func=DeleteCourse --courseId=xxxx
 ```
 
 ```bash
- node invoke.js --username=adminacademy --func=CreateSubject --subjectCode=ET01 --subjectName=Ethereum --shortDescription=Ethereum --description=Ethereum
+node invoke.js --username=adminacademy --func=CreateSubject --subjectCode=ET01 --subjectName=Ethereum --shortDescription=Ethereum --description=Ethereum
 ```
 
 ```bash
