@@ -348,6 +348,45 @@ exports.createSubject = async function(networkObj, subject) {
   }
 };
 
+exports.createClass = async function(networkObj, _class) {
+  if (
+    !_class.classID ||
+    !_class.classCode ||
+    !_class.room ||
+    !_class.time ||
+    !_class.shortDescription ||
+    !_class.description
+  ) {
+    let response = {};
+    response.error = 'Error! You need to fill all fields before you can register!';
+    return response;
+  }
+
+  try {
+    await networkObj.contract.submitTransaction(
+      'CreateClass',
+      _class.classID,
+      _class.classCode,
+      _class.room,
+      _class.time,
+      _class.shortDescription,
+      _class.description
+    );
+    let response = {
+      success: true,
+      msg: 'Create success!'
+    };
+
+    await networkObj.gateway.disconnect();
+    return response;
+  } catch (error) {
+    let response = {
+      success: false,
+      msg: error
+    };
+    return response;
+  }
+};
 exports.createCourse = async function(networkObj, course) {
   if (
     !course.courseId ||

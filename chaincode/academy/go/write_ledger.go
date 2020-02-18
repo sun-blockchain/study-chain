@@ -166,7 +166,47 @@ func CreateCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	return shim.Success(nil)
 }
+func CreateClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		return shim.Error("Error - cide.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		return shim.Error("WHO ARE YOU")
+	}
+
+	if len(args) != 6 {
+		return shim.Error("Incorrect number of arguments. Expecting 6")
+	}
+
+	fmt.Println("Start Create Class!")
+
+	ClassID := args[0]
+	ClassCode := args[1]
+	Room := args[2]
+	Time := args[3]
+	ShortDescription := args[4]
+	Description := args[5]
+
+	keyClass := "Class-" + ClassID
+	checkClassExist, err := getClass(stub, keyClass)
+
+	if err == nil {
+		fmt.Println(checkClassExist)
+		return shim.Error("This class already exists - " + ClassID)
+	}
+
+	var class = Class{ClassID: ClassID, ClassCode: ClassCode, Room: Room,Time: Time, status:true, ShortDescription: ShortDescription, Description: Description, Students: nil}
+
+	classAsBytes, _ := json.Marshal(class)
+
+	stub.PutState(keyClass, classAsBytes)
+
+	return shim.Success(nil)
+}
 func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	// MSPID, err := cid.GetMSPID(stub)

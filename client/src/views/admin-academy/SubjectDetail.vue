@@ -28,7 +28,9 @@
       :btnDelete="true"
       :listProperties="[
         { prop: 'ClassCode', label: 'ClassCode' },
-        { prop: 'ClassName', label: 'ClassName' },
+        { prop: 'Room', label: 'Room' },
+        { prop: 'Time', label: 'Time' },
+        { prop: 'ShortDescription', label: 'Short Description' },
         { prop: 'Description', label: 'Description' }
       ]"
       @detailClasss="detailClass($event)"
@@ -94,7 +96,7 @@
       <b-modal
         id="modal-create"
         ref="modal-create"
-        title="Tạo Mới Khóa Học"
+        title="Create new class"
         @ok.prevent="passes(handleCreate)"
         @cancel="resetInfoModalCreate"
         v-loading.fullscreen.lock="fullscreenLoading"
@@ -113,13 +115,39 @@
               </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
-          <ValidationProvider rules="required" name="Class Name" v-slot="{ valid, errors }">
+          <ValidationProvider rules="required" name="Room" v-slot="{ valid, errors }">
             <b-form-group>
               <b-form-input
                 type="text"
-                v-model="newClass.ClassName"
+                v-model="newClass.Room"
                 :state="errors[0] ? false : valid ? true : null"
-                placeholder="Class Name"
+                placeholder="Class room"
+              ></b-form-input>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
+            </b-form-group>
+          </ValidationProvider>
+          <ValidationProvider rules="required" name="Time" v-slot="{ valid, errors }">
+            <b-form-group>
+              <b-form-input
+                type="time"
+                v-model="newClass.Time"
+                :state="errors[0] ? false : valid ? true : null"
+                placeholder="Time"
+              ></b-form-input>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
+            </b-form-group>
+          </ValidationProvider>
+          <ValidationProvider rules="required" name="Short Description" v-slot="{ valid, errors }">
+            <b-form-group>
+              <b-form-input
+                type="text"
+                v-model="newClass.ShortDescription"
+                :state="errors[0] ? false : valid ? true : null"
+                placeholder="Class Short Description"
               ></b-form-input>
               <b-form-invalid-feedback id="inputLiveFeedback">
                 {{ errors[0] }}
@@ -159,12 +187,17 @@ export default {
       editClass: {
         ClassID: '',
         ClassCode: '',
-        ClassName: '',
+        Room: '',
+        Time: '',
+        ShortDescription: '',
         Description: ''
       },
       newClass: {
+        ClassID: '',
         ClassCode: '',
-        ClassName: '',
+        Room: '',
+        Time: '',
+        ShortDescription: '',
         Description: ''
       },
       fullscreenLoading: false,
@@ -252,7 +285,6 @@ export default {
     let classes = await this.getClassesOfSubject(this.$route.params.id);
     if (classes) {
       this.loadingData = false;
-      console.log(response);
     }
   }
 };

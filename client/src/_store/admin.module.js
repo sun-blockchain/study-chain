@@ -14,6 +14,18 @@ const state = {
 };
 
 const actions = {
+  async createClass({ commit }, _class) {
+    try {
+      let listClasses = await adminService.createClass(_class);
+      commit('createClass', listClasses);
+      return listClasses;
+    } catch (error) {
+      console.log(error);
+      // if (error.response.status === 403) {
+      //   router.push('/403');
+      // }
+    }
+  },
   async getCourse({ commit }, courseId) {
     try {
       let listCourses = await adminService.getCourse(courseId);
@@ -306,6 +318,9 @@ const actions = {
 };
 
 const mutations = {
+  createClass(state, listClasses) {
+    state.listClasses = listClasses;
+  },
   getCourse(state, listCourses) {
     state.listCourses = listCourses;
   },

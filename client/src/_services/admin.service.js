@@ -2,6 +2,7 @@ import { authHeader } from '../_helpers/auth-header.js';
 import axios from 'axios';
 
 export const adminService = {
+  createClass,
   getCourse,
   createCourse,
   updateCourse,
@@ -210,6 +211,26 @@ async function getClassesOfSubject(subjectId) {
         }
       ]
     };
+  } catch (error) {
+    throw error;
+  }
+}
+async function createClass(_class) {
+  try {
+    let respone = await axios.post(
+      `${process.env.VUE_APP_API_BACKEND}/academy/class`,
+      {
+        classCode: _class.ClassCode,
+        room: _class.Room,
+        time: _class.Time,
+        shortDescription: _class.ShortDescription,
+        description: _class.Description
+      },
+      {
+        headers: authHeader()
+      }
+    );
+    return respone.data.class;
   } catch (error) {
     throw error;
   }
