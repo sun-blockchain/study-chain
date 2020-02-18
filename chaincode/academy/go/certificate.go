@@ -28,6 +28,7 @@ type Subject struct {
 	ShortDescription string
 	Description      string
 }
+
 type Class struct {
 	ClassID string
 	ClassCode string
@@ -38,6 +39,7 @@ type Class struct {
 	Description string
 	Students []string
 }
+
 type Teacher struct {
 	Username string
 	Fullname string
@@ -105,6 +107,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return CreateTeacher(stub, args)
 	} else if function == "QuerySubject" {
 		return QuerySubject(stub, args)
+	} else if function == "QuerySubjectsOfCourse" {
+		return QuerySubjectsOfCourse(stub, args)
 	} else if function == "QueryScore" {
 		return QueryScore(stub, args)
 	} else if function == "QueryStudent" {
@@ -687,6 +691,48 @@ func QueryCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	}
 
 	return shim.Success(courseAsBytes)
+}
+
+func QuerySubjectsOfCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	_, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		fmt.Println("Error - cid.GetMSPID()")
+	}
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	CourseID := args[0]
+
+	course, err := getCourse(stub, "Course-"+CourseID)
+
+	if err != nil {
+		return shim.Error("Course dose not exist - " + CourseID)
+	}
+
+	var tlist []Subject
+	var i int
+
+	for i = 0; i < len(course.Subjects); i++ {
+
+		subject, err := getSubject(stub, "Subject-"+course.Subjects[i])
+		if err != nil {
+			return shim.Error("Subject does not exist - " + course.Subjects[i])
+		}
+		tlist = append(tlist, subject)
+	}
+
+	jsonRow, err := json.Marshal(tlist)
+
+	if err != nil {
+		return shim.Error("Failed")
+	}
+
+	return shim.Success(jsonRow)
+
+	return shim.Success(nil)
 }
 
 func QueryStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
