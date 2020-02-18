@@ -199,7 +199,7 @@ func CreateClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("This class already exists - " + ClassID)
 	}
 
-	var class = Class{ClassID: ClassID, ClassCode: ClassCode, Room: Room,Time: Time, status:true, ShortDescription: ShortDescription, Description: Description, Students: nil}
+	var class = Class{ClassID: ClassID, ClassCode: ClassCode, Room: Room,Time: Time, Status:true, ShortDescription: ShortDescription, Description: Description, Students: nil}
 
 	classAsBytes, _ := json.Marshal(class)
 

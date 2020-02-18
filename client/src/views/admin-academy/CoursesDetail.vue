@@ -17,7 +17,6 @@
     </div>
     <table-admin
       :title="`Student List`"
-      :btnCreate="true"
       :listAll="listStudents"
       :loadingData="loadingData"
       :btnDetail="true"
@@ -34,7 +33,18 @@
       @detailStudents="detailStudent($event)"
       @modalEdit="modalEdit($event)"
       @delStudent="delStudent($event)"
-    ></table-admin>
+    >
+      <template v-slot:btn-create>
+        <el-button
+          type="success"
+          icon="fas fa-plus"
+          size="medium"
+          round
+          v-b-modal.modal-create
+        ></el-button>
+        <!-- <div class="box-defaul-header"></div> -->
+      </template>
+    </table-admin>
 
     <ValidationObserver ref="observer" v-slot="{ passes }">
       <b-modal
@@ -53,9 +63,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Student Code"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Student Name" v-slot="{ valid, errors }">
@@ -66,9 +76,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Student Name"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Student Class" v-slot="{ valid, errors }">
@@ -79,9 +89,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Student Class"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
         </b-form>
@@ -106,9 +116,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Student Code"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Student Name" v-slot="{ valid, errors }">
@@ -119,13 +129,13 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Student Name"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <b-form-group>
-            <el-select v-model="value" filterable placeholder="Class Name">
+            <el-select v-model="newStudent.Class" filterable placeholder="Class Name">
               <el-option
                 v-for="item in options"
                 :key="item.value"
@@ -144,11 +154,15 @@
 import { mapState, mapActions } from 'vuex';
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 import TableAdmin from '@/components/admin-academy/TableAdmin';
+import { Button, Select, Option } from 'element-ui';
 export default {
   components: {
     ValidationObserver,
     ValidationProvider,
-    TableAdmin
+    TableAdmin,
+    'el-button': Button,
+    'el-select': Select,
+    'el-option': Option
   },
   data() {
     return {

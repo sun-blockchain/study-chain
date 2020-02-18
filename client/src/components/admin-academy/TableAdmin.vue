@@ -6,15 +6,7 @@
       <div class="card shadow mb-4 border-radius-15px">
         <div class="card-header py-3">
           <h6 class="m-0 font-weight-bold text-primary">
-            <el-button
-              v-if="btnCreate"
-              type="success"
-              icon="fas fa-plus"
-              size="medium"
-              round
-              v-b-modal.modal-create
-            ></el-button>
-            <div v-else class="box-defaul-header"></div>
+            <slot name="btn-create"></slot>
           </h6>
         </div>
         <div class="card-body">

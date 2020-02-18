@@ -122,8 +122,13 @@ async function getAllSubjects() {
 async function createSubject(subject) {
   try {
     let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/subject/create`,
-      { subjectname: subject.Name },
+      `${process.env.VUE_APP_API_BACKEND}/academy/subject`,
+      {
+        subjectName: subject.subjectName,
+        subjectCode: subject.subjectCode,
+        shortDescription: subject.shortDescription,
+        description: subject.description
+      },
       {
         headers: authHeader()
       }

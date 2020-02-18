@@ -4,7 +4,6 @@
       :title="`List Of Teachers Subjects`"
       :listAll="subjectsOfTeacher"
       :loadingData="loadingData"
-      :btnCreate="true"
       :btnDelete="true"
       :nameFunctionDelete="`delSubject`"
       :listProperties="[
@@ -12,7 +11,18 @@
         { prop: 'Name', label: 'Name Subject' }
       ]"
       @delSubject="delSubject($event)"
-    ></table-admin>
+    >
+      <template v-slot:btn-create>
+        <el-button
+          type="success"
+          icon="fas fa-plus"
+          size="medium"
+          round
+          v-b-modal.modal-create
+        ></el-button>
+        <!-- <div class="box-defaul-header"></div> -->
+      </template>
+    </table-admin>
 
     <b-modal id="modal-create" title="Thêm Môn Học" ok-title="Thêm" @ok="handleAddSubject" ok-only>
       <b-form-select class="mb-3" v-model="newSubjectId">
@@ -33,9 +43,11 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 import TableAdmin from '@/components/admin-academy/TableAdmin';
+import { Button } from 'element-ui';
 export default {
   components: {
-    TableAdmin
+    TableAdmin,
+    'el-button': Button
   },
   data() {
     return {
