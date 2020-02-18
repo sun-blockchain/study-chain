@@ -5,6 +5,7 @@ const request = require('supertest');
 const sinon = require('sinon');
 const network = require('../fabric/network');
 const app = require('../app');
+const USER_ROLES = require('../configs/constant').USER_ROLES;
 
 require('dotenv').config();
 
@@ -705,6 +706,125 @@ describe('#POST /academy/subject', () => {
       .then((res) => {
         expect(res.status).equal(200);
         expect(res.body.success).equal(true);
+        done();
+      });
+  });
+});
+
+describe('#POST /academy/addSubjectToCourse', () => {
+  let connect;
+  let query;
+  let addSubjectToCourse;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+    addSubjectToCourse = sinon.stub(network, 'addSubjectToCourse');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+    addSubjectToCourse.restore();
+  });
+
+  it('permission denied when access routes with student', (done) => {
+    request(app)
+      .post('/academy/addSubjectToCourse')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('permission denied when access routes with teacher', (done) => {
+    request(app)
+      .post('/academy/addSubjectToCourse')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('Add subject to course failed because req.body invalid', (done) => {
+    request(app)
+      .post('/academy/addSubjectToCourse')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: '',
+        subjectId: ''
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        done();
+      });
+  });
+
+  it('Invoke chaincode failed', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    addSubjectToCourse.returns({
+      success: false,
+      msg: 'Error chaincode'
+    });
+
+    request(app)
+      .post('/academy/addSubjectToCourse')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: 'e4b5316d-cb22-4e6f-acfd-6ea0feb5478f',
+        subjectId: 'baa7df8c-8aa1-4ce0-9a26-6439ab11b8ef'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('Query Chaincode Successfully', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    addSubjectToCourse.returns({
+      success: true,
+      msg: 'Subject was added successfully'
+    });
+
+    let data = JSON.stringify({
+      CourseID: 'e4b5316d-cb22-4e6f-acfd-6ea0feb5478f',
+      Subjects: ['baa7df8c-8aa1-4ce0-9a26-6439ab11b8ef']
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .post('/academy/addSubjectToCourse')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: 'e4b5316d-cb22-4e6f-acfd-6ea0feb5478f',
+        subjectId: 'baa7df8c-8aa1-4ce0-9a26-6439ab11b8ef'
+      })
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        expect(res.body.course.Subjects[0]).equal('baa7df8c-8aa1-4ce0-9a26-6439ab11b8ef');
         done();
       });
   });
