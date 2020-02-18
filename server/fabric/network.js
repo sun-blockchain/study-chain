@@ -424,6 +424,44 @@ exports.updateCourseInfo = async function(networkObj, course) {
   }
 };
 
+exports.updateSubjectInfo = async function(networkObj, subject) {
+  if (
+    !subject.subjectId ||
+    !subject.subjectCode ||
+    !subject.subjectName ||
+    !subject.shortDescription ||
+    !subject.description
+  ) {
+    let response = {};
+    response.error = 'Error! You need to fill all fields before you can update!';
+    return response;
+  }
+
+  try {
+    await networkObj.contract.submitTransaction(
+      'UpdateSubjectInfo',
+      subject.subjectId,
+      subject.subjectCode,
+      subject.subjectName,
+      subject.shortDescription,
+      subject.description
+    );
+    let response = {
+      success: true,
+      msg: 'Update success!'
+    };
+
+    await networkObj.gateway.disconnect();
+    return response;
+  } catch (error) {
+    let response = {
+      success: false,
+      msg: error
+    };
+    return response;
+  }
+};
+
 exports.updateUserInfo = async function(networkObj, newInfo) {
   if (!newInfo.username) {
     let response = {};

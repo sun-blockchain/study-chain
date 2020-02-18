@@ -18,6 +18,10 @@ curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.0.0 1.4.4 0.4.18
 ```
 
 ```bash
+cp -r fabric-samples/bin ./
+```
+
+```bash
 cd network
 ```
 

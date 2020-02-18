@@ -81,10 +81,11 @@ async function main() {
           process.exit(0);
         } else if (functionName === 'UpdateCourseInfo' && user.role === USER_ROLES.ADMIN_ACADEMY) {
           /**
-           * Edit Course Info
+           * Update Course Info
            * @param  {String} courseId course id (required)
            * @param  {String} courseCode course Code (required)
            * @param  {String} courseName course Name (required)
+           * @param  {String} shortDescription course short description (required)
            * @param  {String} description course description (required)
            */
           let courseId = argv.courseId.toString();
@@ -139,6 +140,33 @@ async function main() {
           };
 
           await conn.updateUserInfo(networkObj, updatedUser);
+          console.log('Transaction has been submitted');
+          process.exit(0);
+        } else if (functionName === 'UpdateSubjectInfo' && user.role === USER_ROLES.ADMIN_ACADEMY) {
+          /**
+           * Update Course Info
+           * @param  {String} subjectId subject Id (required)
+           * @param  {String} subjectCode subject Code (required)
+           * @param  {String} subjectName subject Name (required)
+           * @param  {String} shortDescription subject short description (required)
+           * @param  {String} description course description (required)
+           */
+
+          let subjectId = argv.subjectId.toString();
+          let subjectCode = argv.subjectCode.toString();
+          let subjectName = argv.subjectName.toString();
+          let shortDescription = argv.shortDescription.toString();
+          let description = argv.description.toString();
+
+          let subject = {
+            subjectId: subjectId,
+            subjectCode: subjectCode,
+            subjectName: subjectName,
+            shortDescription: shortDescription,
+            description: description
+          };
+
+          await conn.updateSubjectInfo(networkObj, subject);
           console.log('Transaction has been submitted');
           process.exit(0);
         } else if (functionName === 'CreateCertificate' && user.role === USER_ROLES.ADMIN_ACADEMY) {
