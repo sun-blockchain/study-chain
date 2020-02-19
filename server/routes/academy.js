@@ -572,7 +572,6 @@ router.delete(
     let { subjectId } = req.body;
 
     let networkObj = await network.connectToNetwork(req.decoded.user);
-
     const response = await network.deleteSubject(networkObj, subjectId);
 
     if (!response.success) {
