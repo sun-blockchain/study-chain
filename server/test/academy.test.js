@@ -790,8 +790,62 @@ describe('#POST /academy/addSubjectToCourse', () => {
         done();
       });
   });
+});
 
-  it('Query Chaincode Successfully', (done) => {
+describe('#POST /academy/removeSubjectFromCourse', () => {
+  let connect;
+  let query;
+  let removeSubjectFromCourse;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+    removeSubjectFromCourse = sinon.stub(network, 'removeSubjectFromCourse');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+    removeSubjectFromCourse.restore();
+  });
+
+  it('Permission denied when access routes with student', (done) => {
+    request(app)
+      .post('/academy/removeSubjectFromCourse')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('Permission denied when access routes with teacher', (done) => {
+    request(app)
+      .post('/academy/removeSubjectFromCourse')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('Remove subject from course failed because req.body invalid', (done) => {
+    request(app)
+      .post('/academy/removeSubjectFromCourse')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: '',
+        subjectId: ''
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        done();
+      });
+  });
+
+  it('Can not query chaincode', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -799,9 +853,64 @@ describe('#POST /academy/addSubjectToCourse', () => {
       user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
     });
 
-    addSubjectToCourse.returns({
+    query.returns({
+      success: false
+    });
+
+    request(app)
+      .post('/academy/removeSubjectFromCourse')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: 'e4b5316d-cb22-4e6f-acfd-6ea0feb5478f',
+        subjectId: 'baa7df8c-8aa1-4ce0-9a26-6439ab11b8ef'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not query chaincode!');
+        done();
+      });
+  });
+
+  it('Subject does not present in course', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let data = JSON.stringify({
+      CourseID: 'e4b5316d-cb22-4e6f-acfd-6ea0feb5478f',
+      Subjects: []
+    });
+
+    query.returns({
       success: true,
-      msg: 'Subject was added successfully'
+      msg: data
+    });
+
+    request(app)
+      .post('/academy/removeSubjectFromCourse')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: 'e4b5316d-cb22-4e6f-acfd-6ea0feb5478f',
+        subjectId: 'baa7df8c-8aa1-4ce0-9a26-6439ab11b8ef'
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('This subject does not present in course!');
+        done();
+      });
+  });
+
+  it('Invoke chaincode failed', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
     });
 
     let data = JSON.stringify({
@@ -814,8 +923,50 @@ describe('#POST /academy/addSubjectToCourse', () => {
       msg: data
     });
 
+    removeSubjectFromCourse.returns({
+      success: false,
+      msg: 'Can not remove this subject from course!'
+    });
+
     request(app)
-      .post('/academy/addSubjectToCourse')
+      .post('/academy/removeSubjectFromCourse')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: 'e4b5316d-cb22-4e6f-acfd-6ea0feb5478f',
+        subjectId: 'baa7df8c-8aa1-4ce0-9a26-6439ab11b8ef'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('This subject has been removed from chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let data = JSON.stringify({
+      CourseID: 'e4b5316d-cb22-4e6f-acfd-6ea0feb5478f',
+      Subjects: ['baa7df8c-8aa1-4ce0-9a26-6439ab11b8ef']
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    removeSubjectFromCourse.returns({
+      success: true,
+      msg: 'This subject has been removed from course!'
+    });
+
+    request(app)
+      .post('/academy/removeSubjectFromCourse')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
         courseId: 'e4b5316d-cb22-4e6f-acfd-6ea0feb5478f',
@@ -824,7 +975,7 @@ describe('#POST /academy/addSubjectToCourse', () => {
       .then((res) => {
         expect(res.status).equal(200);
         expect(res.body.success).equal(true);
-        expect(res.body.course.Subjects[0]).equal('baa7df8c-8aa1-4ce0-9a26-6439ab11b8ef');
+        expect(res.body.msg).equal('This subject has been removed from course!');
         done();
       });
   });
