@@ -25,10 +25,13 @@ export const adminService = {
   getAllStudents,
   getSubjectsOfStudent,
   getCertificatesOfSubject,
-  getStudentsOfCourse,
-  confirmCertificate
+  confirmCertificate,
+  getSubjectsNoCourse,
+  addSubjectToCourse,
+  deleteSubjectFromCourse
 };
 
+// Courses Manager
 async function getAllCourses() {
   try {
     let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/common/courses`, {
@@ -45,7 +48,7 @@ async function getCourse(courseId) {
     let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/common/course/${courseId}`, {
       headers: authHeader()
     });
-    return respone.data.course;
+    return respone.data;
   } catch (error) {
     throw error;
   }
@@ -91,7 +94,7 @@ async function deleteCourse(courseId) {
 async function createCourse(course) {
   try {
     let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/academy/subject/:subjectId/course`,
+      `${process.env.VUE_APP_API_BACKEND}/academy/course`,
       {
         courseCode: course.CourseCode,
         courseName: course.CourseName,
@@ -107,6 +110,60 @@ async function createCourse(course) {
     throw error;
   }
 }
+
+// Subjects of Course
+
+async function getSubjectsNoCourse(courseId) {
+  try {
+    let respone = await axios.get(
+      `${process.env.VUE_APP_API_BACKEND}/academy/subjectNoCourse/${courseId}`,
+      {
+        headers: authHeader()
+      }
+    );
+    return respone.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function addSubjectToCourse(courseId, subjectId) {
+  try {
+    let respone = await axios.post(
+      `${process.env.VUE_APP_API_BACKEND}/academy/addSubjectToCourse`,
+      {
+        courseId: courseId,
+        subjectId: subjectId
+      },
+      {
+        headers: authHeader()
+      }
+    );
+    return respone.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function deleteSubjectFromCourse(courseId, subjectId) {
+  try {
+    let respone = await axios.post(
+      `${process.env.VUE_APP_API_BACKEND}/academy/removeSubjectFromCourse`,
+      {
+        courseId: courseId,
+        subjectId: subjectId
+      },
+      {
+        headers: authHeader()
+      }
+    );
+
+    return respone.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
 // Subjects Manager
 async function getAllSubjects() {
   try {
@@ -418,31 +475,6 @@ async function getCertificatesOfSubject(subjectId) {
       }
     ]
   };
-}
-async function getStudentsOfCourse() {
-  try {
-    // let respone = await axios.get(
-    //   `${process.env.VUE_APP_API_BACKEND}/account/student/${username}/subjects`,
-    //   {
-    //     headers: authHeader()
-    //   }
-    // );
-    // return respone.data.subjects;
-    return [
-      {
-        StudentCode: '61e3b1bb-77a7-4830-bbd2-23b35fcc24eb',
-        StudentName: 'Le Van A',
-        Class: 'Spring 01'
-      },
-      {
-        StudentCode: '61e3b1bb-77a7-4830-bbd2-23b35fcc24eb',
-        StudentName: 'Le Van A',
-        Class: 'Spring 01'
-      }
-    ];
-  } catch (error) {
-    throw error;
-  }
 }
 async function confirmCertificate(studentUsername, subjectId) {
   try {

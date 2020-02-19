@@ -981,6 +981,167 @@ describe('#POST /academy/removeSubjectFromCourse', () => {
   });
 });
 
+describe('#GET /academy/subjectNoCourse/:courseId', () => {
+  let connect;
+  let query;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+  });
+
+  it('do not get success subjects with role admin student', (done) => {
+    request(app)
+      .get('/academy/subjectNoCourse/:courseId')
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .send({
+        courseId: '1'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('do not get success subjects with role teacher', (done) => {
+    request(app)
+      .get('/academy/subjectNoCourse/:courseId')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .send({
+        courseId: '1'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('do not get success subjects with role student', (done) => {
+    request(app)
+      .get('/academy/subjectNoCourse/:courseId')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        courseId: '1'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('Can not connect to network', (done) => {
+    connect.returns(null);
+    request(app)
+      .get('/academy/subjectNoCourse/:courseId')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: '1'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain');
+        done();
+      });
+  });
+
+  it('error query chaincode detail course', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    query.onFirstCall().returns({ success: false });
+    query.onSecondCall().returns({ success: true });
+
+    request(app)
+      .get('/academy/subjectNoCourse/:courseId')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: '1'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Query chaincode failed');
+        done();
+      });
+  });
+
+  it('error query chaincode all subjects', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    query.onFirstCall().returns({ success: true });
+    query.onSecondCall().returns({ success: false });
+
+    request(app)
+      .get('/academy/subjectNoCourse/:courseId')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: '1'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Query chaincode failed');
+        done();
+      });
+  });
+
+  it('get success ', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let course = JSON.stringify({
+      CourseID: '12312124123421',
+      Subjects: []
+    });
+
+    let subjects = JSON.stringify([
+      {
+        SubjectID: '1321321'
+      },
+      { SubjectID: '163654654654' }
+    ]);
+
+    query.onFirstCall().returns({ success: true, msg: course });
+    query.onSecondCall().returns({ success: true, msg: subjects });
+
+    request(app)
+      .get('/academy/subjectNoCourse/12312124123421')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({})
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        expect(res.body.subjects.length).equal(2);
+        done();
+      });
+  });
+});
+
 describe('#PUT /academy/subject', () => {
   let connect;
   let updateSubjectStub;

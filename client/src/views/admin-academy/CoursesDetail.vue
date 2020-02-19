@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid">
+  <div class="container-fluid" v-loading.fullscreen.lock="fullscreenLoading">
     <h1 class="bannerTitle_1wzmt7u">{{ listCourses.CourseName }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item href="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
@@ -16,22 +16,19 @@
       </div>
     </div>
     <table-admin
-      :title="`Student List`"
-      :listAll="listStudents"
+      :title="`Subjects List`"
+      :listAll="subjectsOfCourse"
       :loadingData="loadingData"
       :btnDetail="true"
       :nameFunctionDetail="`detailStudents`"
-      :btnEdit="true"
-      :nameFunctionEdit="`modalEdit`"
       :nameFunctionDelete="`delStudent`"
       :btnDelete="true"
       :listProperties="[
-        { prop: 'StudentCode', label: 'StudentCode' },
-        { prop: 'StudentName', label: 'Name' },
-        { prop: 'Class', label: 'Class' }
+        { prop: 'SubjectName', label: 'Subject Name' },
+        { prop: 'SubjectCode', label: 'Subject Code' },
+        { prop: 'ShortDescription', label: 'Short Description' }
       ]"
       @detailStudents="detailStudent($event)"
-      @modalEdit="modalEdit($event)"
       @delStudent="delStudent($event)"
     >
       <template v-slot:btn-create>
@@ -40,113 +37,34 @@
           icon="fas fa-plus"
           size="medium"
           round
-          v-b-modal.modal-create
+          @click="dialogAddSubject = true"
         ></el-button>
         <!-- <div class="box-defaul-header"></div> -->
       </template>
     </table-admin>
 
-    <ValidationObserver ref="observer" v-slot="{ passes }">
-      <b-modal
-        id="modal-edit"
-        ref="modal-edit"
-        ok-title="Update"
-        @ok.prevent="passes(handleUpdate)"
-        title="Update student's information"
-      >
-        <b-form>
-          <ValidationProvider rules="required" name="Student Code" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="text"
-                v-model="editStudent.StudentCode"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Student Code"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <ValidationProvider rules="required" name="Student Name" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="text"
-                v-model="editStudent.StudentName"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Student Name"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <ValidationProvider rules="required" name="Student Class" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="text"
-                v-model="editStudent.Class"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Student Class"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-        </b-form>
-      </b-modal>
-    </ValidationObserver>
-
-    <ValidationObserver ref="observer" v-slot="{ passes }">
-      <b-modal
-        id="modal-create"
-        ref="modal-create"
-        title="Create new student"
-        @ok.prevent="passes(handleCreate)"
-        @cancel="resetInfoModalCreate"
-        v-loading.fullscreen.lock="fullscreenLoading"
-      >
-        <b-form>
-          <ValidationProvider rules="required" name="Student Code" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="text"
-                v-model="newStudent.StudentCode"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Student Code"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <ValidationProvider rules="required" name="Student Name" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="text"
-                v-model="newStudent.StudentName"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Student Name"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <b-form-group>
-            <el-select v-model="newStudent.Class" filterable placeholder="Class Name">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
-            </el-select>
-          </b-form-group>
-        </b-form>
-      </b-modal>
-    </ValidationObserver>
+    <el-dialog
+      title="Add Subject To Course"
+      :visible.sync="dialogAddSubject"
+      class="modal-md-25-sm-90"
+    >
+      <el-form :model="formAdd" :rules="ruleAdd" ref="formAdd" class="demo-ruleForm">
+        <el-form-item prop="subjectId">
+          <el-select v-model="formAdd.subjectId" placeholder="Subject">
+            <el-option
+              :label="subject.SubjectName"
+              :value="subject.SubjectID"
+              v-for="(subject, index) in subjectsNoCourse"
+              :key="index"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="resetAddSubject('formAdd')">Cancel</el-button>
+        <el-button type="primary" @click="handleAddSubject('formAdd')">Add</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -154,7 +72,7 @@
 import { mapState, mapActions } from 'vuex';
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 import TableAdmin from '@/components/admin-academy/TableAdmin';
-import { Button, Select, Option } from 'element-ui';
+import { Button, Select, Option, Dialog, Form, FormItem, Message, MessageBox } from 'element-ui';
 export default {
   components: {
     ValidationObserver,
@@ -162,7 +80,10 @@ export default {
     TableAdmin,
     'el-button': Button,
     'el-select': Select,
-    'el-option': Option
+    'el-option': Option,
+    'el-dialog': Dialog,
+    'el-form': Form,
+    'el-form-item': FormItem
   },
   data() {
     return {
@@ -181,28 +102,7 @@ export default {
         courseName: '',
         description: ''
       },
-      options: [
-        {
-          value: 'Option1',
-          label: 'Option1'
-        },
-        {
-          value: 'Option2',
-          label: 'Option2'
-        },
-        {
-          value: 'Option3',
-          label: 'Option3'
-        },
-        {
-          value: 'Option4',
-          label: 'Option4'
-        },
-        {
-          value: 'Option5',
-          label: 'Option5'
-        }
-      ],
+      subjectsNoCourse: [],
       editStudent: {
         StudentID: '',
         StudentCode: '',
@@ -215,94 +115,101 @@ export default {
         Class: ''
       },
       fullscreenLoading: false,
-      loadingData: false
+      loadingData: false,
+      dialogAddSubject: false,
+      formAdd: {
+        subjectId: null
+      },
+      ruleAdd: {
+        subjectId: [{ required: true, message: 'Subject is required', trigger: 'blur' }]
+      }
     };
   },
   methods: {
     ...mapActions('adminAcademy', [
       'getCourse',
-      'getStudentsOfCourse',
-      'createStudent',
-      'updateStudent',
-      'deleteStudent'
+      'getSubjectsNoCourse',
+      'addSubjectToCourse',
+      'deleteSubjectFromCourse'
     ]),
     detailStudent(row) {
-      this.$router.push({ path: `students/${row.StudentID}/students` });
-    },
-    modalEdit(row) {
-      this.editStudent.StudentID = row.StudentID;
-      this.editStudent.StudentCode = row.StudentCode;
-      this.editStudent.StudentName = row.StudentName;
-      this.editStudent.Class = row.Class;
-
-      this.$root.$emit('bv::show::modal', 'modal-edit');
-    },
-    async handleCreate() {
-      this.$refs['modal-create'].hide();
-      this.fullscreenLoading = true;
-      let response = await this.createStudent(this.newStudent);
-      if (response) {
-        await this.resetInfoModalCreate();
-      }
-      this.fullscreenLoading = false;
-      await this.getStudentsOfCourse();
-    },
-    async handleUpdate() {
-      this.$refs['modal-edit'].hide();
-      this.fullscreenLoading = true;
-      await this.updateStudent(this.editStudent);
-      await this.resetInfoModalEdit();
-      this.fullscreenLoading = false;
-      await this.getStudentsOfCourse();
-    },
-    resetInfoModalEdit() {
-      this.editStudent.StudentCode = '';
-      this.editStudent.StudentName = '';
-      this.editStudent.Class = '';
-    },
-    resetInfoModalCreate() {
-      this.newStudent.StudentCode = '';
-      this.newStudent.StudentName = '';
-      this.newStudent.Class = '';
-      requestAnimationFrame(() => {
-        this.$refs.observer.reset();
-      });
+      this.$router.push({ path: `subjects/${row.StudentID}/students` });
     },
     async delStudent(row) {
-      this.$swal({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
+      MessageBox.confirm(`You won't be able to revert this!`, 'Delete', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
         type: 'warning',
-        showCancelButton: true,
-        cancelButtonColor: '#d33',
-        confirmButtonColor: '#28a745',
-        confirmButtonText: 'Yes, delete it!',
-        reverseButtons: true
-      }).then(async (result) => {
-        if (result.value) {
+        center: true
+      })
+        .then(async () => {
           this.fullscreenLoading = true;
-          await this.deleteStudent(row.StudentID);
-          await this.getStudentsOfCourse();
+          let data = await this.deleteSubjectFromCourse({
+            courseId: this.$route.params.id,
+            subjectId: row.SubjectID
+          });
+          if (data.success) {
+            await this.getCourse(this.$route.params.id);
+            let subjectsNoCourse = await this.getSubjectsNoCourse(this.$route.params.id);
+            if (subjectsNoCourse.success) {
+              this.subjectsNoCourse = subjectsNoCourse.subjects;
+            }
+            Message.success('Delete completed!');
+          } else {
+            if (data.data.msg) {
+              Message.error(data.data.msg);
+            } else {
+              Message.error(data.statusText);
+            }
+          }
           this.fullscreenLoading = false;
-
-          this.$swal('Deleted!', 'Your file has been deleted.', 'success');
+        })
+        .catch(() => {
+          Message.info('Delete canceled');
+        });
+    },
+    async handleAddSubject(formName) {
+      let self = this;
+      this.$refs[formName].validate(async (valid) => {
+        if (valid) {
+          self.fullscreenLoading = true;
+          let data = await self.addSubjectToCourse({
+            courseId: self.$route.params.id,
+            subjectId: self.formAdd.subjectId
+          });
+          if (data.success) {
+            await self.getCourse(this.$route.params.id);
+            let subjectsNoCourse = await self.getSubjectsNoCourse(self.$route.params.id);
+            if (subjectsNoCourse.success) {
+              self.subjectsNoCourse = subjectsNoCourse.subjects;
+            }
+            self.resetAddSubject('formAdd');
+            Message.success('Add subject to course success!');
+          } else {
+            Message.error(data.msg);
+          }
+          self.fullscreenLoading = false;
+        } else {
+          console.log('error submit!!');
+          return false;
         }
       });
     },
-    btnCreate(item, button) {
-      this.$root.$emit('bv::show::modal', button);
+    async resetAddSubject(formName) {
+      this.$refs[formName].resetFields();
+      this.dialogAddSubject = false;
     }
   },
   computed: {
-    ...mapState('adminAcademy', ['listStudents', 'listCourses'])
+    ...mapState('adminAcademy', ['subjectsOfCourse', 'listCourses'])
   },
   async created() {
-    let course = await this.getCourse(this.$route.params.id);
-    let students = await this.getStudentsOfCourse();
-
-    if (course && students) {
-      this.loadingData = false;
+    await this.getCourse(this.$route.params.id);
+    let subjectsNoCourse = await this.getSubjectsNoCourse(this.$route.params.id);
+    if (subjectsNoCourse.success) {
+      this.subjectsNoCourse = subjectsNoCourse.subjects;
     }
+    this.loadingData = false;
   }
 };
 </script>
