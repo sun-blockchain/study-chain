@@ -12,11 +12,19 @@
       <div>
         <div class="card-body">
           <h1 class="h3 mb-2 text-gray-800">About this course</h1>
-
           <p>{{ listCourses.Description }}</p>
         </div>
       </div>
     </div>
+    <b-modal
+      id="modal-info"
+      ref="modal-info"
+      title="Description Subject"
+      v-loading.fullscreen.lock="fullscreenLoading"
+      ok-only
+    >
+      <p>{{ infoSubject.description }}</p>
+    </b-modal>
     <table-student
       :title="`List Subjects`"
       :listAll="listSubjects"
@@ -24,12 +32,14 @@
       :btnDetail="true"
       :btnInfo="true"
       :nameFunctionDetail="`detailSubjects`"
+      :nameFunctionInfo="`modalInfo`"
       :listProperties="[
-        { prop: 'SubjectCode', label: 'SubjectCode' },
-        { prop: 'SubjectName', label: 'SubjectName' },
-        { prop: 'ShortDescription', label: 'Description' }
+        { prop: 'SubjectCode', label: 'Subject Code' },
+        { prop: 'SubjectName', label: 'Subject Name' },
+        { prop: 'ShortDescription', label: 'Short Description' }
       ]"
       @detailSubjects="detailSubject($event)"
+      @modalInfo="modalInfo($event)"
     ></table-student>
   </div>
 </template>
@@ -83,6 +93,9 @@ export default {
           label: "Option5"
         }
       ],
+      infoSubject: {
+        description: ""
+      },
       fullscreenLoading: false,
       loadingData: false
     };
@@ -91,6 +104,10 @@ export default {
     ...mapActions("student", ["getCourse", "getSubjectsOfCourse"]),
     detailSubject(row) {
       this.$router.push({ path: `subjects/${row.SubjectID}/subjects` });
+    },
+    modalInfo(row) {
+      this.infoSubject.description = row.Description;
+      this.$root.$emit("bv::show::modal", "modal-info");
     }
   },
   computed: {

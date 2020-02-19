@@ -779,8 +779,6 @@ func QuerySubjectsOfCourse(stub shim.ChaincodeStubInterface, args []string) sc.R
 	}
 
 	return shim.Success(jsonRow)
-
-	return shim.Success(nil)
 }
 
 func QueryStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
