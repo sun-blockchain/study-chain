@@ -355,13 +355,13 @@ exports.createClass = async function(networkObj, _class) {
     !_class.room ||
     !_class.time ||
     !_class.shortDescription ||
-    !_class.description
+    !_class.description ||
+    !_class.subjectId
   ) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can register!';
     return response;
   }
-
   try {
     await networkObj.contract.submitTransaction(
       'CreateClass',
@@ -370,7 +370,8 @@ exports.createClass = async function(networkObj, _class) {
       _class.room,
       _class.time,
       _class.shortDescription,
-      _class.description
+      _class.description,
+      _class.subjectId
     );
     let response = {
       success: true,
@@ -384,6 +385,7 @@ exports.createClass = async function(networkObj, _class) {
       success: false,
       msg: error
     };
+
     return response;
   }
 };
@@ -675,9 +677,7 @@ exports.createCertificate = async function(networkObj, certificate) {
     response.error = 'Error! You need to fill all fields before you can register!';
     return response;
   }
-  console.log(certificate, '   aaaa');
   try {
-    console.log(certificate, ' bbbb');
     await networkObj.contract.submitTransaction(
       'CreateCertificate',
       certificate.certificateID,
@@ -707,7 +707,6 @@ exports.createCertificate = async function(networkObj, certificate) {
       success: false,
       msg: error
     };
-    console.log(error);
     return response;
   }
 };

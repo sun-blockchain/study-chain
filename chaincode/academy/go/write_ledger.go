@@ -175,11 +175,11 @@ func CreateClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	}
 
 	if MSPID != "AcademyMSP" {
-		return shim.Error("WHO ARE YOU")
+		return shim.Error("Permission denied!")
 	}
 
-	if len(args) != 6 {
-		return shim.Error("Incorrect number of arguments. Expecting 6")
+	if len(args) != 7 {
+		return shim.Error("Incorrect number of arguments. Expecting 7")
 	}
 
 	fmt.Println("Start Create Class!")
@@ -190,6 +190,7 @@ func CreateClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	Time := args[3]
 	ShortDescription := args[4]
 	Description := args[5]
+	SubjectID := args[6]
 
 	keyClass := "Class-" + ClassID
 	checkClassExist, err := getClass(stub, keyClass)
@@ -199,11 +200,24 @@ func CreateClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("This class already exists - " + ClassID)
 	}
 
-	var class = Class{ClassID: ClassID, ClassCode: ClassCode, Room: Room, Time: Time, Status: true, ShortDescription: ShortDescription, Description: Description, Students: nil}
+	keySubject := "Subject-" +SubjectID
+	subject,err  := getSubject(stub, keySubject)
+
+	if err != nil {
+		return shim.Error("This subject does not exists - " + SubjectID)
+	}
+
+	var class = Class{ClassID: ClassID, ClassCode: ClassCode, Room: Room,Time: Time, Status:true, ShortDescription: ShortDescription, Description: Description}
 
 	classAsBytes, _ := json.Marshal(class)
 
 	stub.PutState(keyClass, classAsBytes)
+
+	subject.Classes = append(subject.Classes, ClassID)
+
+	subjectAsBytes, _ := json.Marshal(subject)
+
+	stub.PutState(keySubject, subjectAsBytes)
 
 	return shim.Success(nil)
 }

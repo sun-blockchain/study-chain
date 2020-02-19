@@ -49,5 +49,20 @@ router.get(
     });
   }
 );
-
+router.get('/subject/:subjectId/classes', checkJWT, async (req, res) => {
+  const user = req.decoded.user;
+  const networkObj = await network.connectToNetwork(user);
+  const response = await network.query(networkObj, 'GetAllClassesOfSubject', req.params.subjectId);
+  if (!response.success) {
+    res.status(500).send({
+      success: false,
+      msg: response.msg.toString()
+    });
+    return;
+  }
+  return res.json({
+    success: true,
+    class: JSON.parse(response.msg)
+  });
+});
 module.exports = router;

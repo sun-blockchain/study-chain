@@ -231,7 +231,6 @@ router.post(
       const { courseId } = req.body;
 
       const response = await network.deleteCourse(networkObj, courseId);
-      console.log(response);
 
       if (!response.success) {
         return res.status(500).json({
@@ -250,34 +249,9 @@ router.post(
   }
 );
 
-router.get('/classes', checkJWT, async (req, res) => {
-  if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
-    return res.status(403).json({
-      success: false,
-      msg: 'Permission Denied'
-    });
-  } else {
-    const user = req.decoded.user;
-    const networkObj = await network.connectToNetwork(user);
-    const response = await network.query(networkObj, 'GetAllClasses');
-
-    if (!response.success) {
-      res.status(500).send({
-        success: false,
-        msg: response.msg.toString()
-      });
-      return;
-    }
-    return res.json({
-      success: true,
-      class: JSON.parse(response.msg)
-    });
-  }
-});
-
 // Create class
 router.post(
-  '/class',
+  '/subject/:subjectId/class',
   checkJWT,
   [
     body('classCode')
@@ -320,7 +294,6 @@ router.post(
       }
 
       const user = req.decoded.user;
-      const networkObj = await network.connectToNetwork(user);
 
       const { classCode, room, time, shortDescription, description } = req.body;
 
@@ -330,8 +303,10 @@ router.post(
         room: room,
         time: time,
         shortDescription: shortDescription,
-        description: description
+        description: description,
+        subjectId: req.params.subjectId
       };
+      let networkObj = await network.connectToNetwork(user);
 
       const response = await network.createClass(networkObj, _class);
 
@@ -341,8 +316,13 @@ router.post(
           msg: response.msg
         });
       }
+      networkObj = await network.connectToNetwork(user);
 
-      const listNewClasses = await network.query(networkObj, 'GetAllClasses');
+      const listNewClasses = await network.query(
+        networkObj,
+        'GetAllClassesOfSubject',
+        req.params.subjectId
+      );
 
       return res.json({
         success: true,

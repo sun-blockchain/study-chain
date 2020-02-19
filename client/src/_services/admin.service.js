@@ -91,7 +91,7 @@ async function deleteCourse(courseId) {
 async function createCourse(course) {
   try {
     let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/academy/course`,
+      `${process.env.VUE_APP_API_BACKEND}/academy/subject/:subjectId/course`,
       {
         courseCode: course.CourseCode,
         courseName: course.CourseName,
@@ -199,28 +199,13 @@ async function deleteStudentOfSubject(SubjectID, Username) {
 }
 async function getClassesOfSubject(subjectId) {
   try {
-    // let respone = await axios.get(
-    //   `${process.env.VUE_APP_API_BACKEND}/account/teacher/${username}/subjects`,
-    //   {
-    //     headers: authHeader()
-    //   }
-    // );
-    // return respone.data;
-    return {
-      success: true,
-      classes: [
-        {
-          ClassCode: 'ClassA',
-          ClassName: 'Hyperledger',
-          Description: 'abc'
-        },
-        {
-          listClasses: 'ClassB',
-          ClassName: 'a',
-          Description: 'xyz'
-        }
-      ]
-    };
+    let respone = await axios.get(
+      `${process.env.VUE_APP_API_BACKEND}/common/subject/${subjectId}/classes`,
+      {
+        headers: authHeader()
+      }
+    );
+    return respone.data.class;
   } catch (error) {
     throw error;
   }
@@ -228,7 +213,7 @@ async function getClassesOfSubject(subjectId) {
 async function createClass(_class) {
   try {
     let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/academy/class`,
+      `${process.env.VUE_APP_API_BACKEND}/academy/subject/${_class.SubjectId}/class`,
       {
         classCode: _class.ClassCode,
         room: _class.Room,
