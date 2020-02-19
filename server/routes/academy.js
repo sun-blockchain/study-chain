@@ -135,6 +135,75 @@ router.post(
 );
 
 router.post(
+  '/removeSubjectFromCourse',
+  checkJWT,
+  [
+    body('courseId')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('subjectId')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape()
+  ],
+  async (req, res) => {
+    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied'
+      });
+    }
+    let errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    let user = req.decoded.user;
+    let networkObj = await network.connectToNetwork(user);
+
+    let courseId = req.body.courseId;
+    let subjectId = req.body.subjectId;
+
+    let query = await network.query(networkObj, 'QueryCourse', courseId);
+
+    if (!query.success) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Can not query chaincode!'
+      });
+    }
+
+    let course = JSON.parse(query.msg);
+
+    if (course.Subjects.indexOf(subjectId) === -1) {
+      return res.status(422).json({
+        success: false,
+        msg: 'This subject does not present in course!'
+      });
+    }
+    networkObj = await network.connectToNetwork(user);
+
+    let response = await network.removeSubjectFromCourse(networkObj, courseId, subjectId);
+
+    if (!response.success) {
+      return res.status(500).json({
+        success: false,
+        msg: response.msg
+      });
+    }
+
+    return res.json({
+      success: true,
+      msg: 'This subject has been removed from course!'
+    });
+  }
+);
+
+router.post(
   '/course',
   checkJWT,
   [
