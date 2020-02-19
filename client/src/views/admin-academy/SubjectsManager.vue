@@ -4,6 +4,8 @@
       :title="`Subjects Manager`"
       :listAll="listSubjects"
       :loadingData="loadingData"
+      :btnDetail="true"
+      :nameFunctionDetail="`detailSubject`"
       :btnEdit="true"
       :nameFunctionEdit="`modalEdit`"
       :btnDelete="true"
@@ -15,6 +17,7 @@
       ]"
       @delSubject="delSubject($event)"
       @modalEdit="modalEdit($event)"
+      @detailSubject="detailSubject($event)"
     >
       <template v-slot:btn-create>
         <el-button
@@ -150,7 +153,7 @@ export default {
         description: ''
       },
       editSubject: {
-        subjectId:'',
+        subjectId: '',
         subjectName: '',
         subjectCode: '',
         shortDescription: '',
@@ -201,6 +204,9 @@ export default {
       'updateSubject',
       'deleteSubject'
     ]),
+    detailSubject(row) {
+      this.$router.push({ path: `subjects/${row.SubjectID}/classes` });
+    },
     modalEdit(row) {
       this.editSubject.subjectId = row.SubjectID;
       this.editSubject.subjectName = row.SubjectName;
@@ -218,7 +224,7 @@ export default {
           if (data.success) {
             this.dialogForm.newSubject = false;
             await this.resetForm('newSubject');
-            Message.success("create success!");
+            Message.success('create success!');
           } else {
             Message.error(data.msg);
           }
@@ -236,7 +242,7 @@ export default {
           if (data.success) {
             this.dialogForm.editSubject = false;
             await this.resetForm('editSubject');
-            Message.success("update success!");
+            Message.success('update success!');
           } else {
             Message.error(data.msg);
           }

@@ -32,7 +32,7 @@
         { prop: 'ShortDescription', label: 'Short Description' },
         { prop: 'Description', label: 'Description' }
       ]"
-      @detailClasss="detailClass($event)"
+      @detailClass="detailClass($event)"
       @modalEdit="modalEdit($event)"
       @delClass="delClass($event)"
     >
@@ -65,9 +65,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Code"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Class Name" v-slot="{ valid, errors }">
@@ -78,9 +78,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Name"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
             { path: '/academy/courses', name: 'academy-courses', component: () =>
             import('./views/admin-academy/ClasssManager.vue') },
@@ -93,9 +93,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Description"
               ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
         </b-form>
@@ -120,9 +120,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Code"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Room" v-slot="{ valid, errors }">
@@ -133,9 +133,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class room"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Time" v-slot="{ valid, errors }">
@@ -146,9 +146,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Time"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Short Description" v-slot="{ valid, errors }">
@@ -159,9 +159,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Short Description"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Class Description" v-slot="{ valid, errors }">
@@ -171,9 +171,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Description"
               ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
         </b-form>
@@ -205,12 +205,12 @@ export default {
         Description: ''
       },
       newClass: {
-        ClassID: '',
         ClassCode: '',
         Room: '',
         Time: '',
         ShortDescription: '',
-        Description: ''
+        Description: '',
+        SubjectId: this.$route.params.id
       },
       fullscreenLoading: false,
       loadingData: false
@@ -224,7 +224,7 @@ export default {
       'deleteClass'
     ]),
     detailClass(row) {
-      this.$router.push({ path: `subjects/${row.ClassID}/classes` });
+      this.$router.push({ path: `class/${row.ClassID}/class-detail` });
     },
     modalEdit(row) {
       this.editClass.ClassID = row.ClassID;
@@ -238,11 +238,12 @@ export default {
       this.$refs['modal-create'].hide();
       this.fullscreenLoading = true;
       let response = await this.createClass(this.newClass);
+
       if (response) {
-        await this.resetInfoModalCreate();
+        this.resetInfoModalCreate();
       }
       this.fullscreenLoading = false;
-      await this.getAllClasss();
+      await this.getClassesOfSubject(this.$route.params.id);
     },
     async handleUpdate() {
       this.$refs['modal-edit'].hide();
@@ -250,16 +251,20 @@ export default {
       await this.updateClass(this.editClass);
       await this.resetInfoModalEdit();
       this.fullscreenLoading = false;
-      await this.getAllClasss();
+      await this.getClassesOfSubject(this.$route.params.id);
     },
     resetInfoModalEdit() {
       this.editClass.ClassCode = '';
-      this.editClass.ClassName = '';
+      this.editClass.Room = '';
+      this.editClass.Time = '';
+      this.editClass.ShortDescription = '';
       this.editClass.Description = '';
     },
     resetInfoModalCreate() {
       this.newClass.ClassCode = '';
-      this.newClass.ClassName = '';
+      this.newClass.Room = '';
+      this.newClass.Time = '';
+      this.newClass.ShortDescription = '';
       this.newClass.Description = '';
       requestAnimationFrame(() => {
         this.$refs.observer.reset();

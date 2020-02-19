@@ -271,8 +271,7 @@ const actions = {
   async getClassesOfSubject({ commit }, subjectId) {
     try {
       let listClasses = await adminService.getClassesOfSubject(subjectId);
-
-      commit('getClassesOfSubject', listClasses.classes);
+      commit('getClassesOfSubject', listClasses);
     } catch (error) {
       console.log(error);
       // if (error.response.status === 403) {

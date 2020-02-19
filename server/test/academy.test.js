@@ -361,11 +361,11 @@ describe('#POST /academy/deleteCourse', () => {
   });
 });
 
-describe('#POST /academy/class', () => {
+describe('#POST /academy/:subjectId/class', () => {
   let connect;
   let query;
   let createClass;
-
+  let subjectId = 'sj';
   beforeEach(() => {
     connect = sinon.stub(network, 'connectToNetwork');
     query = sinon.stub(network, 'query');
@@ -380,7 +380,7 @@ describe('#POST /academy/class', () => {
 
   it('permission denied when access routes with student', (done) => {
     request(app)
-      .post('/academy/class')
+      .post(`/academy/subject/${subjectId}/class`)
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(403);
@@ -391,7 +391,7 @@ describe('#POST /academy/class', () => {
 
   it('permission denied when access routes with teacher', (done) => {
     request(app)
-      .post('/academy/class')
+      .post(`/academy/subject/${subjectId}/class`)
       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(403);
@@ -429,7 +429,7 @@ describe('#POST /academy/class', () => {
     });
 
     request(app)
-      .post('/academy/class')
+      .post(`/academy/subject/${subjectId}/class`)
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
         classCode: 'CACLC1',
@@ -447,7 +447,7 @@ describe('#POST /academy/class', () => {
 
   it('do not success create class because req.body invalid', (done) => {
     request(app)
-      .post('/academy/class')
+      .post(`/academy/subject/${subjectId}/class`)
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
         classCode: '',
@@ -469,7 +469,7 @@ describe('#POST /academy/class', () => {
     });
 
     request(app)
-      .post('/academy/class')
+      .post(`/academy/subject/${subjectId}/class`)
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
         classCode: 'CACLC1',
