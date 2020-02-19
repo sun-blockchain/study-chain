@@ -27,7 +27,7 @@ type Subject struct {
 	SubjectName      string
 	ShortDescription string
 	Description      string
-	Classes 		[]string
+	Classes          []string
 }
 
 type Class struct {
@@ -123,7 +123,7 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 	} else if function == "GetAllSubjects" {
 		return GetAllSubjects(stub)
 	} else if function == "GetAllClassesOfSubject" {
-		return GetAllClassesOfSubject(stub,args)
+		return GetAllClassesOfSubject(stub, args)
 	} else if function == "GetAllClasses" {
 		return GetAllClasses(stub)
 	} else if function == "GetAllStudents" {
@@ -178,6 +178,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return AddSubjectToCourse(stub, args)
 	} else if function == "RemoveSubjectFromCourse" {
 		return RemoveSubjectFromCourse(stub, args)
+	} else if function == "DeleteSubject" {
+		return DeleteSubject(stub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name!")
@@ -674,6 +676,57 @@ func DeleteCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 		return shim.Success(nil)
 	}
+}
+
+func DeleteSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		return shim.Error("Error - cid.GetMSPID()!")
+	}
+
+	if MSPID != "AcademyMSP" {
+		return shim.Error("Permission Denied!")
+	}
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1!")
+	}
+
+	SubjectID := args[0]
+
+	keySubject := "Subject-" + SubjectID
+	subject, err := getSubject(stub, keySubject)
+
+	if err != nil {
+
+		return shim.Error("Subject does not exist!")
+	}
+
+	var i int
+	deleteable := true
+
+	for i = 0; i < len(subject.Classes); i++ {
+
+		class, err := getClass(stub, "Class-"+subject.Classes[i])
+		if err != nil {
+			return shim.Error("Class does not exist - " + subject.Classes[i])
+		}
+
+		if !class.Status {
+			deleteable = false
+			break
+		}
+	}
+
+	if !deleteable {
+		return shim.Error("Can not delete subject - " + SubjectID)
+	}
+
+	stub.DelState(keySubject)
+
+	return shim.Success(nil)
+
 }
 
 func QuerySubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {

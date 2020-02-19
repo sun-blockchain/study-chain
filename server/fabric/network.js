@@ -623,7 +623,31 @@ exports.deleteCourse = async function(networkObj, courseId) {
     await networkObj.contract.submitTransaction('DeleteCourse', courseId);
     let response = {
       success: true,
-      msg: 'Delete success!'
+      msg: 'Deleted successfully!'
+    };
+    await networkObj.gateway.disconnect();
+    return response;
+  } catch (error) {
+    let response = {
+      success: false,
+      msg: error
+    };
+    return response;
+  }
+};
+
+exports.deleteSubject = async function(networkObj, subjectId) {
+  if (!subjectId) {
+    let response = {};
+    response.error = 'Error! You need to fill all fields before you can register!';
+    return response;
+  }
+
+  try {
+    await networkObj.contract.submitTransaction('DeleteSubject', subjectId);
+    let response = {
+      success: true,
+      msg: 'Deleted successfully!'
     };
     await networkObj.gateway.disconnect();
     return response;

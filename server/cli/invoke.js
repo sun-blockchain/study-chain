@@ -201,6 +201,17 @@ async function main() {
           await conn.removeSubjectFromCourse(networkObj, courseId, subjectId);
           console.log('Transaction has been submitted');
           process.exit(0);
+        } else if (functionName === 'DeleteSubject' && user.role === USER_ROLES.ADMIN_ACADEMY) {
+          /**
+           * Delete Subject
+           * @param  {String} subjectId subject Id (required)
+           */
+
+          let subjectId = argv.subjectId.toString();
+
+          await conn.deleteSubject(networkObj, subjectId);
+          console.log('Transaction has been submitted');
+          process.exit(0);
         } else if (functionName === 'CreateCertificate' && user.role === USER_ROLES.ADMIN_ACADEMY) {
           /**
            * Create Certificate
