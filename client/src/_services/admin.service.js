@@ -133,7 +133,7 @@ async function createSubject(subject) {
         headers: authHeader()
       }
     );
-    return respone.data.subjects;
+    return respone.data;
   } catch (error) {
     throw error;
   }
@@ -141,14 +141,14 @@ async function createSubject(subject) {
 
 async function updateSubject(subject) {
   try {
-    let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/subject/update`,
+    let respone = await axios.put(
+      `${process.env.VUE_APP_API_BACKEND}/academy/subject`,
       { subject: subject },
       {
         headers: authHeader()
       }
     );
-    return respone.data.subjects;
+    return respone.data;
   } catch (error) {
     throw error;
   }

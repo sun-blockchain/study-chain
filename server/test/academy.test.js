@@ -829,3 +829,332 @@ describe('#POST /academy/addSubjectToCourse', () => {
       });
   });
 });
+
+describe('#PUT /academy/subject', () => {
+  let connect;
+  let updateSubjectStub;
+  let query;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    updateSubjectStub = sinon.stub(network, 'updateSubjectInfo');
+    query = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    updateSubjectStub.restore();
+    query.restore();
+  });
+
+  it('do not update success subject with empty req.body', (done) => {
+    request(app)
+      .put('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .send({
+        subject: {
+          subjectId: '',
+          subjectName: '',
+          subjectCode: '',
+          shortDescription: '',
+          description: ''
+        }
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('do not update success subject with empty subjectId', (done) => {
+    request(app)
+      .put('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .send({
+        subject: {
+          subjectId: '',
+          subjectName: 'php',
+          subjectCode: 'bc001',
+          shortDescription: 'lorem',
+          description: 'lorem...'
+        }
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('do not update success subject with empty subjectName', (done) => {
+    request(app)
+      .put('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .send({
+        subject: {
+          subjectId: '00',
+          subjectName: '',
+          subjectCode: 'bc001',
+          shortDescription: 'lorem',
+          description: 'lorem...'
+        }
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('do not update success subject with empty subjectCode', (done) => {
+    request(app)
+      .put('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .send({
+        subject: {
+          subjectId: '00',
+          subjectName: 'php',
+          subjectCode: '',
+          shortDescription: 'lorem',
+          description: 'lorem...'
+        }
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('do not update success subject with empty shortDescription', (done) => {
+    request(app)
+      .put('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .send({
+        subject: {
+          subjectId: '00',
+          subjectName: 'php',
+          subjectCode: '123',
+          shortDescription: '',
+          description: 'lorem...'
+        }
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('do not update success subject with empty description', (done) => {
+    request(app)
+      .put('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .send({
+        subject: {
+          subjectId: '00',
+          subjectName: 'php',
+          subjectCode: '123',
+          shortDescription: 'lorem',
+          description: ''
+        }
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('do not update success subject with admin student', (done) => {
+    request(app)
+      .put('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .send({
+        subject: {
+          subjectId: '00',
+          subjectName: 'blockchain',
+          subjectCode: 'bc001',
+          shortDescription: 'lorem',
+          description: 'lorem...'
+        }
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('do not update success subject with teacher', (done) => {
+    request(app)
+      .put('/academy/subject')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .send({
+        subject: {
+          subjectId: '00',
+          subjectName: 'blockchain',
+          subjectCode: 'bc001',
+          shortDescription: 'lorem',
+          description: 'lorem...'
+        }
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('do not update success subject with student', (done) => {
+    request(app)
+      .put('/academy/subject')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        subject: {
+          subjectId: '00',
+          subjectName: 'blockchain',
+          subjectCode: 'bc001',
+          shortDescription: 'lorem',
+          description: 'lorem...'
+        }
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('No changes', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let data = JSON.stringify({
+      SubjectID: 'a98f2f4e-6ef9-492b-96a6-c6f01364fecb',
+      SubjectName: 'abcc',
+      SubjectCode: 'abc',
+      ShortDescription: 'abc',
+      Description: 'abc'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    updateSubjectStub.returns({
+      success: false,
+      msg: 'error'
+    });
+
+    request(app)
+      .put('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        subject: {
+          subjectId: 'a98f2f4e-6ef9-492b-96a6-c6f01364fecb',
+          subjectName: 'abcc',
+          subjectCode: 'abc',
+          shortDescription: 'abc',
+          description: 'abc'
+        }
+      })
+      .then((res) => {
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('No changes!');
+        done();
+      });
+  });
+
+  it('error chain code', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let data = JSON.stringify({
+      SubjectID: 'a98f2f4e-6ef9-492b-96a6-c6f01364fecb',
+      SubjectName: 'abc',
+      SubjectCode: 'abc',
+      ShortDescription: 'abc',
+      Description: 'abc'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    updateSubjectStub.returns({
+      success: false,
+      msg: 'error'
+    });
+
+    request(app)
+      .put('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        subject: {
+          subjectId: 'a98f2f4e-6ef9-492b-96a6-c6f01364fecb',
+          subjectName: 'abcc',
+          subjectCode: 'abc',
+          shortDescription: 'abc',
+          description: 'abc'
+        }
+      })
+      .then((res) => {
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('error');
+        done();
+      });
+  });
+
+  it('update success subject with admin academy', (done) => {
+    let data = JSON.stringify({
+      SubjectID: 'a98f2f4e-6ef9-492b-96a6-c6f01364fecb',
+      SubjectCode: 'abc',
+      SubjectName: 'abc',
+      ShortDescription: 'abc',
+      Description: 'abc...'
+    });
+
+    updateSubjectStub.returns({
+      success: true,
+      msg: 'updated'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .put('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        subject: {
+          subjectId: 'a98f2f4e-6ef9-492b-96a6-c6f01364fecb',
+          subjectName: 'abcc',
+          subjectCode: 'abc',
+          shortDescription: 'abc',
+          description: 'abc'
+        }
+      })
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        done();
+      });
+  });
+});

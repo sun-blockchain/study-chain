@@ -178,7 +178,7 @@ router.post(
       const { courseCode, courseName, shortDescription, description } = req.body;
 
       let course = {
-        courseID: uuidv4(),
+        courseId: uuidv4(),
         courseCode: courseCode,
         courseName: courseName,
         shortDescription: shortDescription,
@@ -391,7 +391,7 @@ router.post(
       });
     }
     let subject = {
-      subjectID: uuidv4(),
+      subjectId: uuidv4(),
       subjectName: req.body.subjectName,
       subjectCode: req.body.subjectCode,
       shortDescription: req.body.shortDescription,
@@ -405,10 +405,94 @@ router.post(
         msg: response.msg
       });
     }
-    const listNew = await network.query(networkObj, 'GetAllSubjects');
+    const listSubjects = await network.query(networkObj, 'GetAllSubjects');
     return res.json({
       success: true,
-      subjects: JSON.parse(listNew.msg)
+      subjects: JSON.parse(listSubjects.msg)
+    });
+  }
+);
+
+// Update subject
+router.put(
+  '/subject',
+  checkJWT,
+  [
+    body('subject.subjectId')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('subject.subjectName')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('subject.subjectCode')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('subject.shortDescription')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('subject.description')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape()
+  ],
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, errors: errors.array() });
+    }
+
+    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied'
+      });
+    }
+    let { subject } = req.body;
+    let networkObj = await network.connectToNetwork(req.decoded.user);
+    const responseQuery = await network.query(networkObj, 'QuerySubject', subject.subjectId);
+
+    if (!responseQuery.success) {
+      return res.status(500).json({
+        success: false,
+        msg: responseQuery.msg.toString()
+      });
+    }
+
+    let subjectInfo = JSON.parse(responseQuery.msg);
+    if (
+      subject.subjectCode === subjectInfo.SubjectCode &&
+      subject.subjectName === subjectInfo.SubjectName &&
+      subject.shortDescription === subjectInfo.ShortDescription &&
+      subject.description === subjectInfo.Description
+    ) {
+      return res.status(500).json({
+        success: false,
+        msg: 'No changes!'
+      });
+    }
+
+    networkObj = await network.connectToNetwork(req.decoded.user);
+    const response = await network.updateSubjectInfo(networkObj, subject);
+
+    if (!response.success) {
+      return res.status(500).json({
+        success: false,
+        msg: response.msg
+      });
+    }
+    const listSubjects = await network.query(networkObj, 'GetAllSubjects');
+    return res.json({
+      success: true,
+      subjects: JSON.parse(listSubjects.msg)
     });
   }
 );

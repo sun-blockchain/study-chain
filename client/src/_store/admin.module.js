@@ -100,25 +100,28 @@ const actions = {
   },
   async createSubject({ commit }, subject) {
     try {
-      let listSubjects = await adminService.createSubject(subject);
-      commit('createSubject', listSubjects);
-      return listSubjects;
+      let data = await adminService.createSubject(subject);
+      commit('createSubject', data.subjects);
+      return data;
     } catch (error) {
-      console.log(error);
+      console.log(error.response.data);
       if (error.response.status === 403) {
         router.push('/403');
       }
+      return error.response.data;
     }
   },
   async updateSubject({ commit }, subject) {
     try {
-      let listSubjects = await adminService.updateSubject(subject);
-      commit('updateSubject', listSubjects);
+      let data = await adminService.updateSubject(subject);
+      commit('updateSubject', data.subjects);
+      return data;
     } catch (error) {
-      console.log(error);
+      console.log(error.response.data);
       if (error.response.status === 403) {
         router.push('/403');
       }
+      return error.response.data;
     }
   },
   async deleteSubject({ commit }, subject) {
