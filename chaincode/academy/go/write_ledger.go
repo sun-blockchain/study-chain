@@ -199,7 +199,7 @@ func CreateClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("This class already exists - " + ClassID)
 	}
 
-	var class = Class{ClassID: ClassID, ClassCode: ClassCode, Room: Room,Time: Time, Status:true, ShortDescription: ShortDescription, Description: Description, Students: nil}
+	var class = Class{ClassID: ClassID, ClassCode: ClassCode, Room: Room, Time: Time, Status: true, ShortDescription: ShortDescription, Description: Description, Students: nil}
 
 	classAsBytes, _ := json.Marshal(class)
 
@@ -226,7 +226,7 @@ func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	// }
 
 	// if !found {
-	// 	return shim.Error("WHO ARE YOU ?")
+	// 	return shim.Error("Permission Denied!")
 	// }
 
 	// fmt.Println("Start Create Score!")
@@ -254,7 +254,7 @@ func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	// }
 
 	// if checkSubjectExist.TeacherUsername != TeacherUsername {
-	// 	return shim.Error("WHO ARE YOU ?")
+	// 	return shim.Error("Permission Denied!")
 	// }
 
 	// key := "Score-" + " " + "Subject-" + SubjectID + " " + "Student-" + StudentUsername

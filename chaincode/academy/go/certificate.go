@@ -30,14 +30,14 @@ type Subject struct {
 }
 
 type Class struct {
-	ClassID string
-	ClassCode string
-	Room string
-	Time string
-	Status bool
+	ClassID          string
+	ClassCode        string
+	Room             string
+	Time             string
+	Status           bool
 	ShortDescription string
-	Description string
-	Students []string
+	Description      string
+	Students         []string
 }
 
 type Teacher struct {
@@ -121,7 +121,7 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return QueryTeacher(stub, args)
 	} else if function == "GetAllSubjects" {
 		return GetAllSubjects(stub)
-	}else if function == "GetAllClasses" {
+	} else if function == "GetAllClasses" {
 		return GetAllClasses(stub)
 	} else if function == "GetAllStudents" {
 		return GetAllStudents(stub)
@@ -173,6 +173,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return UpdateSubjectInfo(stub, args)
 	} else if function == "AddSubjectToCourse" {
 		return AddSubjectToCourse(stub, args)
+	} else if function == "RemoveSubjectFromCourse" {
+		return RemoveSubjectFromCourse(stub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name!")
@@ -189,7 +191,7 @@ func TeacherRegisterSubject(stub shim.ChaincodeStubInterface, args []string) sc.
 	// }
 
 	// if MSPID != "AcademyMSP" {
-	// 	return shim.Error("WHO ARE YOU ?")
+	// 	return shim.Error("Permission Denied!")
 	// }
 
 	// TeacherUsername, ok, err := cid.GetAttributeValue(stub, "username")
@@ -252,7 +254,7 @@ func StudentRegisterSubject(stub shim.ChaincodeStubInterface, args []string) sc.
 	// }
 
 	// if ok == false {
-	// 	return shim.Error("WHO ARE YOU")
+	// 	return shim.Error("Permission Denied!")
 	// }
 
 	// SubjectID := args[0]
@@ -303,7 +305,7 @@ func AddSubjectToCourse(stub shim.ChaincodeStubInterface, args []string) sc.Resp
 	}
 
 	if MSPID != "AcademyMSP" {
-		return shim.Error("WHO ARE YOU")
+		return shim.Error("Permission Denied!")
 	}
 
 	if len(args) != 2 {
@@ -338,6 +340,52 @@ func AddSubjectToCourse(stub shim.ChaincodeStubInterface, args []string) sc.Resp
 	return shim.Success(nil)
 }
 
+func RemoveSubjectFromCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		return shim.Error("Error - cid.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		return shim.Error("Permission Denied!")
+	}
+
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2")
+	}
+
+	CourseID := args[0]
+	SubjectID := args[1]
+
+	keyCourse := "Course-" + CourseID
+	course, err := getCourse(stub, keyCourse)
+
+	if err != nil {
+		return shim.Error("This course doesn't eixst!")
+	}
+
+	var i int
+	len := len(course.Subjects)
+
+	for i = 0; i < len; i++ {
+		if course.Subjects[i] == SubjectID {
+			break
+		}
+	}
+
+	copy(course.Subjects[i:], course.Subjects[i+1:])
+	course.Subjects[len-1] = ""
+	course.Subjects = course.Subjects[:len-1]
+
+	courseAsBytes, _ := json.Marshal(course)
+
+	stub.PutState(keyCourse, courseAsBytes)
+
+	return shim.Success(nil)
+
+}
+
 func UpdateCourseInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	MSPID, err := cid.GetMSPID(stub)
@@ -347,7 +395,7 @@ func UpdateCourseInfo(stub shim.ChaincodeStubInterface, args []string) sc.Respon
 	}
 
 	if MSPID != "AcademyMSP" {
-		return shim.Error("WHO ARE YOU")
+		return shim.Error("Permission Denied!")
 	}
 
 	if len(args) != 5 {
@@ -391,7 +439,7 @@ func UpdateUserInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response
 	}
 
 	if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
-		return shim.Error("WHO ARE YOU?")
+		return shim.Error("Permission Denied!")
 	}
 
 	if len(args) != 7 {
@@ -485,7 +533,7 @@ func UpdateSubjectInfo(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 	}
 
 	if MSPID != "AcademyMSP" {
-		return shim.Error("WHO ARE YOU?")
+		return shim.Error("Permission Denied!")
 	}
 
 	if len(args) != 5 {
@@ -535,7 +583,7 @@ func UpdateUserAvatar(stub shim.ChaincodeStubInterface, args []string) sc.Respon
 	}
 
 	if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
-		return shim.Error("WHO ARE YOU?")
+		return shim.Error("Permission Denied!")
 	}
 
 	if len(args) != 1 {
@@ -601,7 +649,7 @@ func DeleteCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	}
 
 	if MSPID != "AcademyMSP" {
-		return shim.Error("WHO ARE YOU")
+		return shim.Error("Permission Denied!")
 	}
 
 	if len(args) != 1 {
@@ -640,7 +688,7 @@ func QuerySubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	// }
 
 	// if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
-	// 	shim.Error("WHO ARE YOU ?")
+	// 	shim.Error("Permission Denied!")
 	// }
 
 	SubjectID = args[0]
@@ -674,7 +722,7 @@ func QueryCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	// }
 
 	// if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
-	// 	shim.Error("WHO ARE YOU ?")
+	// 	shim.Error("Permission Denied!")
 	// }
 
 	CourseID = args[0]
@@ -748,7 +796,7 @@ func QueryStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	// }
 
 	// if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
-	// 	shim.Error("WHO ARE YOU ?")
+	// 	shim.Error("Permission Denied!")
 	// }
 
 	Username := args[0]
@@ -801,7 +849,7 @@ func QueryTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	// }
 
 	// if MSPID != "AcademyMSP" {
-	// 	shim.Error("WHO ARE YOU ?")
+	// 	shim.Error("Permission Denied!")
 	// }
 
 	Username := args[0]
@@ -845,7 +893,7 @@ func QueryScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	} else if MSPID == "AcademyMSP" {
 		StudentUsername = args[1]
 	} else {
-		shim.Error("WHO ARE YOU ?")
+		shim.Error("Permission Denied!")
 	}
 	SubjectID = args[0]
 
@@ -872,7 +920,7 @@ func QueryCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respon
 	// }
 
 	// if MSPID != "StudentMSP" && MSPID == "AcademyMSP" {
-	// 	shim.Error("WHO ARE YOU ?")
+	// 	shim.Error("Permission Denied!")
 	// }
 
 	if len(args) != 1 {
@@ -905,7 +953,7 @@ func VerifyCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 	}
 
 	if MSPID != "StudentMSP" && MSPID == "AcademyMSP" {
-		shim.Error("WHO ARE YOU ?")
+		shim.Error("Permission Denied!")
 	}
 
 	if len(args) != 3 {
@@ -942,7 +990,7 @@ func GetAllSubjects(stub shim.ChaincodeStubInterface) sc.Response {
 	// }
 
 	// if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
-	// 	shim.Error("WHO ARE YOU ?")
+	// 	shim.Error("Permission Denied!")
 	// }
 
 	allSubjects, _ := getListSubjects(stub)
@@ -983,7 +1031,7 @@ func GetAllCourses(stub shim.ChaincodeStubInterface) sc.Response {
 	// }
 
 	// if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
-	// 	shim.Error("WHO ARE YOU ?")
+	// 	shim.Error("Permission Denied!")
 	// }
 
 	allCourses, _ := getListCourses(stub)
@@ -1023,7 +1071,7 @@ func GetAllClasses(stub shim.ChaincodeStubInterface) sc.Response {
 	// }
 
 	// if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
-	// 	shim.Error("WHO ARE YOU ?")
+	// 	shim.Error("Permission Denied!")
 	// }
 
 	allClasses, _ := getListClasses(stub)
@@ -1063,7 +1111,7 @@ func GetAllStudents(stub shim.ChaincodeStubInterface) sc.Response {
 	// }
 
 	// if MSPID != "AcademyMSP" {
-	// 	return shim.Error("WHO ARE YOU ?")
+	// 	return shim.Error("Permission Denied!")
 	// }
 
 	allStudents, _ := getListStudents(stub)
@@ -1104,7 +1152,7 @@ func GetAllTeachers(stub shim.ChaincodeStubInterface) sc.Response {
 	// }
 
 	// if MSPID != "AcademyMSP" {
-	// 	return shim.Error("WHO ARE YOU ?")
+	// 	return shim.Error("Permission Denied!")
 	// }
 
 	allTeachers, _ := getListTeachers(stub)
@@ -1145,7 +1193,7 @@ func GetAllScores(stub shim.ChaincodeStubInterface) sc.Response {
 	}
 
 	if MSPID != "AcademyMSP" {
-		shim.Error("WHO ARE YOU ?")
+		shim.Error("Permission Denied!")
 	}
 
 	allScores, err := getListScores(stub)
@@ -1190,7 +1238,7 @@ func GetMyCerts(stub shim.ChaincodeStubInterface) sc.Response {
 	}
 
 	if MSPID != "StudentMSP" {
-		return shim.Error("WHO ARE YOU ?")
+		return shim.Error("Permission Denied!")
 	}
 
 	StudentUsername, ok, err := cid.GetAttributeValue(stub, "username")
@@ -1200,7 +1248,7 @@ func GetMyCerts(stub shim.ChaincodeStubInterface) sc.Response {
 	}
 
 	if !ok {
-		return shim.Error("WHO ARE YOU ?")
+		return shim.Error("Permission Denied!")
 	}
 
 	allCertificates, err := getListCertificates(stub)
@@ -1248,7 +1296,7 @@ func GetMySubjects(stub shim.ChaincodeStubInterface) sc.Response {
 	// }
 
 	// if MSPID != "StudentMSP" {
-	// 	return shim.Error("WHO ARE YOU ?")
+	// 	return shim.Error("Permission Denied!")
 	// }
 
 	// StudentUsername, ok, err := cid.GetAttributeValue(stub, "username")
@@ -1258,7 +1306,7 @@ func GetMySubjects(stub shim.ChaincodeStubInterface) sc.Response {
 	// }
 
 	// if !ok {
-	// 	return shim.Error("WHO ARE YOU ?")
+	// 	return shim.Error("Permission Denied!")
 	// }
 
 	// student, err := getStudent(stub, "Student-"+StudentUsername)
@@ -1299,7 +1347,7 @@ func GetMyScores(stub shim.ChaincodeStubInterface) sc.Response {
 	}
 
 	if MSPID != "StudentMSP" {
-		return shim.Error("WHO ARE YOU ?")
+		return shim.Error("Permission Denied!")
 	}
 
 	StudentUsername, ok, err := cid.GetAttributeValue(stub, "username")
@@ -1309,7 +1357,7 @@ func GetMyScores(stub shim.ChaincodeStubInterface) sc.Response {
 	}
 
 	if !ok {
-		return shim.Error("WHO ARE YOU ?")
+		return shim.Error("Permission Denied!")
 	}
 
 	allScores, err := getListScores(stub)
@@ -1356,7 +1404,7 @@ func GetSubjectsByStudent(stub shim.ChaincodeStubInterface, args []string) sc.Re
 	// }
 
 	// if MSPID != "AcademyMSP" {
-	// 	shim.Error("WHO ARE YOU ?")
+	// 	shim.Error("Permission Denied!")
 	// }
 
 	// if len(args) != 1 {
@@ -1403,7 +1451,7 @@ func GetCertificatesByStudent(stub shim.ChaincodeStubInterface, args []string) s
 	// }
 
 	// if MSPID != "AcademyMSP" {
-	// 	shim.Error("WHO ARE YOU ?")
+	// 	shim.Error("Permission Denied!")
 	// }
 
 	StudentUsername := args[0]
@@ -1453,7 +1501,7 @@ func GetScoresByStudent(stub shim.ChaincodeStubInterface, args []string) sc.Resp
 	// }
 
 	// if MSPID != "AcademyMSP" {
-	// 	shim.Error("WHO ARE YOU ?")
+	// 	shim.Error("Permission Denied!")
 	// }
 
 	StudentUsername := args[0]
@@ -1503,7 +1551,7 @@ func GetSubjectsByTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Re
 	// }
 
 	// if MSPID != "AcademyMSP" {
-	// 	shim.Error("WHO ARE YOU ?")
+	// 	shim.Error("Permission Denied!")
 	// }
 
 	// if len(args) != 1 {
@@ -1558,7 +1606,7 @@ func GetScoresBySubjectOfTeacher(stub shim.ChaincodeStubInterface, args []string
 	// }
 
 	// if MSPID != "AcademyMSP" {
-	// 	return shim.Error("WHO ARE YOU ?")
+	// 	return shim.Error("Permission Denied!")
 	// }
 
 	// TeacherUsername, ok, err := cid.GetAttributeValue(stub, "username")
@@ -1568,7 +1616,7 @@ func GetScoresBySubjectOfTeacher(stub shim.ChaincodeStubInterface, args []string
 	// }
 
 	// if !ok {
-	// 	return shim.Error("WHO ARE YOU ?")
+	// 	return shim.Error("Permission Denied!")
 	// }
 
 	// _, err = getTeacher(stub, "Teacher-"+TeacherUsername)
@@ -1586,7 +1634,7 @@ func GetScoresBySubjectOfTeacher(stub shim.ChaincodeStubInterface, args []string
 	// }
 
 	// if subject.TeacherUsername != TeacherUsername {
-	// 	return shim.Error("WHO ARE YOU ?")
+	// 	return shim.Error("Permission Denied!")
 	// }
 
 	// allScores, _ := getListScores(stub)
@@ -1629,7 +1677,7 @@ func GetStudentsBySubject(stub shim.ChaincodeStubInterface, args []string) sc.Re
 	// }
 
 	// if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
-	// 	shim.Error("WHO ARE YOU ?")
+	// 	shim.Error("Permission Denied!")
 	// }
 
 	// if len(args) != 1 {
@@ -1675,7 +1723,7 @@ func GetCertificatesBySubject(stub shim.ChaincodeStubInterface, args []string) s
 	// }
 
 	// if MSPID != "AcademyMSP" {
-	// 	shim.Error("WHO ARE YOU ?")
+	// 	shim.Error("Permission Denied!")
 	// }
 
 	SubjectID := args[0]
@@ -1725,7 +1773,7 @@ func GetScoresBySubject(stub shim.ChaincodeStubInterface, args []string) sc.Resp
 	// }
 
 	// if MSPID != "AcademyMSP" {
-	// 	shim.Error("WHO ARE YOU ?")
+	// 	shim.Error("Permission Denied!")
 	// }
 
 	SubjectID := args[0]
