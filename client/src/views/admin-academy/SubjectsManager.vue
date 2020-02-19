@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading.fullscreen.lock="fullscreenLoading">
     <table-admin
       :title="`Subjects Manager`"
       :listAll="listSubjects"
@@ -129,7 +129,7 @@
 import { mapState, mapActions } from 'vuex';
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 import TableAdmin from '@/components/admin-academy/TableAdmin';
-import { Dialog, Form, FormItem, Input, Button, Message } from 'element-ui';
+import { Dialog, Form, FormItem, Input, Button, Message, MessageBox } from 'element-ui';
 export default {
   components: {
     ValidationObserver,
@@ -260,21 +260,30 @@ export default {
       this.dialogForm[formName] = false;
     },
     delSubject(subject) {
-      this.$swal({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
+      MessageBox.confirm(`You won't be able to revert this!`, 'Delete', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
         type: 'warning',
-        showCancelButton: true,
-        cancelButtonColor: '#d33',
-        confirmButtonColor: '#28a745',
-        confirmButtonText: 'Yes, delete it!',
-        reverseButtons: true
-      }).then((result) => {
-        if (result.value) {
-          this.deleteSubject(subject);
-          this.$swal('Deleted!', 'Your file has been deleted.', 'success');
-        }
-      });
+        center: true
+      })
+        .then(async () => {
+          this.fullscreenLoading = true;
+          let data = await this.deleteSubject(subject.SubjectID);
+          if (data.success) {
+            await this.getAllSubjects();
+            Message.success('Delete completed!');
+          } else {
+            if (data.data.msg) {
+              Message.error(data.data.msg);
+            } else {
+              Message.error(data.statusText);
+            }
+          }
+          this.fullscreenLoading = false;
+        })
+        .catch(() => {
+          Message.info('Delete canceled');
+        });
     },
     btnCreate(item, button) {
       this.$root.$emit('bv::show::modal', button);

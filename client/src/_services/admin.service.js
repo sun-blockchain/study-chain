@@ -154,16 +154,16 @@ async function updateSubject(subject) {
   }
 }
 
-async function deleteSubject(subject) {
+async function deleteSubject(subjectId) {
   try {
-    let respone = await axios.delete(`${process.env.VUE_APP_API_BACKEND}/subject/delete`, {
+    let respone = await axios.delete(`${process.env.VUE_APP_API_BACKEND}/academy/subject`, {
       headers: authHeader(),
       data: {
-        subject: subject
+        subjectId: subjectId
       }
     });
 
-    return respone.data.subjects;
+    return respone.data;
   } catch (error) {
     throw error;
   }

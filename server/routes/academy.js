@@ -545,4 +545,47 @@ router.put(
     });
   }
 );
+
+// Delete subject
+router.delete(
+  '/subject',
+  checkJWT,
+  [
+    body('subjectId')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape()
+  ],
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, errors: errors.array() });
+    }
+
+    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied'
+      });
+    }
+    let { subjectId } = req.body;
+
+    let networkObj = await network.connectToNetwork(req.decoded.user);
+
+    const response = await network.deleteSubject(networkObj, subjectId);
+
+    if (!response.success) {
+      return res.status(500).json({
+        success: false,
+        msg: response.msg
+      });
+    }
+    const listSubjects = await network.query(networkObj, 'GetAllSubjects');
+    return res.json({
+      success: true,
+      subjects: JSON.parse(listSubjects.msg)
+    });
+  }
+);
 module.exports = router;
