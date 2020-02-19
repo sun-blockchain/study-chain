@@ -158,6 +158,10 @@ node invoke.js --username=adminacademy --func=CreateSubject --subjectCode=ET01 -
 ```
 
 ```bash
+node invoke.js --username=adminacademy --func=CreateClass --classCode=ETH101 --room=F13 --time="11:00" --shortDescription=Ethereum --description="Teacher: Do Trung Kien" --subjectId=
+```
+
+```bash
 node invoke.js --username=adminacademy --func=UpdateSubjectInfo --subjectId=xxxx  --subjectCode=BC01 --subjectName=Blockchain --description=Blockchain --shortDescription=Blockchain0001
 ```
 

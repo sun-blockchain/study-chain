@@ -140,7 +140,7 @@ describe('#GET /common/subject/:subjectId/classes', () => {
     query.restore();
   });
 
-  it('success query class', (done) => {
+  it('success query classess of subject with admin', (done) => {
     let data = JSON.stringify({
       classCode: 'CACLC2',
       room: 'Blockchain101',
@@ -164,6 +164,30 @@ describe('#GET /common/subject/:subjectId/classes', () => {
       });
   });
 
+  it('success query classess of subject with student', (done) => {
+    let data = JSON.stringify({
+      classCode: 'CACLC2',
+      room: 'Blockchain101',
+      time: '12122020',
+      shortDescription: 'short',
+      description: 'Blockchain'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .get(`/common/subject/${subjectId}/classes`)
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        done();
+      });
+  });
+
   it('do not success query class because error query chaincode', (done) => {
     query.returns({
       success: false,
@@ -173,6 +197,104 @@ describe('#GET /common/subject/:subjectId/classes', () => {
     request(app)
       .get(`/common/subject/${subjectId}/classes`)
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+});
+
+describe('#GET /common/subject/:subjectId', () => {
+  let connect;
+  let query;
+  let subjectId = '4ca7fc39-7523-424d-984e-87ea590cac68';
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+  });
+
+  it('success query subject with admin', (done) => {
+    let data = JSON.stringify({
+      SubjectID: '4ca7fc39-7523-424d-984e-87ea590cac68',
+      SubjectName: 'Blockchain101',
+      SubjectCode: 'BC101',
+      Description: 'Blockchain',
+      ShortDescription: 'BC',
+      Classes: []
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .get(`/common/subject/${subjectId}`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        done();
+      });
+  });
+
+  it('success query subject with student', (done) => {
+    let data = JSON.stringify({
+      SubjectID: '4ca7fc39-7523-424d-984e-87ea590cac68',
+      SubjectName: 'Blockchain101',
+      SubjectCode: 'BC101',
+      Description: 'Blockchain',
+      ShortDescription: 'BC',
+      Classes: []
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .get(`/common/subject/${subjectId}`)
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        done();
+      });
+  });
+
+  it('do not success query course because error query chaincode with admin', (done) => {
+    query.returns({
+      success: false,
+      msg: 'Error query chaincode'
+    });
+
+    request(app)
+      .get(`/common/subject/${subjectId}`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('do not success query course because error query chaincode with student', (done) => {
+    query.returns({
+      success: false,
+      msg: 'Error query chaincode'
+    });
+
+    request(app)
+      .get(`/common/subject/${subjectId}`)
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(500);
         expect(res.body.success).equal(false);

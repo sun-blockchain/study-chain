@@ -133,9 +133,14 @@ export const router = new Router({
           component: () => import('./views/student/Courses.vue')
         },
         {
-          path: '/student/courses/:id/course-detail',
+          path: '/student/courses/:id',
           name: 'student-courses-detail',
           component: () => import('./views/student/CourseDetail.vue')
+        },
+        {
+          path: '/student/courses/:id/subject/:subjectId',
+          name: 'student-subject-detail',
+          component: () => import('./views/student/SubjectDetail')
         },
         {
           path: '/student/mycertificates',

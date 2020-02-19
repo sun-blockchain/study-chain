@@ -8,7 +8,9 @@ export const studentService = {
   getMyCertificates,
   getCourse,
   getAllCourses,
-  getSubjectsOfCourse
+  getSubjectsOfCourse,
+  getClassesOfSubject,
+  getSubject
 };
 
 async function getAllCourses() {
@@ -33,12 +35,40 @@ async function getCourse(courseId) {
   }
 }
 
+async function getSubject(subjectId) {
+  try {
+    let respone = await axios.get(
+      `${process.env.VUE_APP_API_BACKEND}/common/subject/${subjectId}`,
+      {
+        headers: authHeader()
+      }
+    );
+    return respone.data.subject;
+  } catch (error) {
+    throw error;
+  }
+}
+
 async function getSubjectsOfCourse(courseId) {
   try {
     let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/common/course/${courseId}`, {
       headers: authHeader()
     });
     return respone.data.listSubjects;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getClassesOfSubject(subjectId) {
+  try {
+    let respone = await axios.get(
+      `${process.env.VUE_APP_API_BACKEND}/common/subject/${subjectId}/classes`,
+      {
+        headers: authHeader()
+      }
+    );
+    return respone.data.class;
   } catch (error) {
     throw error;
   }
