@@ -108,4 +108,43 @@ router.get('/subject/:subjectId/classes', checkJWT, async (req, res) => {
   });
 });
 
+router.get(
+  '/class/:classId',
+  check('classId')
+    .trim()
+    .escape(),
+  checkJWT,
+  async (req, res) => {
+    const user = req.decoded.user;
+    const networkObj = await network.connectToNetwork(user);
+
+    if (!networkObj) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Failed connect to blockchain!'
+      });
+    }
+
+    const response = await network.query(networkObj, 'QueryClass', req.params.classId);
+
+    if (!response.success) {
+      return res.status(500).send({
+        success: false,
+        msg: response.msg.toString()
+      });
+    }
+
+    let classInfo = JSON.parse(response.msg);
+
+    if (user.role === USER_ROLES.STUDENT) {
+      delete classInfo.Students;
+    }
+
+    return res.json({
+      success: true,
+      class: classInfo
+    });
+  }
+);
+
 module.exports = router;
