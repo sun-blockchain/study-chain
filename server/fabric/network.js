@@ -396,7 +396,6 @@ exports.closeRegisterClass = async function(networkObj, classId) {
     response.error = 'Error! You need to fill all fields before you can register!';
     return response;
   }
-
   try {
     await networkObj.contract.submitTransaction('CloseRegisterClass', classId);
     let response = {
@@ -407,6 +406,7 @@ exports.closeRegisterClass = async function(networkObj, classId) {
     await networkObj.gateway.disconnect();
     return response;
   } catch (error) {
+    console.log(error);
     let response = {
       success: false,
       msg: error
@@ -414,7 +414,46 @@ exports.closeRegisterClass = async function(networkObj, classId) {
     return response;
   }
 };
+exports.updateClassInfo = async function(networkObj, _class) {
+  if (
+    !_class.classId ||
+    !_class.classCode ||
+    !_class.room ||
+    !_class.time ||
+    !_class.shortDescription ||
+    !_class.description
+  ) {
+    let response = {};
+    response.error = 'Error! You need to fill all fields before you can register!';
+    return response;
+  }
 
+  try {
+    await networkObj.contract.submitTransaction(
+      'UpdateClassInfo',
+      _class.classId,
+      _class.classCode,
+      _class.room,
+      _class.time,
+      _class.shortDescription,
+      _class.description
+    );
+    let response = {
+      success: true,
+      msg: 'Successfully Updated!'
+    };
+    console.log(response);
+    await networkObj.gateway.disconnect();
+    return response;
+  } catch (error) {
+    console.log(error);
+    let response = {
+      success: false,
+      msg: error
+    };
+    return response;
+  }
+};
 exports.createCourse = async function(networkObj, course) {
   if (
     !course.courseId ||

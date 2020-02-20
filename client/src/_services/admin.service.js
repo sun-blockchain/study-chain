@@ -3,6 +3,7 @@ import axios from 'axios';
 
 export const adminService = {
   createClass,
+  updateClass,
   getCourse,
   createCourse,
   updateCourse,
@@ -282,7 +283,29 @@ async function createClass(_class) {
         headers: authHeader()
       }
     );
-    return respone.data.class;
+    return respone.data.classes;
+  } catch (error) {
+    throw error;
+  }
+}
+async function updateClass(_class) {
+  try {
+    let respone = await axios.put(
+      `${process.env.VUE_APP_API_BACKEND}/academy/class`,
+      {
+        classId: _class.ClassID,
+        classCode: _class.ClassCode,
+        room: _class.Room,
+        time: _class.Time,
+        shortDescription: _class.ShortDescription,
+        description: _class.Description,
+        subjectId: _class.SubjectId
+      },
+      {
+        headers: authHeader()
+      }
+    );
+    return respone.data.classes;
   } catch (error) {
     throw error;
   }

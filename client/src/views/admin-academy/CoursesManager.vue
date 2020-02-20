@@ -234,9 +234,12 @@ export default {
     async handleUpdate() {
       this.$refs['modal-edit'].hide();
       this.fullscreenLoading = true;
-      await this.updateCourse(this.editCourse);
-      await this.resetInfoModalEdit();
-      this.fullscreenLoading = false;
+      let response = await this.updateCourse(this.editCourse);
+      if (response) {
+        await this.resetInfoModalEdit();
+        this.fullscreenLoading = false;
+      }
+
       await this.getAllCourses();
       this.$swal('Success!', 'Course has been edited.', 'success');
     },

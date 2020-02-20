@@ -57,7 +57,7 @@
         title="Cập Nhật Khóa Học"
       >
         <b-form>
-          <ValidationProvider rules="required" name="Class Code" v-slot="{ valid, errors }">
+          <ValidationProvider rules="required" name="ClassCode" v-slot="{ valid, errors }">
             <b-form-group>
               <b-form-input
                 type="text"
@@ -65,37 +65,64 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Code"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
-          <ValidationProvider rules="required" name="Class Name" v-slot="{ valid, errors }">
+
+          <ValidationProvider rules="required" name="Room" v-slot="{ valid, errors }">
             <b-form-group>
               <b-form-input
                 type="text"
-                v-model="editClass.ClassName"
+                v-model="editClass.Room"
                 :state="errors[0] ? false : valid ? true : null"
-                placeholder="Class Name"
+                placeholder="Class room"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
-            { path: '/academy/courses', name: 'academy-courses', component: () =>
-            import('./views/admin-academy/ClasssManager.vue') },
           </ValidationProvider>
-          <ValidationProvider rules="required" name="Class Description" v-slot="{ valid, errors }">
+
+          <ValidationProvider rules="required" name="Time" v-slot="{ valid, errors }">
+            <b-form-group>
+              <b-form-input
+                type="time"
+                v-model="editClass.Time"
+                :state="errors[0] ? false : valid ? true : null"
+                placeholder="Time"
+              ></b-form-input>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
+            </b-form-group>
+          </ValidationProvider>
+
+          <ValidationProvider rules="required" name="ShortDescription" v-slot="{ valid, errors }">
+            <b-form-group>
+              <b-form-input
+                type="text"
+                v-model="editClass.ShortDescription"
+                :state="errors[0] ? false : valid ? true : null"
+                placeholder="Class Short Description"
+              ></b-form-input>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
+            </b-form-group>
+          </ValidationProvider>
+
+          <ValidationProvider rules="required" name="ClassDescription" v-slot="{ valid, errors }">
             <b-form-group>
               <b-form-textarea
-                type="text"
                 v-model="editClass.Description"
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Description"
               ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
         </b-form>
@@ -120,9 +147,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Code"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Room" v-slot="{ valid, errors }">
@@ -133,9 +160,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class room"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Time" v-slot="{ valid, errors }">
@@ -146,9 +173,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Time"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Short Description" v-slot="{ valid, errors }">
@@ -159,9 +186,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Short Description"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Class Description" v-slot="{ valid, errors }">
@@ -171,9 +198,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Description"
               ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
         </b-form>
@@ -202,7 +229,8 @@ export default {
         Room: '',
         Time: '',
         ShortDescription: '',
-        Description: ''
+        Description: '',
+        SubjectId: this.$route.params.id
       },
       newClass: {
         ClassCode: '',
@@ -229,9 +257,10 @@ export default {
     modalEdit(row) {
       this.editClass.ClassID = row.ClassID;
       this.editClass.ClassCode = row.ClassCode;
-      this.editClass.ClassName = row.ClassName;
+      this.editClass.Room = row.Room;
+      this.editClass.Time = row.Time;
+      this.editClass.ShortDescription = row.ShortDescription;
       this.editClass.Description = row.Description;
-
       this.$root.$emit('bv::show::modal', 'modal-edit');
     },
     async handleCreate() {
@@ -241,16 +270,24 @@ export default {
 
       if (response) {
         this.resetInfoModalCreate();
+        this.fullscreenLoading = false;
+        this.$swal('Success!', 'Class has been created.', 'success');
       }
-      this.fullscreenLoading = false;
       await this.getClassesOfSubject(this.$route.params.id);
     },
     async handleUpdate() {
       this.$refs['modal-edit'].hide();
+
       this.fullscreenLoading = true;
-      await this.updateClass(this.editClass);
-      await this.resetInfoModalEdit();
-      this.fullscreenLoading = false;
+
+      let response = await this.updateClass(this.editClass);
+
+      if (response) {
+        //this.resetInfoModalEdit();
+        this.fullscreenLoading = false;
+        this.$swal('Success!', 'Class has been edited.', 'success');
+      }
+
       await this.getClassesOfSubject(this.$route.params.id);
     },
     resetInfoModalEdit() {
