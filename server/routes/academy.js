@@ -402,7 +402,13 @@ router.post(
       .not()
       .isEmpty()
       .trim()
+      .escape(),
+    body('capacity')
+      .not()
+      .isEmpty()
+      .trim()
       .escape()
+      .isInt()
   ],
   async (req, res) => {
     if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
@@ -420,16 +426,19 @@ router.post(
       const user = req.decoded.user;
 
       const { classCode, room, time, shortDescription, description } = req.body;
+      const capacity = toString(req.body.capacity);
 
       let _class = {
-        classId: uuidv4(),
-        classCode: classCode,
-        room: room,
-        time: time,
-        shortDescription: shortDescription,
-        description: description,
-        subjectId: req.params.subjectId
+        classID: uuidv4(),
+        classCode,
+        room,
+        time,
+        shortDescription,
+        description,
+        subjectId: req.params.subjectId,
+        capacity
       };
+
       let networkObj = await network.connectToNetwork(user);
 
       const response = await network.createClass(networkObj, _class);
@@ -494,7 +503,13 @@ router.put(
       .not()
       .isEmpty()
       .trim()
+      .escape(),
+    body('capacity')
+      .not()
+      .isEmpty()
+      .trim()
       .escape()
+      .isInt()
   ],
   async (req, res) => {
     if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
@@ -513,15 +528,18 @@ router.put(
       const networkObj = await network.connectToNetwork(user);
 
       const { classId, classCode, room, time, shortDescription, description, subjectId } = req.body;
+      const capacity = toString(req.body.capacity);
 
       let _class = {
-        classId: classId,
-        classCode: classCode,
-        room: room,
-        time: time,
-        shortDescription: shortDescription,
-        description: description
+        classId,
+        classCode,
+        room,
+        time,
+        shortDescription,
+        description,
+        capacity
       };
+
       const response = await network.updateClassInfo(networkObj, _class);
 
       if (!response.success) {
@@ -791,4 +809,5 @@ router.put(
     });
   }
 );
+
 module.exports = router;

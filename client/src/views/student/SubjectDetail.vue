@@ -35,7 +35,8 @@
         { prop: 'ClassCode', label: 'Class Code' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
-        { prop: 'ShortDescription', label: 'Short Description' }
+        { prop: 'ShortDescription', label: 'Short Description' },
+        { prop: 'Capacity', label: 'Capacity' }
       ]"
       @modalInfo="modalInfo($event)"
     ></table-student>
@@ -74,8 +75,8 @@ export default {
     ...mapState("student", ["listClasses", "subject"])
   },
   async created() {
-    let classes = await this.getClassesOfSubject(this.$route.params.subjectId);
     let subject = await this.getSubject(this.$route.params.subjectId);
+    let classes = await this.getClassesOfSubject(this.$route.params.subjectId);
 
     if (classes && subject) {
       this.loadingData = false;

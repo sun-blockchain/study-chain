@@ -356,7 +356,8 @@ exports.createClass = async function(networkObj, _class) {
     !_class.time ||
     !_class.shortDescription ||
     !_class.description ||
-    !_class.subjectId
+    !_class.subjectId ||
+    !_class.capacity
   ) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can register!';
@@ -371,8 +372,10 @@ exports.createClass = async function(networkObj, _class) {
       _class.time,
       _class.shortDescription,
       _class.description,
-      _class.subjectId
+      _class.subjectId,
+      _class.capacity
     );
+
     let response = {
       success: true,
       msg: 'Create Successfully!'
@@ -421,7 +424,8 @@ exports.updateClassInfo = async function(networkObj, _class) {
     !_class.room ||
     !_class.time ||
     !_class.shortDescription ||
-    !_class.description
+    !_class.description ||
+    !_class.capacity
   ) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can register!';
@@ -436,13 +440,15 @@ exports.updateClassInfo = async function(networkObj, _class) {
       _class.room,
       _class.time,
       _class.shortDescription,
-      _class.description
+      _class.description,
+      _class.capacity
     );
+
     let response = {
       success: true,
       msg: 'Successfully Updated!'
     };
-    console.log(response);
+
     await networkObj.gateway.disconnect();
     return response;
   } catch (error) {
