@@ -17,8 +17,10 @@
     </div>
     <table-admin
       :title="`Subjects List`"
-      :listAll="subjectsOfCourse"
+      :listAll="subjectsOfCourse ? subjectsOfCourse : []"
       :loadingData="loadingData"
+      :btnInfo="true"
+      :nameFunctionInfo="`showInfoSubject`"
       :btnDetail="true"
       :nameFunctionDetail="`detailStudents`"
       :nameFunctionDelete="`delStudent`"
@@ -30,6 +32,7 @@
       ]"
       @detailStudents="detailStudent($event)"
       @delStudent="delStudent($event)"
+      @showInfoSubject="showInfoSubject($event)"
     >
       <template v-slot:btn-create>
         <el-button
@@ -37,7 +40,7 @@
           icon="fas fa-plus"
           size="medium"
           round
-          @click="dialogAddSubject = true"
+          @click="dialogForm.addSubject = true"
         ></el-button>
         <!-- <div class="box-defaul-header"></div> -->
       </template>
@@ -45,7 +48,7 @@
 
     <el-dialog
       title="Add Subject To Course"
-      :visible.sync="dialogAddSubject"
+      :visible.sync="dialogForm.addSubject"
       class="modal-md-25-sm-90"
     >
       <el-form :model="formAdd" :rules="ruleAdd" ref="formAdd" class="demo-ruleForm">
@@ -63,6 +66,52 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="resetAddSubject('formAdd')">Cancel</el-button>
         <el-button type="primary" @click="handleAddSubject('formAdd')">Add</el-button>
+      </span>
+    </el-dialog>
+
+    <el-dialog
+      title="Information Subject"
+      :visible.sync="dialogForm.infoSubject"
+      class="modal-with-create"
+    >
+      <el-form :model="infoSubject" ref="infoSubject">
+        <div class="form-group">
+          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
+            >Subject Name</label
+          >
+          <div class="col-sm-12">
+            <h4 class="pl-3">{{ infoSubject.subjectName }}</h4>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
+            >Subject Code</label
+          >
+          <div class="col-sm-12">
+            <h4 class="pl-3">{{ infoSubject.subjectCode }}</h4>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
+            >Short Description</label
+          >
+          <div class="col-sm-12">
+            <h4 class="pl-3">{{ infoSubject.shortDescription }}</h4>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
+            >Description</label
+          >
+          <div class="col-sm-12">
+            <h4 class="pl-3">{{ infoSubject.description }}</h4>
+          </div>
+        </div>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="resetForm('infoSubject')">Cancel</el-button>
       </span>
     </el-dialog>
   </div>
@@ -116,12 +165,21 @@ export default {
       },
       fullscreenLoading: false,
       loadingData: false,
-      dialogAddSubject: false,
       formAdd: {
         subjectId: null
       },
       ruleAdd: {
         subjectId: [{ required: true, message: 'Subject is required', trigger: 'blur' }]
+      },
+      infoSubject: {
+        subjectName: '',
+        subjectCode: '',
+        shortDescription: '',
+        description: ''
+      },
+      dialogForm: {
+        infoSubject: false,
+        addSubject: false
       }
     };
   },
@@ -197,7 +255,23 @@ export default {
     },
     async resetAddSubject(formName) {
       this.$refs[formName].resetFields();
-      this.dialogAddSubject = false;
+      this.dialogForm.addSubject = false;
+    },
+    showInfoSubject(row) {
+      this.infoSubject.subjectName = row.SubjectName;
+      this.infoSubject.subjectCode = row.SubjectCode;
+      this.infoSubject.shortDescription = row.ShortDescription;
+      this.infoSubject.description = row.Description;
+      this.dialogForm.infoSubject = true;
+    },
+    resetForm(formName) {
+      this[formName].subjectId = '';
+      this[formName].subjectName = '';
+      this[formName].subjectCode = '';
+      this[formName].shortDescription = '';
+      this[formName].description = '';
+      this.$refs[formName].resetFields();
+      this.dialogForm[formName] = false;
     }
   },
   computed: {

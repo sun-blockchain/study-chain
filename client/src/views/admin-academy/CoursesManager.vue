@@ -2,7 +2,7 @@
   <div>
     <table-admin
       :title="`Courses Manager`"
-      :listAll="listCourses"
+      :listAll="listCourses ? listCourses : []"
       :loadingData="loadingData"
       :btnDetail="true"
       :nameFunctionDetail="`detailCourses`"
