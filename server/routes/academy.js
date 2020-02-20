@@ -810,4 +810,63 @@ router.put(
   }
 );
 
+router.post(
+  '/removeClassFromSubject',
+  [
+    body('subjectId')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('classId')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape()
+  ],
+  async (req, res) => {
+    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied'
+      });
+    }
+
+    try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        return res.status(422).json({ success: false, errors: errors.array() });
+      }
+
+      const user = req.decoded.user;
+      const { subjectId, classId } = req.body;
+      let networkObj = await network.connectToNetwork(user);
+
+      if (!networkObj) {
+        return res.status(500).json({
+          success: false,
+          msg: 'Failed connect to blockchain!'
+        });
+      }
+
+      const response = await network.removeClassFromSubject(networkObj, subjectId, classId);
+
+      if (!response.success) {
+        throw new Error('Chaincode return error');
+      }
+
+      return res.json({
+        success: true,
+        msg: 'Remove Successfully!'
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Remove Failed'
+      });
+    }
+  }
+);
+
 module.exports = router;

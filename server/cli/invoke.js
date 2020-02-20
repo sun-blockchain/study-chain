@@ -345,13 +345,26 @@ async function main() {
           await conn.updateClassInfo(networkObj, _class);
           console.log('Transaction has been submitted');
           process.exit(0);
+        } else if (
+          functionName === 'RemoveClassFromSubject' &&
+          user.role === USER_ROLES.ADMIN_ACADEMY
+        ) {
+          /**
+           * Remove Subject From Course
+           * @param  {String} classId class Id (required)
+           * @param  {String} subjectId subject Id (required)
+           */
+
+          let subjectId = argv.subjectId.toString();
+          let classId = argv.classId.toString();
+
+          await conn.removeClassFromSubject(networkObj, subjectId, classId);
+          console.log('Transaction has been submitted');
+          process.exit(0);
         } else {
           console.log('Failed!');
           process.exit(0);
         }
-
-        // Disconnect from the gateway.
-        await networkObj.gateway.disconnect();
       }
     });
   } catch (error) {
