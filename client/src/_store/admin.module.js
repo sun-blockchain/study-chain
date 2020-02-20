@@ -117,22 +117,24 @@ const actions = {
       commit('updateSubject', data.subjects);
       return data;
     } catch (error) {
-      console.log(error.response.data);
+      console.log(error.response);
       if (error.response.status === 403) {
         router.push('/403');
       }
       return error.response.data;
     }
   },
-  async deleteSubject({ commit }, subject) {
+  async deleteSubject({ commit }, subjectId) {
     try {
-      let listSubjects = await adminService.deleteSubject(subject);
-      commit('deleteSubject', listSubjects);
+      let data = await adminService.deleteSubject(subjectId);
+      commit('deleteSubject', data.subjects);
+      return data;
     } catch (error) {
-      console.log(error);
+      console.log(error.response);
       if (error.response.status === 403) {
         router.push('/403');
       }
+      return error.response;
     }
   },
 

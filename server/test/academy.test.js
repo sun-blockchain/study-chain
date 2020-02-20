@@ -1309,3 +1309,183 @@ describe('#PUT /academy/subject', () => {
       });
   });
 });
+
+describe('#DELETE /academy/subject', () => {
+  let connect;
+  let deleteSubjectStub;
+  let query;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    deleteSubjectStub = sinon.stub(network, 'deleteSubject');
+    query = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    deleteSubjectStub.restore();
+    query.restore();
+  });
+
+  it('do not delete success subject with empty req.body', (done) => {
+    request(app)
+      .delete('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .send({})
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('do not delete success subject with empty subjectId', (done) => {
+    request(app)
+      .delete('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .send({
+        subjectId: ''
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('do not delete success subject with admin student', (done) => {
+    request(app)
+      .delete('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .send({
+        subjectId: '00'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('do not delete success subject with teacher', (done) => {
+    request(app)
+      .delete('/academy/subject')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .send({
+        subjectId: '00'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('do not delete success subject with student', (done) => {
+    request(app)
+      .delete('/academy/subject')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        subjectId: '00'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('cannot be deleted!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    deleteSubjectStub.returns({
+      success: false,
+      msg: 'Can not delete subject - a98f2f4e-6ef9-492b-96a6-c6f01364fecb'
+    });
+
+    request(app)
+      .delete('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        subjectId: 'a98f2f4e-6ef9-492b-96a6-c6f01364fecb'
+      })
+      .then((res) => {
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not delete subject - a98f2f4e-6ef9-492b-96a6-c6f01364fecb');
+        done();
+      });
+  });
+
+  it('error chain code', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    deleteSubjectStub.returns({
+      success: false,
+      msg: 'error'
+    });
+
+    request(app)
+      .delete('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        subjectId: 'a98f2f4e-6ef9-492b-96a6-c6f01364fecb'
+      })
+      .then((res) => {
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('error');
+        done();
+      });
+  });
+
+  it('delete success subject with admin academy', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    deleteSubjectStub.returns({
+      success: true,
+      msg: 'deleted!'
+    });
+
+    let data = JSON.stringify({
+      SubjectID: 'a98f2f4e-6ef9-492b-96a6-c6f01364fecb',
+      SubjectName: 'abcc',
+      SubjectCode: 'abc',
+      ShortDescription: 'abc',
+      Description: 'abc'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .delete('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        subjectId: 'a98f2f4e-6ef9-492b-96a6-c6f01364fecb'
+      })
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        done();
+      });
+  });
+});
