@@ -41,6 +41,43 @@ const actions = {
       return error.response.data;
     }
   },
+  async getClass({ commit }, classId) {
+    try {
+      let data = await adminService.getClass(classId);
+
+      commit('getClass', data);
+      return data;
+    } catch (error) {
+      console.log(error);
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
+  },
+  async deleteClass({ commit }, { subjectId, classId }) {
+    try {
+      let listClasses = await adminService.deleteClass(subjectId, classId);
+      commit('deleteClass', listClasses);
+    } catch (error) {
+      console.log(error);
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
+  },
+  async closeClass({ commit }, { classId }) {
+    try {
+      let data = await adminService.closeClass(classId);
+
+      commit('closeClass', data);
+      return data;
+    } catch (error) {
+      console.log(error);
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
+  },
   async getCourse({ commit }, courseId) {
     try {
       let data = await adminService.getCourse(courseId);
@@ -387,6 +424,15 @@ const mutations = {
     state.listClasses = listClasses;
   },
   updateClass(state, listClasses) {
+    state.listClasses = listClasses;
+  },
+  getClass(state, listClasses) {
+    state.listClasses = listClasses;
+  },
+  deleteClass(state, listClasses) {
+    state.listClasses = listClasses;
+  },
+  closeClass(state, listClasses) {
     state.listClasses = listClasses;
   },
   getCourse(state, listCourses) {

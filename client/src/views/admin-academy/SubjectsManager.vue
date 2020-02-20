@@ -146,7 +146,7 @@
             >Subject Code</label
           >
           <div class="col-sm-12">
-            <h4  class="pl-3">{{ infoSubject.subjectCode }}</h4>
+            <h4 class="pl-3">{{ infoSubject.subjectCode }}</h4>
           </div>
         </div>
         <div class="form-group">

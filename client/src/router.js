@@ -72,6 +72,11 @@ export const router = new Router({
           component: () => import('./views/admin-academy/SubjectDetail')
         },
         {
+          path: '/academy/subjects/:id/class/:classId',
+          name: 'academy-subject-class',
+          component: () => import('./views/admin-academy/ClassSubject')
+        },
+        {
           path: '/academy/subjects/:id/students',
           name: 'academy-subject-student',
           component: () => import('./views/admin-academy/SubjectStudents')

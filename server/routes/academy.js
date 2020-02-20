@@ -425,11 +425,9 @@ router.post(
 
       const user = req.decoded.user;
 
-      const { classCode, room, time, shortDescription, description } = req.body;
-      const capacity = toString(req.body.capacity);
-
+      const { classCode, room, time, shortDescription, description, capacity } = req.body;
       let _class = {
-        classID: uuidv4(),
+        classId: uuidv4(),
         classCode,
         room,
         time,
@@ -438,7 +436,6 @@ router.post(
         subjectId: req.params.subjectId,
         capacity
       };
-
       let networkObj = await network.connectToNetwork(user);
 
       const response = await network.createClass(networkObj, _class);
@@ -763,7 +760,6 @@ router.put(
         msg: 'Permission Denied'
       });
     }
-
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({ success: false, errors: errors.array() });
@@ -803,6 +799,7 @@ router.put(
         msg: response.msg.toString()
       });
     }
+
     return res.json({
       success: true,
       msg: 'Close Successfully!'

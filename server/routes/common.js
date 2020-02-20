@@ -116,6 +116,7 @@ router.get(
   checkJWT,
   async (req, res) => {
     const user = req.decoded.user;
+
     const networkObj = await network.connectToNetwork(user);
 
     if (!networkObj) {

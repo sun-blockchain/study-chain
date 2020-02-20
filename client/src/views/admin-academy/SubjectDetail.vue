@@ -20,7 +20,7 @@
       :listAll="listClasses"
       :loadingData="loadingData"
       :btnDetail="true"
-      :nameFunctionDetail="`detailClasss`"
+      :nameFunctionDetail="`detailClass`"
       :btnEdit="true"
       :nameFunctionEdit="`modalEdit`"
       :nameFunctionDelete="`delClass`"
@@ -29,7 +29,8 @@
         { prop: 'ClassCode', label: 'ClassCode' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
-        { prop: 'ShortDescription', label: 'Description' }
+        { prop: 'ShortDescription', label: 'Description' },
+        { prop: 'Capacity', label: 'Capacity' }
       ]"
       @detailClass="detailClass($event)"
       @modalEdit="modalEdit($event)"
@@ -124,6 +125,18 @@
               }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
+          <ValidationProvider rules="required" name="Capacity" v-slot="{ valid, errors }">
+            <b-form-group>
+              <b-form-textarea
+                v-model="editClass.Capacity"
+                :state="errors[0] ? false : valid ? true : null"
+                placeholder="Capacity"
+              ></b-form-textarea>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
+            </b-form-group>
+          </ValidationProvider>
         </b-form>
       </b-modal>
     </ValidationObserver>
@@ -202,6 +215,18 @@
               }}</b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
+          <ValidationProvider rules="required" name="Capacity" v-slot="{ valid, errors }">
+            <b-form-group>
+              <b-form-textarea
+                v-model="newClass.Capacity"
+                :state="errors[0] ? false : valid ? true : null"
+                placeholder="Capacity"
+              ></b-form-textarea>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{
+                errors[0]
+              }}</b-form-invalid-feedback>
+            </b-form-group>
+          </ValidationProvider>
         </b-form>
       </b-modal>
     </ValidationObserver>
@@ -229,7 +254,8 @@ export default {
         Time: '',
         ShortDescription: '',
         Description: '',
-        SubjectId: this.$route.params.id
+        SubjectId: this.$route.params.id,
+        Capacity: ''
       },
       newClass: {
         ClassCode: '',
@@ -237,7 +263,8 @@ export default {
         Time: '',
         ShortDescription: '',
         Description: '',
-        SubjectId: this.$route.params.id
+        SubjectId: this.$route.params.id,
+        Capacity: ''
       },
       fullscreenLoading: false,
       loadingData: false
@@ -252,7 +279,9 @@ export default {
       'deleteClass'
     ]),
     detailClass(row) {
-      this.$router.push({ path: `class/${row.ClassID}/class-detail` });
+      this.$router.push({
+        path: `/academy/subjects/${this.$route.params.id}/class/${row.ClassID}`
+      });
     },
     modalEdit(row) {
       this.editClass.ClassID = row.ClassID;
@@ -261,6 +290,7 @@ export default {
       this.editClass.Time = row.Time;
       this.editClass.ShortDescription = row.ShortDescription;
       this.editClass.Description = row.Description;
+      this.editClass.Capacity = row.Capacity;
       this.$root.$emit('bv::show::modal', 'modal-edit');
     },
     async handleCreate() {
@@ -296,6 +326,7 @@ export default {
       this.editClass.Time = '';
       this.editClass.ShortDescription = '';
       this.editClass.Description = '';
+      this.editClass.Capacity = '';
     },
     resetInfoModalCreate() {
       this.newClass.ClassCode = '';
@@ -303,13 +334,14 @@ export default {
       this.newClass.Time = '';
       this.newClass.ShortDescription = '';
       this.newClass.Description = '';
+      this.newClass.Capacity = '';
       requestAnimationFrame(() => {
         this.$refs.observer.reset();
       });
     },
     async delClass(row) {
       this.$swal({
-        title: 'Are you sure?',
+        title: 'Are you sure to delete this?',
         text: "You won't be able to revert this!",
         type: 'warning',
         showCancelButton: true,
@@ -320,8 +352,9 @@ export default {
       }).then(async (result) => {
         if (result.value) {
           this.fullscreenLoading = true;
-          await this.deleteClass(row.ClassID);
-          await this.getAllClasss();
+          await this.deleteClass({ subjectId: this.listSubjects.SubjectID, classId: row.ClassID });
+
+          await this.getClassesOfSubject(this.$route.params.id);
           this.fullscreenLoading = false;
 
           this.$swal('Deleted!', 'Your file has been deleted.', 'success');
