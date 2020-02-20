@@ -810,6 +810,42 @@ func CloseRegisterClass(stub shim.ChaincodeStubInterface, args []string) sc.Resp
 	return shim.Success(nil)
 }
 
+func CloseRegister(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		return shim.Error("Error - cid.GetMSPID()!")
+	}
+
+	if MSPID != "AcademyMSP" {
+		return shim.Error("Permission Denied!")
+	}
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1!")
+	}
+
+	ClassID := args[0]
+	keyClass := "Class-" + ClassID
+
+	class, err := getClass(stub, keyClass)
+	if err != nil {
+		return shim.Error("This class does not exist!")
+	}
+
+	if class.Status != Open {
+		return shim.Error("Can not close register!")
+	}
+
+	class.Status = Close
+
+	classAsBytes, _ := json.Marshal(class)
+
+	stub.PutState(keyClass, classAsBytes)
+
+	return shim.Success(nil)
+}
+
 func QuerySubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	var SubjectID string
