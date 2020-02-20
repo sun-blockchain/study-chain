@@ -212,6 +212,19 @@ async function main() {
           await conn.deleteSubject(networkObj, subjectId);
           console.log('Transaction has been submitted');
           process.exit(0);
+        } else if (
+          functionName === 'CloseRegisterClass' &&
+          user.role === USER_ROLES.ADMIN_ACADEMY
+        ) {
+          /**
+           * Close Register
+           * @param  {String} classId class Id (required)
+           */
+
+          let classId = argv.classId.toString();
+          await conn.closeRegisterClass(networkObj, classId);
+          console.log('Transaction has been submitted');
+          process.exit(0);
         } else if (functionName === 'CreateCertificate' && user.role === USER_ROLES.ADMIN_ACADEMY) {
           /**
            * Create Certificate
@@ -267,10 +280,10 @@ async function main() {
         } else if (functionName === 'CreateClass' && user.role === USER_ROLES.ADMIN_ACADEMY) {
           /**
            * Create Score
-           * @param  {String} classcode
+           * @param  {String} classCode
            * @param  {String} room
            * @param  {String} time
-           * @param  {String} shortdescription
+           * @param  {String} shortDescription
            * @param  {String} description
            * @param  {String} subjectId
            *
@@ -283,7 +296,7 @@ async function main() {
           let subjectId = argv.subjectId.toString();
 
           let _class = {
-            classID: uuidv4(),
+            classId: uuidv4(),
             classCode,
             room,
             time,

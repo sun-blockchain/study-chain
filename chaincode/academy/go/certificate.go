@@ -12,6 +12,14 @@ import (
 type SmartContract struct {
 }
 
+type ClassStatus string
+
+const (
+	Open      ClassStatus = "Register Open"
+	Closed    ClassStatus = "Register Closed"
+	Completed ClassStatus = "Completed"
+)
+
 type Course struct {
 	CourseID         string
 	CourseCode       string
@@ -35,7 +43,7 @@ type Class struct {
 	ClassCode        string
 	Room             string
 	Time             string
-	Status           bool
+	Status           ClassStatus
 	ShortDescription string
 	Description      string
 	Students         []string
@@ -180,6 +188,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return RemoveSubjectFromCourse(stub, args)
 	} else if function == "DeleteSubject" {
 		return DeleteSubject(stub, args)
+	} else if function == "CloseRegisterClass" {
+		return CloseRegisterClass(stub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name!")
@@ -703,23 +713,7 @@ func DeleteSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		return shim.Error("Subject does not exist!")
 	}
 
-	var i int
-	deleteable := true
-
-	for i = 0; i < len(subject.Classes); i++ {
-
-		class, err := getClass(stub, "Class-"+subject.Classes[i])
-		if err != nil {
-			return shim.Error("Class does not exist - " + subject.Classes[i])
-		}
-
-		if !class.Status {
-			deleteable = false
-			break
-		}
-	}
-
-	if !deleteable {
+	if len(subject.Classes) > 0 {
 		return shim.Error("Can not delete subject - " + SubjectID)
 	}
 
@@ -727,6 +721,42 @@ func DeleteSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 
 	return shim.Success(nil)
 
+}
+
+func CloseRegisterClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		return shim.Error("Error - cid.GetMSPID()!")
+	}
+
+	if MSPID != "AcademyMSP" {
+		return shim.Error("Permission Denied!")
+	}
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1!")
+	}
+
+	ClassID := args[0]
+	keyClass := "Class-" + ClassID
+
+	class, err := getClass(stub, keyClass)
+	if err != nil {
+		return shim.Error("This class does not exist!")
+	}
+
+	if class.Status != Open {
+		return shim.Error("Can not close register!")
+	}
+
+	class.Status = Closed
+
+	classAsBytes, _ := json.Marshal(class)
+
+	stub.PutState(keyClass, classAsBytes)
+
+	return shim.Success(nil)
 }
 
 func QuerySubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {

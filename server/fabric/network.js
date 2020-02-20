@@ -334,7 +334,7 @@ exports.createSubject = async function(networkObj, subject) {
     );
     let response = {
       success: true,
-      msg: 'Create success!'
+      msg: 'Create Successfully!'
     };
 
     await networkObj.gateway.disconnect();
@@ -350,7 +350,7 @@ exports.createSubject = async function(networkObj, subject) {
 
 exports.createClass = async function(networkObj, _class) {
   if (
-    !_class.classID ||
+    !_class.classId ||
     !_class.classCode ||
     !_class.room ||
     !_class.time ||
@@ -365,7 +365,7 @@ exports.createClass = async function(networkObj, _class) {
   try {
     await networkObj.contract.submitTransaction(
       'CreateClass',
-      _class.classID,
+      _class.classId,
       _class.classCode,
       _class.room,
       _class.time,
@@ -375,7 +375,7 @@ exports.createClass = async function(networkObj, _class) {
     );
     let response = {
       success: true,
-      msg: 'Create success!'
+      msg: 'Create Successfully!'
     };
 
     await networkObj.gateway.disconnect();
@@ -389,6 +389,32 @@ exports.createClass = async function(networkObj, _class) {
     return response;
   }
 };
+
+exports.closeRegisterClass = async function(networkObj, classId) {
+  if (!classId) {
+    let response = {};
+    response.error = 'Error! You need to fill all fields before you can register!';
+    return response;
+  }
+
+  try {
+    await networkObj.contract.submitTransaction('CloseRegisterClass', classId);
+    let response = {
+      success: true,
+      msg: 'Close Successfully!'
+    };
+
+    await networkObj.gateway.disconnect();
+    return response;
+  } catch (error) {
+    let response = {
+      success: false,
+      msg: error
+    };
+    return response;
+  }
+};
+
 exports.createCourse = async function(networkObj, course) {
   if (
     !course.courseId ||
@@ -413,7 +439,7 @@ exports.createCourse = async function(networkObj, course) {
     );
     let response = {
       success: true,
-      msg: 'Create success!'
+      msg: 'Create Successfully!'
     };
 
     await networkObj.gateway.disconnect();
@@ -676,7 +702,7 @@ exports.createScore = async function(networkObj, score) {
     );
     let response = {
       success: true,
-      msg: 'Create success!'
+      msg: 'Create Successfully!'
     };
 
     await networkObj.gateway.disconnect();
@@ -721,7 +747,7 @@ exports.createCertificate = async function(networkObj, certificate) {
 
     let response = {
       success: true,
-      msg: 'Create success!'
+      msg: 'Create Successfully!'
     };
 
     await networkObj.gateway.disconnect();
@@ -750,7 +776,7 @@ exports.registerTeacherForSubject = async function(networkObj, subjectID, teache
     );
     let response = {
       success: true,
-      msg: 'Create success!'
+      msg: 'Create Successfully!'
     };
 
     await networkObj.gateway.disconnect();
@@ -778,7 +804,7 @@ exports.registerStudentForSubject = async function(networkObj, subjectID, studen
     );
     let response = {
       success: true,
-      msg: 'Create success!'
+      msg: 'Create Successfully!'
     };
 
     await networkObj.gateway.disconnect();

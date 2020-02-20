@@ -200,14 +200,14 @@ func CreateClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("This class already exists - " + ClassID)
 	}
 
-	keySubject := "Subject-" +SubjectID
-	subject,err  := getSubject(stub, keySubject)
+	keySubject := "Subject-" + SubjectID
+	subject, err := getSubject(stub, keySubject)
 
 	if err != nil {
 		return shim.Error("This subject does not exists - " + SubjectID)
 	}
 
-	var class = Class{ClassID: ClassID, ClassCode: ClassCode, Room: Room,Time: Time, Status:true, ShortDescription: ShortDescription, Description: Description}
+	var class = Class{ClassID: ClassID, ClassCode: ClassCode, Room: Room, Time: Time, Status: Open, ShortDescription: ShortDescription, Description: Description}
 
 	classAsBytes, _ := json.Marshal(class)
 
