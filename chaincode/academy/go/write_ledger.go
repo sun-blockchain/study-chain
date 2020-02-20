@@ -2,9 +2,8 @@ package main
 
 import (
 	"encoding/json"
-
 	"fmt"
-
+	"strconv"
 	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
@@ -178,7 +177,7 @@ func CreateClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("Permission denied!")
 	}
 
-	if len(args) != 7 {
+	if len(args) != 8 {
 		return shim.Error("Incorrect number of arguments. Expecting 7")
 	}
 
@@ -191,6 +190,14 @@ func CreateClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	ShortDescription := args[4]
 	Description := args[5]
 	SubjectID := args[6]
+	Capacity := args[7]
+
+	CapacityInt, err :=  strconv.ParseUint(Capacity, 10, 64)
+	
+
+	if err != nil {
+		return shim.Error("Convert Capacity To Integer Failed")
+	}
 
 	keyClass := "Class-" + ClassID
 	checkClassExist, err := getClass(stub, keyClass)
@@ -207,7 +214,7 @@ func CreateClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("This subject does not exists - " + SubjectID)
 	}
 
-	var class = Class{ClassID: ClassID, ClassCode: ClassCode, Room: Room, Time: Time, Status: Open, ShortDescription: ShortDescription, Description: Description}
+	var class = Class{ClassID: ClassID, ClassCode: ClassCode, Room: Room, Time: Time, Status: Open, ShortDescription: ShortDescription, Description: Description, Capacity: CapacityInt}
 
 	classAsBytes, _ := json.Marshal(class)
 

@@ -150,6 +150,10 @@ node invoke.js --username=adminacademy --func=UpdateCourseInfo --courseId=xxxx  
 ```
 
 ```bash
+node invoke.js --username=adminacademy --func=UpdateClassInfo --classId=xxx --classCode=Fabric101 --room=F13 --time="11:45" --shortDescription=Hyperledger --description="Sun Research Blockchai help you can develop Dapp on Hyperledger Fabric" --capacity=99
+```
+
+```bash
 node invoke.js --username=st01 --func=UpdateUserInfo --phoneNumber=0382794668  --email=BC01 --address=KienGiang --fullName=TrinhVanTan
 ```
 
@@ -162,7 +166,7 @@ node invoke.js --username=adminacademy --func=CreateSubject --subjectCode=ET01 -
 ```
 
 ```bash
-node invoke.js --username=adminacademy --func=CreateClass --classCode=ETH101 --room=F13 --time="11:00" --shortDescription=Ethereum --description="Teacher: Do Trung Kien" --subjectId=
+node invoke.js --username=adminacademy --func=CreateClass --classCode=ETH101 --room=F13 --time="11:00" --shortDescription=Ethereum --description="Teacher: Do Trung Kien" --subjectId="abc-def" --capacity=100
 ```
 
 ```bash

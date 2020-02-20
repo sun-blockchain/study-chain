@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-
+	"strconv"
 	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
@@ -47,6 +47,7 @@ type Class struct {
 	ShortDescription string
 	Description      string
 	Students         []string
+	Capacity		 uint64
 }
 
 type Teacher struct {
@@ -463,7 +464,7 @@ func UpdateClassInfo(stub shim.ChaincodeStubInterface, args []string) sc.Respons
 		return shim.Error("Permission Denied!")
 	}
 
-	if len(args) != 6 {
+	if len(args) != 7 {
 		return shim.Error("Incorrect number of arguments. Expecting 6")
 	}
 
@@ -473,6 +474,9 @@ func UpdateClassInfo(stub shim.ChaincodeStubInterface, args []string) sc.Respons
 	Time := args[3]
 	ShortDescription := args[4]
 	Description := args[5]
+	Capacity := args[6]
+
+	CapacityInt, err :=  strconv.ParseUint(Capacity, 10, 64)
 
 	keyClass := "Class-" + ClassID
 	class, err := getClass(stub, keyClass)
@@ -491,6 +495,8 @@ func UpdateClassInfo(stub shim.ChaincodeStubInterface, args []string) sc.Respons
 	class.ShortDescription = ShortDescription
 
 	class.Description = Description
+
+	class.Capacity = CapacityInt
 
 	classAsBytes, _ := json.Marshal(class)
 

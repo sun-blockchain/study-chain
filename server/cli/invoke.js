@@ -286,6 +286,7 @@ async function main() {
            * @param  {String} shortDescription
            * @param  {String} description
            * @param  {String} subjectId
+           * @param  {String} capacity
            *
            */
           let classCode = argv.classCode.toString();
@@ -294,6 +295,7 @@ async function main() {
           let shortDescription = argv.shortDescription.toString();
           let description = argv.description.toString();
           let subjectId = argv.subjectId.toString();
+          let capacity = argv.capacity.toString();
 
           let _class = {
             classId: uuidv4(),
@@ -302,10 +304,45 @@ async function main() {
             time,
             shortDescription,
             description,
-            subjectId
+            subjectId,
+            capacity
           };
 
           await conn.createClass(networkObj, _class);
+          console.log('Transaction has been submitted');
+          process.exit(0);
+        } else if (functionName === 'UpdateClassInfo' && user.role === USER_ROLES.ADMIN_ACADEMY) {
+          /**
+           * Create Score
+           * @param  {String} classId
+           * @param  {String} classCode
+           * @param  {String} room
+           * @param  {String} time
+           * @param  {String} shortDescription
+           * @param  {String} description
+           * @param  {String} capacity
+           *
+           */
+
+          let classId = argv.classId.toString();
+          let classCode = argv.classCode.toString();
+          let room = argv.room.toString();
+          let time = argv.time.toString();
+          let shortDescription = argv.shortDescription.toString();
+          let description = argv.description.toString();
+          let capacity = argv.capacity.toString();
+
+          let _class = {
+            classId,
+            classCode,
+            room,
+            time,
+            shortDescription,
+            description,
+            capacity
+          };
+
+          await conn.updateClassInfo(networkObj, _class);
           console.log('Transaction has been submitted');
           process.exit(0);
         } else {

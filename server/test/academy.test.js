@@ -436,7 +436,8 @@ describe('#POST /academy/:subjectId/class', () => {
         room: 'Blockchain101',
         time: '12122020',
         shortDescription: 'short',
-        description: 'long'
+        description: 'long',
+        capacity: 77
       })
       .then((res) => {
         expect(res.status).equal(200);
@@ -476,7 +477,8 @@ describe('#POST /academy/:subjectId/class', () => {
         room: 'Blockchain101',
         time: '12122020',
         shortDescription: 'short',
-        description: 'long'
+        description: 'long',
+        capacity: 67
       })
       .then((res) => {
         expect(res.status).equal(500);
@@ -531,7 +533,8 @@ describe('#PUT /class', () => {
       time: '12122020',
       shortDescription: 'short',
       description: 'long',
-      subjectId: 'sj'
+      subjectId: 'sj',
+      capacity: 112
     });
 
     updateClassInfo.returns({
@@ -554,7 +557,8 @@ describe('#PUT /class', () => {
         time: '12122020',
         shortDescription: 'short',
         description: 'long',
-        subjectId: 'sj'
+        subjectId: 'sj',
+        capacity: 112
       })
       .then((res) => {
         expect(res.status).equal(200);
@@ -574,7 +578,8 @@ describe('#PUT /class', () => {
         time: '12122020',
         shortDescription: 'short',
         description: 'long',
-        subjectId: 'sj'
+        subjectId: 'sj',
+        capacity: ''
       })
       .then((res) => {
         expect(res.status).equal(422);
@@ -598,7 +603,8 @@ describe('#PUT /class', () => {
         time: '12122020',
         shortDescription: 'short',
         description: 'long',
-        subjectId: 'sj'
+        subjectId: 'sj',
+        capacity: 100
       })
       .then((res) => {
         expect(res.status).equal(500);
