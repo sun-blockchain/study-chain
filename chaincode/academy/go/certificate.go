@@ -192,6 +192,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return DeleteSubject(stub, args)
 	} else if function == "CloseRegisterClass" {
 		return CloseRegisterClass(stub, args)
+	} else if function == "QueryClass" {
+		return QueryClass(stub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name!")
@@ -810,42 +812,6 @@ func CloseRegisterClass(stub shim.ChaincodeStubInterface, args []string) sc.Resp
 	return shim.Success(nil)
 }
 
-func CloseRegister(stub shim.ChaincodeStubInterface, args []string) sc.Response {
-	MSPID, err := cid.GetMSPID(stub)
-
-	if err != nil {
-		return shim.Error("Error - cid.GetMSPID()!")
-	}
-
-	if MSPID != "AcademyMSP" {
-		return shim.Error("Permission Denied!")
-	}
-
-	if len(args) != 1 {
-		return shim.Error("Incorrect number of arguments. Expecting 1!")
-	}
-
-	ClassID := args[0]
-	keyClass := "Class-" + ClassID
-
-	class, err := getClass(stub, keyClass)
-	if err != nil {
-		return shim.Error("This class does not exist!")
-	}
-
-	if class.Status != Open {
-		return shim.Error("Can not close register!")
-	}
-
-	class.Status = Close
-
-	classAsBytes, _ := json.Marshal(class)
-
-	stub.PutState(keyClass, classAsBytes)
-
-	return shim.Success(nil)
-}
-
 func QuerySubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	var SubjectID string
@@ -878,6 +844,38 @@ func QuerySubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	}
 
 	return shim.Success(subjectAsBytes)
+}
+
+func QueryClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	// MSPID, err := cid.GetMSPID(stub)
+
+	// if err != nil {
+	// 	shim.Error("Error - cid.GetMSPID()")
+	// }
+
+	// if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
+	// 	shim.Error("Permission Denied!")
+	// }
+
+	ClassID := args[0]
+
+	key := "Class-" + ClassID
+	classAsBytes, err := stub.GetState(key)
+
+	if err != nil {
+		return shim.Error("Failed")
+	}
+
+	if classAsBytes == nil {
+		return shim.Error("Class does not exist - " + args[0])
+	}
+
+	return shim.Success(classAsBytes)
 }
 
 func QueryCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {

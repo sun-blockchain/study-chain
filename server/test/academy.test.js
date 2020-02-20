@@ -1772,3 +1772,200 @@ describe('#DELETE /academy/subject', () => {
       });
   });
 });
+
+describe('#PUT /academy/closeRegisterClass', () => {
+  let connect;
+  let query;
+  let closeRegisterClass;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+    closeRegisterClass = sinon.stub(network, 'closeRegisterClass');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+    closeRegisterClass.restore();
+  });
+
+  it('permission denied when access routes with student', (done) => {
+    request(app)
+      .put('/academy/closeRegisterClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('permission denied when access routes with teacher', (done) => {
+    request(app)
+      .put('/academy/closeRegisterClass')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('do not success close register because req.body invalid', (done) => {
+    request(app)
+      .put('/academy/closeRegisterClass')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: ''
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        done();
+      });
+  });
+
+  it('Can not connect to network', (done) => {
+    connect.returns(null);
+
+    request(app)
+      .put('/academy/closeRegisterClass')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: 'b2ab2fbd-1053-4848-aac9-2090fee54074'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain!');
+        done();
+      });
+  });
+
+  it('Can not query chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+    query.returns({
+      success: false,
+      msg: 'Can not query in chaincode!'
+    });
+    request(app)
+      .put('/academy/closeRegisterClass')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: 'b2ab2fbd-1053-4848-aac9-2090fee54074'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not query in chaincode!');
+        done();
+      });
+  });
+
+  it('Can not close register because class status != Open', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+    let data = JSON.stringify({
+      ClassId: 'b2ab2fbd-1053-4848-aac9-2090fee54074',
+      Status: 'Close Register'
+    });
+    query.returns({
+      success: true,
+      msg: data
+    });
+    request(app)
+      .put('/academy/closeRegisterClass')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: 'b2ab2fbd-1053-4848-aac9-2090fee54074'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not close register!');
+        done();
+      });
+  });
+
+  it('Invoke chaincode failed', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let data = JSON.stringify({
+      ClassId: 'b2ab2fbd-1053-4848-aac9-2090fee54074',
+      Status: 'Register Open'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    closeRegisterClass.returns({
+      success: false,
+      msg: 'Invoke failed'
+    });
+
+    request(app)
+      .put('/academy/closeRegisterClass')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: 'b2ab2fbd-1053-4848-aac9-2090fee54074'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Invoke failed');
+        done();
+      });
+  });
+
+  it('Close Successfully', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let data = JSON.stringify({
+      ClassId: 'b2ab2fbd-1053-4848-aac9-2090fee54074',
+      Status: 'Register Open'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    closeRegisterClass.returns({
+      success: true
+    });
+
+    request(app)
+      .put('/academy/closeRegisterClass')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: 'b2ab2fbd-1053-4848-aac9-2090fee54074'
+      })
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        expect(res.body.msg).equal('Close Successfully!');
+        done();
+      });
+  });
+});

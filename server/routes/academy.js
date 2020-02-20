@@ -726,4 +726,69 @@ router.delete(
     });
   }
 );
+
+// Update subject
+router.put(
+  '/closeRegisterClass',
+  checkJWT,
+  [
+    body('classId')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape()
+  ],
+  async (req, res, next) => {
+    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied'
+      });
+    }
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, errors: errors.array() });
+    }
+
+    let classId = req.body.classId;
+    let networkObj = await network.connectToNetwork(req.decoded.user);
+    if (!networkObj) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Failed connect to blockchain!'
+      });
+    }
+    const responseQuery = await network.query(networkObj, 'QueryClass', classId);
+
+    if (!responseQuery.success) {
+      return res.status(500).json({
+        success: false,
+        msg: responseQuery.msg.toString()
+      });
+    }
+
+    let classInfo = JSON.parse(responseQuery.msg);
+    if (classInfo.Status !== 'Register Open') {
+      return res.status(500).json({
+        success: false,
+        msg: 'Can not close register!'
+      });
+    }
+
+    networkObj = await network.connectToNetwork(req.decoded.user);
+    const response = await network.closeRegisterClass(networkObj, classId);
+
+    if (!response.success) {
+      return res.status(500).json({
+        success: false,
+        msg: response.msg.toString()
+      });
+    }
+    return res.json({
+      success: true,
+      msg: 'Close Successfully!'
+    });
+  }
+);
 module.exports = router;
