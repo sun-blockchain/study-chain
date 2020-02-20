@@ -174,6 +174,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return GetAllCourses(stub)
 	} else if function == "UpdateCourseInfo" {
 		return UpdateCourseInfo(stub, args)
+	} else if function == "UpdateClassInfo" {
+		return UpdateClassInfo(stub, args)
 	} else if function == "DeleteCourse" {
 		return DeleteCourse(stub, args)
 	} else if function == "UpdateUserInfo" {
@@ -442,6 +444,55 @@ func UpdateCourseInfo(stub shim.ChaincodeStubInterface, args []string) sc.Respon
 	courseAsBytes, _ := json.Marshal(course)
 
 	stub.PutState(keyCourse, courseAsBytes)
+
+	return shim.Success(nil)
+}
+
+
+func UpdateClassInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		return shim.Error("Error - cid.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		return shim.Error("Permission Denied!")
+	}
+
+	if len(args) != 6 {
+		return shim.Error("Incorrect number of arguments. Expecting 6")
+	}
+
+	ClassID := args[0]
+	ClassCode := args[1]
+	Room := args[2]
+	Time := args[3]
+	ShortDescription := args[4]
+	Description := args[5]
+
+	keyClass := "Class-" + ClassID
+	class, err := getClass(stub, keyClass)
+
+	if err != nil {
+
+		return shim.Error("Class does not exist !")
+	}
+
+	class.ClassCode = ClassCode
+
+	class.Room = Room
+
+	class.Time = Time
+
+	class.ShortDescription = ShortDescription
+
+	class.Description = Description
+
+	classAsBytes, _ := json.Marshal(class)
+
+	stub.PutState(keyClass, classAsBytes)
 
 	return shim.Success(nil)
 }

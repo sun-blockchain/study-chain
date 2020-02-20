@@ -455,7 +455,91 @@ router.post(
     }
   }
 );
+// Edit class
+router.put(
+  '/class',
+  checkJWT,
+  [
+    body('classId')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('classCode')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('room')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('time')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('shortDescription')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('description')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('subjectId')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape()
+  ],
+  async (req, res) => {
+    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied'
+      });
+    } else {
+      const errors = validationResult(req);
 
+      if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() });
+      }
+
+      const user = req.decoded.user;
+      const networkObj = await network.connectToNetwork(user);
+
+      const { classId, classCode, room, time, shortDescription, description, subjectId } = req.body;
+
+      let _class = {
+        classId: classId,
+        classCode: classCode,
+        room: room,
+        time: time,
+        shortDescription: shortDescription,
+        description: description
+      };
+      const response = await network.updateClassInfo(networkObj, _class);
+
+      if (!response.success) {
+        return res.status(500).json({
+          success: false,
+          msg: response.msg
+        });
+      }
+
+      const listNewClass = await network.query(networkObj, 'GetAllClassesOfSubject', subjectId);
+
+      return res.json({
+        success: true,
+        classes: JSON.parse(listNewClass.msg)
+      });
+    }
+  }
+);
 // Create subject
 router.post(
   '/subject',

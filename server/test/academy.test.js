@@ -485,6 +485,128 @@ describe('#POST /academy/:subjectId/class', () => {
       });
   });
 });
+describe('#PUT /class', () => {
+  let connect;
+  let query;
+  let updateClassInfo;
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+    updateClassInfo = sinon.stub(network, 'updateClassInfo');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+    updateClassInfo.restore();
+  });
+
+  it('permission denied when access routes with student', (done) => {
+    request(app)
+      .put(`/academy/class`)
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('permission denied when access routes with teacher', (done) => {
+    request(app)
+      .put(`/academy/class`)
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('success edit class', (done) => {
+    let data = JSON.stringify({
+      classId: '123-123',
+      classCode: 'CACLC2',
+      room: 'Blockchain101',
+      time: '12122020',
+      shortDescription: 'short',
+      description: 'long',
+      subjectId: 'sj'
+    });
+
+    updateClassInfo.returns({
+      success: true,
+      msg: 'Edit success!'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .put(`/academy/class`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: '123-123',
+        classCode: 'CACLC1',
+        room: 'Blockchain101',
+        time: '12122020',
+        shortDescription: 'short',
+        description: 'long',
+        subjectId: 'sj'
+      })
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        done();
+      });
+  });
+
+  it('do not success edit class because req.body invalid', (done) => {
+    request(app)
+      .put(`/academy/class`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: '123-123',
+        classCode: '',
+        room: 'Blockchain101',
+        time: '12122020',
+        shortDescription: 'short',
+        description: 'long',
+        subjectId: 'sj'
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        done();
+      });
+  });
+
+  it('edit course info fail when call editClassInfo function', (done) => {
+    updateClassInfo.returns({
+      success: false,
+      msg: 'Error chaincode'
+    });
+
+    request(app)
+      .put(`/academy/class`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: '123-123',
+        classCode: 'CACLC1',
+        room: 'Blockchain101',
+        time: '12122020',
+        shortDescription: 'short',
+        description: 'long',
+        subjectId: 'sj'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+});
 
 describe('#POST /academy/subject', () => {
   let connect;
