@@ -5,6 +5,7 @@ const request = require('supertest');
 const sinon = require('sinon');
 const network = require('../fabric/network');
 const app = require('../app');
+const USER_ROLES = require('../configs/constant').USER_ROLES;
 
 require('dotenv').config();
 
@@ -298,6 +299,130 @@ describe('#GET /common/subject/:subjectId', () => {
       .then((res) => {
         expect(res.status).equal(500);
         expect(res.body.success).equal(false);
+        done();
+      });
+  });
+});
+
+describe('#GET /common/class/:classId', () => {
+  let connect;
+  let query;
+  let classId = '4ca7fc39-7523-424d-984e-87ea590cac68';
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+  });
+
+  it('Can not connect to network', (done) => {
+    connect.returns(null);
+
+    request(app)
+      .get(`/common/class/${classId}`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain!');
+        done();
+      });
+  });
+
+  it('Can not query chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    query.returns({
+      success: false,
+      msg: 'Can not query chaincode!'
+    });
+
+    request(app)
+      .get(`/common/class/${classId}`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not query chaincode!');
+        done();
+      });
+  });
+
+  it('success query subject with admin', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let data = JSON.stringify({
+      ClassId: '4ca7fc39-7523-424d-984e-87ea590cac68',
+      ClassCode: 'Class01',
+      Room: 'Room01',
+      Time: 'Time',
+      Status: 'Register Open',
+      ShortDescription: 'aaaa',
+      Description: 'bbbb',
+      Students: ['student1', 'student2']
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .get(`/common/class/${classId}`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        expect(res.body.class.Students.length).equal(2);
+        done();
+      });
+  });
+
+  it('success query class with student', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    let data = JSON.stringify({
+      ClassId: '4ca7fc39-7523-424d-984e-87ea590cac68',
+      ClassCode: 'Class01',
+      Room: 'Room01',
+      Time: 'Time',
+      Status: 'Register Open',
+      ShortDescription: 'aaaa',
+      Description: 'bbbb',
+      Students: ['student1', 'student2']
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .get(`/common/class/${classId}`)
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        expect(res.body.class.Students).equal(undefined);
         done();
       });
   });
