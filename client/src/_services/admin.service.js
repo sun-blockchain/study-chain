@@ -18,6 +18,7 @@ export const adminService = {
   deleteStudentOfSubject,
   getAllTeachers,
   deleteTeacher,
+  getSubject,
   getSubjectsOfTeacher,
   deleteSubjectOfTeacher,
   addSubjectOfTeacher,
@@ -504,6 +505,20 @@ async function confirmCertificate(studentUsername, subjectId) {
     let respone = await axios.post(
       `${process.env.VUE_APP_API_BACKEND}/certificate/create`,
       { studentUsername: studentUsername, subjectId: subjectId },
+      {
+        headers: authHeader()
+      }
+    );
+    return respone.data;
+  } catch (error) {
+    throw error;
+  }
+}
+// Get subject by id
+async function getSubject(subjectId) {
+  try {
+    let respone = await axios.get(
+      `${process.env.VUE_APP_API_BACKEND}/common/subject/${subjectId}`,
       {
         headers: authHeader()
       }
