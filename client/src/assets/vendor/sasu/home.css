@@ -211,6 +211,10 @@ ul.social-network li {
   opacity: 0.8;
 }
 
+.el-dialog__title {
+  font-size: 24px;
+}
+
 @media (max-width: 768px) {
   .table-responsive {
     overflow-x: auto;
@@ -220,7 +224,7 @@ ul.social-network li {
     width: 100%;
   }
 
-  .modal-md-45-sm-90 .el-dialog {
+  .modal-md-25-sm-90 .el-dialog {
     width: 90%;
   }
 }
