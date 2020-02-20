@@ -30,6 +30,9 @@
                   />
                 </template>
                 <template slot-scope="scope">
+                  <el-tooltip v-if="btnRegister" class="item" content="Register" placement="top">
+                    <el-button icon="fa fa-registered" type="primary" round size="mini"></el-button>
+                  </el-tooltip>
                   <el-tooltip v-if="btnDetail" class="item" content="Detail" placement="top">
                     <el-button
                       plain
@@ -104,6 +107,7 @@ export default {
     listAll: Array,
     btnDetail: Boolean,
     btnInfo: Boolean,
+    btnRegister: Boolean,
     nameFunctionDetail: String,
     nameFunctionInfo: String,
     loadingData: Boolean,
