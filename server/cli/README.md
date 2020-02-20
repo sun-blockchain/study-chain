@@ -88,6 +88,10 @@ node query.js --username=adminacademy --func=GetAllSubjects
 ```
 
 ```bash
+node query.js --username=adminacademy --func=GetAllClasses
+```
+
+```bash
 node query.js --username=adminacademy --func=QuerySubject --args=ethereum
 ```
 
@@ -175,6 +179,10 @@ node invoke.js --username=adminacademy --func=AddSubjectToCourse --courseId=xxxx
 
 ```bash
 node invoke.js --username=adminacademy --func=RemoveSubjectFromCourse --courseId=xxxx --subjectId=xxxx
+```
+
+```bash
+node invoke.js --username=adminacademy --func=CloseRegisterClass --classId=xxxx
 ```
 
 ```bash

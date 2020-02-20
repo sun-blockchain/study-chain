@@ -422,7 +422,7 @@ router.post(
       const { classCode, room, time, shortDescription, description } = req.body;
 
       let _class = {
-        classID: uuidv4(),
+        classId: uuidv4(),
         classCode: classCode,
         room: room,
         time: time,
