@@ -264,6 +264,37 @@ async function main() {
           await conn.createScore(networkObj, score);
           console.log('Transaction has been submitted');
           process.exit(0);
+        } else if (functionName === 'CreateClass' && user.role === USER_ROLES.ADMIN_ACADEMY) {
+          /**
+           * Create Score
+           * @param  {String} classcode
+           * @param  {String} room
+           * @param  {String} time
+           * @param  {String} shortdescription
+           * @param  {String} description
+           * @param  {String} subjectId
+           *
+           */
+          let classCode = argv.classCode.toString();
+          let room = argv.room.toString();
+          let time = argv.time.toString();
+          let shortDescription = argv.shortDescription.toString();
+          let description = argv.description.toString();
+          let subjectId = argv.subjectId.toString();
+
+          let _class = {
+            classID: uuidv4(),
+            classCode,
+            room,
+            time,
+            shortDescription,
+            description,
+            subjectId
+          };
+
+          await conn.createClass(networkObj, _class);
+          console.log('Transaction has been submitted');
+          process.exit(0);
         } else {
           console.log('Failed!');
           process.exit(0);

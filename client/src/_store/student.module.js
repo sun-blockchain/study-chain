@@ -6,7 +6,9 @@ const state = {
   listSubjects: [],
   mySubjects: [],
   myCertificates: [],
-  listCourses: []
+  listCourses: [],
+  listClasses: [],
+  subject: null
 };
 
 const actions = {
@@ -22,6 +24,15 @@ const actions = {
       }
     }
   },
+  async getSubject({ commit }, subjectId) {
+    try {
+      let subject = await studentService.getSubject(subjectId);
+      commit('getSubject', subject);
+      return subject;
+    } catch (error) {
+      console.log(error);
+    }
+  },
   async getSubjectsOfCourse({ commit }, courseId) {
     try {
       let listSubjects = await studentService.getSubjectsOfCourse(courseId);
@@ -32,6 +43,14 @@ const actions = {
       if (error.response.status === 403) {
         router.push('/403');
       }
+    }
+  },
+  async getClassesOfSubject({ commit }, subjectId) {
+    try {
+      let listClasses = await studentService.getClassesOfSubject(subjectId);
+      commit('getClassesOfSubject', listClasses);
+    } catch (error) {
+      console.log(error);
     }
   },
   async getAllCourses({ commit }) {
@@ -97,6 +116,9 @@ const mutations = {
   getCourse(state, listCourses) {
     state.listCourses = listCourses;
   },
+  getSubject(state, subject) {
+    state.subject = subject;
+  },
   getSubjectsOfCourse(state, listSubjects) {
     state.listSubjects = listSubjects;
   },
@@ -105,6 +127,9 @@ const mutations = {
   },
   getAllSubjects(state, listSubjects) {
     state.listSubjects = listSubjects;
+  },
+  getClassesOfSubject(state, listClasses) {
+    state.listClasses = listClasses;
   },
   registerSubject(state, listSubjects) {
     state.listSubjects = listSubjects;

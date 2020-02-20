@@ -48,7 +48,7 @@ export default {
   methods: {
     ...mapActions("student", ["getAllCourses", "getCourse"]),
     detailCourse(row) {
-      this.$router.push({ path: `courses/${row.CourseID}/course-detail` });
+      this.$router.push({ path: `courses/${row.CourseID}` });
     }
   },
   computed: {
