@@ -101,7 +101,21 @@ const actions = {
       }
     }
   },
+  // get subject by id
+  async getSubject({ commit }, subjectId) {
+    try {
+      let data = await adminService.getSubject(subjectId);
+      commit('getSubject', data.subject);
+      return data.subject;
+    } catch (error) {
+      console.log(error);
+      // if (error.response.status === 403) {
+      //   router.push('/403');
+      // }
 
+      return error.response;
+    }
+  },
   // Subjects of Course
 
   async getSubjectsNoCourse({ commit }, courseId) {
@@ -395,6 +409,9 @@ const mutations = {
     state.listSubjects = listSubjects;
   },
   createSubject(state, listSubjects) {
+    state.listSubjects = listSubjects;
+  },
+  getSubject(state, listSubjects) {
     state.listSubjects = listSubjects;
   },
   updateSubject(state, listSubjects) {

@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid">
-    <h1 class="bannerTitle_1wzmt7u">Tên môn học</h1>
+    <h1 class="bannerTitle_1wzmt7u">{{ listSubjects.SubjectName }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item href="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
       <b-breadcrumb-item href="/academy/subjects">Subject</b-breadcrumb-item>
@@ -11,7 +11,7 @@
         <div class="card-body">
           <h1 class="h3 mb-2 text-gray-800">About this subject</h1>
 
-          <p>Description</p>
+          <p>{{ listSubjects.Description }}</p>
         </div>
       </div>
     </div>
@@ -29,8 +29,7 @@
         { prop: 'ClassCode', label: 'ClassCode' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
-        { prop: 'ShortDescription', label: 'Short Description' },
-        { prop: 'Description', label: 'Description' }
+        { prop: 'ShortDescription', label: 'Description' }
       ]"
       @detailClass="detailClass($event)"
       @modalEdit="modalEdit($event)"
@@ -246,6 +245,7 @@ export default {
   },
   methods: {
     ...mapActions('adminAcademy', [
+      'getSubject',
       'getClassesOfSubject',
       'createClass',
       'updateClass',
@@ -333,13 +333,25 @@ export default {
     }
   },
   computed: {
-    ...mapState('adminAcademy', ['listClasses', 'listSubject'])
+    ...mapState('adminAcademy', ['listClasses', 'listSubjects'])
   },
   async created() {
     let classes = await this.getClassesOfSubject(this.$route.params.id);
-    if (classes) {
+    let subject = await this.getSubject(this.$route.params.id);
+    if (classes && subject) {
       this.loadingData = false;
     }
   }
 };
 </script>
+<style scoped>
+.bannerTitle_1wzmt7u {
+  font-family: 'OpenSans-Bold', Arial, sans-serif;
+  font-size: 34px;
+  line-height: 46px;
+  font-weight: 700;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  color: blue;
+}
+</style>
