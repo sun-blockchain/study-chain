@@ -202,6 +202,15 @@ ul.social-network li {
   border-radius: 10px;
 }
 
+.modal-md-25-sm-90 .el-dialog {
+  width: 25%;
+  border-radius: 10px;
+}
+
+.el-loading-mask {
+  opacity: 0.8;
+}
+
 @media (max-width: 768px) {
   .table-responsive {
     overflow-x: auto;
@@ -209,6 +218,10 @@ ul.social-network li {
 
   .modal-with-create .el-dialog {
     width: 100%;
+  }
+
+  .modal-md-45-sm-90 .el-dialog {
+    width: 90%;
   }
 }
 

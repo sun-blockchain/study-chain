@@ -10,7 +10,8 @@ const state = {
   studentsOfSubject: [],
   subjectsOfTeacher: [],
   subjectOfStudent: [],
-  subjectsNoTeacher: []
+  subjectsNoTeacher: [],
+  subjectsOfCourse: []
 };
 
 const actions = {
@@ -26,11 +27,14 @@ const actions = {
       // }
     }
   },
+
+  // Courses Manager
   async getCourse({ commit }, courseId) {
     try {
-      let listCourses = await adminService.getCourse(courseId);
-      commit('getCourse', listCourses);
-      return listCourses;
+      let data = await adminService.getCourse(courseId);
+      commit('getCourse', data.course);
+      commit('getSubjectsOfCourse', data.listSubjects);
+      return data.course;
     } catch (error) {
       console.log(error);
       if (error.response.status === 403) {
@@ -85,6 +89,48 @@ const actions = {
       }
     }
   },
+
+  // Subjects of Course
+
+  async getSubjectsNoCourse({ commit }, courseId) {
+    try {
+      let data = await adminService.getSubjectsNoCourse(courseId);
+      return data;
+    } catch (error) {
+      console.log(error);
+      // if (error.response.status === 403) {
+      //   router.push('/403');
+      // }
+      return error.response;
+    }
+  },
+
+  async addSubjectToCourse({ commit }, { courseId, subjectId }) {
+    try {
+      let data = await adminService.addSubjectToCourse(courseId, subjectId);
+      return data;
+    } catch (error) {
+      console.log(error);
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+      return error.response;
+    }
+  },
+
+  async deleteSubjectFromCourse({ commit }, { courseId, subjectId }) {
+    try {
+      let data = await adminService.deleteSubjectFromCourse(courseId, subjectId);
+      return data;
+    } catch (error) {
+      console.log(error);
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+      return error.response;
+    }
+  },
+
   // Subjects Manager
   async getAllSubjects({ commit }) {
     try {
@@ -259,17 +305,6 @@ const actions = {
       }
     }
   },
-  async getStudentsOfCourse({ commit }) {
-    try {
-      let listStudents = await adminService.getStudentsOfCourse();
-      commit('getStudentsOfCourse', listStudents);
-    } catch (error) {
-      console.log(error);
-      // if (error.response.status === 403) {
-      //   router.push('/403');
-      // }
-    }
-  },
   async getClassesOfSubject({ commit }, subjectId) {
     try {
       let listClasses = await adminService.getClassesOfSubject(subjectId);
@@ -407,8 +442,8 @@ const mutations = {
   confirmCertificate(state, studentsOfSubject) {
     state.studentsOfSubject = studentsOfSubject;
   },
-  getStudentsOfCourse(state, listStudents) {
-    state.listStudents = listStudents;
+  getSubjectsOfCourse(state, listSubjects) {
+    state.subjectsOfCourse = listSubjects;
   }
 };
 

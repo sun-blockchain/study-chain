@@ -81,7 +81,7 @@ router.put(
   }
 );
 
-// Create new course
+// Subject of course
 router.post(
   '/addSubjectToCourse',
   checkJWT,
@@ -107,7 +107,7 @@ router.post(
     let errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
+      return res.status(422).json({ success: false, errors: errors.array() });
     }
 
     let user = req.decoded.user;
@@ -188,7 +188,6 @@ router.post(
     networkObj = await network.connectToNetwork(user);
 
     let response = await network.removeSubjectFromCourse(networkObj, courseId, subjectId);
-
     if (!response.success) {
       return res.status(500).json({
         success: false,
@@ -202,6 +201,62 @@ router.post(
     });
   }
 );
+
+router.get(
+  '/subjectNoCourse/:courseId',
+  checkJWT,
+  check('courseId')
+    .trim()
+    .escape(),
+  async (req, res) => {
+    const courseId = req.params.courseId;
+
+    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied'
+      });
+    }
+    let errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, errors: errors.array() });
+    }
+
+    const user = req.decoded.user;
+    const networkObj = await network.connectToNetwork(user);
+    if (!networkObj) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Failed connect to blockchain'
+      });
+    }
+    const courseQuery = await network.query(networkObj, 'QueryCourse', courseId);
+    const allSubjecyQuery = await network.query(networkObj, 'GetAllSubjects');
+
+    if (!courseQuery.success || !allSubjecyQuery.success) {
+      return res.status(500).send({
+        success: false,
+        msg: 'Query chaincode failed'
+      });
+    }
+
+    let listSubjectIn = JSON.parse(courseQuery.msg).Subjects
+      ? JSON.parse(courseQuery.msg).Subjects
+      : [];
+    let listSubjectAll = JSON.parse(allSubjecyQuery.msg);
+    let listSubjectOutside = listSubjectAll.filter(
+      (subject) => !listSubjectIn.includes(subject.SubjectID)
+    );
+
+    return res.json({
+      success: true,
+      subjects: listSubjectOutside
+    });
+  }
+);
+
+// Course Manager
 
 router.post(
   '/course',
@@ -572,7 +627,6 @@ router.delete(
     let { subjectId } = req.body;
 
     let networkObj = await network.connectToNetwork(req.decoded.user);
-
     const response = await network.deleteSubject(networkObj, subjectId);
 
     if (!response.success) {
