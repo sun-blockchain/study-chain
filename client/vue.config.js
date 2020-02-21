@@ -1,6 +1,9 @@
 const webpack = require('webpack');
 
 module.exports = {
+  chainWebpack: (config) => {
+    config.performance.maxEntrypointSize(2000000).maxAssetSize(2000000);
+  },
   configureWebpack: {
     // Set up all the aliases we use in our app.
     plugins: [
@@ -17,7 +20,7 @@ module.exports = {
     appleMobileWebAppStatusBarStyle: '#172b4d'
   },
   css: {
-    // Enable CSS source maps.
-    sourceMap: process.env.NODE_ENV !== 'production'
+    sourceMap: true,
+    extract: false
   }
 };
