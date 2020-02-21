@@ -4,6 +4,9 @@ import axios from 'axios';
 export const adminService = {
   createClass,
   updateClass,
+  getClass,
+  deleteClass,
+  closeClass,
   getCourse,
   createCourse,
   updateCourse,
@@ -278,7 +281,8 @@ async function createClass(_class) {
         room: _class.Room,
         time: _class.Time,
         shortDescription: _class.ShortDescription,
-        description: _class.Description
+        description: _class.Description,
+        capacity: _class.Capacity
       },
       {
         headers: authHeader()
@@ -300,7 +304,8 @@ async function updateClass(_class) {
         time: _class.Time,
         shortDescription: _class.ShortDescription,
         description: _class.Description,
-        subjectId: _class.SubjectId
+        subjectId: _class.SubjectId,
+        capacity: _class.Capacity
       },
       {
         headers: authHeader()
@@ -308,6 +313,48 @@ async function updateClass(_class) {
     );
     return respone.data.classes;
   } catch (error) {
+    throw error;
+  }
+}
+async function closeClass(classId) {
+  try {
+    let respone = await axios.put(
+      `${process.env.VUE_APP_API_BACKEND}/academy/closeRegisterClass`,
+      { classId: classId },
+      {
+        headers: authHeader()
+      }
+    );
+    return respone.data.success;
+  } catch (error) {
+    throw error;
+  }
+}
+//get class by id
+async function getClass(classId) {
+  try {
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/common/class/${classId}`, {
+      headers: authHeader()
+    });
+    return respone.data.class;
+  } catch (error) {
+    throw error;
+  }
+}
+async function deleteClass(subjectId, classId) {
+  try {
+    let respone = await axios.post(
+      `${process.env.VUE_APP_API_BACKEND}/academy/removeClassFromSubject`,
+      { subjectId: subjectId, classId: classId },
+      {
+        headers: authHeader()
+      }
+    );
+
+    return respone.data.courses;
+  } catch (error) {
+    console.log(error);
+
     throw error;
   }
 }

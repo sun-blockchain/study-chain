@@ -513,7 +513,7 @@ func UpdateClassInfo(stub shim.ChaincodeStubInterface, args []string) sc.Respons
 	}
 
 	if len(args) != 7 {
-		return shim.Error("Incorrect number of arguments. Expecting 6")
+		return shim.Error("Incorrect number of arguments. Expecting 7")
 	}
 
 	ClassID := args[0]
