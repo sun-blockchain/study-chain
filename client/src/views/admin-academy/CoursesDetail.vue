@@ -2,7 +2,9 @@
   <div class="container-fluid" v-loading.fullscreen.lock="fullscreenLoading">
     <h1 class="bannerTitle_1wzmt7u">{{ listCourses.CourseName }}</h1>
     <b-breadcrumb>
-      <b-breadcrumb-item href="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
+      <b-breadcrumb-item href="/academy">
+        <i class="blue fas fa-home"></i>Home
+      </b-breadcrumb-item>
       <b-breadcrumb-item href="/academy/courses">Course</b-breadcrumb-item>
       <b-breadcrumb-item active>Course Detail</b-breadcrumb-item>
     </b-breadcrumb>
@@ -76,35 +78,36 @@
     >
       <el-form :model="infoSubject" ref="infoSubject">
         <div class="form-group">
-          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
-            >Subject Name</label
-          >
+          <label
+            for="colFormLabelLg"
+            class="col-sm-12 col-form-label col-form-label-md"
+          >Subject Name</label>
           <div class="col-sm-12">
             <h4 class="pl-3">{{ infoSubject.subjectName }}</h4>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
-            >Subject Code</label
-          >
+          <label
+            for="colFormLabelLg"
+            class="col-sm-12 col-form-label col-form-label-md"
+          >Subject Code</label>
           <div class="col-sm-12">
             <h4 class="pl-3">{{ infoSubject.subjectCode }}</h4>
           </div>
         </div>
         <div class="form-group">
-          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
-            >Short Description</label
-          >
+          <label
+            for="colFormLabelLg"
+            class="col-sm-12 col-form-label col-form-label-md"
+          >Short Description</label>
           <div class="col-sm-12">
             <h4 class="pl-3">{{ infoSubject.shortDescription }}</h4>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
-            >Description</label
-          >
+          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md">Description</label>
           <div class="col-sm-12">
             <h4 class="pl-3">{{ infoSubject.description }}</h4>
           </div>
@@ -118,50 +121,59 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex';
-import { ValidationObserver, ValidationProvider } from 'vee-validate';
-import TableAdmin from '@/components/admin-academy/TableAdmin';
-import { Button, Select, Option, Dialog, Form, FormItem, Message, MessageBox } from 'element-ui';
+import { mapState, mapActions } from "vuex";
+import { ValidationObserver, ValidationProvider } from "vee-validate";
+import TableAdmin from "@/components/admin-academy/TableAdmin";
+import {
+  Button,
+  Select,
+  Option,
+  Dialog,
+  Form,
+  FormItem,
+  Message,
+  MessageBox
+} from "element-ui";
 export default {
   components: {
     ValidationObserver,
     ValidationProvider,
     TableAdmin,
-    'el-button': Button,
-    'el-select': Select,
-    'el-option': Option,
-    'el-dialog': Dialog,
-    'el-form': Form,
-    'el-form-item': FormItem
+    "el-button": Button,
+    "el-select": Select,
+    "el-option": Option,
+    "el-dialog": Dialog,
+    "el-form": Form,
+    "el-form-item": FormItem
   },
   data() {
     return {
       items: [
         {
-          text: 'Course',
+          text: "Course",
           href: `${process.env.VUE_APP_API_BACKEND}/academy/courses`
         },
         {
-          text: 'Course Detail',
+          text: "Course Detail",
           active: true
         }
       ],
       course: {
-        courseCode: '',
-        courseName: '',
-        description: ''
+        courseCode: "",
+        courseName: "",
+        description: ""
       },
       subjectsNoCourse: [],
       editStudent: {
-        StudentID: '',
-        StudentCode: '',
-        StudentName: '',
-        Class: ''
+        StudentID: "",
+        StudentCode: "",
+        StudentName: "",
+        Class: ""
       },
       newStudent: {
-        StudentCode: '',
-        StudentName: '',
-        Class: ''
+        StudentCode: "",
+        StudentName: "",
+        Class: ""
       },
       fullscreenLoading: false,
       loadingData: false,
@@ -169,13 +181,15 @@ export default {
         subjectId: null
       },
       ruleAdd: {
-        subjectId: [{ required: true, message: 'Subject is required', trigger: 'blur' }]
+        subjectId: [
+          { required: true, message: "Subject is required", trigger: "blur" }
+        ]
       },
       infoSubject: {
-        subjectName: '',
-        subjectCode: '',
-        shortDescription: '',
-        description: ''
+        subjectName: "",
+        subjectCode: "",
+        shortDescription: "",
+        description: ""
       },
       dialogForm: {
         infoSubject: false,
@@ -184,20 +198,20 @@ export default {
     };
   },
   methods: {
-    ...mapActions('adminAcademy', [
-      'getCourse',
-      'getSubjectsNoCourse',
-      'addSubjectToCourse',
-      'deleteSubjectFromCourse'
+    ...mapActions("adminAcademy", [
+      "getCourse",
+      "getSubjectsNoCourse",
+      "addSubjectToCourse",
+      "deleteSubjectFromCourse"
     ]),
     detailStudent(row) {
       this.$router.push({ path: `subjects/${row.StudentID}/students` });
     },
     async delStudent(row) {
-      MessageBox.confirm(`You won't be able to revert this!`, 'Delete', {
-        confirmButtonText: 'OK',
-        cancelButtonText: 'Cancel',
-        type: 'warning',
+      MessageBox.confirm(`You won't be able to revert this!`, "Delete", {
+        confirmButtonText: "OK",
+        cancelButtonText: "Cancel",
+        type: "warning",
         center: true
       })
         .then(async () => {
@@ -208,11 +222,13 @@ export default {
           });
           if (data.success) {
             await this.getCourse(this.$route.params.id);
-            let subjectsNoCourse = await this.getSubjectsNoCourse(this.$route.params.id);
+            let subjectsNoCourse = await this.getSubjectsNoCourse(
+              this.$route.params.id
+            );
             if (subjectsNoCourse.success) {
               this.subjectsNoCourse = subjectsNoCourse.subjects;
             }
-            Message.success('Delete completed!');
+            Message.success("Delete completed!");
           } else {
             if (data.data.msg) {
               Message.error(data.data.msg);
@@ -223,12 +239,12 @@ export default {
           this.fullscreenLoading = false;
         })
         .catch(() => {
-          Message.info('Delete canceled');
+          Message.info("Delete canceled");
         });
     },
     async handleAddSubject(formName) {
       let self = this;
-      this.$refs[formName].validate(async (valid) => {
+      this.$refs[formName].validate(async valid => {
         if (valid) {
           self.fullscreenLoading = true;
           let data = await self.addSubjectToCourse({
@@ -237,18 +253,20 @@ export default {
           });
           if (data.success) {
             await self.getCourse(this.$route.params.id);
-            let subjectsNoCourse = await self.getSubjectsNoCourse(self.$route.params.id);
+            let subjectsNoCourse = await self.getSubjectsNoCourse(
+              self.$route.params.id
+            );
             if (subjectsNoCourse.success) {
               self.subjectsNoCourse = subjectsNoCourse.subjects;
             }
-            self.resetAddSubject('formAdd');
-            Message.success('Add subject to course success!');
+            self.resetAddSubject("formAdd");
+            Message.success("Add subject to course success!");
           } else {
             Message.error(data.msg);
           }
           self.fullscreenLoading = false;
         } else {
-          console.log('error submit!!');
+          console.log("error submit!!");
           return false;
         }
       });
@@ -265,21 +283,23 @@ export default {
       this.dialogForm.infoSubject = true;
     },
     resetForm(formName) {
-      this[formName].subjectId = '';
-      this[formName].subjectName = '';
-      this[formName].subjectCode = '';
-      this[formName].shortDescription = '';
-      this[formName].description = '';
+      this[formName].subjectId = "";
+      this[formName].subjectName = "";
+      this[formName].subjectCode = "";
+      this[formName].shortDescription = "";
+      this[formName].description = "";
       this.$refs[formName].resetFields();
       this.dialogForm[formName] = false;
     }
   },
   computed: {
-    ...mapState('adminAcademy', ['subjectsOfCourse', 'listCourses'])
+    ...mapState("adminAcademy", ["subjectsOfCourse", "listCourses"])
   },
   async created() {
     await this.getCourse(this.$route.params.id);
-    let subjectsNoCourse = await this.getSubjectsNoCourse(this.$route.params.id);
+    let subjectsNoCourse = await this.getSubjectsNoCourse(
+      this.$route.params.id
+    );
     if (subjectsNoCourse.success) {
       this.subjectsNoCourse = subjectsNoCourse.subjects;
     }
@@ -292,7 +312,7 @@ export default {
   width: 100%;
 }
 .bannerTitle_1wzmt7u {
-  font-family: 'OpenSans-Bold', Arial, sans-serif;
+  font-family: "OpenSans-Bold", Arial, sans-serif;
   font-size: 34px;
   line-height: 46px;
   font-weight: 700;
