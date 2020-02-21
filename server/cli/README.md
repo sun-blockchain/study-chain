@@ -186,6 +186,10 @@ node invoke.js --username=adminacademy --func=RemoveSubjectFromCourse --courseId
 ```
 
 ```bash
+node invoke.js --username=adminacademy --func=RemoveClassFromSubject --subjectId=xxxx --classId=xxxx
+```
+
+```bash
 node invoke.js --username=adminacademy --func=CloseRegisterClass --classId=xxxx
 ```
 
@@ -202,5 +206,5 @@ node invoke.js --username=gv01 --func=CreateScore --subjectid=ethereum --student
 ```
 
 ```bash
-	node invoke.js --username=adminacademy --func=CreateCertificate --subjectid=ethereum --student=st01
+node invoke.js --username=adminacademy --func=CreateCertificate --subjectid=ethereum --student=st01
 ```

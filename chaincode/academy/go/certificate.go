@@ -195,6 +195,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return CloseRegisterClass(stub, args)
 	} else if function == "QueryClass" {
 		return QueryClass(stub, args)
+	} else if function == "RemoveClassFromSubject" {
+		return RemoveClassFromSubject(stub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name!")
@@ -401,6 +403,52 @@ func RemoveSubjectFromCourse(stub shim.ChaincodeStubInterface, args []string) sc
 	courseAsBytes, _ := json.Marshal(course)
 
 	stub.PutState(keyCourse, courseAsBytes)
+
+	return shim.Success(nil)
+
+}
+
+func RemoveClassFromSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		return shim.Error("Error - cid.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		return shim.Error("Permission Denied!")
+	}
+
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2")
+	}
+
+	SubjectID := args[0]
+	ClassID := args[1]
+
+	keySubject := "Subject-" + SubjectID
+	subject, err := getSubject(stub, keySubject)
+
+	if err != nil {
+		return shim.Error("This subject doesn't eixst!")
+	}
+
+	var i int
+	len := len(subject.Classes)
+
+	for i = 0; i < len; i++ {
+		if subject.Classes[i] == ClassID {
+			break
+		}
+	}
+
+	copy(subject.Classes[i:], subject.Classes[i+1:])
+	subject.Classes[len-1] = ""
+	subject.Classes = subject.Classes[:len-1]
+
+	subjectAsBytes, _ := json.Marshal(subject)
+
+	stub.PutState(keySubject, subjectAsBytes)
 
 	return shim.Success(nil)
 

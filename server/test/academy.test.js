@@ -1975,3 +1975,94 @@ describe('#PUT /academy/closeRegisterClass', () => {
       });
   });
 });
+
+describe('#POST /academy/removeClassFromSubject', () => {
+  let connect;
+  let removeClassFromSubject;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    removeClassFromSubject = sinon.stub(network, 'removeClassFromSubject');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    removeClassFromSubject.restore();
+  });
+
+  it('Permission denied when access routes with student', (done) => {
+    request(app)
+      .post('/academy/removeClassFromSubject')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('delete subject successfully', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    removeClassFromSubject.returns({
+      success: true,
+      msg: 'Successfully Removed!'
+    });
+
+    request(app)
+      .post('/academy/removeClassFromSubject')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        subjectId: '96e9ebca-0e3e-40f0-ac30-94827b0c013a',
+        classId: '12e9easa-0e3e-40f0-ac30-94827b0c013a'
+      })
+      .then((res) => {
+        expect(res.status).equal(200);
+        done();
+      });
+  });
+
+  it('delete subject failed because req.body is invalid', (done) => {
+    request(app)
+      .post('/academy/removeClassFromSubject')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        subjectId: '',
+        classId: '12e9easa-0e3e-40f0-ac30-94827b0c013a'
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        done();
+      });
+  });
+
+  it('delete subject failed because chaincode error', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    removeClassFromSubject.returns({
+      success: false,
+      msg: 'Failed Removed!'
+    });
+    request(app)
+      .post('/academy/removeClassFromSubject')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        subjectId: '96e9ebca-0e3e-40f0-ac30-94827b0c013a',
+        classId: '12e9easa-0e3e-40f0-ac30-94827b0c013a'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        done();
+      });
+  });
+});
