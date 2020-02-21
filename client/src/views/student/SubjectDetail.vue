@@ -30,12 +30,14 @@
       :listAll="listClasses"
       :loadingData="loadingData"
       :btnInfo="true"
+      :btnRegister="true"
       :nameFunctionInfo="`modalInfo`"
       :listProperties="[
         { prop: 'ClassCode', label: 'Class Code' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
         { prop: 'ShortDescription', label: 'Short Description' },
+        { prop: 'Status', label: 'Status' },
         { prop: 'Capacity', label: 'Capacity' }
       ]"
       @modalInfo="modalInfo($event)"
