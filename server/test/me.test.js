@@ -183,8 +183,8 @@ describe('PUT /account/me/info', () => {
       .put('/account/me/info')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        fullname: 'Trinh Van Tan',
-        phoneNumber: '+123456789',
+        fullName: 'Trinh Van Tan',
+        phoneNumber: { value: '+84 973241005', country: 'VN' },
         email: 'abc@gmail.com',
         address: 'KG',
         sex: 'Male',
@@ -212,8 +212,8 @@ describe('PUT /account/me/info', () => {
       .put('/account/me/info')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        fullname: 'Trinh Van Tan',
-        phoneNumber: '+123456789',
+        fullName: 'Trinh Van Tan',
+        phoneNumber: { value: '+84 973241005', country: 'VN' },
         email: 'abc@gmail.com',
         address: 'KG',
         sex: 'Male',
@@ -241,8 +241,8 @@ describe('PUT /account/me/info', () => {
       .put('/account/me/info')
       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
       .send({
-        fullname: 'Trinh Van Tan',
-        phoneNumber: '+123456789',
+        fullName: 'Trinh Van Tan',
+        phoneNumber: { value: '+84 973241005', country: 'VN' },
         email: 'abc@gmail.com',
         address: 'KG',
         sex: 'Male',
@@ -269,10 +269,11 @@ describe('PUT /account/me/info', () => {
       Fullname: 'Trinh Van Tan',
       Info: {
         Sex: 'Male',
-        PhoneNumber: '+123456789',
+        PhoneNumber: '+84 973241005',
         Email: 'abc@gmail.com',
         Address: 'KG',
-        Birthday: 'ABC'
+        Birthday: 'ABC',
+        Country: 'VN'
       }
     });
 
@@ -285,8 +286,8 @@ describe('PUT /account/me/info', () => {
       .put('/account/me/info')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        fullname: 'Trinh Van Tan',
-        phoneNumber: '+123456789',
+        fullName: 'Trinh Van Tan',
+        phoneNumber: { value: '+84 973241005', country: 'VN' },
         email: 'abc@gmail.com',
         address: 'KG',
         sex: 'Male',
@@ -316,7 +317,8 @@ describe('PUT /account/me/info', () => {
         PhoneNumber: '123456789',
         Email: 'abc',
         Address: 'KG',
-        Birthday: 'ABC'
+        Birthday: 'ABC',
+        Country: 'VN'
       }
     });
 
@@ -335,8 +337,8 @@ describe('PUT /account/me/info', () => {
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         username: 'hoangdd',
-        fullname: 'Trinh Van Tan',
-        phoneNumber: '+84382794668',
+        fullName: 'Trinh Van Tan',
+        phoneNumber: { value: '+84 973241005', country: 'VN' },
         email: 'bcd@gmail.com',
         address: 'KG',
         sex: 'Male',

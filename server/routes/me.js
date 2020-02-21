@@ -8,8 +8,9 @@ const checkJWT = require('../middlewares/check-jwt');
 const cloudinary = require('cloudinary').v2;
 const multipart = require('connect-multiparty');
 const multipartMiddleware = multipart();
-const validatePhoneNumber = require('validate-phone-number-node-js');
 const bcrypt = require('bcryptjs');
+const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
+const phone = require('phone');
 
 router.get('/', async (req, res) => {
   const user = req.decoded.user;
@@ -41,7 +42,8 @@ router.get('/', async (req, res) => {
       address: student.Info.Address,
       sex: student.Info.Sex,
       birthday: student.Info.Birthday,
-      avatar: student.Info.Avatar
+      avatar: student.Info.Avatar,
+      country: student.Info.Country
     });
   } else if (user.role === USER_ROLES.TEACHER) {
     const networkObj = await network.connectToNetwork(user);
@@ -71,7 +73,8 @@ router.get('/', async (req, res) => {
       address: teacher.Info.Address,
       birthday: teacher.Info.Birthday,
       sex: teacher.Info.Sex,
-      avatar: teacher.Info.Avatar
+      avatar: teacher.Info.Avatar,
+      country: teacher.Info.Country
     });
   } else if (user.role === USER_ROLES.ADMIN_ACADEMY || user.role === USER_ROLES.ADMIN_STUDENT) {
     return res.json({ success: true, username: user.username, role: user.role });
@@ -81,7 +84,7 @@ router.get('/', async (req, res) => {
 router.put(
   '/info',
   [
-    body('fullname')
+    body('fullName')
       .not()
       .isEmpty()
       .trim()
@@ -100,8 +103,9 @@ router.put(
       }
     }),
     body('phoneNumber').custom((phoneNumber) => {
-      if (phoneNumber) {
-        let result = validatePhoneNumber.validate(phoneNumber);
+      if (phoneNumber.value) {
+        const number = phoneUtil.parseAndKeepRawInput(phoneNumber.value, phoneNumber.country);
+        let result = phoneUtil.isValidNumberForRegion(number, phoneNumber.country);
         return result;
       } else {
         return true;
@@ -111,9 +115,8 @@ router.put(
 
   async (req, res) => {
     const errors = validationResult(req);
-
     if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
+      return res.status(422).json({ success: false, msg: errors.array().toString() });
     }
     const user = req.decoded.user;
     let networkObj = await network.connectToNetwork(user);
@@ -138,20 +141,22 @@ router.put(
       });
     }
     let userInfo = JSON.parse(response.msg);
-    let fullname = req.body.fullname ? req.body.fullname : '';
-    let phoneNumber = req.body.phoneNumber ? req.body.phoneNumber : '';
+    let fullName = req.body.fullName ? req.body.fullName : '';
+    let phoneNumber = req.body.phoneNumber.value ? req.body.phoneNumber.value : '';
     let email = req.body.email ? req.body.email : '';
     let address = req.body.address ? req.body.address : '';
     let sex = req.body.sex ? req.body.sex : '';
     let birthday = req.body.birthday ? req.body.birthday : '';
+    let country = req.body.phoneNumber.country ? req.body.phoneNumber.country : '';
 
     if (
-      fullname === userInfo.Fullname &&
+      fullName === userInfo.Fullname &&
       phoneNumber === userInfo.Info.PhoneNumber &&
       email === userInfo.Info.Email &&
       address === userInfo.Info.Address &&
       sex === userInfo.Info.Sex &&
-      birthday === userInfo.Info.Birthday
+      birthday === userInfo.Info.Birthday &&
+      country === userInfo.Info.Country
     ) {
       return res.status(500).json({
         success: false,
@@ -161,13 +166,15 @@ router.put(
 
     let updatedUser = {
       username: user.username,
-      fullname: fullname,
+      fullName: fullName,
       phoneNumber: phoneNumber,
       email: email,
       address: address,
       sex: sex,
-      birthday: birthday
+      birthday: birthday,
+      country: country
     };
+
     networkObj = await network.connectToNetwork(user);
     response = await network.updateUserInfo(networkObj, updatedUser);
 
@@ -555,7 +562,6 @@ router.post('/avatar', checkJWT, multipartMiddleware, async (req, res) => {
   try {
     const user = req.decoded.user;
     let imageFile = req.files.image.path;
-
     const image = await cloudinary.uploader.upload(imageFile, { tags: `${user.username}` });
     const networkObj = await network.connectToNetwork(user);
     const response = await network.updateUserAvatar(networkObj, image.secure_url);

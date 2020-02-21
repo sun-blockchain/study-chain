@@ -73,7 +73,10 @@
                             </div>
                             <div class="col-sm-6 mt-2">
                               <el-form-item prop="fullname">
-                                <el-input v-model="ruleForm.fullname" placeholder="Full name"></el-input>
+                                <el-input
+                                  v-model="ruleForm.fullname"
+                                  placeholder="Full name"
+                                ></el-input>
                               </el-form-item>
                             </div>
                           </div>
@@ -86,10 +89,16 @@
                               </el-form-item>
                             </div>
                             <div class="col-sm-6 mt-sm-1 mt-2">
-                              <el-form-item prop="phonenumber" class="style-input-phonenumber">
+                              <el-form-item
+                                prop="phonenumber"
+                                class="style-input-phonenumber"
+                                v-if="checkInput"
+                              >
                                 <vue-tel-input
                                   v-model="ruleForm.phonenumber"
                                   @validate="inputNumberPhone"
+                                  @country-changed="countryChanged"
+                                  :defaultCountry="ruleForm.country"
                                 ></vue-tel-input>
                               </el-form-item>
                             </div>
@@ -99,7 +108,10 @@
                           <div class="row">
                             <div class="col-sm-6 mt-2">
                               <el-form-item prop="address">
-                                <el-input v-model="ruleForm.address" placeholder="Address"></el-input>
+                                <el-input
+                                  v-model="ruleForm.address"
+                                  placeholder="Address"
+                                ></el-input>
                               </el-form-item>
                             </div>
                             <div class="col-sm-6 mt-2">
@@ -131,7 +143,9 @@
                         </el-form-item>
 
                         <el-form-item>
-                          <el-button type="primary" @click="submitForm('ruleForm')">Update</el-button>
+                          <el-button type="primary" @click="submitForm('ruleForm')"
+                            >Update</el-button
+                          >
                         </el-form-item>
                       </el-form>
                     </div>
@@ -184,8 +198,11 @@
                               <el-button
                                 type="primary"
                                 @click="submitChangePassword('changePassword')"
-                              >Change</el-button>
-                              <el-button @click="resetFormChangePass('changePassword')">Reset</el-button>
+                                >Change</el-button
+                              >
+                              <el-button @click="resetFormChangePass('changePassword')"
+                                >Reset</el-button
+                              >
                             </el-form-item>
                           </div>
                         </div>
@@ -214,23 +231,23 @@ import {
   Select,
   Option,
   DatePicker
-} from "element-ui";
-import { mapState, mapActions } from "vuex";
-import { Message } from "element-ui";
-import axios from "axios";
-import { VueTelInput } from "vue-tel-input";
+} from 'element-ui';
+import { mapState, mapActions } from 'vuex';
+import { Message } from 'element-ui';
+import axios from 'axios';
+import { VueTelInput } from 'vue-tel-input';
 export default {
   components: {
-    "el-upload": Upload,
-    "el-form": Form,
-    "el-form-item": FormItem,
-    "el-input": Input,
-    "el-radio-group": RadioGroup,
-    "el-radio": Radio,
-    "el-button": Button,
-    "el-select": Select,
-    "el-option": Option,
-    "el-date-picker": DatePicker,
+    'el-upload': Upload,
+    'el-form': Form,
+    'el-form-item': FormItem,
+    'el-input': Input,
+    'el-radio-group': RadioGroup,
+    'el-radio': Radio,
+    'el-button': Button,
+    'el-select': Select,
+    'el-option': Option,
+    'el-date-picker': DatePicker,
     VueTelInput
   },
   data() {
@@ -240,7 +257,7 @@ export default {
         if (mailRegex.test(value)) {
           callback();
         } else {
-          callback(new Error("Wrong email format"));
+          callback(new Error('Wrong email format'));
         }
       } else {
         callback();
@@ -248,59 +265,56 @@ export default {
     };
 
     var valiRePass = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("confirm password is required"));
+      if (value === '') {
+        callback(new Error('confirm password is required'));
       } else if (value !== this.changePassword.newPass) {
-        console.log("value", typeof value);
-        console.log(
-          "this.changePassword.newPass",
-          typeof this.changePassword.newPass
-        );
+        console.log('value', typeof value);
+        console.log('this.changePassword.newPass', typeof this.changePassword.newPass);
 
-        callback(
-          new Error("new password and confirm password does not match!")
-        );
+        callback(new Error('new password and confirm password does not match!'));
       } else {
         callback();
       }
     };
     return {
-      imageUrl: "",
+      checkInput: false,
+      imageUrl: '',
       validPhoneNumber: false,
       fullscreenLoading: false,
       ruleForm: {
-        username: "",
-        fullname: "",
-        phonenumber: "",
-        email: "",
-        address: "",
-        birthday: "",
-        sex: "",
-        avatar: ""
+        username: '',
+        fullname: '',
+        phonenumber: '',
+        country: '',
+        email: '',
+        address: '',
+        birthday: '',
+        sex: '',
+        avatar: ''
       },
       changePassword: {
-        oldPass: "",
-        newPass: "",
-        confirmPass: ""
+        oldPass: '',
+        newPass: '',
+        confirmPass: ''
       },
       rules: {
         fullname: [
           {
             required: true,
-            message: "fullname is required",
-            trigger: "blur"
+            message: 'fullname is required',
+            trigger: 'blur'
           },
           {
             min: 6,
-            message: "fullname must be at least 6 characters",
-            trigger: "blur"
+            message: 'fullname must be at least 6 characters',
+            trigger: 'blur'
           }
         ],
-        email: [{ validator: validateEmail, trigger: "blur" }],
+        email: [{ validator: validateEmail, trigger: 'blur' }],
         phonenumber: [
           {
             validator: this.validatePhoneNumber,
-            trigger: "blur"
+            trigger: 'blur'
           }
         ]
       },
@@ -308,36 +322,36 @@ export default {
         oldPass: [
           {
             required: true,
-            message: "current password is required",
-            trigger: "blur"
+            message: 'current password is required',
+            trigger: 'blur'
           },
           {
             min: 6,
-            message: "current password must be at least 6 characters",
-            trigger: "blur"
+            message: 'current password must be at least 6 characters',
+            trigger: 'blur'
           }
         ],
         newPass: [
           {
             required: true,
-            message: "new password is required",
-            trigger: "blur"
+            message: 'new password is required',
+            trigger: 'blur'
           },
           {
             min: 6,
-            message: "new password must be at least 6 characters",
-            trigger: "blur"
+            message: 'new password must be at least 6 characters',
+            trigger: 'blur'
           }
         ],
         confirmPass: [
           {
             validator: valiRePass,
-            trigger: "blur"
+            trigger: 'blur'
           },
           {
             min: 6,
-            message: "confirm password must be at least 6 characters",
-            trigger: "blur"
+            message: 'confirm password must be at least 6 characters',
+            trigger: 'blur'
           }
         ]
       },
@@ -349,8 +363,12 @@ export default {
     };
   },
   methods: {
-    ...mapActions("account", ["getProfile", "pushProfile", "changePass"]),
+    ...mapActions('account', ['getProfile', 'pushProfile', 'changePass']),
+    countryChanged(country) {
+      this.ruleForm.country = country.iso2;
+    },
     inputNumberPhone(number) {
+      this.ruleForm.country = number.regionCode;
       this.validPhoneNumber = number.valid;
     },
     validatePhoneNumber(rule, value, callback) {
@@ -358,7 +376,7 @@ export default {
         if (this.validPhoneNumber) {
           callback();
         } else {
-          callback(new Error("Wrong phone number format"));
+          callback(new Error('Wrong phone number format'));
         }
       } else {
         callback();
@@ -366,49 +384,45 @@ export default {
     },
     submitUploadAvatar() {
       if (this.$refs.upload.uploadFiles.length >= 1) {
-        let user = JSON.parse(localStorage.getItem("user"));
+        let user = JSON.parse(localStorage.getItem('user'));
         if (user && user.token) {
           this.fullscreenLoading = true;
           var formData = new FormData();
-          formData.append("image", this.$refs.upload.uploadFiles[0].raw);
+          formData.append('image', this.$refs.upload.uploadFiles[0].raw);
           axios
-            .post(
-              `${process.env.VUE_APP_API_BACKEND}/account/me/avatar`,
-              formData,
-              {
-                headers: {
-                  authorization: user.token,
-                  "Content-Type": "multipart/form-data"
-                }
+            .post(`${process.env.VUE_APP_API_BACKEND}/account/me/avatar`, formData, {
+              headers: {
+                'authorization': user.token,
+                'Content-Type': 'multipart/form-data'
               }
-            )
-            .then(async response => {
+            })
+            .then(async (response) => {
               this.ruleForm.avatar = response.data.imageUrl;
               this.ruleForm = await this.getProfile();
               await this.$refs.upload.clearFiles();
-              Message.success("Update avatar success!");
+              Message.success('Update avatar success!');
               this.fullscreenLoading = false;
             })
-            .catch(errors => {
-              Message.error("Update avatar error!");
+            .catch((errors) => {
+              Message.error('Update avatar error!');
               this.fullscreenLoading = false;
               console.log(errors);
             });
         }
       } else {
-        Message.error("Input avatar is empty!");
+        Message.error('Input avatar is empty!');
       }
     },
     changeInputFile(file) {
-      const isJPG = file.raw.type === "image/jpeg";
+      const isJPG = file.raw.type === 'image/jpeg';
       const isLt2M = file.size / 1024 / 1024 < 2;
       if (!isJPG) {
-        Message.error("Avatar picture must be JPG format!");
+        Message.error('Avatar picture must be JPG format!');
         this.$refs.upload.clearFiles();
         return false;
       }
       if (!isLt2M) {
-        Message.error("Avatar picture size can not exceed 2MB!");
+        Message.error('Avatar picture size can not exceed 2MB!');
         this.$refs.upload.clearFiles();
         return false;
       }
@@ -416,37 +430,37 @@ export default {
     },
     submitForm(formName) {
       let self = this;
-      this.$refs[formName].validate(async valid => {
+      this.$refs[formName].validate(async (valid) => {
         if (valid) {
           this.fullscreenLoading = true;
           let data = await self.pushProfile(self.ruleForm);
           if (data.success) {
             self.ruleForm = await self.getProfile();
-            Message.success("Update Success!");
+            Message.success('Update Success!');
           } else {
             Message.error(data.msg);
           }
           self.fullscreenLoading = false;
         } else {
-          console.log("error submit!!");
+          console.log('error submit!!');
           return false;
         }
       });
     },
     submitChangePassword(formName) {
       let self = this;
-      this.$refs[formName].validate(async valid => {
+      this.$refs[formName].validate(async (valid) => {
         if (valid) {
           this.fullscreenLoading = true;
           let data = await this.changePass(self.changePassword);
           if (data.success) {
-            Message.success("Your password has been changed successfully!");
+            Message.success('Your password has been changed successfully!');
           } else {
             Message.error(data.msg);
           }
           self.fullscreenLoading = false;
         } else {
-          console.log("Something went wrong, please try again!");
+          console.log('Something went wrong, please try again!');
           return false;
         }
       });
@@ -455,16 +469,23 @@ export default {
       this.$refs[formName].resetFields();
     }
   },
-  async created() {
+  async mounted() {
     let ruleForm = await this.getProfile();
     if (ruleForm) {
       this.ruleForm = ruleForm;
       this.imageUrl = this.ruleForm.avatar;
     }
+    this.$watch(
+      'ruleForm',
+      () => {
+        this.checkInput = true;
+      },
+      { immediate: true }
+    );
   }
 };
 </script>
 
 <style scoped>
-@import "../assets/styleProfile.css";
+@import '../assets/styleProfile.css';
 </style>
