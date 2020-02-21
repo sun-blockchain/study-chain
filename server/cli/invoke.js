@@ -283,15 +283,20 @@ async function main() {
            * @param  {String} classCode
            * @param  {String} room
            * @param  {String} time
+           * @param  {String} startDate
+           * @param  {String} endDate
+           * @param  {String} repeat
            * @param  {String} shortDescription
            * @param  {String} description
-           * @param  {String} subjectId
            * @param  {String} capacity
            *
            */
           let classCode = argv.classCode.toString();
           let room = argv.room.toString();
           let time = argv.time.toString();
+          let startDate = argv.startDate.toString();
+          let endDate = argv.endDate.toString();
+          let repeat = argv.repeat.toString();
           let shortDescription = argv.shortDescription.toString();
           let description = argv.description.toString();
           let subjectId = argv.subjectId.toString();
@@ -302,6 +307,9 @@ async function main() {
             classCode,
             room,
             time,
+            startDate,
+            endDate,
+            repeat,
             shortDescription,
             description,
             subjectId,
@@ -318,6 +326,9 @@ async function main() {
            * @param  {String} classCode
            * @param  {String} room
            * @param  {String} time
+           * @param  {String} startDate
+           * @param  {String} endDate
+           * @param  {String} repeat
            * @param  {String} shortDescription
            * @param  {String} description
            * @param  {String} capacity
@@ -328,6 +339,9 @@ async function main() {
           let classCode = argv.classCode.toString();
           let room = argv.room.toString();
           let time = argv.time.toString();
+          let startDate = argv.startDate.toString();
+          let endDate = argv.endDate.toString();
+          let repeat = argv.repeat.toString();
           let shortDescription = argv.shortDescription.toString();
           let description = argv.description.toString();
           let capacity = argv.capacity.toString();
@@ -337,6 +351,9 @@ async function main() {
             classCode,
             room,
             time,
+            startDate,
+            endDate,
+            repeat,
             shortDescription,
             description,
             capacity

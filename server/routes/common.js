@@ -89,9 +89,9 @@ router.get('/subject/:subjectId/classes', checkJWT, async (req, res) => {
     return;
   }
 
-  if (user.role === USER_ROLES.STUDENT) {
-    let classes = JSON.parse(response.msg);
+  let classes = JSON.parse(response.msg);
 
+  if (user.role === USER_ROLES.STUDENT) {
     for (let index = 0; index < classes.length; index++) {
       delete classes[index].Students;
     }
@@ -104,7 +104,7 @@ router.get('/subject/:subjectId/classes', checkJWT, async (req, res) => {
 
   return res.json({
     success: true,
-    class: JSON.parse(response.msg)
+    class: classes
   });
 });
 

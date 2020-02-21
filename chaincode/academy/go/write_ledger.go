@@ -177,8 +177,8 @@ func CreateClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("Permission denied!")
 	}
 
-	if len(args) != 8 {
-		return shim.Error("Incorrect number of arguments. Expecting 7")
+	if len(args) != 11 {
+		return shim.Error("Incorrect number of arguments. Expecting 11")
 	}
 
 	fmt.Println("Start Create Class!")
@@ -187,10 +187,13 @@ func CreateClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	ClassCode := args[1]
 	Room := args[2]
 	Time := args[3]
-	ShortDescription := args[4]
-	Description := args[5]
-	SubjectID := args[6]
-	Capacity := args[7]
+	StartDate := args[4]
+	EndDate := args[5]
+	Repeat := args[6]
+	ShortDescription := args[7]
+	Description := args[8]
+	SubjectID := args[9]
+	Capacity := args[10]
 
 	CapacityInt, err :=  strconv.ParseUint(Capacity, 10, 64)
 	
@@ -214,7 +217,7 @@ func CreateClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("This subject does not exists - " + SubjectID)
 	}
 
-	var class = Class{ClassID: ClassID, ClassCode: ClassCode, Room: Room, Time: Time, Status: Open, ShortDescription: ShortDescription, Description: Description, Capacity: CapacityInt}
+	var class = Class{ClassID: ClassID, ClassCode: ClassCode, Room: Room, Time: Time, StartDate: StartDate, EndDate: EndDate, Repeat: Repeat, Status: Open, ShortDescription: ShortDescription, Description: Description, Capacity: CapacityInt}
 
 	classAsBytes, _ := json.Marshal(class)
 
