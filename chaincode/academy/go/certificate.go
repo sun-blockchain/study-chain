@@ -66,6 +66,7 @@ type Student struct {
 	Fullname string
 	Info     Information
 	Courses  []string
+	Classes  []string
 }
 
 type Information struct {
@@ -200,7 +201,9 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return CloseRegisterClass(stub, args)
 	} else if function == "QueryClass" {
 		return QueryClass(stub, args)
-	} else if function == "RemoveClassFromSubject" {
+	}  else if function == "QueryClassesOfStudent" {
+		return QueryClassesOfStudent(stub, args)
+	}  else if function == "RemoveClassFromSubject" {
 		return RemoveClassFromSubject(stub, args)
 	}
 
@@ -1341,6 +1344,7 @@ func GetAllCourses(stub shim.ChaincodeStubInterface) sc.Response {
 
 	return shim.Success(jsonRow)
 }
+
 func GetAllClasses(stub shim.ChaincodeStubInterface) sc.Response {
 
 	// MSPID, err := cid.GetMSPID(stub)
@@ -1381,6 +1385,7 @@ func GetAllClasses(stub shim.ChaincodeStubInterface) sc.Response {
 
 	return shim.Success(jsonRow)
 }
+
 func GetAllStudents(stub shim.ChaincodeStubInterface) sc.Response {
 
 	// MSPID, err := cid.GetMSPID(stub)
@@ -1664,6 +1669,40 @@ func GetMyScores(stub shim.ChaincodeStubInterface) sc.Response {
 		if score.StudentUsername == StudentUsername {
 			tlist = append(tlist, score)
 		}
+	}
+
+	jsonRow, err := json.Marshal(tlist)
+
+	if err != nil {
+		return shim.Error("Failed")
+	}
+
+	return shim.Success(jsonRow)
+}
+
+func QueryClassesOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	StudentUsername := args[0]
+
+	student, err := getStudent(stub, "Student-" + StudentUsername)
+
+	if err != nil {
+		return shim.Error("Student dose not exist - " + StudentUsername)
+	}
+
+	var tlist []Class
+	var i int
+
+	for i = 0; i < len(student.Classes); i++ {
+
+		class, err := getClass(stub, "Class-" + student.Classes[i])
+		if err != nil {
+			return shim.Error("Class does not exist - " + student.Classes[i])
+		}
+		tlist = append(tlist, class)
 	}
 
 	jsonRow, err := json.Marshal(tlist)

@@ -96,6 +96,10 @@ node query.js --username=adminacademy --func=QuerySubject --args=ethereum
 ```
 
 ```bash
+node query.js --username=adminacademy --func=QueryClassesOfStudent --args="St01"
+```
+
+```bash
 node query.js --username=adminacademy --func=GetScoresByStudent --args=st01
 ```
 
