@@ -15,26 +15,54 @@
         </div>
       </div>
     </div>
+    <b-modal
+      id="modal-info"
+      ref="modal-info"
+      title="More Information About Class"
+      v-loading.fullscreen.lock="fullscreenLoading"
+      ok-only
+    >
+      <p>
+        <b>Start Date:</b>
+        {{ infoClass.startDate }}
+      </p>
+      <p>
+        <b>End Date:</b>
+        {{ infoClass.endDate }}
+      </p>
+      <p>
+        <b>Repeat:</b>
+        {{ infoClass.repeat }}
+      </p>
+      <p>
+        <b>Description:</b>
+        {{ infoClass.description }}
+      </p>
+    </b-modal>
     <table-admin
       :title="`Classes list`"
       :listAll="listClasses"
       :loadingData="loadingData"
       :btnDetail="true"
       :nameFunctionDetail="`detailClass`"
+      :btnInfo="true"
+      :nameFunctionInfo="`modalInfo`"
       :btnEdit="true"
       :nameFunctionEdit="`modalEdit`"
       :nameFunctionDelete="`delClass`"
       :btnDelete="true"
       :listProperties="[
-        { prop: 'ClassCode', label: 'ClassCode' },
+        { prop: 'ClassCode', label: 'Class Code' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
         { prop: 'ShortDescription', label: 'Description' },
+        { prop: 'Status', label: 'Status' },
         { prop: 'Capacity', label: 'Capacity' }
       ]"
       @detailClass="detailClass($event)"
       @modalEdit="modalEdit($event)"
       @delClass="delClass($event)"
+      @modalInfo="modalInfo($event)"
     >
       <template v-slot:btn-create>
         <el-button
@@ -65,9 +93,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Code"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
 
@@ -79,9 +107,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class room"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
 
@@ -93,9 +121,49 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Time"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
+            </b-form-group>
+          </ValidationProvider>
+
+          <ValidationProvider rules="required" name="StartDate" v-slot="{ valid, errors }">
+            <b-form-group>
+              <b-form-input
+                type="date"
+                v-model="editClass.StartDate"
+                :state="errors[0] ? false : valid ? true : null"
+                placeholder="StartDate"
+              ></b-form-input>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
+            </b-form-group>
+          </ValidationProvider>
+          <ValidationProvider rules="required" name="EndDate" v-slot="{ valid, errors }">
+            <b-form-group>
+              <b-form-input
+                type="date"
+                v-model="editClass.EndDate"
+                :state="errors[0] ? false : valid ? true : null"
+                placeholder="EndDate"
+              ></b-form-input>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
+            </b-form-group>
+          </ValidationProvider>
+          <ValidationProvider rules="required" name="Repeat" v-slot="{ valid, errors }">
+            <b-form-group>
+              <b-form-input
+                type="text"
+                v-model="editClass.Repeat"
+                :state="errors[0] ? false : valid ? true : null"
+                placeholder="Repeat"
+              ></b-form-input>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
 
@@ -107,9 +175,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Short Description"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
 
@@ -120,9 +188,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Description"
               ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Capacity" v-slot="{ valid, errors }">
@@ -132,9 +200,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Capacity"
               ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
         </b-form>
@@ -159,9 +227,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Code"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Room" v-slot="{ valid, errors }">
@@ -172,9 +240,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class room"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Time" v-slot="{ valid, errors }">
@@ -185,11 +253,51 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Time"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
+          <ValidationProvider rules="required" name="StartDate" v-slot="{ valid, errors }">
+            <b-form-group>
+              <b-form-input
+                type="date"
+                v-model="newClass.StartDate"
+                :state="errors[0] ? false : valid ? true : null"
+                placeholder="StartDate"
+              ></b-form-input>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
+            </b-form-group>
+          </ValidationProvider>
+          <ValidationProvider rules="required" name="EndDate" v-slot="{ valid, errors }">
+            <b-form-group>
+              <b-form-input
+                type="date"
+                v-model="newClass.EndDate"
+                :state="errors[0] ? false : valid ? true : null"
+                placeholder="EndDate"
+              ></b-form-input>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
+            </b-form-group>
+          </ValidationProvider>
+          <ValidationProvider rules="required" name="Repeat" v-slot="{ valid, errors }">
+            <b-form-group>
+              <b-form-input
+                type="text"
+                v-model="newClass.Repeat"
+                :state="errors[0] ? false : valid ? true : null"
+                placeholder="Repeat"
+              ></b-form-input>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
+            </b-form-group>
+          </ValidationProvider>
+
           <ValidationProvider rules="required" name="Short Description" v-slot="{ valid, errors }">
             <b-form-group>
               <b-form-input
@@ -198,9 +306,9 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Short Description"
               ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Class Description" v-slot="{ valid, errors }">
@@ -210,21 +318,22 @@
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Class Description"
               ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
           <ValidationProvider rules="required" name="Capacity" v-slot="{ valid, errors }">
             <b-form-group>
-              <b-form-textarea
+              <b-form-input
+                type="text"
                 v-model="newClass.Capacity"
                 :state="errors[0] ? false : valid ? true : null"
                 placeholder="Capacity"
-              ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
+              ></b-form-input>
+              <b-form-invalid-feedback id="inputLiveFeedback">
+                {{ errors[0] }}
+              </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
         </b-form>
@@ -252,6 +361,9 @@ export default {
         ClassCode: '',
         Room: '',
         Time: '',
+        StartDate: '',
+        EndDate: '',
+        Repeat: '',
         ShortDescription: '',
         Description: '',
         SubjectId: this.$route.params.id,
@@ -261,10 +373,19 @@ export default {
         ClassCode: '',
         Room: '',
         Time: '',
+        StartDate: '',
+        EndDate: '',
+        Repeat: '',
         ShortDescription: '',
         Description: '',
         SubjectId: this.$route.params.id,
         Capacity: ''
+      },
+      infoClass: {
+        startDate: '',
+        endDate: '',
+        repeat: '',
+        description: ''
       },
       fullscreenLoading: false,
       loadingData: false
@@ -288,10 +409,20 @@ export default {
       this.editClass.ClassCode = row.ClassCode;
       this.editClass.Room = row.Room;
       this.editClass.Time = row.Time;
+      this.editClass.StartDate = row.StartDate;
+      this.editClass.EndDate = row.EndDate;
+      this.editClass.Repeat = row.Repeat;
       this.editClass.ShortDescription = row.ShortDescription;
       this.editClass.Description = row.Description;
       this.editClass.Capacity = row.Capacity;
       this.$root.$emit('bv::show::modal', 'modal-edit');
+    },
+    modalInfo(row) {
+      this.infoClass.description = row.Description;
+      this.infoClass.startDate = row.StartDate;
+      this.infoClass.endDate = row.EndDate;
+      this.infoClass.repeat = row.Repeat;
+      this.$root.$emit('bv::show::modal', 'modal-info');
     },
     async handleCreate() {
       this.$refs['modal-create'].hide();
@@ -324,6 +455,9 @@ export default {
       this.editClass.ClassCode = '';
       this.editClass.Room = '';
       this.editClass.Time = '';
+      this.editClass.StartDate = infoClass.startDate;
+      this.editClass.EndDate = infoClass.endDate;
+      this.editClass.Repeat = '';
       this.editClass.ShortDescription = '';
       this.editClass.Description = '';
       this.editClass.Capacity = '';
@@ -332,6 +466,9 @@ export default {
       this.newClass.ClassCode = '';
       this.newClass.Room = '';
       this.newClass.Time = '';
+      this.newClass.StartDate = infoClass.startDate;
+      this.newClass.EndDate = infoClass.endDate;
+      this.newClass.Repeat = '';
       this.newClass.ShortDescription = '';
       this.newClass.Description = '';
       this.newClass.Capacity = '';
@@ -352,7 +489,10 @@ export default {
       }).then(async (result) => {
         if (result.value) {
           this.fullscreenLoading = true;
-          await this.deleteClass({ subjectId: this.listSubjects.SubjectID, classId: row.ClassID });
+          await this.deleteClass({
+            subjectId: this.listSubjects.SubjectID,
+            classId: row.ClassID
+          });
 
           await this.getClassesOfSubject(this.$route.params.id);
           this.fullscreenLoading = false;

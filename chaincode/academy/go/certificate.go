@@ -16,8 +16,8 @@ type SmartContract struct {
 type ClassStatus string
 
 const (
-	Open      ClassStatus = "Register Open"
-	Closed    ClassStatus = "Register Closed"
+	Open      ClassStatus = "Open"
+	Closed    ClassStatus = "Closed"
 	Completed ClassStatus = "Completed"
 )
 
@@ -47,6 +47,9 @@ type Class struct {
 	Status           ClassStatus
 	ShortDescription string
 	Description      string
+	StartDate		 string
+	EndDate		 	 string
+	Repeat		 	 string
 	Students         []string
 	Capacity         uint64
 }
@@ -513,17 +516,20 @@ func UpdateClassInfo(stub shim.ChaincodeStubInterface, args []string) sc.Respons
 		return shim.Error("Permission Denied!")
 	}
 
-	if len(args) != 7 {
-		return shim.Error("Incorrect number of arguments. Expecting 7")
+	if len(args) != 10 {
+		return shim.Error("Incorrect number of arguments. Expecting 10")
 	}
 
 	ClassID := args[0]
 	ClassCode := args[1]
 	Room := args[2]
 	Time := args[3]
-	ShortDescription := args[4]
-	Description := args[5]
-	Capacity := args[6]
+	StartDate := args[4]
+	EndDate := args[5]
+	Repeat := args[6]
+	ShortDescription := args[7]
+	Description := args[8]
+	Capacity := args[9]
 
 	CapacityInt, err := strconv.ParseUint(Capacity, 10, 64)
 
@@ -540,6 +546,12 @@ func UpdateClassInfo(stub shim.ChaincodeStubInterface, args []string) sc.Respons
 	class.Room = Room
 
 	class.Time = Time
+
+	class.StartDate = StartDate
+
+	class.EndDate = EndDate
+
+	class.Repeat = Repeat
 
 	class.ShortDescription = ShortDescription
 

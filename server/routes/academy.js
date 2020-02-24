@@ -393,6 +393,21 @@ router.post(
       .isEmpty()
       .trim()
       .escape(),
+    body('startDate')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('endDate')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('repeat')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
     body('shortDescription')
       .not()
       .isEmpty()
@@ -425,15 +440,31 @@ router.post(
 
       const user = req.decoded.user;
 
-      const { classCode, room, time, shortDescription, description, capacity } = req.body;
+      const {
+        classCode,
+        room,
+        time,
+        startDate,
+        endDate,
+        repeat,
+        shortDescription,
+        description,
+        capacity
+      } = req.body;
+
+      const subjectId = req.params.subjectId;
+
       let _class = {
         classId: uuidv4(),
         classCode,
         room,
         time,
+        startDate,
+        endDate,
+        repeat,
         shortDescription,
         description,
-        subjectId: req.params.subjectId,
+        subjectId,
         capacity
       };
       let networkObj = await network.connectToNetwork(user);
@@ -486,6 +517,21 @@ router.put(
       .isEmpty()
       .trim()
       .escape(),
+    body('startDate')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('endDate')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('repeat')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
     body('shortDescription')
       .not()
       .isEmpty()
@@ -524,14 +570,28 @@ router.put(
       const user = req.decoded.user;
       const networkObj = await network.connectToNetwork(user);
 
-      const { classId, classCode, room, time, shortDescription, description, subjectId } = req.body;
-      const capacity = toString(req.body.capacity);
+      const {
+        classId,
+        classCode,
+        room,
+        time,
+        shortDescription,
+        description,
+        subjectId,
+        startDate,
+        endDate,
+        repeat,
+        capacity
+      } = req.body;
 
       let _class = {
         classId,
         classCode,
         room,
         time,
+        startDate,
+        endDate,
+        repeat,
         shortDescription,
         description,
         capacity

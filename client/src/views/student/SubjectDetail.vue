@@ -19,11 +19,26 @@
     <b-modal
       id="modal-info"
       ref="modal-info"
-      title="Description Class"
+      title="More Information About Class"
       v-loading.fullscreen.lock="fullscreenLoading"
       ok-only
     >
-      <p>{{ infoClass.description }}</p>
+      <p>
+        <b>Start Date:</b>
+        {{ infoClass.startDate }}
+      </p>
+      <p>
+        <b>End Date:</b>
+        {{ infoClass.endDate }}
+      </p>
+      <p>
+        <b>Frequency:</b>
+        {{ infoClass.frequency }}
+      </p>
+      <p>
+        <b>Description:</b>
+        {{ infoClass.description }}
+      </p>
     </b-modal>
     <table-student
       :title="`Classes list`"
@@ -62,6 +77,9 @@ export default {
       fullscreenLoading: false,
       loadingData: false,
       infoClass: {
+        startDate: "",
+        endDate: "",
+        frequency: "",
         description: ""
       }
     };
@@ -70,6 +88,9 @@ export default {
     ...mapActions("student", ["getClassesOfSubject", "getSubject"]),
     modalInfo(row) {
       this.infoClass.description = row.Description;
+      this.infoClass.startDate = row.StartDate;
+      this.infoClass.endDate = row.EndDate;
+      this.infoClass.frequency = row.Frequency;
       this.$root.$emit("bv::show::modal", "modal-info");
     }
   },

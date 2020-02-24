@@ -435,6 +435,9 @@ describe('#POST /academy/:subjectId/class', () => {
         classCode: 'CACLC1',
         room: 'Blockchain101',
         time: '12122020',
+        startDate: '24-02-2020',
+        endDate: '29-02-2020',
+        repeat: 'Weekly Monday',
         shortDescription: 'short',
         description: 'long',
         capacity: 77
@@ -476,6 +479,9 @@ describe('#POST /academy/:subjectId/class', () => {
         classCode: 'CACLC1',
         room: 'Blockchain101',
         time: '12122020',
+        startDate: '24-02-2020',
+        endDate: '29-02-2020',
+        repeat: 'Weekly Monday',
         shortDescription: 'short',
         description: 'long',
         capacity: 67
@@ -531,9 +537,12 @@ describe('#PUT /class', () => {
       classCode: 'CACLC2',
       room: 'Blockchain101',
       time: '12122020',
+      startDate: '24-02-2020',
+      endDate: '29-02-2020',
+      repeat: 'Weekly Monday',
       shortDescription: 'short',
       description: 'long',
-      subjectId: 'sj',
+      subjectId: '123-456-a12b-1231`',
       capacity: 112
     });
 
@@ -555,9 +564,12 @@ describe('#PUT /class', () => {
         classCode: 'CACLC1',
         room: 'Blockchain101',
         time: '12122020',
+        startDate: '24-02-2020',
+        endDate: '29-02-2020',
+        repeat: 'Weekly Monday',
         shortDescription: 'short',
         description: 'long',
-        subjectId: 'sj',
+        subjectId: '123-456-a12b-1231',
         capacity: 112
       })
       .then((res) => {
@@ -601,6 +613,9 @@ describe('#PUT /class', () => {
         classCode: 'CACLC1',
         room: 'Blockchain101',
         time: '12122020',
+        startDate: '24-02-2020',
+        endDate: '29-02-2020',
+        repeat: 'Weekly Monday',
         shortDescription: 'short',
         description: 'long',
         subjectId: 'sj',
