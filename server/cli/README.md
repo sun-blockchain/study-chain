@@ -202,7 +202,7 @@ node invoke.js --username=adminacademy --func=TeacherRegisterSubject --subjectid
 ```
 
 ```bash
-node invoke.js --username=st01 --func=StudentRegisterSubject --subjectid=ethereum
+node invoke.js --username=st01 --func=StudentRegisterCourse --courseId=xxxx
 ```
 
 ```bash
