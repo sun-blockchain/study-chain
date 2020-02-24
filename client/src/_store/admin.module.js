@@ -86,6 +86,19 @@ const actions = {
       }
     }
   },
+  async getStudentsOfClass({ commit }, { classId }) {
+    try {
+      let data = await adminService.getStudentsOfClass(classId);
+
+      commit('getStudentsOfClass', data.students);
+      return data.students;
+    } catch (error) {
+      console.log(error);
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
+  },
   async getCourse({ commit }, courseId) {
     try {
       let data = await adminService.getCourse(courseId);
