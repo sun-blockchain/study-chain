@@ -665,8 +665,10 @@ exports.updateUserInfo = async function(networkObj, newInfo) {
       newInfo.email,
       newInfo.address,
       newInfo.sex,
-      newInfo.birthday
+      newInfo.birthday,
+      newInfo.country
     );
+
     let response = {
       success: true,
       msg: 'Successfully Updated!'

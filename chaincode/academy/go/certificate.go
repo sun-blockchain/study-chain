@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+
 	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
@@ -47,7 +48,7 @@ type Class struct {
 	ShortDescription string
 	Description      string
 	Students         []string
-	Capacity		 uint64
+	Capacity         uint64
 }
 
 type Teacher struct {
@@ -71,6 +72,7 @@ type Information struct {
 	Sex         string
 	Birthday    string
 	Avatar      string
+	Country     string
 }
 
 type Score struct {
@@ -499,7 +501,6 @@ func UpdateCourseInfo(stub shim.ChaincodeStubInterface, args []string) sc.Respon
 	return shim.Success(nil)
 }
 
-
 func UpdateClassInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	MSPID, err := cid.GetMSPID(stub)
@@ -524,7 +525,7 @@ func UpdateClassInfo(stub shim.ChaincodeStubInterface, args []string) sc.Respons
 	Description := args[5]
 	Capacity := args[6]
 
-	CapacityInt, err :=  strconv.ParseUint(Capacity, 10, 64)
+	CapacityInt, err := strconv.ParseUint(Capacity, 10, 64)
 
 	keyClass := "Class-" + ClassID
 	class, err := getClass(stub, keyClass)
@@ -564,8 +565,8 @@ func UpdateUserInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response
 		return shim.Error("Permission Denied!")
 	}
 
-	if len(args) != 7 {
-		return shim.Error("Incorrect number of arguments. Expecting 7")
+	if len(args) != 8 {
+		return shim.Error("Incorrect number of arguments. Expecting 8")
 	}
 
 	Username := args[0]
@@ -575,6 +576,7 @@ func UpdateUserInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response
 	Address := args[4]
 	Sex := args[5]
 	Birthday := args[6]
+	Country := args[7]
 
 	if MSPID == "StudentMSP" {
 		keyUser := "Student-" + Username
@@ -603,6 +605,9 @@ func UpdateUserInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response
 		}
 		if Birthday != "" {
 			user.Info.Birthday = Birthday
+		}
+		if Country != "" {
+			user.Info.Country = Country
 		}
 
 		userAsBytes, _ := json.Marshal(user)
@@ -637,6 +642,9 @@ func UpdateUserInfo(stub shim.ChaincodeStubInterface, args []string) sc.Response
 		}
 		if Birthday != "" {
 			user.Info.Birthday = Birthday
+		}
+		if Country != "" {
+			user.Info.Country = Country
 		}
 
 		userAsBytes, _ := json.Marshal(user)

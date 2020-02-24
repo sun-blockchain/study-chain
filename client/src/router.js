@@ -67,7 +67,7 @@ export const router = new Router({
           component: () => import('./views/admin-academy/SubjectsManager')
         },
         {
-          path: '/academy/subjects/:id/classes',
+          path: '/academy/subjects/:id',
           name: 'academy-subject-detail',
           component: () => import('./views/admin-academy/SubjectDetail')
         },

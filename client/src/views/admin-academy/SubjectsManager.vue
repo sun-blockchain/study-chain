@@ -261,7 +261,7 @@ export default {
       'deleteSubject'
     ]),
     detailSubject(row) {
-      this.$router.push({ path: `subjects/${row.SubjectID}/classes` });
+      this.$router.push({ path: `subjects/${row.SubjectID}` });
     },
     modalEdit(row) {
       this.editSubject.subjectId = row.SubjectID;

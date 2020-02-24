@@ -515,6 +515,10 @@ askProceed
 if [ "${MODE}" == "up" ]; then
   export CERTIFICATE_AUTHORITIES="true"
   networkUp
+  cd ../server/cli
+  rm -r wallet/*
+  ./init.sh
+  cd ../../network
 elif [ "${MODE}" == "down" ]; then ## Clear the network
   networkDown
   docker rm $(docker ps -aq)

@@ -22,7 +22,7 @@
       :btnInfo="true"
       :nameFunctionInfo="`showInfoSubject`"
       :btnDetail="true"
-      :nameFunctionDetail="`detailStudents`"
+      :nameFunctionDetail="`detailSubject`"
       :nameFunctionDelete="`delStudent`"
       :btnDelete="true"
       :listProperties="[
@@ -30,7 +30,7 @@
         { prop: 'SubjectCode', label: 'Subject Code' },
         { prop: 'ShortDescription', label: 'Short Description' }
       ]"
-      @detailStudents="detailStudent($event)"
+      @detailSubject="detailSubject($event)"
       @delStudent="delStudent($event)"
       @showInfoSubject="showInfoSubject($event)"
     >
@@ -190,8 +190,8 @@ export default {
       'addSubjectToCourse',
       'deleteSubjectFromCourse'
     ]),
-    detailStudent(row) {
-      this.$router.push({ path: `subjects/${row.StudentID}/students` });
+    detailSubject(row) {
+      this.$router.push({ path: `/academy/subjects/${row.SubjectID}` });
     },
     async delStudent(row) {
       MessageBox.confirm(`You won't be able to revert this!`, 'Delete', {

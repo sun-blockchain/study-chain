@@ -67,9 +67,28 @@ async function getProfile() {
     let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/me`, {
       headers: authHeader()
     });
-    let { username, fullname, phonenumber, email, address, sex, birthday, avatar } = respone.data;
-    let info = respone.data.info;
-    let student = { username, fullname, phonenumber, email, address, sex, birthday, avatar };
+    let {
+      username,
+      fullname,
+      phonenumber,
+      email,
+      address,
+      sex,
+      birthday,
+      avatar,
+      country
+    } = respone.data;
+    let student = {
+      username,
+      fullname,
+      phonenumber,
+      email,
+      address,
+      sex,
+      birthday,
+      avatar,
+      country
+    };
     return student;
   } catch (error) {
     throw error;
@@ -83,8 +102,8 @@ async function pushProfile(user) {
       `${process.env.VUE_APP_API_BACKEND}/account/me/info`,
       {
         username: user.username,
-        fullname: user.fullname,
-        phoneNumber: user.phonenumber.replace(/\s+/g, ''),
+        fullName: user.fullname,
+        phoneNumber: { value: user.phonenumber.replace(/\s+/g, ''), country: user.country },
         email: user.email,
         address: user.address,
         birthday: user.birthday,
