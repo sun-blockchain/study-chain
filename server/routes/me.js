@@ -390,9 +390,9 @@ router.get('/scores', async (req, res) => {
 });
 
 router.post(
-  '/registersubject',
+  '/registerCourse',
   [
-    body('subjectId')
+    body('courseId')
       .not()
       .isEmpty()
       .trim()
@@ -407,23 +407,40 @@ router.post(
     if (req.decoded.user.role !== USER_ROLES.STUDENT) {
       return res.status(403).json({
         success: false,
-        msg: 'Permission Denied'
+        msg: 'Permission Denied!'
       });
     }
     let user = req.decoded.user;
-    const networkObj = await network.connectToNetwork(user);
-    let identity = user.username;
-    if (identity === null) {
-      return res.status(403).json({
+    let networkObj = await network.connectToNetwork(user);
+
+    if (!networkObj) {
+      return res.status(500).json({
         success: false,
-        msg: 'Permission Denied'
+        msg: 'Failed connect to blockchain!'
       });
     }
-    const response = await network.registerStudentForSubject(
-      networkObj,
-      req.body.subjectId,
-      identity
-    );
+
+    let query = await network.query(networkObj, 'QueryStudent', user.username);
+    if (!query.success) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Can not query chaincode!'
+      });
+    }
+
+    let courseId = req.body.courseId;
+    let student = JSON.parse(query.msg);
+
+    if (student.Courses.includes(courseId)) {
+      return res.status(500).json({
+        success: false,
+        msg: 'You studied this course!'
+      });
+    }
+
+    networkObj = await network.connectToNetwork(user);
+
+    let response = await network.studentRegisterCourse(networkObj, user.username, courseId);
     if (!response.success) {
       return res.status(500).json({
         success: false,
@@ -433,7 +450,7 @@ router.post(
 
     return res.json({
       success: true,
-      msg: response.msg
+      msg: 'Register Successfully!'
     });
   }
 );
