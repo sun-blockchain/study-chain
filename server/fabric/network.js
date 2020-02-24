@@ -874,21 +874,17 @@ exports.registerTeacherForSubject = async function(networkObj, subjectID, teache
   }
 };
 
-exports.registerStudentForSubject = async function(networkObj, subjectID, studentUsername) {
-  if (!subjectID || !studentUsername) {
+exports.studentRegisterCourse = async function(networkObj, student, courseId) {
+  if (!student || !courseId) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can register!';
     return response;
   }
   try {
-    await networkObj.contract.submitTransaction(
-      'StudentRegisterSubject',
-      subjectID,
-      studentUsername
-    );
+    await networkObj.contract.submitTransaction('StudentRegisterCourse', student, courseId);
     let response = {
       success: true,
-      msg: 'Create Successfully!'
+      msg: 'Register Successfully!'
     };
 
     await networkObj.gateway.disconnect();

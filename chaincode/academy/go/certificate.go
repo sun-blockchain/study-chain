@@ -155,8 +155,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return GetMySubjects(stub)
 	} else if function == "GetMyScores" {
 		return GetMyScores(stub)
-	} else if function == "StudentRegisterSubject" {
-		return StudentRegisterSubject(stub, args)
+	} else if function == "StudentRegisterCourse" {
+		return StudentRegisterCourse(stub, args)
 	} else if function == "TeacherRegisterSubject" {
 		return TeacherRegisterSubject(stub, args)
 	} else if function == "GetSubjectsByStudent" {
@@ -275,56 +275,47 @@ func TeacherRegisterSubject(stub shim.ChaincodeStubInterface, args []string) sc.
 	return shim.Success(nil)
 }
 
-func StudentRegisterSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+func StudentRegisterCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	// var StudentUsername string
+	MSPID, err := cid.GetMSPID(stub)
 
-	// StudentUsername, ok, err := cid.GetAttributeValue(stub, "username")
+	if err != nil {
+		return shim.Error("Error - cid.GetMSPID()")
+	}
 
-	// if err != nil {
-	// 	return shim.Error("Error - cid.GetAttributeValue()")
-	// }
+	if MSPID != "StudentMSP" {
+		return shim.Error("Permission Denied!")
+	}
 
-	// if ok == false {
-	// 	return shim.Error("Permission Denied!")
-	// }
+	Username := args[0]
+	CourseID := args[1]
 
-	// SubjectID := args[0]
+	keyStudent := "Student-" + Username
+	keyCourse := "Course-" + CourseID
 
-	// keySubject := "Subject-" + SubjectID
-	// keyStudent := "Student-" + StudentUsername
+	student, err := getStudent(stub, keyStudent)
+	if err != nil {
+		return shim.Error("Student does not exist!")
+	}
 
-	// subject, err := getSubject(stub, keySubject)
+	_, err = getCourse(stub, keyCourse)
+	if err != nil {
+		return shim.Error("Course does not exist!")
+	}
 
-	// if err != nil {
+	var i int
+	for i = 0; i < len(student.Courses); i++ {
+		if CourseID == student.Courses[i] {
+			return shim.Error("You studied this course!")
+		}
+	}
 
-	// 	return shim.Error("Subject does not exist !")
+	student.Courses = append(student.Courses, CourseID)
 
-	// } else {
+	studentAsBytes, _ := json.Marshal(student)
 
-	// 	student, err := getStudent(stub, keyStudent)
+	stub.PutState(keyStudent, studentAsBytes)
 
-	// 	if err != nil {
-
-	// 		return shim.Error("Student does not exist !")
-
-	// 	} else {
-
-	// 		student.Subjects = append(student.Subjects, SubjectID)
-
-	// 		subject.Students = append(subject.Students, StudentUsername)
-
-	// 		subjectAsBytes, _ := json.Marshal(subject)
-
-	// 		studentAsBytes, _ := json.Marshal(student)
-
-	// 		stub.PutState(keyStudent, studentAsBytes)
-
-	// 		stub.PutState(keySubject, subjectAsBytes)
-
-	// 		return shim.Success(nil)
-	// 	}
-	// }
 	return shim.Success(nil)
 }
 
