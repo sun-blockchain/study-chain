@@ -352,38 +352,43 @@ describe('PUT /account/me/info', () => {
   });
 });
 
-describe('GET /account/me/mysubjects', () => {
+describe('GET /account/me/myClasses', () => {
   let connect;
-  let getMySubjectStub;
-  let findOneUserStub;
+  let queryClasses;
 
   beforeEach(() => {
     connect = sinon.stub(network, 'connectToNetwork');
-    getMySubjectStub = sinon.stub(network, 'query');
-    findOneUserStub = sinon.stub(User, 'findOne');
+    queryClasses = sinon.stub(network, 'query');
   });
 
   afterEach(() => {
     connect.restore();
-    getMySubjectStub.restore();
-    findOneUserStub.restore();
+    queryClasses.restore();
+  });
+
+  it('permission denied', (done) => {
+    request(app)
+      .get('/account/me/myClasses')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        done();
+      });
   });
 
   it('failed connect to blockchain', (done) => {
     connect.returns(null);
 
     request(app)
-      .get('/account/me/mysubjects')
+      .get('/account/me/myClasses')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Failed connect to blockchain');
         done();
       });
   });
 
-  it('failed to query subject of user student in chaincode', (done) => {
+  it('failed to query classes of student in chaincode', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -395,71 +400,21 @@ describe('GET /account/me/mysubjects', () => {
       error: 'Error Network'
     });
 
-    getMySubjectStub.returns({
+    queryClasses.returns({
       success: false,
       msg: data
     });
 
     request(app)
-      .get('/account/me/mysubjects')
+      .get('/account/me/myClasses')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
         done();
       });
   });
 
-  it('failed to query subject of user student in chaincode with role teacher', (done) => {
-    findOneUserStub.yields(undefined, {
-      username: 'hoangdd',
-      role: USER_ROLES.TEACHER
-    });
-
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'hoangdd', role: USER_ROLES.TEACHER }
-    });
-
-    let data = JSON.stringify({
-      error: 'Error Network'
-    });
-
-    getMySubjectStub.returns({
-      success: false,
-      msg: data
-    });
-
-    request(app)
-      .get('/account/me/mysubjects')
-      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        done();
-      });
-  });
-
-  it('notify user has not subject', (done) => {
-    findOneUserStub.yields(undefined, {
-      username: 'hoangdd',
-      role: USER_ROLES.ADMIN_ACADEMY
-    });
-
-    request(app)
-      .get('/account/me/mysubjects')
-      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
-        expect(res.body.msg).equal('You do not have subject');
-        done();
-      });
-  });
-
-  it('success query subjects of user student', (done) => {
+  it('success query classes of user student', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -467,86 +422,34 @@ describe('GET /account/me/mysubjects', () => {
       user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
     });
 
-    let data = JSON.stringify({
-      SubjectID: 'INT2002',
-      Name: 'C++',
-      TeacherUsername: 'tantrinh',
-      Students: ['1', '2']
-    });
-
-    getMySubjectStub.returns({
-      success: true,
-      msg: data
-    });
-
-    request(app)
-      .get('/account/me/mysubjects')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
-        done();
-      });
-  });
-
-  it('success query subjects of user teacher', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'hoangdd', role: USER_ROLES.TEACHER }
-    });
-
-    findOneUserStub.yields(undefined, {
-      username: 'hoangdd',
-      role: USER_ROLES.TEACHER
-    });
-
-    let data = JSON.stringify(
+    let data = JSON.stringify([
       {
-        SubjectID: 'INT2002',
-        Name: 'C++',
-        TeacherUsername: 'tantrinh',
-        Students: ['1', '2']
-      },
-      {
-        SubjectID: 'INT2020',
-        Name: 'Golang',
-        TeacherUsername: 'tantrinh',
-        Students: ['1', '2']
+        ClassID: '1234-456-789-123a',
+        ClassCode: 'ETH101',
+        Room: 'F13',
+        Time: '7:45',
+        Status: 'Open',
+        ShortDescription: 'Ethereum',
+        Description: 'Ethereum101',
+        StartDate: '25-2-2020',
+        EndDate: '25-4-2020',
+        Repeat: 'Weekly Monday',
+        Students: [],
+        Capacity: '75'
       }
-    );
+    ]);
 
-    getMySubjectStub.returns({
+    queryClasses.returns({
       success: true,
       msg: data
     });
 
     request(app)
-      .get('/account/me/mysubjects')
-      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .get('/account/me/myClasses')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(200);
         expect(res.body.success).equal(true);
-        done();
-      });
-  });
-
-  it('teacher cannot connect to blockchain', (done) => {
-    connect.returns(null);
-
-    findOneUserStub.yields(undefined, {
-      username: 'hoangdd',
-      role: USER_ROLES.TEACHER
-    });
-
-    request(app)
-      .get('/account/me/mysubjects')
-      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Failed connect to blockchain');
         done();
       });
   });

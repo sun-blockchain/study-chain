@@ -2,10 +2,9 @@
   <div class="container-fluid">
     <h1 class="bannerTitle_1wzmt7u mt-4">{{ subject.SubjectName }}</h1>
     <b-breadcrumb>
-      <b-breadcrumb-item href="/student">
-        <i class="blue fas fa-home"></i>Home
-      </b-breadcrumb-item>
-      <b-breadcrumb-item :href="`/student/courses/${this.$route.params.id}`">Course Detail</b-breadcrumb-item>
+      <b-breadcrumb-item href="/student"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
+      <b-breadcrumb-item :href="`/student/courses/${this.$route.params.id}`"
+        >Course Detail</b-breadcrumb-item>
       <b-breadcrumb-item active>Subject Detail</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">
@@ -32,8 +31,8 @@
         {{ infoClass.endDate }}
       </p>
       <p>
-        <b>Frequency:</b>
-        {{ infoClass.frequency }}
+        <b>Repeat:</b>
+        {{ infoClass.repeat }}
       </p>
       <p>
         <b>Description:</b>
@@ -79,7 +78,7 @@ export default {
       infoClass: {
         startDate: "",
         endDate: "",
-        frequency: "",
+        repeat: "",
         description: ""
       }
     };
@@ -90,7 +89,7 @@ export default {
       this.infoClass.description = row.Description;
       this.infoClass.startDate = row.StartDate;
       this.infoClass.endDate = row.EndDate;
-      this.infoClass.frequency = row.Frequency;
+      this.infoClass.repeat = row.Repeat;
       this.$root.$emit("bv::show::modal", "modal-info");
     }
   },

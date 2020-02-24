@@ -10,7 +10,8 @@ export const studentService = {
   getAllCourses,
   getSubjectsOfCourse,
   getClassesOfSubject,
-  getSubject
+  getSubject,
+  getMyClasses
 };
 
 async function getAllCourses() {
@@ -84,6 +85,18 @@ async function getAllSubjects() {
     throw error;
   }
 }
+
+async function getMyClasses() {
+  try {
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/me/myClasses`, {
+      headers: authHeader()
+    });
+    return respone.data.classes;
+  } catch (error) {
+    throw error;
+  }
+}
+
 async function registerSubject(subjectId) {
   try {
     let respone = await axios.post(
