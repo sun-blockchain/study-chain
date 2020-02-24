@@ -1927,7 +1927,7 @@ describe('#PUT /academy/closeRegisterClass', () => {
 
     let data = JSON.stringify({
       ClassId: 'b2ab2fbd-1053-4848-aac9-2090fee54074',
-      Status: 'Register Open'
+      Status: 'Open'
     });
 
     query.returns({
@@ -1964,7 +1964,7 @@ describe('#PUT /academy/closeRegisterClass', () => {
 
     let data = JSON.stringify({
       ClassId: 'b2ab2fbd-1053-4848-aac9-2090fee54074',
-      Status: 'Register Open'
+      Status: 'Open'
     });
 
     query.returns({

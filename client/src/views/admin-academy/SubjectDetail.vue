@@ -2,8 +2,8 @@
   <div class="container-fluid">
     <h1 class="bannerTitle_1wzmt7u">{{ listSubjects.SubjectName }}</h1>
     <b-breadcrumb>
-      <b-breadcrumb-item href="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-      <b-breadcrumb-item href="/academy/subjects">Subject</b-breadcrumb-item>
+      <b-breadcrumb-item to="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
+      <b-breadcrumb-item to="/academy/subjects">Subject</b-breadcrumb-item>
       <b-breadcrumb-item active>Subject Detail</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">
@@ -455,8 +455,8 @@ export default {
       this.editClass.ClassCode = '';
       this.editClass.Room = '';
       this.editClass.Time = '';
-      this.editClass.StartDate = infoClass.startDate;
-      this.editClass.EndDate = infoClass.endDate;
+      this.editClass.StartDate = '';
+      this.editClass.EndDate = '';
       this.editClass.Repeat = '';
       this.editClass.ShortDescription = '';
       this.editClass.Description = '';
@@ -466,8 +466,8 @@ export default {
       this.newClass.ClassCode = '';
       this.newClass.Room = '';
       this.newClass.Time = '';
-      this.newClass.StartDate = infoClass.startDate;
-      this.newClass.EndDate = infoClass.endDate;
+      this.newClass.StartDate = '';
+      this.newClass.EndDate = '';
       this.newClass.Repeat = '';
       this.newClass.ShortDescription = '';
       this.newClass.Description = '';
