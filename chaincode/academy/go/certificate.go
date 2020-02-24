@@ -141,6 +141,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return GetAllClassesOfSubject(stub, args)
 	} else if function == "GetAllClasses" {
 		return GetAllClasses(stub)
+	} else if function == "GetStudentsOfClass" {
+		return GetStudentsOfClass(stub, args)
 	} else if function == "GetAllStudents" {
 		return GetAllStudents(stub)
 	} else if function == "GetAllScores" {
@@ -1292,6 +1294,42 @@ func GetAllClassesOfSubject(stub shim.ChaincodeStubInterface, args []string) sc.
 			return shim.Error("Class does not exist - " + subject.Classes[i])
 		}
 		tlist = append(tlist, class)
+	}
+
+	jsonRow, err := json.Marshal(tlist)
+
+	if err != nil {
+		return shim.Error("Failed")
+	}
+
+	return shim.Success(jsonRow)
+
+}
+
+func GetStudentsOfClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	ClassID := args[0]
+
+	class, err := getClass(stub, "Class-"+ClassID)
+
+	if err != nil {
+		return shim.Error("Class dose not exist - " + ClassID)
+	}
+
+	var tlist []Class
+	var i int
+
+	for i = 0; i < len(class.Students); i++ {
+
+		student, err := getClass(stub, "Student-"+class.Students[i])
+		if err != nil {
+			return shim.Error("Student does not exist - " + class.Students[i])
+		}
+		tlist = append(tlist, student)
 	}
 
 	jsonRow, err := json.Marshal(tlist)

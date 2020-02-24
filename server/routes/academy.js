@@ -4,6 +4,7 @@ const network = require('../fabric/network.js');
 const checkJWT = require('../middlewares/check-jwt');
 const { body, validationResult, check } = require('express-validator');
 const uuidv4 = require('uuid/v4');
+const Status = { Open :'Open', Closed : 'Closed', Completed : 'Completed'};
 
 // Edit course info
 router.put(
@@ -813,7 +814,9 @@ router.put(
       .trim()
       .escape()
   ],
+  
   async (req, res, next) => {
+
     if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
       return res.status(403).json({
         success: false,
@@ -826,6 +829,7 @@ router.put(
     }
 
     let classId = req.body.classId;
+    
     let networkObj = await network.connectToNetwork(req.decoded.user);
     if (!networkObj) {
       return res.status(500).json({
@@ -843,7 +847,7 @@ router.put(
     }
 
     let classInfo = JSON.parse(responseQuery.msg);
-    if (classInfo.Status !== 'Register Open') {
+    if (classInfo.Status !== Status.Open) {
       return res.status(500).json({
         success: false,
         msg: 'Can not close register!'

@@ -2,7 +2,9 @@
   <div class="container-fluid">
     <h1 class="bannerTitle_1wzmt7u">ClassRoom: {{ listClasses.Room }}</h1>
     <b-breadcrumb>
-      <b-breadcrumb-item href="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
+      <b-breadcrumb-item to="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
+      <b-breadcrumb-item to="/academy/subjects"> Subject</b-breadcrumb-item>
+      <b-breadcrumb-item :to="`/academy/subjects/${this.$route.params.id}`">Subject Detail</b-breadcrumb-item>
       <b-breadcrumb-item active>Class Detail</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">
@@ -11,19 +13,29 @@
           <h2 class="h4 mb-2 text-gray-800">About this classs</h2>
           <p>Time: {{ listClasses.Time }}</p>
           <p>Capacity: {{ listClasses.Capacity }}</p>
-          <p>Status: {{ listClasses.Status }}</p>
+          <p>
+            Status:
+            <b-badge :variant="listClasses.Status==='Open'?'success':'danger'">{{ listClasses.Status }}</b-badge>
+          </p>
           <p>{{ listClasses.Description }}</p>
-          <el-button type="danger" round size="mini" @click="close()">Close</el-button>
+          <el-button v-if="listClasses.Status === 'Open'" type="danger" round size="mini" @click="close()"
+            >Close</el-button
+          >
         </div>
       </div>
     </div>
+    
   </div>
 </template>
 <script>
 import { mapState, mapActions } from 'vuex';
-import { Button } from 'element-ui';
+import { Button, Badge } from 'element-ui';
 
 export default {
+  data() {
+    return {
+    };
+  },
   components: {
     'el-button': Button
   },
@@ -37,7 +49,7 @@ export default {
         showCancelButton: true,
         cancelButtonColor: '#d33',
         confirmButtonColor: '#28a745',
-        confirmButtonText: 'Yes, delete it!',
+        confirmButtonText: 'Yes, close it!',
         reverseButtons: true
       }).then(async (result) => {
         if (result.value) {
@@ -48,6 +60,7 @@ export default {
 
           await this.getClass(this.$route.params.classId);
           this.fullscreenLoading = false;
+          this.status = false;
 
           this.$swal('Closed!', 'This class has been closed.', 'success');
         }

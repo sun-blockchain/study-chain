@@ -2,8 +2,8 @@
   <div class="container-fluid">
     <h1 class="bannerTitle_1wzmt7u">{{ listSubjects.SubjectName }}</h1>
     <b-breadcrumb>
-      <b-breadcrumb-item href="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-      <b-breadcrumb-item href="/academy/subjects">Subject</b-breadcrumb-item>
+      <b-breadcrumb-item to="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
+      <b-breadcrumb-item to="/academy/subjects">Subject</b-breadcrumb-item>
       <b-breadcrumb-item active>Subject Detail</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">

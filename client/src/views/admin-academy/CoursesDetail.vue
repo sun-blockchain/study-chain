@@ -2,8 +2,8 @@
   <div class="container-fluid" v-loading.fullscreen.lock="fullscreenLoading">
     <h1 class="bannerTitle_1wzmt7u">{{ listCourses.CourseName }}</h1>
     <b-breadcrumb>
-      <b-breadcrumb-item href="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-      <b-breadcrumb-item href="/academy/courses">Course</b-breadcrumb-item>
+      <b-breadcrumb-item to="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
+      <b-breadcrumb-item to="/academy/courses">Course</b-breadcrumb-item>
       <b-breadcrumb-item active>Course Detail</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">
