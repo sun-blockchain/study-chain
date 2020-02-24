@@ -7,6 +7,7 @@ export const adminService = {
   getClass,
   deleteClass,
   closeClass,
+  getStudentsOfClass,
   getCourse,
   createCourse,
   updateCourse,
@@ -364,6 +365,36 @@ async function deleteClass(subjectId, classId) {
     throw error;
   }
 }
+
+async function getStudentsOfClass(classId) {
+  try {
+    // let respone = await axios.get(
+    //   `${process.env.VUE_APP_API_BACKEND}/account/teacher/${username}/subjects`,
+    //   {
+    //     headers: authHeader()
+    //   }
+    // );
+    // return respone.data;
+    return {
+      success: true,
+      students: [
+        {
+          StudentID: '61e3b1bb-77a7-4830-bbd2-23b35fcc24eb',
+          Name: 'Nguyen Van A',
+          Birthday: '23/03/1999'
+        },
+        {
+          StudentID: '65640531-cc2f-4967-9b30-c548c7190c2e',
+          Name: 'Nguyen Van B',
+          Birthday: '10/10/2000'
+        }
+      ]
+    };
+  } catch (error) {
+    throw error;
+  }
+}
+
 // -Teacher Manager
 async function getAllTeachers() {
   try {

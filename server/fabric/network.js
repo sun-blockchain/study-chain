@@ -413,9 +413,7 @@ exports.closeRegisterClass = async function(networkObj, classId) {
     };
 
     await networkObj.gateway.disconnect();
-
     return response;
-
   } catch (error) {
     console.log(error);
     let response = {
