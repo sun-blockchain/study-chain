@@ -10,11 +10,9 @@
       <p>{{ infoCourse.description }}</p>
     </b-modal>
     <table-student
-      :title="`List Courses`"
-      :listAll="listCourses"
+      :title="`My Courses`"
+      :listAll="listMyCourses"
       :loadingData="loadingData"
-      :btnRegister="true"
-      :nameFunctionRegister="`enrollCourse`"
       :btnDetail="true"
       :nameFunctionDetail="`detailCourses`"
       :btnInfo="true"
@@ -25,7 +23,6 @@
         { prop: 'ShortDescription', label: 'Description' }
       ]"
       @detailCourses="detailCourse($event)"
-      @enrollCourse="enrollCourse($event)"
       @modalInfo="modalInfo($event)"
     ></table-student>
   </div>
@@ -51,43 +48,20 @@ export default {
     };
   },
   methods: {
-    ...mapActions('student', ['getAllCourses', 'getCourse', 'registerCourse']),
+    ...mapActions('student', ['getMyCourses']),
     detailCourse(row) {
       this.$router.push({ path: `courses/${row.CourseID}` });
     },
     modalInfo(row) {
       this.infoCourse.description = row.Description;
       this.$root.$emit('bv::show::modal', 'modal-info');
-    },
-    async enrollCourse(row) {
-      this.$swal({
-        text: 'Are you sure register this course ?',
-        type: 'success',
-        showCancelButton: true,
-        cancelButtonColor: '#d33',
-        confirmButtonColor: '#28a745',
-        confirmButtonText: 'Confirm',
-        reverseButtons: true
-      }).then(async (result) => {
-        if (result.value) {
-          this.fullscreenLoading = true;
-          let response = await this.registerCourse(row.CourseID);
-          if (response.status === 200) {
-            this.fullscreenLoading = false;
-            this.$swal('Registered!', 'Course has been registered.', 'success');
-          } else {
-            this.fullscreenLoading = false;
-            this.$swal('Failed!', 'Fail to register course.', 'danger');
-          }
-        }
-      });
     }
   },
   computed: {
-    ...mapState('student', ['listCourses'])
+    ...mapState('student', ['listMyCourses'])
   },
   async created() {
-    let response = await this.getAllCourses();
+    let response = await this.getMyCourses();
     if (response) {
       this.loadingData = false;
     }
