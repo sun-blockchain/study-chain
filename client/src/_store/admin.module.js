@@ -275,16 +275,17 @@ const actions = {
       }
     }
   },
+
   async createTeacher({ dispatch, commit }, teacher) {
-    let res = await adminService.createTeacher(teacher);
-    if (!res.success) {
-      dispatch('alert/error', res.msg, { root: true });
-      if ('403'.includes(res.msg)) {
+    try {
+      let data = await adminService.createTeacher(teacher);
+      commit('createTeacher', data.teachers);
+      return data;
+    } catch (error) {
+      if (error.response.status === 403) {
         router.push('/403');
       }
-    } else {
-      dispatch('alert/clear', res.success, { root: true });
-      commit('createTeacher', res.teachers);
+      return error.response.data;
     }
   },
 

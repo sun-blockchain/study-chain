@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading.fullscreen.lock="fullscreenLoading">
     <table-admin
       :title="`Teachers Manager`"
       :listAll="listTeachers"
@@ -24,90 +24,66 @@
           icon="fas fa-plus"
           size="medium"
           round
-          v-b-modal.modal-create
+          @click="dialogForm.newTeacher = true"
         ></el-button>
         <!-- <div class="box-defaul-header"></div> -->
       </template>
     </table-admin>
 
-    <b-modal
-      id="info-modal"
-      @hide="resetInfoModalDetail"
-      title="Cập Nhật Môn Học"
-      ok-only
-      ok-variant="secondary"
-      ok-title="Cancel"
+    <el-dialog
+      title="Information Teacher"
+      :visible.sync="dialogForm.inforTeacher"
+      class="modal-with-create"
     >
-      <b-form>
-        <b-form-group id="input-group-1" label-for="input-1">
-          <div class="row">
-            <div class="col-4">
-              <h6>Fullname:</h6>
-            </div>
-            <div class="col-8 text-left">
-              <h5>{{ teacher.Fullname }}</h5>
-            </div>
-          </div>
-        </b-form-group>
-        <b-form-group id="input-group-2" label-for="input-2">
-          <div class="row">
-            <div class="col-4">
-              <h6>Username:</h6>
-            </div>
-            <div class="col-8 text-left">
-              <h5>{{ teacher.Username }}</h5>
-            </div>
-          </div>
-        </b-form-group>
-      </b-form>
-    </b-modal>
-
-    <ValidationObserver ref="observer" v-slot="{ passes }">
-      <b-modal
-        id="modal-create"
-        ref="modal-create"
-        title="Tạo Mới Giáo Viên"
-        @ok.prevent="passes(handleCreate)"
-        @cancel="resetInfoModalCreate"
-        v-loading.fullscreen.lock="fullscreenLoading"
-      >
-        <b-form>
-          <div v-if="alert.message" :class="`text-center alert ${alert.type}`">
-            {{ alert.message }}
-          </div>
-          <ValidationProvider rules="required" name="Teacher Username" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="text"
-                v-model="newTeacher.Username"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Username"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <ValidationProvider
-            rules="required|min:6"
-            name="Teacher Fullname"
-            v-slot="{ valid, errors }"
+      <el-form ref="inforTeacher">
+        <div class="form-group">
+          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
+            >Username</label
           >
-            <b-form-group>
-              <b-form-input
-                type="text"
-                v-model="newTeacher.Fullname"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Fullname"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-        </b-form>
-      </b-modal>
-    </ValidationObserver>
+          <div class="col-sm-12">
+            <h4 class="pl-3">{{ inforTeacher.username }}</h4>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
+            >Full Name</label
+          >
+          <div class="col-sm-12">
+            <h4 class="pl-3">{{ inforTeacher.fullName }}</h4>
+          </div>
+        </div>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="resetForm('inforTeacher')">Cancel</el-button>
+      </span>
+    </el-dialog>
+
+    <el-dialog
+      title="Create Teacher"
+      :visible.sync="dialogForm.newTeacher"
+      class="modal-with-create"
+    >
+      <el-form :model="newTeacher" :rules="ruleTeacher" ref="newTeacher">
+        <el-form-item prop="username">
+          <el-input
+            v-model="newTeacher.username"
+            autocomplete="off"
+            placeholder="Username"
+          ></el-input>
+        </el-form-item>
+        <el-form-item prop="fullName">
+          <el-input
+            v-model="newTeacher.fullName"
+            autocomplete="off"
+            placeholder="Full Name"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="resetForm('newTeacher')">Cancel</el-button>
+        <el-button type="primary" @click="handleCreate('newTeacher')">Confirm</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -115,27 +91,56 @@
 import { mapState, mapActions } from 'vuex';
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 import TableAdmin from '@/components/admin-academy/TableAdmin';
-import { Button } from 'element-ui';
+import { Dialog, Form, FormItem, Input, Button, Message, MessageBox } from 'element-ui';
 export default {
   components: {
     ValidationObserver,
     ValidationProvider,
     TableAdmin,
+    'el-dialog': Dialog,
+    'el-form': Form,
+    'el-form-item': FormItem,
+    'el-input': Input,
     'el-button': Button
   },
   data() {
     return {
-      teacher: {
-        Fullname: '',
-        Username: ''
+      inforTeacher: {
+        fullName: '',
+        username: ''
       },
       newTeacher: {
-        Fullname: '',
-        Username: ''
+        fullName: '',
+        username: ''
       },
       infoModal: {
         id: 'info-modal',
         total: ''
+      },
+      dialogForm: {
+        newTeacher: false,
+        inforTeacher: false
+      },
+      ruleTeacher: {
+        username: [
+          {
+            required: true,
+            message: 'username is required',
+            trigger: 'blur'
+          }
+        ],
+        fullName: [
+          {
+            required: true,
+            message: 'fullname is required',
+            trigger: 'blur'
+          },
+          {
+            min: 6,
+            message: 'fullname must be at least 6 characters',
+            trigger: 'blur'
+          }
+        ]
       },
       fullscreenLoading: false,
       loadingData: true
@@ -153,29 +158,31 @@ export default {
       this.$router.push({ path: `teachers/${row.Username}/subjects` });
     },
     info(row) {
-      this.teacher.Fullname = row.Fullname;
-      this.teacher.Username = row.Username;
-      this.$root.$emit('bv::show::modal', 'info-modal');
+      this.inforTeacher.fullName = row.Fullname;
+      this.inforTeacher.username = row.Username;
+      this.dialogForm.inforTeacher = true;
     },
-    async handleCreate(bvModalEvt) {
-      this.fullscreenLoading = true;
-      await this.createTeacher(this.newTeacher);
-      if (this.alert.type != 'alert-danger') {
-        this.$refs['modal-create'].hide();
-        await this.resetInfoModalCreate();
-      }
-      this.fullscreenLoading = false;
-    },
-    resetInfoModalCreate() {
-      this.newTeacher.Username = '';
-      this.newTeacher.Fullname = '';
-      requestAnimationFrame(() => {
-        this.$refs.observer.reset();
+    handleCreate(formName) {
+      this.$refs[formName].validate(async (valid) => {
+        if (valid) {
+          this.fullscreenLoading = true;
+          let data = await this.createTeacher(this.newTeacher);
+          if (data.success) {
+            this.dialogForm.newTeacher = false;
+            await this.resetForm('newTeacher');
+            Message.success('create success!');
+          } else {
+            Message.error(data.msg);
+          }
+          this.fullscreenLoading = false;
+        }
       });
     },
-    resetInfoModalDetail() {
-      this.teacher.Fullname = '';
-      this.teacher.teacher = '';
+    resetForm(formName) {
+      this[formName].username = '';
+      this[formName].fullName = '';
+      this.$refs[formName].resetFields();
+      this.dialogForm[formName] = false;
     },
     delTeacher(teacher) {
       this.$swal({

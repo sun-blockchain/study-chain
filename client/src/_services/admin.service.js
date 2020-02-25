@@ -408,14 +408,18 @@ async function getAllTeachers() {
 }
 
 async function createTeacher(teacher) {
-  let respone = await axios.post(
-    `${process.env.VUE_APP_API_BACKEND}/account/teacher/create`,
-    { username: teacher.Username, fullname: teacher.Fullname },
-    {
-      headers: authHeader()
-    }
-  );
-  return respone.data;
+  try {
+    let respone = await axios.post(
+      `${process.env.VUE_APP_API_BACKEND}/academy/teacher`,
+      { username: teacher.username, fullname: teacher.fullName },
+      {
+        headers: authHeader()
+      }
+    );
+    return respone.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
 async function deleteTeacher(teacher) {

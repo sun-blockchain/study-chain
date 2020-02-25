@@ -6,6 +6,7 @@ const sinon = require('sinon');
 const network = require('../fabric/network');
 const app = require('../app');
 const USER_ROLES = require('../configs/constant').USER_ROLES;
+const User = require('../models/User');
 
 require('dotenv').config();
 
@@ -2077,6 +2078,252 @@ describe('#POST /academy/removeClassFromSubject', () => {
       })
       .then((res) => {
         expect(res.status).equal(500);
+        done();
+      });
+  });
+});
+
+// ------------------------------------------------------ Teacher Manager --------------------------------------------------------
+// create teacher
+describe('#POST /academy/teacher', () => {
+  let findOneStub;
+  let query;
+  let registerTeacherStub;
+  let connect;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    findOneStub = sinon.stub(User, 'findOne');
+    query = sinon.stub(network, 'query');
+    registerTeacherStub = sinon.stub(network, 'registerTeacherOnBlockchain');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    findOneStub.restore();
+    query.restore();
+    registerTeacherStub.restore();
+  });
+
+  it('should fail because the username already exists.', (done) => {
+    findOneStub.returns({
+      username: 'thienthangaycanh',
+      fullname: 'Tan Trinh'
+    });
+
+    request(app)
+      .post('/academy/teacher')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'thienthangaycanh',
+        fullname: 'Tan Trinh'
+      })
+      .then((res) => {
+        expect(res.status).equal(409);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Teacher already exists');
+
+        done();
+      });
+  });
+
+  it('do not success query all teacher with admin student', (done) => {
+    findOneStub.returns({ username: 'hoangdd', role: USER_ROLES.ADMIN_STUDENT });
+    request(app)
+      .post('/academy/teacher')
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .send({
+        username: 'thienthangaycanh',
+        fullname: 'Tan Trinh'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('do not success becuse req.body empty', (done) => {
+    findOneStub.returns(null);
+    connect.returns({ error: null });
+
+    registerTeacherStub.returns({
+      success: true,
+      msg: 'Register success!'
+    });
+
+    let data = JSON.stringify({ username: 'tantv' }, { username: 'nghianv' });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .post('/academy/teacher')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: '',
+        fullname: 'Do Duc Hoang'
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        done();
+      });
+  });
+
+  it('success query teacher with admin academy', (done) => {
+    findOneStub.returns(null);
+    connect.returns({ error: null });
+
+    registerTeacherStub.returns({
+      success: true,
+      msg: 'Register success!'
+    });
+
+    let data = JSON.stringify({ username: 'tantv' }, { username: 'nghianv' });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .post('/academy/teacher')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'hoangdd',
+        fullname: 'Do Duc Hoang'
+      })
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        done();
+      });
+  });
+
+  it('do not success query teacher with teacher', (done) => {
+    request(app)
+      .post('/academy/teacher')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .send({
+        username: 'thienthangaycanh',
+        fullname: 'Tan Trinh'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('do not success query teacher with student', (done) => {
+    request(app)
+      .post('/academy/teacher')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        username: 'thienthangaycanh',
+        fullname: 'Tan Trinh'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('error when query teacher username', (done) => {
+    findOneStub.throws();
+    connect.returns({ error: null });
+    request(app)
+      .post('/academy/teacher')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'thienthangaycanh',
+        fullname: 'Tan Trinh'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Internal Server Error');
+        done();
+      });
+  });
+
+  it('teacher username is exist', (done) => {
+    findOneStub.returns({ username: 'thienthangaycanhh', role: USER_ROLES.TEACHER });
+
+    connect.returns({ error: null });
+
+    request(app)
+      .post('/academy/teacher')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'thienthangaycanh',
+        fullname: 'Tan Trinh'
+      })
+      .then((res) => {
+        expect(res.status).equal(409);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Teacher already exists');
+        done();
+      });
+  });
+
+  it('error when call function registerTeacherOnBlockchain', (done) => {
+    findOneStub.returns(null);
+
+    connect.returns({ error: null });
+
+    registerTeacherStub.returns({
+      success: false,
+      msg: 'err'
+    });
+
+    request(app)
+      .post('/academy/teacher')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'thienthangaycanh',
+        fullname: 'Tan Trinh'
+      })
+      .then((res) => {
+        expect(res.body.success).equal(false);
+        expect(res.status).equal(500);
+        done();
+      });
+  });
+
+  it('error when call function getAllTeacher', (done) => {
+    findOneStub.returns(undefined, null);
+
+    connect.returns({ error: null });
+
+    registerTeacherStub.returns({
+      success: true,
+      msg: 'Register success!'
+    });
+
+    let data = JSON.stringify({ username: 'thienthangaycanh' }, { username: 'nghianv' });
+
+    query.returns({
+      success: false,
+      msg: data
+    });
+
+    request(app)
+      .post('/academy/teacher')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'thienthangaycanh',
+        fullname: 'Tan Trinh'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
         done();
       });
   });
