@@ -3,7 +3,7 @@ import axios from 'axios';
 
 export const studentService = {
   getAllSubjects,
-  registerSubject,
+  registerCourse,
   getMySubjects,
   getMyCertificates,
   getCourse,
@@ -96,17 +96,16 @@ async function getMyClasses() {
     throw error;
   }
 }
-
-async function registerSubject(subjectId) {
+async function registerCourse(courseId) {
   try {
-    let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/account/me/registersubject`,
-      { subjectId: subjectId },
+    let response = await axios.post(
+      `${process.env.VUE_APP_API_BACKEND}/account/me/registerCourse`,
+      { courseId: courseId },
       {
         headers: authHeader()
       }
     );
-    return respone.data.subjects;
+    return response;
   } catch (error) {
     throw error;
   }

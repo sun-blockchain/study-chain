@@ -87,13 +87,11 @@ const actions = {
       }
     }
   },
-  async registerSubject({ commit }, subjectId) {
+  async registerCourse({ commit }, courseId) {
     try {
-      let listSubjects = await studentService.registerSubject(subjectId);
-      commit('registerSubject', listSubjects);
-      location.reload(true);
+      let response = await studentService.registerCourse(courseId);
+      return response;
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
