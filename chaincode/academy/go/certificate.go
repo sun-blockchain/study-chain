@@ -206,6 +206,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return QueryClass(stub, args)
 	} else if function == "QueryClassesOfStudent" {
 		return QueryClassesOfStudent(stub, args)
+	} else if function == "QueryCoursesOfStudent" {
+		return QueryCoursesOfStudent(stub, args)
 	} else if function == "RemoveClassFromSubject" {
 		return RemoveClassFromSubject(stub, args)
 	}
@@ -1750,6 +1752,40 @@ func QueryClassesOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.R
 
 	if err != nil {
 		return shim.Error("Failed")
+	}
+
+	return shim.Success(jsonRow)
+}
+
+func QueryCoursesOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	StudentUsername := args[0]
+
+	student, err := getStudent(stub, "Student-" + StudentUsername)
+
+	if err != nil {
+		return shim.Error("Student dose not exist - " + StudentUsername)
+	}
+
+	var tlist []Course
+	var i int
+
+	for i = 0; i < len(student.Courses); i++ {
+
+		course, err := getCourse(stub, "Course-" + student.Courses[i])
+		if err != nil {
+			return shim.Error("Course does not exist - " + student.Courses[i])
+		}
+		tlist = append(tlist, course)
+	}
+
+	jsonRow, err := json.Marshal(tlist)
+
+	if err != nil {
+		return shim.Error("Cannot json encode list courses of student")
 	}
 
 	return shim.Success(jsonRow)
