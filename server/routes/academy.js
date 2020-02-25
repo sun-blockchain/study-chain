@@ -4,7 +4,8 @@ const network = require('../fabric/network.js');
 const checkJWT = require('../middlewares/check-jwt');
 const { body, validationResult, check } = require('express-validator');
 const uuidv4 = require('uuid/v4');
-const Status = { Open :'Open', Closed : 'Closed', Completed : 'Completed'};
+const Status = { Open: 'Open', Closed: 'Closed', Completed: 'Completed' };
+const User = require('../models/User');
 
 // Edit course info
 router.put(
@@ -814,9 +815,8 @@ router.put(
       .trim()
       .escape()
   ],
-  
-  async (req, res, next) => {
 
+  async (req, res, next) => {
     if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
       return res.status(403).json({
         success: false,
@@ -829,7 +829,7 @@ router.put(
     }
 
     let classId = req.body.classId;
-    
+
     let networkObj = await network.connectToNetwork(req.decoded.user);
     if (!networkObj) {
       return res.status(500).json({
@@ -925,6 +925,84 @@ router.post(
       return res.status(500).json({
         success: false,
         msg: 'Remove Failed'
+      });
+    }
+  }
+);
+
+// ------------------------------------------------------ Teacher Manager --------------------------------------------------------
+// create teacher
+router.post(
+  '/teacher',
+  [
+    body('username')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+
+    body('fullname')
+      .isLength({ min: 6 })
+      .not()
+      .isEmpty()
+      .trim()
+      .escape()
+  ],
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, errors: errors.array() });
+    }
+
+    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied'
+      });
+    }
+
+    try {
+      let user = await User.findOne({ username: req.body.username });
+
+      if (user) {
+        return res.status(409).json({
+          success: false,
+          msg: 'Teacher already exists'
+        });
+      }
+
+      let createdUser = {
+        username: req.body.username,
+        fullname: req.body.fullname
+      };
+
+      const networkObj = await network.connectToNetwork(req.decoded.user);
+      const response = await network.registerTeacherOnBlockchain(networkObj, createdUser);
+
+      if (!response.success) {
+        return res.status(500).json({
+          success: false,
+          msg: response.msg
+        });
+      }
+      const teachers = await network.query(networkObj, 'GetAllTeachers');
+
+      if (!teachers.success) {
+        return res.status(500).json({
+          success: false,
+          msg: response.msg
+        });
+      }
+
+      return res.json({
+        success: true,
+        msg: response.msg,
+        teachers: JSON.parse(teachers.msg)
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Internal Server Error'
       });
     }
   }
