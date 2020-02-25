@@ -31,7 +31,13 @@
                 </template>
                 <template slot-scope="scope">
                   <el-tooltip v-if="btnRegister" class="item" content="Register" placement="top">
-                    <el-button icon="fa fa-registered" type="primary" round size="mini"></el-button>
+                    <el-button
+                      icon="fa fa-registered"
+                      type="primary"
+                      round
+                      size="mini"
+                      @click="callFunctionRegister(scope.row)"
+                    ></el-button>
                   </el-tooltip>
                   <el-tooltip v-if="btnDetail" class="item" content="Detail" placement="top">
                     <el-button
@@ -79,28 +85,21 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
-import { ValidationObserver, ValidationProvider } from "vee-validate";
-import { STATUS_CERT } from "../../_helpers/constants";
-import {
-  Button,
-  Table,
-  TableColumn,
-  Pagination,
-  Input,
-  Tooltip
-} from "element-ui";
+import { mapState, mapActions } from 'vuex';
+import { ValidationObserver, ValidationProvider } from 'vee-validate';
+import { STATUS_CERT } from '../../_helpers/constants';
+import { Button, Table, TableColumn, Pagination, Input, Tooltip } from 'element-ui';
 export default {
-  name: "common-view-student",
+  name: 'common-view-student',
   components: {
     ValidationObserver,
     ValidationProvider,
-    "el-button": Button,
-    "el-table": Table,
-    "el-table-column": TableColumn,
-    "el-pagination": Pagination,
-    "el-input": Input,
-    "el-tooltip": Tooltip
+    'el-button': Button,
+    'el-table': Table,
+    'el-table-column': TableColumn,
+    'el-pagination': Pagination,
+    'el-input': Input,
+    'el-tooltip': Tooltip
   },
   props: {
     title: String,
@@ -110,6 +109,7 @@ export default {
     btnRegister: Boolean,
     nameFunctionDetail: String,
     nameFunctionInfo: String,
+    nameFunctionRegister: String,
     loadingData: Boolean,
     listProperties: Array
   },
@@ -120,7 +120,7 @@ export default {
       pageOptions: [10, 20, 50, 100],
       fullscreenLoading: false,
       pageSize: 10,
-      search: "",
+      search: '',
       listQuery: this.listAll,
       listPagination: [],
       total: this.listAll ? this.listAll.length : 0
@@ -148,15 +148,13 @@ export default {
       );
     },
     searchHandle() {
-      let statment = "!this.search";
+      let statment = '!this.search';
       this.listProperties.forEach((attr, index) => {
         if (attr) {
           statment += ` || data.${attr.prop}.toLowerCase().includes(this.search.toLowerCase()) `;
         }
       });
-      this.listQuery = this.listAll
-        ? eval(`this.listAll.filter(data => ${statment})`)
-        : [];
+      this.listQuery = this.listAll ? eval(`this.listAll.filter(data => ${statment})`) : [];
       this.setlistPagination();
     },
     callFunctionDetail(row) {
@@ -164,6 +162,9 @@ export default {
     },
     callFunctionInfo(row) {
       this.$emit(this.nameFunctionInfo, row);
+    },
+    callFunctionRegister(row) {
+      this.$emit(this.nameFunctionRegister, row);
     }
   }
 };

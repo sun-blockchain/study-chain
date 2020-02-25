@@ -411,7 +411,7 @@ router.post(
     let courseId = req.body.courseId;
     let student = JSON.parse(query.msg);
 
-    if (student.Courses.includes(courseId)) {
+    if (student.Courses && student.Courses.includes(courseId)) {
       return res.status(500).json({
         success: false,
         msg: 'You studied this course!'
