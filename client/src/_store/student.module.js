@@ -8,7 +8,8 @@ const state = {
   myCertificates: [],
   listCourses: [],
   listClasses: [],
-  subject: null
+  subject: null,
+  listMyClasses: []
 };
 
 const actions = {
@@ -76,6 +77,16 @@ const actions = {
       }
     }
   },
+  async getMyClasses({ commit }) {
+    try {
+      let listMyClasses = await studentService.getMyClasses();
+      commit('getMyClasses', listMyClasses);
+    } catch (error) {
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
+  },
   async registerSubject({ commit }, subjectId) {
     try {
       let listSubjects = await studentService.registerSubject(subjectId);
@@ -130,6 +141,9 @@ const mutations = {
   },
   getClassesOfSubject(state, listClasses) {
     state.listClasses = listClasses;
+  },
+  getMyClasses(state, listMyClasses) {
+    state.listMyClasses = listMyClasses;
   },
   registerSubject(state, listSubjects) {
     state.listSubjects = listSubjects;

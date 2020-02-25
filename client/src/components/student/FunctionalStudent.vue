@@ -13,6 +13,12 @@
       </router-link>
     </li>
     <li class="nav-item">
+      <router-link class="nav-link color-black" to="/myClasses">
+        <i class="color-999 fas fa-layer-group"></i>
+        My Classes
+      </router-link>
+    </li>
+    <li class="nav-item">
       <router-link class="nav-link color-black" :to="`/student/mycertificates`">
         <i class="color-999 fas fa-award"></i>
         My Certificates
@@ -23,6 +29,6 @@
 
 <script>
 export default {
-  name: "functionalStudent"
+  name: 'functionalStudent'
 };
 </script>
