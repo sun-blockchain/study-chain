@@ -1060,3 +1060,339 @@ describe('POST /account/me/registerCourse', () => {
       });
   });
 });
+
+describe('POST /account/me/registerClass', () => {
+  let connect;
+  let query;
+  let studentRegisterClass;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+    studentRegisterClass = sinon.stub(network, 'studentRegisterClass');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+    studentRegisterClass.restore();
+  });
+
+  it('Validate body fail!', (done) => {
+    request(app)
+      .post('/account/me/registerClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        classId: ''
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('Permission Denied!', (done) => {
+    request(app)
+      .post('/account/me/registerClass')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied!');
+        done();
+      });
+  });
+
+  it('Failed to connect to blockchain!', (done) => {
+    connect.returns(null);
+    request(app)
+      .post('/account/me/registerClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain!');
+        done();
+      });
+  });
+
+  it('Can not query student in chaincode!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    query.returns({
+      success: false,
+      msg: 'Error'
+    });
+
+    request(app)
+      .post('/account/me/registerClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not query chaincode!');
+        done();
+      });
+  });
+
+  it('You studied this class!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    let studentInfo = JSON.stringify({
+      Username: 'st01',
+      Classes: ['123456']
+    });
+
+    query.returns({
+      success: true,
+      msg: studentInfo
+    });
+
+    request(app)
+      .post('/account/me/registerClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('You studied this class!');
+        done();
+      });
+  });
+
+  it('Can not query class in chaincode!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    let studentInfo = JSON.stringify({
+      Username: 'st01',
+      Classes: ['123457']
+    });
+
+    query.onFirstCall().returns({
+      success: true,
+      msg: studentInfo
+    });
+
+    query.onSecondCall().returns({
+      success: false,
+      msg: 'Error'
+    });
+
+    request(app)
+      .post('/account/me/registerClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not query chaincode!');
+        done();
+      });
+  });
+
+  it('Class register closed!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    let studentInfo = JSON.stringify({
+      Username: 'st01',
+      Classes: ['123457']
+    });
+
+    query.onFirstCall().returns({
+      success: true,
+      msg: studentInfo
+    });
+
+    let classInfo = JSON.stringify({
+      ClassID: '123456',
+      Status: 'Closed'
+    });
+
+    query.onSecondCall().returns({
+      success: true,
+      msg: classInfo
+    });
+
+    request(app)
+      .post('/account/me/registerClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Class register closed!');
+        done();
+      });
+  });
+
+  it('Class register completed', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    let studentInfo = JSON.stringify({
+      Username: 'st01',
+      Classes: ['123457']
+    });
+
+    query.onFirstCall().returns({
+      success: true,
+      msg: studentInfo
+    });
+
+    let classInfo = JSON.stringify({
+      ClassID: '123456',
+      Status: 'Completed'
+    });
+
+    query.onSecondCall().returns({
+      success: true,
+      msg: classInfo
+    });
+
+    request(app)
+      .post('/account/me/registerClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Class was completed!');
+        done();
+      });
+  });
+
+  it('Can not invoke chaincode!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    let studentInfo = JSON.stringify({
+      Username: 'st01',
+      Classes: ['123457']
+    });
+
+    query.onFirstCall().returns({
+      success: true,
+      msg: studentInfo
+    });
+
+    let classInfo = JSON.stringify({
+      ClassID: '123457',
+      Status: 'Open'
+    });
+
+    query.onSecondCall().returns({
+      success: true,
+      msg: classInfo
+    });
+
+    studentRegisterClass.returns({
+      success: false,
+      msg: 'Can not invoke chaincode!'
+    });
+
+    request(app)
+      .post('/account/me/registerClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not invoke chaincode!');
+        done();
+      });
+  });
+
+  it('Register Successfully!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    let studentInfo = JSON.stringify({
+      Username: 'st01',
+      Classes: ['123457']
+    });
+
+    query.onFirstCall().returns({
+      success: true,
+      msg: studentInfo
+    });
+
+    let classInfo = JSON.stringify({
+      ClassID: '123456',
+      Status: 'Open'
+    });
+
+    query.onSecondCall().returns({
+      success: true,
+      msg: classInfo
+    });
+
+    studentRegisterClass.returns({
+      success: true
+    });
+
+    request(app)
+      .post('/account/me/registerClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        expect(res.body.msg).equal('Register Successfully!');
+        done();
+      });
+  });
+});
