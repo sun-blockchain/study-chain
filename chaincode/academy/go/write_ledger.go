@@ -57,14 +57,14 @@ func CreateTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 	}
 
 	if MSPID != "AcademyMSP" {
-		return shim.Error("WHO ARE YOU")
+		return shim.Error("Permission denied!")
 	}
 
 	if len(args) != 2 {
 		return shim.Error("Incorrect number of arguments. Expecting 2")
 	}
 
-	fmt.Println("Start Create Student!")
+	fmt.Println("Start Create Teacher!")
 
 	Username := args[0]
 	Fullname := args[1]
@@ -77,11 +77,11 @@ func CreateTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		return shim.Error("This teacher already exists - " + Username)
 	}
 
-	var teacher = Teacher{Username: Username, Fullname: Fullname, Subjects: nil}
+	var teacher = Teacher{Username: Username, Fullname: Fullname}
 
-	studentAsBytes, _ := json.Marshal(teacher)
+	teacherAsBytes, _ := json.Marshal(teacher)
 
-	stub.PutState(key, studentAsBytes)
+	stub.PutState(key, teacherAsBytes)
 
 	return shim.Success(nil)
 }
