@@ -41,15 +41,16 @@ type Subject struct {
 
 type Class struct {
 	ClassID          string
+	SubjectID        string
 	ClassCode        string
 	Room             string
 	Time             string
 	Status           ClassStatus
 	ShortDescription string
 	Description      string
-	StartDate		 string
-	EndDate		 	 string
-	Repeat		 	 string
+	StartDate        string
+	EndDate          string
+	Repeat           string
 	Students         []string
 	Capacity         uint64
 }
@@ -157,8 +158,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return GetMyScores(stub)
 	} else if function == "StudentRegisterCourse" {
 		return StudentRegisterCourse(stub, args)
-	} else if function == "TeacherRegisterSubject" {
-		return TeacherRegisterSubject(stub, args)
+	} else if function == "StudentRegisterClass" {
+		return StudentRegisterClass(stub, args)
 	} else if function == "GetSubjectsByStudent" {
 		return GetSubjectsByStudent(stub, args)
 	} else if function == "GetCertificatesByStudent" {
@@ -203,75 +204,82 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return CloseRegisterClass(stub, args)
 	} else if function == "QueryClass" {
 		return QueryClass(stub, args)
-	}  else if function == "QueryClassesOfStudent" {
+	} else if function == "QueryClassesOfStudent" {
 		return QueryClassesOfStudent(stub, args)
-	}  else if function == "RemoveClassFromSubject" {
+	} else if function == "RemoveClassFromSubject" {
 		return RemoveClassFromSubject(stub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name!")
 }
 
-func TeacherRegisterSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+func StudentRegisterClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	// var TeacherUsername string
+	MSPID, err := cid.GetMSPID(stub)
 
-	// MSPID, err := cid.GetMSPID(stub)
+	if err != nil {
+		return shim.Error("Error - cid.GetMSPID()")
+	}
 
-	// if err != nil {
-	// 	return shim.Error("Error - cid.GetMSPID()")
-	// }
+	if MSPID != "StudentMSP" {
+		return shim.Error("Permission Denied!")
+	}
 
-	// if MSPID != "AcademyMSP" {
-	// 	return shim.Error("Permission Denied!")
-	// }
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2")
+	}
 
-	// TeacherUsername, ok, err := cid.GetAttributeValue(stub, "username")
+	Student := args[0]
+	ClassID := args[1]
 
-	// if err != nil {
-	// 	return shim.Error("Error - cid.GetAttributeValue()")
-	// }
+	keyStudent := "Student-" + Student
+	keyClass := "Class-" + ClassID
 
-	// if !ok {
-	// 	TeacherUsername = args[1]
-	// }
+	student, err := getStudent(stub, keyStudent)
 
-	// SubjectID := args[0]
+	if err != nil {
+		return shim.Error("Student does not exist!")
+	}
 
-	// keySubject := "Subject-" + SubjectID
-	// keyTeacher := "Teacher-" + TeacherUsername
+	class, err := getClass(stub, keyClass)
 
-	// subject, err := getSubject(stub, keySubject)
+	if err != nil {
+		return shim.Error("Class does not exist!")
+	}
 
-	// if err != nil {
+	if class.Status == Completed {
+		return shim.Error("This class was completed!")
+	}
 
-	// 	return shim.Error("Subject does not exist !")
+	if class.Status == Closed {
+		return shim.Error("Class register closed!")
+	}
 
-	// } else {
+	var i int
+	for i = 0; i < len(student.Classes); i++ {
+		if ClassID == student.Classes[i] {
+			return shim.Error("You registered this class!")
+		}
 
-	// 	teacher, err := getTeacher(stub, keyTeacher)
+		classInfo, _ := getClass(stub, "Class-" + student.Classes[i])
+		if classInfo.SubjectID == class.SubjectID {
+			return shim.Error("You studied this subject!")
+		}
+	}
 
-	// 	if err != nil {
+	if uint64(len(class.Students)) >= class.Capacity {
+		return shim.Error("This class is full!")
+	}
 
-	// 		return shim.Error("Student does not exist !")
+	class.Students = append(class.Students, Student)
+	student.Classes = append(student.Classes, ClassID)
 
-	// 	} else {
+	classAsBytes, _ := json.Marshal(class)
+	studentAsBytes, _ := json.Marshal(student)
 
-	// 		teacher.Subjects = append(teacher.Subjects, SubjectID)
+	stub.PutState(keyClass, classAsBytes)
+	stub.PutState(keyStudent, studentAsBytes)
 
-	// 		subject.TeacherUsername = TeacherUsername
-
-	// 		subjectAsBytes, _ := json.Marshal(subject)
-
-	// 		teacherAsBytes, _ := json.Marshal(teacher)
-
-	// 		stub.PutState(keyTeacher, teacherAsBytes)
-
-	// 		stub.PutState(keySubject, subjectAsBytes)
-
-	// 		return shim.Success(nil)
-	// 	}
-	// }
 	return shim.Success(nil)
 }
 
@@ -285,6 +293,10 @@ func StudentRegisterCourse(stub shim.ChaincodeStubInterface, args []string) sc.R
 
 	if MSPID != "StudentMSP" {
 		return shim.Error("Permission Denied!")
+	}
+
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2")
 	}
 
 	Username := args[0]

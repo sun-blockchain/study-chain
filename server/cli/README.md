@@ -170,7 +170,7 @@ node invoke.js --username=adminacademy --func=CreateSubject --subjectCode=ET01 -
 ```
 
 ```bash
-node invoke.js --username=adminacademy --func=CreateClass --classCode=ETH101 --room=F13 --time="11:00" --shortDescription=Ethereum --description="Teacher: Do Trung Kien" --subjectId="abc-def" --capacity=100
+node invoke.js --username=adminacademy --func=CreateClass --classCode=ETH101 --room=F13 --time="11:00" --startDate=abc --endDate=abc --repeat=Weekly --shortDescription=Ethereum --description="Teacher: Do Trung Kien" --subjectId="abc-def" --capacity=100
 ```
 
 ```bash
@@ -203,6 +203,10 @@ node invoke.js --username=adminacademy --func=TeacherRegisterSubject --subjectid
 
 ```bash
 node invoke.js --username=st01 --func=StudentRegisterCourse --courseId=xxxx
+```
+
+```bash
+node invoke.js --username=st01 --func=StudentRegisterClass --classId=xxxx
 ```
 
 ```bash

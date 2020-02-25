@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+
 	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
@@ -195,8 +196,7 @@ func CreateClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	SubjectID := args[9]
 	Capacity := args[10]
 
-	CapacityInt, err :=  strconv.ParseUint(Capacity, 10, 64)
-	
+	CapacityInt, err := strconv.ParseUint(Capacity, 10, 64)
 
 	if err != nil {
 		return shim.Error("Convert Capacity To Integer Failed")
@@ -217,7 +217,7 @@ func CreateClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("This subject does not exists - " + SubjectID)
 	}
 
-	var class = Class{ClassID: ClassID, ClassCode: ClassCode, Room: Room, Time: Time, StartDate: StartDate, EndDate: EndDate, Repeat: Repeat, Status: Open, ShortDescription: ShortDescription, Description: Description, Capacity: CapacityInt}
+	var class = Class{ClassID: ClassID, SubjectID: SubjectID, ClassCode: ClassCode, Room: Room, Time: Time, StartDate: StartDate, EndDate: EndDate, Repeat: Repeat, Status: Open, ShortDescription: ShortDescription, Description: Description, Capacity: CapacityInt}
 
 	classAsBytes, _ := json.Marshal(class)
 
