@@ -45,7 +45,26 @@
         <!-- <div class="box-defaul-header"></div> -->
       </template>
     </table-admin>
-
+    <table-admin
+      :title="`Student List`"
+      :listAll="subjectsOfCourse ? subjectsOfCourse : []"
+      :loadingData="loadingData"
+      :btnInfo="true"
+      :nameFunctionInfo="`showInfoSubject`"
+      :btnDetail="false"
+      :nameFunctionDetail="`detailSubject`"
+      :nameFunctionDelete="`delStudent`"
+      :btnDelete="false"
+      :listProperties="[
+        { prop: 'SubjectName', label: 'Subject Name' },
+        { prop: 'SubjectCode', label: 'Subject Code' },
+        { prop: 'ShortDescription', label: 'Short Description' }
+      ]"
+      @detailSubject="detailSubject($event)"
+      @delStudent="delStudent($event)"
+      @showInfoSubject="showInfoSubject($event)"
+    >
+    </table-admin>
     <el-dialog
       title="Add Subject To Course"
       :visible.sync="dialogForm.addSubject"

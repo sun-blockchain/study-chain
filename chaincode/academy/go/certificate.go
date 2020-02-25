@@ -59,7 +59,7 @@ type Teacher struct {
 	Username string
 	Fullname string
 	Info     Information
-	Subjects []string
+	Classes []string
 }
 
 type Student struct {
@@ -1106,17 +1106,17 @@ func QueryTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	Username := args[0]
 
 	key := "Teacher-" + Username
-	studentAsBytes, err := stub.GetState(key)
+	teacherAsBytes, err := stub.GetState(key)
 
 	if err != nil {
 		return shim.Error("Failed")
 	}
 
-	if studentAsBytes == nil {
-		return shim.Error("Student does not exits - " + args[0])
+	if teacherAsBytes == nil {
+		return shim.Error("Teacher does not exits - " + args[0])
 	}
 
-	return shim.Success(studentAsBytes)
+	return shim.Success(teacherAsBytes)
 }
 
 func QueryScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
