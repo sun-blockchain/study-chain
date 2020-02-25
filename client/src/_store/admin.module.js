@@ -21,7 +21,6 @@ const actions = {
       commit('createClass', listClasses);
       return listClasses;
     } catch (error) {
-      console.log(error);
       // if (error.response.status === 403) {
       //   router.push('/403');
       // }
@@ -48,7 +47,6 @@ const actions = {
       commit('getClass', data);
       return data;
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -59,7 +57,6 @@ const actions = {
       let listClasses = await adminService.deleteClass(subjectId, classId);
       commit('deleteClass', listClasses);
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -72,7 +69,18 @@ const actions = {
       commit('closeClass', data);
       return data;
     } catch (error) {
-      console.log(error);
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
+  },
+  async getStudentsOfClass({ commit }, { classId }) {
+    try {
+      let data = await adminService.getStudentsOfClass(classId);
+
+      commit('getStudentsOfClass', data.students);
+      return data.students;
+    } catch (error) {
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -85,7 +93,6 @@ const actions = {
       commit('getSubjectsOfCourse', data.listSubjects);
       return data.course;
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -97,7 +104,6 @@ const actions = {
       commit('getAllCourses', listCourses);
       return listCourses;
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -109,7 +115,6 @@ const actions = {
       commit('createCourse', listCourses);
       return listCourses;
     } catch (error) {
-      console.log(error);
       // if (error.response.status === 403) {
       //   router.push('/403');
       // }
@@ -121,7 +126,6 @@ const actions = {
       commit('updateCourse', listCourses);
       return listCourses;
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -132,7 +136,6 @@ const actions = {
       let listCourses = await adminService.deleteCourse(courseId);
       commit('deleteCourse', listCourses);
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -145,7 +148,6 @@ const actions = {
       commit('getSubject', data.subject);
       return data.subject;
     } catch (error) {
-      console.log(error);
       // if (error.response.status === 403) {
       //   router.push('/403');
       // }
@@ -160,7 +162,6 @@ const actions = {
       let data = await adminService.getSubjectsNoCourse(courseId);
       return data;
     } catch (error) {
-      console.log(error);
       // if (error.response.status === 403) {
       //   router.push('/403');
       // }
@@ -173,7 +174,6 @@ const actions = {
       let data = await adminService.addSubjectToCourse(courseId, subjectId);
       return data;
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -186,7 +186,6 @@ const actions = {
       let data = await adminService.deleteSubjectFromCourse(courseId, subjectId);
       return data;
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -201,7 +200,6 @@ const actions = {
       commit('getAllSubjects', listSubjects);
       return listSubjects;
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -213,7 +211,6 @@ const actions = {
       commit('createSubject', data.subjects);
       return data;
     } catch (error) {
-      console.log(error.response.data);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -226,7 +223,6 @@ const actions = {
       commit('updateSubject', data.subjects);
       return data;
     } catch (error) {
-      console.log(error.response);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -239,7 +235,6 @@ const actions = {
       commit('deleteSubject', data.subjects);
       return data;
     } catch (error) {
-      console.log(error.response);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -253,7 +248,6 @@ const actions = {
       let listStudents = await adminService.getStudentsOfSubject(subjectId);
       commit('getStudentsOfSubject', listStudents);
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -264,7 +258,6 @@ const actions = {
       let listSubjects = await adminService.deleteStudentOfSubject(SubjectID, Username);
       commit('deleteStudentOfSubject', listSubjects);
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -277,7 +270,6 @@ const actions = {
       let listTeachers = await adminService.getAllTeachers();
       commit('getAllTeachers', listTeachers);
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -301,7 +293,6 @@ const actions = {
       let listTeachers = await adminService.deleteTeacher(teacher);
       commit('deleteTeacher', listTeachers);
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -314,7 +305,6 @@ const actions = {
       let listSubjects = await adminService.getSubjectsOfTeacher(Username);
       commit('getSubjectsOfTeacher', listSubjects);
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -325,7 +315,6 @@ const actions = {
       let listSubjects = await adminService.deleteSubjectOfTeacher(Username, subjectId);
       commit('deleteSubjectOfTeacher', listSubjects);
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -333,12 +322,10 @@ const actions = {
   },
   async addSubjectOfTeacher({ commit }, { username, subjectId }) {
     try {
-      console.log(username, subjectId);
       let listSubjects = await adminService.addSubjectOfTeacher(username, subjectId);
       commit('addSubjectOfTeacher', listSubjects);
       location.reload(true);
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -349,7 +336,6 @@ const actions = {
       let listSubjects = await adminService.getSubjectsNoTeacher();
       commit('getSubjectsNoTeacher', listSubjects);
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -362,7 +348,6 @@ const actions = {
       let listStudents = await adminService.getAllStudents();
       commit('getAllStudents', listStudents);
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -373,7 +358,6 @@ const actions = {
       let listClasses = await adminService.getClassesOfSubject(subjectId);
       commit('getClassesOfSubject', listClasses);
     } catch (error) {
-      console.log(error);
       // if (error.response.status === 403) {
       //   router.push('/403');
       // }
@@ -385,7 +369,6 @@ const actions = {
       let listSubjects = await adminService.getSubjectsOfStudent(Username);
       commit('getSubjectsOfStudent', listSubjects);
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -434,6 +417,9 @@ const mutations = {
   },
   closeClass(state, listClasses) {
     state.listClasses = listClasses;
+  },
+  getStudentsOfClass(state, listStudents) {
+    state.listStudents = listStudents;
   },
   getCourse(state, listCourses) {
     state.listCourses = listCourses;
