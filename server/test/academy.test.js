@@ -362,6 +362,126 @@ describe('#POST /academy/deleteCourse', () => {
   });
 });
 
+describe('#POST /academy/coursesOfStudent', () => {
+  let queryCourses;
+  let connect;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    queryCourses = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    queryCourses.restore();
+  });
+
+  it('permission denied', (done) => {
+    request(app)
+      .post('/academy/coursesOfStudent')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        username: 'conglt'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        done();
+      });
+  });
+
+  it('failed because req.body is invalid', (done) => {
+    request(app)
+      .post('/academy/coursesOfStudent')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: ''
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        done();
+      });
+  });
+
+  it('failed connect to blockchain', (done) => {
+    connect.returns(null);
+
+    request(app)
+      .post('/academy/coursesOfStudent')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'conglt'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        done();
+      });
+  });
+
+  it('failed to query classes of student in chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    let data = JSON.stringify({
+      error: 'Error Network'
+    });
+
+    queryCourses.returns({
+      success: false,
+      msg: data
+    });
+
+    request(app)
+      .post('/academy/coursesOfStudent')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'conglt'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        done();
+      });
+  });
+
+  it('success query classes of user student', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    let data = JSON.stringify([
+      {
+        CourseID: '1234-456-789-123a',
+        CourseCode: 'ETH101',
+        ShortDescription: 'Ethereum',
+        Description: 'Ethereum101'
+      }
+    ]);
+
+    queryCourses.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .post('/academy/coursesOfStudent')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'conglt'
+      })
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        done();
+      });
+  });
+});
+
 describe('#POST /academy/:subjectId/class', () => {
   let connect;
   let query;

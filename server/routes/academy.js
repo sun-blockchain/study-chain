@@ -375,6 +375,57 @@ router.post(
   }
 );
 
+router.post(
+  '/coursesOfStudent',
+  checkJWT,
+  body('username')
+    .not()
+    .isEmpty()
+    .trim()
+    .escape(),
+  async (req, res) => {
+    const user = req.decoded.user;
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    const username = req.body.username;
+
+    if (user.role !== USER_ROLES.ADMIN_ACADEMY) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied'
+      });
+    }
+
+    const networkObj = await network.connectToNetwork(user);
+
+    if (!networkObj) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Connect to blockchain failed'
+      });
+    }
+
+    const response = await network.query(networkObj, 'QueryCoursesOfStudent', username);
+
+    if (!response.success) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Query chaincode failed'
+      });
+    }
+
+    return res.json({
+      success: true,
+      courses: JSON.parse(response.msg)
+    });
+  }
+);
+
 // Create class
 router.post(
   '/subject/:subjectId/class',
