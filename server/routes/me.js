@@ -503,14 +503,14 @@ router.post(
     let classes = JSON.parse(query.msg);
 
     if (classes) {
-      classes.forEach((element) => {
-        if (element.SubjectID === classInfo.SubjectID) {
+      for (let i = 0; i < classes.length; i++) {
+        if (classes[i].SubjectID === classInfo.SubjectID) {
           return res.status(400).json({
             success: false,
             msg: 'You studied this subject!'
           });
         }
-      });
+      }
     }
 
     if (classInfo.Status === 'Closed') {
