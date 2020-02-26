@@ -28,6 +28,7 @@ type Course struct {
 	ShortDescription string
 	Description      string
 	Subjects         []string
+	Students         []string
 }
 
 type Subject struct {
@@ -212,6 +213,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return QueryCoursesOfStudent(stub, args)
 	} else if function == "RemoveClassFromSubject" {
 		return RemoveClassFromSubject(stub, args)
+	} else if function == "QueryStudentsOfCourse" {
+		return QueryStudentsOfCourse(stub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name!")
@@ -265,7 +268,7 @@ func StudentRegisterClass(stub shim.ChaincodeStubInterface, args []string) sc.Re
 			return shim.Error("You registered this class!")
 		}
 
-		classInfo, _ := getClass(stub, "Class-" + student.Classes[i])
+		classInfo, _ := getClass(stub, "Class-"+student.Classes[i])
 		if classInfo.SubjectID == class.SubjectID {
 			return shim.Error("You studied this subject!")
 		}
@@ -397,7 +400,7 @@ func StudentRegisterCourse(stub shim.ChaincodeStubInterface, args []string) sc.R
 		return shim.Error("Student does not exist!")
 	}
 
-	_, err = getCourse(stub, keyCourse)
+	course, err := getCourse(stub, keyCourse)
 	if err != nil {
 		return shim.Error("Course does not exist!")
 	}
@@ -410,10 +413,20 @@ func StudentRegisterCourse(stub shim.ChaincodeStubInterface, args []string) sc.R
 	}
 
 	student.Courses = append(student.Courses, CourseID)
+	course.Students = append(course.Students, Username)
 
-	studentAsBytes, _ := json.Marshal(student)
+	studentAsBytes, err := json.Marshal(student)
+	if err != nil {
+		return shim.Error("Can not convert data to bytes")
+	}
+
+	courseAsBytes, err := json.Marshal(course)
+	if err != nil {
+		return shim.Error("Can not convert data to bytes")
+	}
 
 	stub.PutState(keyStudent, studentAsBytes)
+	stub.PutState(keyCourse, courseAsBytes)
 
 	return shim.Success(nil)
 }
@@ -1055,16 +1068,6 @@ func QueryCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
 
-	// MSPID, err := cid.GetMSPID(stub)
-
-	// if err != nil {
-	// 	shim.Error("Error - cid.GetMSPID()")
-	// }
-
-	// if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
-	// 	shim.Error("Permission Denied!")
-	// }
-
 	CourseID = args[0]
 
 	key := "Course-" + CourseID
@@ -1082,11 +1085,6 @@ func QueryCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 }
 
 func QuerySubjectsOfCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
-	_, err := cid.GetMSPID(stub)
-
-	if err != nil {
-		fmt.Println("Error - cid.GetMSPID()")
-	}
 
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
@@ -1116,6 +1114,50 @@ func QuerySubjectsOfCourse(stub shim.ChaincodeStubInterface, args []string) sc.R
 
 	if err != nil {
 		return shim.Error("Failed")
+	}
+
+	return shim.Success(jsonRow)
+}
+
+func QueryStudentsOfCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		shim.Error("Error - cid.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		shim.Error("Permission Denied!")
+	}
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	CourseID := args[0]
+
+	course, err := getCourse(stub, "Course-"+CourseID)
+
+	if err != nil {
+		return shim.Error("Course dose not exist - " + CourseID)
+	}
+
+	var tlist []Student
+	var i int
+
+	for i = 0; i < len(course.Students); i++ {
+
+		student, err := getStudent(stub, "Student-"+course.Students[i])
+		if err != nil {
+			return shim.Error("Student does not exist - " + course.Students[i])
+		}
+		tlist = append(tlist, student)
+	}
+
+	jsonRow, err := json.Marshal(tlist)
+
+	if err != nil {
+		return shim.Error("Can not convert data to bytes!")
 	}
 
 	return shim.Success(jsonRow)
@@ -1407,7 +1449,6 @@ func GetStudentsOfClass(stub shim.ChaincodeStubInterface, args []string) sc.Resp
 	if MSPID == "StudentMSP" {
 		return shim.Error("Permission denied!")
 	}
-
 
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
@@ -1826,7 +1867,7 @@ func QueryClassesOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.R
 
 	StudentUsername := args[0]
 
-	student, err := getStudent(stub, "Student-" + StudentUsername)
+	student, err := getStudent(stub, "Student-"+StudentUsername)
 
 	if err != nil {
 		return shim.Error("Student dose not exist - " + StudentUsername)
@@ -1837,7 +1878,7 @@ func QueryClassesOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.R
 
 	for i = 0; i < len(student.Classes); i++ {
 
-		class, err := getClass(stub, "Class-" + student.Classes[i])
+		class, err := getClass(stub, "Class-"+student.Classes[i])
 		if err != nil {
 			return shim.Error("Class does not exist - " + student.Classes[i])
 		}
@@ -1860,7 +1901,7 @@ func QueryCoursesOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.R
 
 	StudentUsername := args[0]
 
-	student, err := getStudent(stub, "Student-" + StudentUsername)
+	student, err := getStudent(stub, "Student-"+StudentUsername)
 
 	if err != nil {
 		return shim.Error("Student dose not exist - " + StudentUsername)
@@ -1871,7 +1912,7 @@ func QueryCoursesOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.R
 
 	for i = 0; i < len(student.Courses); i++ {
 
-		course, err := getCourse(stub, "Course-" + student.Courses[i])
+		course, err := getCourse(stub, "Course-"+student.Courses[i])
 		if err != nil {
 			return shim.Error("Course does not exist - " + student.Courses[i])
 		}
