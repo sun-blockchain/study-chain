@@ -59,7 +59,7 @@ type Teacher struct {
 	Username string
 	Fullname string
 	Info     Information
-	Classes []string
+	Classes  []string
 }
 
 type Student struct {
@@ -160,6 +160,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return StudentRegisterCourse(stub, args)
 	} else if function == "StudentRegisterClass" {
 		return StudentRegisterClass(stub, args)
+	} else if function == "StudentCancelRegisterClass" {
+		return StudentCancelRegisterClass(stub, args)
 	} else if function == "GetSubjectsByStudent" {
 		return GetSubjectsByStudent(stub, args)
 	} else if function == "GetCertificatesByStudent" {
@@ -278,6 +280,89 @@ func StudentRegisterClass(stub shim.ChaincodeStubInterface, args []string) sc.Re
 
 	classAsBytes, _ := json.Marshal(class)
 	studentAsBytes, _ := json.Marshal(student)
+
+	stub.PutState(keyClass, classAsBytes)
+	stub.PutState(keyStudent, studentAsBytes)
+
+	return shim.Success(nil)
+}
+
+func StudentCancelRegisterClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		return shim.Error("Error - cid.GetMSPID()")
+	}
+
+	if MSPID != "StudentMSP" {
+		return shim.Error("Permission Denied!")
+	}
+
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2")
+	}
+
+	Username := args[0]
+	ClassID := args[1]
+
+	keyStudent := "Student-" + Username
+	keyClass := "Class-" + ClassID
+
+	student, err := getStudent(stub, keyStudent)
+
+	if err != nil {
+		return shim.Error("Student does not exist!")
+	}
+
+	class, err := getClass(stub, keyClass)
+
+	if err != nil {
+		return shim.Error("Class does not exist!")
+	}
+
+	if class.Status != Open {
+		return shim.Error("Can not cancel register!")
+	}
+
+	var i int
+	var lenStudent = len(class.Students)
+	var checkExist = false
+	for i = 0; i < lenStudent; i++ {
+		if class.Students[i] == Username {
+			checkExist = true
+			break
+		}
+	}
+
+	if !checkExist {
+		return shim.Error("You have not registed this class yet!")
+	}
+
+	copy(class.Students[i:], class.Students[i+1:])
+	class.Students[lenStudent-1] = ""
+	class.Students = class.Students[:lenStudent-1]
+
+	var lenClasses = len(student.Classes)
+	for i = 0; i < lenClasses; i++ {
+		if student.Classes[i] == ClassID {
+			break
+		}
+	}
+
+	copy(student.Classes[i:], student.Classes[i+1:])
+	student.Classes[lenClasses-1] = ""
+	student.Classes = student.Classes[:lenClasses-1]
+
+	classAsBytes, err := json.Marshal(class)
+	if err != nil {
+		return shim.Error("Can not convert data to bytes!")
+	}
+
+	studentAsBytes, err := json.Marshal(student)
+	if err != nil {
+		return shim.Error("Can not convert data to bytes!")
+	}
 
 	stub.PutState(keyClass, classAsBytes)
 	stub.PutState(keyStudent, studentAsBytes)
@@ -1647,7 +1732,7 @@ func GetMySubjects(stub shim.ChaincodeStubInterface) sc.Response {
 	// 	return shim.Error("Permission Denied!")
 	// }
 
-	// student, err := getStudent(stub, "Student-"+StudentUsername)
+	// student, err := getStudent(stub, "Student-" + StudentUsername)
 
 	// if err != nil {
 	// 	return shim.Error("Student dose not exist - " + StudentUsername)
