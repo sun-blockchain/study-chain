@@ -13,6 +13,7 @@ export const adminService = {
   updateCourse,
   deleteCourse,
   getAllCourses,
+  getStudentsOfCourse,
   getAllSubjects,
   createSubject,
   updateSubject,
@@ -116,7 +117,34 @@ async function createCourse(course) {
     throw error;
   }
 }
-
+async function getStudentsOfCourse(courseId) {
+  try {
+    // let respone = await axios.get(
+    //   `${process.env.VUE_APP_API_BACKEND}/account/teacher/${username}/subjects`,
+    //   {
+    //     headers: authHeader()
+    //   }
+    // );
+    // return respone.data;
+    return {
+      success: true,
+      students: [
+        {
+          StudentID: '61e3b1bb-77a7-4830-bbd2-23b35fcc24eb',
+          Name: 'Nguyen Van A',
+          Birthday: '23/03/1999'
+        },
+        {
+          StudentID: '65640531-cc2f-4967-9b30-c548c7190c2e',
+          Name: 'Nguyen Van B',
+          Birthday: '10/10/2000'
+        }
+      ]
+    };
+  } catch (error) {
+    throw error;
+  }
+}
 // Subjects of Course
 
 async function getSubjectsNoCourse(courseId) {
@@ -368,28 +396,10 @@ async function deleteClass(subjectId, classId) {
 
 async function getStudentsOfClass(classId) {
   try {
-    // let respone = await axios.get(
-    //   `${process.env.VUE_APP_API_BACKEND}/account/teacher/${username}/subjects`,
-    //   {
-    //     headers: authHeader()
-    //   }
-    // );
-    // return respone.data;
-    return {
-      success: true,
-      students: [
-        {
-          StudentID: '61e3b1bb-77a7-4830-bbd2-23b35fcc24eb',
-          Name: 'Nguyen Van A',
-          Birthday: '23/03/1999'
-        },
-        {
-          StudentID: '65640531-cc2f-4967-9b30-c548c7190c2e',
-          Name: 'Nguyen Van B',
-          Birthday: '10/10/2000'
-        }
-      ]
-    };
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/student/${classId}`, {
+      headers: authHeader()
+    });
+    return respone.data.students;
   } catch (error) {
     throw error;
   }
