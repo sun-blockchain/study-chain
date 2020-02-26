@@ -401,6 +401,21 @@ async function main() {
           await conn.studentRegisterClass(networkObj, student, classId);
           console.log('Transaction has been submitted');
           process.exit(0);
+        } else if (
+          functionName === 'StudentCancelRegisterClass' &&
+          user.role === USER_ROLES.STUDENT
+        ) {
+          /**
+           * Remove Subject From Course
+           * @param  {String} classId class Id (required)
+           */
+
+          let student = user.username;
+          let classId = argv.classId.toString();
+
+          await conn.studentCancelRegisterClass(networkObj, student, classId);
+          console.log('Transaction has been submitted');
+          process.exit(0);
         } else {
           console.log('Failed!');
           process.exit(0);

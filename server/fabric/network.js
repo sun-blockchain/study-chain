@@ -922,6 +922,30 @@ exports.studentRegisterClass = async function(networkObj, student, classId) {
   }
 };
 
+exports.studentCancelRegisterClass = async function(networkObj, student, classId) {
+  if (!student || !classId) {
+    let response = {};
+    response.error = 'Error! You need to fill all fields before you can register!';
+    return response;
+  }
+  try {
+    await networkObj.contract.submitTransaction('StudentCancelRegisterClass', student, classId);
+    let response = {
+      success: true,
+      msg: 'Cancel Successfully!'
+    };
+
+    await networkObj.gateway.disconnect();
+    return response;
+  } catch (error) {
+    let response = {
+      success: false,
+      msg: error
+    };
+    return response;
+  }
+};
+
 function changeCaseFirstLetter(params) {
   if (typeof params === 'string') {
     return params.charAt(0).toUpperCase() + params.slice(1);

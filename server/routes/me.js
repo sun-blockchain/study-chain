@@ -483,7 +483,7 @@ router.post(
       });
     }
 
-    query = await network.query(network, 'QueryClass', classId);
+    query = await network.query(networkObj, 'QueryClass', classId);
     if (!query.success) {
       return res.status(500).json({
         success: false,
@@ -492,7 +492,7 @@ router.post(
     }
     let classInfo = JSON.parse(query.msg);
 
-    query = await network.query(networkObj, 'QueryClassesOfStudent');
+    query = await network.query(networkObj, 'QueryClassesOfStudent', user.username);
     if (!query.success) {
       return res.status(500).json({
         success: false,
@@ -502,14 +502,16 @@ router.post(
 
     let classes = JSON.parse(query.msg);
 
-    classes.forEach((element) => {
-      if (element.SubjectID === classInfo.SubjectID) {
-        return res.status(400).json({
-          success: false,
-          msg: 'You studied this subject!'
-        });
-      }
-    });
+    if (classes) {
+      classes.forEach((element) => {
+        if (element.SubjectID === classInfo.SubjectID) {
+          return res.status(400).json({
+            success: false,
+            msg: 'You studied this subject!'
+          });
+        }
+      });
+    }
 
     if (classInfo.Status === 'Closed') {
       return res.status(500).json({
