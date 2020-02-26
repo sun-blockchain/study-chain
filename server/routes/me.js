@@ -11,7 +11,6 @@ const multipartMiddleware = multipart();
 const bcrypt = require('bcryptjs');
 const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
 const phone = require('phone');
-const comparer = require('../helpers/filterCourses');
 
 router.get('/', async (req, res) => {
   const user = req.decoded.user;
@@ -866,7 +865,16 @@ router.get('/notRegisterCourses', async (req, res) => {
   allCourses = JSON.parse(allCourses.msg);
   myCourses = JSON.parse(myCourses.msg);
 
-  let notRegisterCourses = allCourses.filter(comparer(myCourses));
+  if (!myCourses) {
+    return res.json({
+      success: true,
+      courses: allCourses
+    });
+  }
+
+  let notRegisterCourses = allCourses.filter(
+    (elem) => !myCourses.find(({ CourseID }) => elem.CourseID === CourseID)
+  );
 
   return res.json({
     success: true,
