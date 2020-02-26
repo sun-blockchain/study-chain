@@ -74,12 +74,11 @@ const actions = {
       }
     }
   },
-  async getStudentsOfClass({ commit }, { classId }) {
+  async getStudentsOfClass({ commit }, classId) {
     try {
       let data = await adminService.getStudentsOfClass(classId);
-
       commit('getStudentsOfClass', data.students);
-      return data.students;
+      return data;
     } catch (error) {
       if (error.response.status === 403) {
         router.push('/403');
@@ -412,6 +411,18 @@ const actions = {
       dispatch('alert/clear', res.success, { root: true });
       commit('getCertificatesOfSubject', res.students);
     }
+  },
+  async getStudent({ commit }, username) {
+    try {
+      let data = await adminService.getStudent(username);
+
+      commit('getStudent', data.student);
+      return data.student;
+    } catch (error) {
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
   }
 };
 
@@ -524,6 +535,9 @@ const mutations = {
   },
   getSubjectsOfCourse(state, listSubjects) {
     state.subjectsOfCourse = listSubjects;
+  },
+  getStudent(state, listStudents) {
+    state.listStudents = listStudents;
   }
 };
 

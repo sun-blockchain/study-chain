@@ -56,10 +56,8 @@
     <el-dialog title="Information Student" :visible.sync="showInfo" class="modal-with-create">
       <el-form :model="infoStudent" ref="infoStudent">
         <div>
-          <img
-            src="https://cdn4.iconfinder.com/data/icons/professions-1-2/151/8-512.png"
-            class="avatar"
-          />
+          <img v-if="infoStudent.Avatar" :src="infoStudent.Avatar" :alt="Avatar" class="avatar" />
+          <img v-else src="@/assets/img/avatar-default.png" class="avatar" />
         </div>
 
         <div class="form-group">
@@ -111,15 +109,16 @@ import { Button, Select, Option, Dialog, Form, FormItem, Message, MessageBox } f
 export default {
   data() {
     return {
+      loadingData: false,
       showInfo: false,
       infoStudent: {
-        PhoneNumber: '3423423424',
-        Email: 'abc@gmail.com',
-        Address: 'HN',
-        Sex: 'Male',
-        Birthday: '22/09/1999',
+        PhoneNumber: '',
+        Email: '',
+        Address: '',
+        Sex: '',
+        Birthday: '',
         Avatar: '',
-        Country: 'VietNam'
+        Country: ''
       }
     };
   },
@@ -163,6 +162,13 @@ export default {
     },
     showInfoStudent(row) {
       this.showInfo = true;
+      this.infoStudent.PhoneNumber = row.Info.PhoneNumber;
+      this.infoStudent.Email = row.Info.Email;
+      this.infoStudent.Address = row.Info.Address;
+      this.infoStudent.Sex = row.Info.Sex;
+      this.infoStudent.Birthday = row.Info.Birthday;
+      this.infoStudent.Avatar = row.Info.Avatar;
+      this.infoStudent.Country = row.Info.Country;
     },
     resetForm() {
       this.showInfo = false;

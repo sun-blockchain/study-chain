@@ -79,7 +79,7 @@ export default {
       this.student.Fullname = '';
     },
     detailStudent(row) {
-      this.$router.push({ path: `students/${row.Username}/subjects` });
+      this.$router.push({ path: `student/${row.Username}` });
     }
   },
   async created() {
