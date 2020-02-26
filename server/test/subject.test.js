@@ -418,143 +418,143 @@ describe('#GET /subject/all', () => {
   });
 });
 
-describe('#POST /subject/addsubjectforteacher', () => {
-  let connect;
-  let registerForSubjectStub;
-  let query;
-  let findOneStub;
+// describe('#POST /subject/addsubjectforteacher', () => {
+//   let connect;
+//   let registerForSubjectStub;
+//   let query;
+//   let findOneStub;
 
-  beforeEach(() => {
-    connect = sinon.stub(network, 'connectToNetwork');
-    registerForSubjectStub = sinon.stub(network, 'registerTeacherForSubject');
-    query = sinon.stub(network, 'query');
-    findOneStub = sinon.stub(User, 'findOne');
-  });
+//   beforeEach(() => {
+//     connect = sinon.stub(network, 'connectToNetwork');
+//     registerForSubjectStub = sinon.stub(network, 'registerTeacherForSubject');
+//     query = sinon.stub(network, 'query');
+//     findOneStub = sinon.stub(User, 'findOne');
+//   });
 
-  afterEach(() => {
-    connect.restore();
-    registerForSubjectStub.restore();
-    query.restore();
-    findOneStub.restore();
-  });
+//   afterEach(() => {
+//     connect.restore();
+//     registerForSubjectStub.restore();
+//     query.restore();
+//     findOneStub.restore();
+//   });
 
-  it('do not create success subject with empty req.body', (done) => {
-    request(app)
-      .post('/subject/addsubjectforteacher')
-      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(422);
-        done();
-      });
-  });
+//   it('do not create success subject with empty req.body', (done) => {
+//     request(app)
+//       .post('/subject/addsubjectforteacher')
+//       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+//       .then((res) => {
+//         expect(res.status).equal(422);
+//         done();
+//       });
+//   });
 
-  it('do not add success subject with admin student', (done) => {
-    request(app)
-      .post('/subject/addsubjectforteacher')
-      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
-      .send({
-        subjectId: '01',
-        teacherusername: 'tan'
-      })
-      .then((res) => {
-        expect(res.status).equal(403);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Permission Denied');
-        done();
-      });
-  });
+//   it('do not add success subject with admin student', (done) => {
+//     request(app)
+//       .post('/subject/addsubjectforteacher')
+//       .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+//       .send({
+//         subjectId: '01',
+//         teacherusername: 'tan'
+//       })
+//       .then((res) => {
+//         expect(res.status).equal(403);
+//         expect(res.body.success).equal(false);
+//         expect(res.body.msg).equal('Permission Denied');
+//         done();
+//       });
+//   });
 
-  it('do not add success subject with teacher', (done) => {
-    request(app)
-      .post('/subject/addsubjectforteacher')
-      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
-      .send({
-        subjectId: '01',
-        teacherusername: 'tan'
-      })
-      .then((res) => {
-        expect(res.status).equal(403);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Permission Denied');
-        done();
-      });
-  });
+//   it('do not add success subject with teacher', (done) => {
+//     request(app)
+//       .post('/subject/addsubjectforteacher')
+//       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+//       .send({
+//         subjectId: '01',
+//         teacherusername: 'tan'
+//       })
+//       .then((res) => {
+//         expect(res.status).equal(403);
+//         expect(res.body.success).equal(false);
+//         expect(res.body.msg).equal('Permission Denied');
+//         done();
+//       });
+//   });
 
-  it('do not add success subject with student', (done) => {
-    request(app)
-      .post('/subject/addsubjectforteacher')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        subjectId: '01',
-        teacherusername: 'tan'
-      })
-      .then((res) => {
-        expect(res.status).equal(403);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Permission Denied');
-        done();
-      });
-  });
+//   it('do not add success subject with student', (done) => {
+//     request(app)
+//       .post('/subject/addsubjectforteacher')
+//       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+//       .send({
+//         subjectId: '01',
+//         teacherusername: 'tan'
+//       })
+//       .then((res) => {
+//         expect(res.status).equal(403);
+//         expect(res.body.success).equal(false);
+//         expect(res.body.msg).equal('Permission Denied');
+//         done();
+//       });
+//   });
 
-  it('failed to register subject for teacher', (done) => {
-    findOneStub.returns({ username: 'trinhtan', role: USER_ROLES.TEACHER });
-    registerForSubjectStub.returns({ success: false, msg: 'error' });
-    request(app)
-      .post('/subject/addsubjectforteacher')
-      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-      .send({
-        subjectId: '01',
-        teacherusername: 'tan'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
+//   it('failed to register subject for teacher', (done) => {
+//     findOneStub.returns({ username: 'trinhtan', role: USER_ROLES.TEACHER });
+//     registerForSubjectStub.returns({ success: false, msg: 'error' });
+//     request(app)
+//       .post('/subject/addsubjectforteacher')
+//       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+//       .send({
+//         subjectId: '01',
+//         teacherusername: 'tan'
+//       })
+//       .then((res) => {
+//         expect(res.status).equal(500);
+//         expect(res.body.success).equal(false);
 
-        done();
-      });
-  });
+//         done();
+//       });
+//   });
 
-  it('success add subject for teacher', (done) => {
-    findOneStub.returns({ username: 'hoangdd', role: USER_ROLES.ADMIN_ACADEMY });
-    registerForSubjectStub.returns({ success: true, msg: 'success' });
+//   it('success add subject for teacher', (done) => {
+//     findOneStub.returns({ username: 'hoangdd', role: USER_ROLES.ADMIN_ACADEMY });
+//     registerForSubjectStub.returns({ success: true, msg: 'success' });
 
-    let data = JSON.stringify({ SubjectID: '01', TeacherUsername: 'tan' });
-    query.returns({ success: true, msg: data });
+//     let data = JSON.stringify({ SubjectID: '01', TeacherUsername: 'tan' });
+//     query.returns({ success: true, msg: data });
 
-    request(app)
-      .post('/subject/addsubjectforteacher')
-      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-      .send({
-        subjectId: '01',
-        teacherusername: 'tan'
-      })
-      .then((res) => {
-        expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
-        done();
-      });
-  });
+//     request(app)
+//       .post('/subject/addsubjectforteacher')
+//       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+//       .send({
+//         subjectId: '01',
+//         teacherusername: 'tan'
+//       })
+//       .then((res) => {
+//         expect(res.status).equal(200);
+//         expect(res.body.success).equal(true);
+//         done();
+//       });
+//   });
 
-  it('do not success add subject for teacher because invoke chaincode error', (done) => {
-    findOneStub.returns({ username: 'hoangdd', role: USER_ROLES.ADMIN_ACADEMY });
-    registerForSubjectStub.returns({ success: true, msg: 'success' });
+//   it('do not success add subject for teacher because invoke chaincode error', (done) => {
+//     findOneStub.returns({ username: 'hoangdd', role: USER_ROLES.ADMIN_ACADEMY });
+//     registerForSubjectStub.returns({ success: true, msg: 'success' });
 
-    query.returns({ success: false, msg: 'error' });
+//     query.returns({ success: false, msg: 'error' });
 
-    request(app)
-      .post('/subject/addsubjectforteacher')
-      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-      .send({
-        subjectId: '01',
-        teacherusername: 'tan'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        done();
-      });
-  });
-});
+//     request(app)
+//       .post('/subject/addsubjectforteacher')
+//       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+//       .send({
+//         subjectId: '01',
+//         teacherusername: 'tan'
+//       })
+//       .then((res) => {
+//         expect(res.status).equal(500);
+//         expect(res.body.success).equal(false);
+//         done();
+//       });
+//   });
+// });
 
 describe('#GET /subject/subjecjtsnoteacher', () => {
   let connect;

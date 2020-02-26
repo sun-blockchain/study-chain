@@ -68,52 +68,52 @@ router.get('/:username', async (req, res, next) => {
   }
 });
 
-router.get('/:username/subjects', async (req, res, next) => {
-  if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
-    return res.status(403).json({
-      success: false,
-      msg: 'Permission Denied'
-    });
-  }
+// router.get('/:username/subjects', async (req, res, next) => {
+//   if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
+//     return res.status(403).json({
+//       success: false,
+//       msg: 'Permission Denied'
+//     });
+//   }
 
-  try {
-    let teacher = await User.findOne({ username: req.params.username });
+//   try {
+//     let teacher = await User.findOne({ username: req.params.username });
 
-    if (!teacher) {
-      return res.status(404).json({
-        success: false,
-        msg: 'teacher is not exists'
-      });
-    }
+//     if (!teacher) {
+//       return res.status(404).json({
+//         success: false,
+//         msg: 'teacher is not exists'
+//       });
+//     }
 
-    const networkObj = await network.connectToNetwork(req.decoded.user);
-    let subjectsByTeacher = await network.query(
-      networkObj,
-      'GetSubjectsByTeacher',
-      teacher.username
-    );
-    let subjects = await network.query(networkObj, 'GetAllSubjects');
-    let subjectsNoTeacher = JSON.parse(subjects.msg).filter(
-      (subject) => subject.TeacherUsername === ''
-    );
+//     const networkObj = await network.connectToNetwork(req.decoded.user);
+//     let subjectsByTeacher = await network.query(
+//       networkObj,
+//       'GetSubjectsByTeacher',
+//       teacher.username
+//     );
+//     let subjects = await network.query(networkObj, 'GetAllSubjects');
+//     let subjectsNoTeacher = JSON.parse(subjects.msg).filter(
+//       (subject) => subject.TeacherUsername === ''
+//     );
 
-    if (!subjectsByTeacher.success || !subjects.success) {
-      return res.status(500).json({
-        success: false,
-        msg: subjectsByTeacher.msg.toString()
-      });
-    }
-    return res.json({
-      success: true,
-      subjects: JSON.parse(subjectsByTeacher.msg),
-      subjectsNoTeacher: subjectsNoTeacher
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      msg: 'Internal Server Error'
-    });
-  }
-});
+//     if (!subjectsByTeacher.success || !subjects.success) {
+//       return res.status(500).json({
+//         success: false,
+//         msg: subjectsByTeacher.msg.toString()
+//       });
+//     }
+//     return res.json({
+//       success: true,
+//       subjects: JSON.parse(subjectsByTeacher.msg),
+//       subjectsNoTeacher: subjectsNoTeacher
+//     });
+//   } catch (error) {
+//     return res.status(500).json({
+//       success: false,
+//       msg: 'Internal Server Error'
+//     });
+//   }
+// });
 
 module.exports = router;

@@ -1058,6 +1058,97 @@ router.post(
     }
   }
 );
+
+// assign class for teacher
+router.post(
+  '/addClassToTeacher',
+  checkJWT,
+  [
+    body('username')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('classId')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape()
+  ],
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, msg: errors.array() });
+    }
+    let classId = req.body.classId;
+    let username = req.body.username;
+
+    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied'
+      });
+    }
+
+    let networkObj = await network.connectToNetwork(req.decoded.user);
+    if (!networkObj) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Failed connect to blockchain!'
+      });
+    }
+
+    let classesQuery = await network.query(networkObj, 'GetClassesByTeacher', username);
+    if (!classesQuery.success) {
+      return res.status(500).json({
+        success: false,
+        msg: "Can't query classes by teacher"
+      });
+    }
+
+    let listClasses = JSON.parse(classesQuery.msg);
+
+    if (listClasses) {
+      for (let index = 0; index < listClasses.length; index++) {
+        const element = listClasses[index];
+        if (element.ClassID === classId) {
+          return res.status(500).json({
+            success: false,
+            msg: 'The class has been added!'
+          });
+        }
+      }
+    }
+
+    networkObj = await network.connectToNetwork(req.decoded.user);
+    const response = await network.addClassToTeacher(
+      networkObj,
+      req.body.classId,
+      req.body.username
+    );
+    if (!response.success) {
+      return res.status(500).json({
+        success: false,
+        msg: response.msg
+      });
+    }
+
+    let classes = await network.query(networkObj, 'GetClassesByTeacher', username);
+    if (!classesQuery.success) {
+      return res.status(500).json({
+        success: false,
+        msg: "Can't query classes by teacher"
+      });
+    }
+    return res.json({
+      success: true,
+      msg: response.msg,
+      classes: JSON.parse(classes.msg)
+    });
+  }
+);
+// ----------------------------------------------- End -----------------------------------------------------
+
 //get Student by Id
 router.get(
   '/student/:username',
