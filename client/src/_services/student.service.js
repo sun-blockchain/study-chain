@@ -12,7 +12,9 @@ export const studentService = {
   getClassesOfSubject,
   getSubject,
   getMyClasses,
-  getMyCourses
+  registerClass,
+  getMyCourses,
+  getNotRegisterCourses
 };
 
 async function getAllCourses() {
@@ -32,6 +34,20 @@ async function getCourse(courseId) {
       headers: authHeader()
     });
     return respone.data.course;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getNotRegisterCourses() {
+  try {
+    let respone = await axios.get(
+      `${process.env.VUE_APP_API_BACKEND}/account/me/notRegisterCourses`,
+      {
+        headers: authHeader()
+      }
+    );
+    return respone.data.courses;
   } catch (error) {
     throw error;
   }
@@ -123,6 +139,22 @@ async function registerCourse(courseId) {
     throw error;
   }
 }
+
+async function registerClass(classId) {
+  try {
+    let response = await axios.post(
+      `${process.env.VUE_APP_API_BACKEND}/account/me/registerClass`,
+      { classId: classId },
+      {
+        headers: authHeader()
+      }
+    );
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}
+
 async function getMySubjects() {
   try {
     let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/me/mysubjects`, {

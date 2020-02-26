@@ -10,8 +10,8 @@
       <p>{{ infoCourse.description }}</p>
     </b-modal>
     <table-student
-      :title="`List Courses`"
-      :listAll="listCourses"
+      :title="`List Not Register Courses`"
+      :listAll="listNotRegisterCourses"
       :loadingData="loadingData"
       :btnRegister="true"
       :nameFunctionRegister="`enrollCourse`"
@@ -51,7 +51,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions('student', ['getAllCourses', 'getCourse', 'registerCourse']),
+    ...mapActions('student', ['getNotRegisterCourses', 'getCourse', 'registerCourse']),
     detailCourse(row) {
       this.$router.push({ path: `courses/${row.CourseID}` });
     },
@@ -84,10 +84,10 @@ export default {
     }
   },
   computed: {
-    ...mapState('student', ['listCourses'])
+    ...mapState('student', ['listNotRegisterCourses'])
   },
   async created() {
-    let response = await this.getAllCourses();
+    let response = await this.getNotRegisterCourses();
     if (response) {
       this.loadingData = false;
     }

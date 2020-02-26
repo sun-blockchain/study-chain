@@ -11,6 +11,7 @@ const multipartMiddleware = multipart();
 const bcrypt = require('bcryptjs');
 const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
 const phone = require('phone');
+const comparer = require('../helpers/filterCourses');
 
 router.get('/', async (req, res) => {
   const user = req.decoded.user;
@@ -483,7 +484,7 @@ router.post(
       });
     }
 
-    query = await network.query(network, 'QueryClass', classId);
+    query = await network.query(networkObj, 'QueryClass', classId);
     if (!query.success) {
       return res.status(500).json({
         success: false,
@@ -828,6 +829,46 @@ router.get('/courses', async (req, res) => {
   return res.json({
     success: true,
     courses: JSON.parse(response.msg)
+  });
+});
+
+router.get('/notRegisterCourses', async (req, res) => {
+  const user = req.decoded.user;
+
+  if (user.role !== USER_ROLES.STUDENT) {
+    return res.status(403).json({
+      success: false,
+      msg: 'Permission Denied'
+    });
+  }
+
+  const networkObj = await network.connectToNetwork(user);
+
+  if (!networkObj) {
+    return res.status(500).json({
+      success: false,
+      msg: 'Failed connect to blockchain!'
+    });
+  }
+
+  let allCourses = await network.query(networkObj, 'GetAllCourses');
+  let myCourses = await network.query(networkObj, 'QueryCoursesOfStudent', user.username);
+
+  if (!allCourses.success || !myCourses.success) {
+    return res.status(500).json({
+      success: false,
+      msg: 'Query chaincode failed'
+    });
+  }
+
+  allCourses = JSON.parse(allCourses.msg);
+  myCourses = JSON.parse(myCourses.msg);
+
+  let notRegisterCourses = allCourses.filter(comparer(myCourses));
+
+  return res.json({
+    success: true,
+    courses: notRegisterCourses
   });
 });
 
