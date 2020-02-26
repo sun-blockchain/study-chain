@@ -58,6 +58,20 @@
                       @click="callFunctionInfo(scope.row)"
                     ></el-button>
                   </el-tooltip>
+                  <el-tooltip
+                    v-if="btnCancel"
+                    class="item"
+                    content="Cancel Register"
+                    placement="top"
+                  >
+                    <el-button
+                      icon="el-icon-circle-close"
+                      type="danger"
+                      round
+                      size="mini"
+                      @click="callFunctionCancelRegistered(scope.row)"
+                    ></el-button>
+                  </el-tooltip>
                 </template>
               </el-table-column>
             </el-table>
@@ -107,9 +121,11 @@ export default {
     btnDetail: Boolean,
     btnInfo: Boolean,
     btnRegister: Boolean,
+    btnCancel: Boolean,
     nameFunctionDetail: String,
     nameFunctionInfo: String,
     nameFunctionRegister: String,
+    nameFunctionCancelRegistered: String,
     loadingData: Boolean,
     listProperties: Array
   },
@@ -165,6 +181,9 @@ export default {
     },
     callFunctionRegister(row) {
       this.$emit(this.nameFunctionRegister, row);
+    },
+    callFunctionCancelRegistered(row) {
+      this.$emit(this.nameFunctionCancelRegistered, row);
     }
   }
 };

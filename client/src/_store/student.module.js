@@ -27,6 +27,16 @@ const actions = {
       }
     }
   },
+  async cancelRegisteredClass({ commit }, classId) {
+    try {
+      let response = await studentService.cancelRegisteredClass(classId);
+      return response;
+    } catch (error) {
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
+  },
   async getNotRegisterCourses({ commit }) {
     try {
       let listNotRegisterCourses = await studentService.getNotRegisterCourses();

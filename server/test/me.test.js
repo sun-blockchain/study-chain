@@ -1645,7 +1645,7 @@ describe('POST /account/me/registerClass', () => {
   });
 });
 
-describe('POST /account/me/cancelRegisterClass', () => {
+describe('POST /account/me/cancelRegisteredClass', () => {
   let connect;
   let query;
   let cancelRegisterClass;
@@ -1664,7 +1664,7 @@ describe('POST /account/me/cancelRegisterClass', () => {
 
   it('Validate body fail!', (done) => {
     request(app)
-      .post('/account/me/cancelRegisterClass')
+      .post('/account/me/cancelRegisteredClass')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         classId: ''
@@ -1678,7 +1678,7 @@ describe('POST /account/me/cancelRegisterClass', () => {
 
   it('Permission Denied!', (done) => {
     request(app)
-      .post('/account/me/cancelRegisterClass')
+      .post('/account/me/cancelRegisteredClass')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
         classId: '123456'
@@ -1694,7 +1694,7 @@ describe('POST /account/me/cancelRegisterClass', () => {
   it('Failed to connect to blockchain!', (done) => {
     connect.returns(null);
     request(app)
-      .post('/account/me/cancelRegisterClass')
+      .post('/account/me/cancelRegisteredClass')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         classId: '123456'
@@ -1721,7 +1721,7 @@ describe('POST /account/me/cancelRegisterClass', () => {
     });
 
     request(app)
-      .post('/account/me/cancelRegisterClass')
+      .post('/account/me/cancelRegisteredClass')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         classId: '123456'
@@ -1753,7 +1753,7 @@ describe('POST /account/me/cancelRegisterClass', () => {
     });
 
     request(app)
-      .post('/account/me/cancelRegisterClass')
+      .post('/account/me/cancelRegisteredClass')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         classId: '123456'
@@ -1786,7 +1786,7 @@ describe('POST /account/me/cancelRegisterClass', () => {
     });
 
     request(app)
-      .post('/account/me/cancelRegisterClass')
+      .post('/account/me/cancelRegisteredClass')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         classId: '123456'
@@ -1819,7 +1819,7 @@ describe('POST /account/me/cancelRegisterClass', () => {
     });
 
     request(app)
-      .post('/account/me/cancelRegisterClass')
+      .post('/account/me/cancelRegisteredClass')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         classId: '123456'
@@ -1857,7 +1857,7 @@ describe('POST /account/me/cancelRegisterClass', () => {
     });
 
     request(app)
-      .post('/account/me/cancelRegisterClass')
+      .post('/account/me/cancelRegisteredClass')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         classId: '123456'
@@ -1894,7 +1894,7 @@ describe('POST /account/me/cancelRegisterClass', () => {
     });
 
     request(app)
-      .post('/account/me/cancelRegisterClass')
+      .post('/account/me/cancelRegisteredClass')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         classId: '123456'

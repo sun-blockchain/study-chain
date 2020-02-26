@@ -545,7 +545,7 @@ router.post(
 );
 
 router.post(
-  '/cancelRegisterClass',
+  '/cancelRegisteredClass',
   [
     body('classId')
       .not()

@@ -14,7 +14,8 @@ export const studentService = {
   getMyClasses,
   registerClass,
   getMyCourses,
-  getNotRegisterCourses
+  getNotRegisterCourses,
+  cancelRegisteredClass
 };
 
 async function getAllCourses() {
@@ -48,6 +49,21 @@ async function getNotRegisterCourses() {
       }
     );
     return respone.data.courses;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function cancelRegisteredClass(classId) {
+  try {
+    let respone = await axios.post(
+      `${process.env.VUE_APP_API_BACKEND}/account/me/cancelRegisteredClass`,
+      { classId: classId },
+      {
+        headers: authHeader()
+      }
+    );
+    return respone;
   } catch (error) {
     throw error;
   }
