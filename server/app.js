@@ -72,7 +72,6 @@ app.use('/certificate', certificateRoutes);
 app.use('/account/me', checkJWT, meRoutes);
 app.use('/academy', checkJWT, academyRoutes);
 app.use('/common', checkJWT, commonRoutes);
-app.use('/student', checkJWT, studentRoutes);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

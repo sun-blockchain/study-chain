@@ -192,6 +192,39 @@ router.put(
   }
 );
 
+router.get('/myClasses', async (req, res) => {
+  const user = req.decoded.user;
+
+  if (user.role !== USER_ROLES.STUDENT) {
+    return res.status(403).json({
+      success: false,
+      msg: 'Permission Denied'
+    });
+  }
+  const networkObj = await network.connectToNetwork(user);
+
+  if (!networkObj) {
+    return res.status(500).json({
+      success: false,
+      msg: 'Connect to blockchain failed'
+    });
+  }
+
+  const response = await network.query(networkObj, 'QueryClassesOfStudent', user.username);
+
+  if (!response.success) {
+    return res.status(500).json({
+      success: false,
+      msg: 'Query chaincode failed'
+    });
+  }
+
+  return res.json({
+    success: true,
+    classes: JSON.parse(response.msg)
+  });
+});
+
 router.get('/subjects', async (req, res) => {
   const user = req.decoded.user;
 
