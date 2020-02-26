@@ -13,6 +13,12 @@
       </router-link>
     </li>
     <li class="nav-item">
+      <router-link class="nav-link color-black" to="/myCourses">
+        <i class="color-999 fas fa-book-open"></i>
+        My Courses
+      </router-link>
+    </li>
+    <li class="nav-item">
       <router-link class="nav-link color-black" to="/myClasses">
         <i class="color-999 fas fa-layer-group"></i>
         My Classes

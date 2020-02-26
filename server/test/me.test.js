@@ -352,7 +352,7 @@ describe('PUT /account/me/info', () => {
   });
 });
 
-describe('GET /account/me/myClasses', () => {
+describe('GET /account/me/classes', () => {
   let connect;
   let queryClasses;
 
@@ -368,7 +368,7 @@ describe('GET /account/me/myClasses', () => {
 
   it('permission denied', (done) => {
     request(app)
-      .get('/account/me/myClasses')
+      .get('/account/me/classes')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(403);
@@ -380,7 +380,7 @@ describe('GET /account/me/myClasses', () => {
     connect.returns(null);
 
     request(app)
-      .get('/account/me/myClasses')
+      .get('/account/me/classes')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(500);
@@ -406,7 +406,7 @@ describe('GET /account/me/myClasses', () => {
     });
 
     request(app)
-      .get('/account/me/myClasses')
+      .get('/account/me/classes')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(500);
@@ -445,7 +445,102 @@ describe('GET /account/me/myClasses', () => {
     });
 
     request(app)
-      .get('/account/me/myClasses')
+      .get('/account/me/classes')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        done();
+      });
+  });
+});
+
+describe('GET /account/me/courses', () => {
+  let connect;
+  let queryCourses;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    queryCourses = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    queryCourses.restore();
+  });
+
+  it('permission denied', (done) => {
+    request(app)
+      .get('/account/me/courses')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        done();
+      });
+  });
+
+  it('failed connect to blockchain', (done) => {
+    connect.returns(null);
+
+    request(app)
+      .get('/account/me/courses')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        done();
+      });
+  });
+
+  it('failed to query classes of student in chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    let data = JSON.stringify({
+      error: 'Error Network'
+    });
+
+    queryCourses.returns({
+      success: false,
+      msg: data
+    });
+
+    request(app)
+      .get('/account/me/courses')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        done();
+      });
+  });
+
+  it('success query classes of user student', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    let data = JSON.stringify([
+      {
+        CourseID: '1234-456-789-123a',
+        CourseCode: 'ETH101',
+        ShortDescription: 'Ethereum',
+        Description: 'Ethereum101'
+      }
+    ]);
+
+    queryCourses.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .get('/account/me/courses')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(200);
