@@ -127,6 +127,10 @@ node query.js --username=adminacademy --func=GetCertificatesByStudent --args=st0
 node query.js --username=adminacademy --func=GetCertificatesBySubject --args=ethereum
 ```
 
+```bash
+node query.js --username=adminacademy --func=GetStudentsOfClass --args=classId
+```
+
 Query Score with role admin student with studentId and subjectId
 
 ```bash

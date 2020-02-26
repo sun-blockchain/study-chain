@@ -1314,6 +1314,107 @@ describe('POST /account/me/registerClass', () => {
       });
   });
 
+  it('Can not query classes of student in chaincode!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    let studentInfo = JSON.stringify({
+      Username: 'st01',
+      Classes: ['123457']
+    });
+
+    query.onFirstCall().returns({
+      success: true,
+      msg: studentInfo
+    });
+
+    let classInfo = JSON.stringify({
+      ClassID: '123456',
+      SubjectID: 'Subject01'
+    });
+
+    query.onSecondCall().returns({
+      success: true,
+      msg: classInfo
+    });
+
+    query.onThirdCall().returns({
+      success: false,
+      msg: 'Error'
+    });
+
+    request(app)
+      .post('/account/me/registerClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not query chaincode!');
+        done();
+      });
+  });
+
+  it('You studied this subject!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    let studentInfo = JSON.stringify({
+      Username: 'st01',
+      Classes: ['123457']
+    });
+
+    query.onFirstCall().returns({
+      success: true,
+      msg: studentInfo
+    });
+
+    let classInfo = JSON.stringify({
+      ClassID: '123456',
+      SubjectID: 'Subject01'
+    });
+
+    query.onSecondCall().returns({
+      success: true,
+      msg: classInfo
+    });
+
+    let classes = JSON.stringify([
+      {
+        ClassID: '123457',
+        SubjectID: 'Subject01'
+      }
+    ]);
+
+    query.onThirdCall().returns({
+      success: true,
+      msg: classes
+    });
+
+    request(app)
+      .post('/account/me/registerClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(400);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('You studied this subject!');
+        done();
+      });
+  });
+
   it('Class register closed!', (done) => {
     connect.returns({
       contract: 'academy',
@@ -1334,12 +1435,25 @@ describe('POST /account/me/registerClass', () => {
 
     let classInfo = JSON.stringify({
       ClassID: '123456',
+      SubjectID: 'Subject01',
       Status: 'Closed'
     });
 
     query.onSecondCall().returns({
       success: true,
       msg: classInfo
+    });
+
+    let classes = JSON.stringify([
+      {
+        ClassID: '123457',
+        SubjectID: 'Subject02'
+      }
+    ]);
+
+    query.onThirdCall().returns({
+      success: true,
+      msg: classes
     });
 
     request(app)
@@ -1376,12 +1490,25 @@ describe('POST /account/me/registerClass', () => {
 
     let classInfo = JSON.stringify({
       ClassID: '123456',
+      SubjectID: 'Subject01',
       Status: 'Completed'
     });
 
     query.onSecondCall().returns({
       success: true,
       msg: classInfo
+    });
+
+    let classes = JSON.stringify([
+      {
+        ClassID: '123457',
+        SubjectID: 'Subject02'
+      }
+    ]);
+
+    query.onThirdCall().returns({
+      success: true,
+      msg: classes
     });
 
     request(app)
@@ -1417,13 +1544,26 @@ describe('POST /account/me/registerClass', () => {
     });
 
     let classInfo = JSON.stringify({
-      ClassID: '123457',
+      ClassID: '123456',
+      SubjectID: 'Subject01',
       Status: 'Open'
     });
 
     query.onSecondCall().returns({
       success: true,
       msg: classInfo
+    });
+
+    let classes = JSON.stringify([
+      {
+        ClassID: '123457',
+        SubjectID: 'Subject02'
+      }
+    ]);
+
+    query.onThirdCall().returns({
+      success: true,
+      msg: classes
     });
 
     studentRegisterClass.returns({
@@ -1465,12 +1605,25 @@ describe('POST /account/me/registerClass', () => {
 
     let classInfo = JSON.stringify({
       ClassID: '123456',
+      SubjectID: 'Subject01',
       Status: 'Open'
     });
 
     query.onSecondCall().returns({
       success: true,
       msg: classInfo
+    });
+
+    let classes = JSON.stringify([
+      {
+        ClassID: '123457',
+        SubjectID: 'Subject02'
+      }
+    ]);
+
+    query.onThirdCall().returns({
+      success: true,
+      msg: classes
     });
 
     studentRegisterClass.returns({
