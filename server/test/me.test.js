@@ -352,6 +352,109 @@ describe('PUT /account/me/info', () => {
   });
 });
 
+describe('GET /account/me/myClasses', () => {
+  let connect;
+  let queryClasses;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    queryClasses = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    queryClasses.restore();
+  });
+
+  it('permission denied', (done) => {
+    request(app)
+      .get('/account/me/myClasses')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        done();
+      });
+  });
+
+  it('failed connect to blockchain', (done) => {
+    connect.returns(null);
+
+    request(app)
+      .get('/account/me/myClasses')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        done();
+      });
+  });
+
+  it('failed to query classes of student in chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    let data = JSON.stringify({
+      error: 'Error Network'
+    });
+
+    queryClasses.returns({
+      success: false,
+      msg: data
+    });
+
+    request(app)
+      .get('/account/me/myClasses')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        done();
+      });
+  });
+
+  it('success query classes of user student', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    let data = JSON.stringify([
+      {
+        ClassID: '1234-456-789-123a',
+        ClassCode: 'ETH101',
+        Room: 'F13',
+        Time: '7:45',
+        Status: 'Open',
+        ShortDescription: 'Ethereum',
+        Description: 'Ethereum101',
+        StartDate: '25-2-2020',
+        EndDate: '25-4-2020',
+        Repeat: 'Weekly Monday',
+        Students: [],
+        Capacity: '75'
+      }
+    ]);
+
+    queryClasses.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .get('/account/me/myClasses')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        done();
+      });
+  });
+});
+
 describe('POST /account/me/createscore', () => {
   let connect;
   let createScoreStub;

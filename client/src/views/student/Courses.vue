@@ -1,14 +1,5 @@
 <template>
   <div>
-    <b-modal
-      id="modal-info"
-      ref="modal-info"
-      title="Description Course"
-      v-loading.fullscreen.lock="fullscreenLoading"
-      ok-only
-    >
-      <p>{{ infoCourse.description }}</p>
-    </b-modal>
     <table-student
       :title="`List Courses`"
       :listAll="listCourses"
@@ -17,8 +8,6 @@
       :nameFunctionRegister="`enrollCourse`"
       :btnDetail="true"
       :nameFunctionDetail="`detailCourses`"
-      :btnInfo="true"
-      :nameFunctionInfo="`modalInfo`"
       :listProperties="[
         { prop: 'CourseCode', label: 'CourseCode' },
         { prop: 'CourseName', label: 'CourseName' },
@@ -26,7 +15,6 @@
       ]"
       @detailCourses="detailCourse($event)"
       @enrollCourse="enrollCourse($event)"
-      @modalInfo="modalInfo($event)"
     ></table-student>
   </div>
 </template>
@@ -43,21 +31,27 @@ export default {
   },
   data() {
     return {
+      editCourse: {
+        CourseID: '',
+        CourseCode: '',
+        CourseName: '',
+        ShortDescription: '',
+        Description: ''
+      },
+      newCourse: {
+        CourseCode: '',
+        CourseName: '',
+        ShortDescription: '',
+        Description: ''
+      },
       fullscreenLoading: false,
-      loadingData: false,
-      infoCourse: {
-        description: ''
-      }
+      loadingData: false
     };
   },
   methods: {
     ...mapActions('student', ['getAllCourses', 'getCourse', 'registerCourse']),
     detailCourse(row) {
       this.$router.push({ path: `courses/${row.CourseID}` });
-    },
-    modalInfo(row) {
-      this.infoCourse.description = row.Description;
-      this.$root.$emit('bv::show::modal', 'modal-info');
     },
     async enrollCourse(row) {
       this.$swal({

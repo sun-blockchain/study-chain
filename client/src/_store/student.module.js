@@ -9,8 +9,7 @@ const state = {
   listCourses: [],
   listClasses: [],
   subject: null,
-  listMyClasses: [],
-  listMyCourses: []
+  listMyClasses: []
 };
 
 const actions = {
@@ -88,16 +87,6 @@ const actions = {
       }
     }
   },
-  async getMyCourses({ commit }) {
-    try {
-      let listMyCourses = await studentService.getMyCourses();
-      commit('getMyCourses', listMyCourses);
-    } catch (error) {
-      if (error.response.status === 403) {
-        router.push('/403');
-      }
-    }
-  },
   async registerCourse({ commit }, courseId) {
     try {
       let response = await studentService.registerCourse(courseId);
@@ -153,9 +142,6 @@ const mutations = {
   },
   getMyClasses(state, listMyClasses) {
     state.listMyClasses = listMyClasses;
-  },
-  getMyCourses(state, listMyCourses) {
-    state.listMyCourses = listMyCourses;
   },
   registerSubject(state, listSubjects) {
     state.listSubjects = listSubjects;
