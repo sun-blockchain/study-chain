@@ -1644,3 +1644,121 @@ describe('POST /account/me/registerClass', () => {
       });
   });
 });
+
+describe('GET /account/me/notRegisterCourses', () => {
+  let connect;
+  let query;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+  });
+
+  it('Permission Denied!', (done) => {
+    request(app)
+      .get('/account/me/notRegisterCourses')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+
+        done();
+      });
+  });
+
+  it('Failed to connect to blockchain!', (done) => {
+    connect.returns(null);
+    request(app)
+      .get('/account/me/notRegisterCourses')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain!');
+        done();
+      });
+  });
+
+  it('Can not query courses in chaincode!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    let data = JSON.stringify([
+      {
+        CourseID: '123457',
+        CourseCode: 'BTC101'
+      }
+    ]);
+
+    query.onFirstCall().returns({
+      success: false,
+      msg: 'Error'
+    });
+
+    query.onSecondCall().returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .get('/account/me/notRegisterCourses')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        done();
+      });
+  });
+
+  it('query success', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    let allCourses = JSON.stringify([
+      {
+        CourseID: '123457',
+        CourseCode: 'BTC101'
+      },
+      {
+        CourseID: '123456',
+        CourseCode: 'ETH101'
+      }
+    ]);
+
+    let myCourses = JSON.stringify([
+      {
+        CourseID: '123457',
+        CourseCode: 'BTC101'
+      }
+    ]);
+
+    query.onFirstCall().returns({
+      success: true,
+      msg: allCourses
+    });
+
+    query.onSecondCall().returns({
+      success: true,
+      msg: myCourses
+    });
+
+    request(app)
+      .get('/account/me/notRegisterCourses')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        done();
+      });
+  });
+});

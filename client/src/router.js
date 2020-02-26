@@ -153,6 +153,16 @@ export const router = new Router({
           component: () => import('./views/student/MyCourses')
         },
         {
+          path: '/myCourses/:id',
+          name: 'courses-of-student',
+          component: () => import('./views/student/MyCourseDetail.vue')
+        },
+        {
+          path: '/myCourses/:id/subject/:subjectId',
+          name: 'subject-of-student',
+          component: () => import('./views/student/MySubjectDetail.vue')
+        },
+        {
           path: '/myClasses',
           name: 'classes-of-student',
           component: () => import('./views/student/MyClasses')

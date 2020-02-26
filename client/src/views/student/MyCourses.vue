@@ -50,7 +50,7 @@ export default {
   methods: {
     ...mapActions('student', ['getMyCourses']),
     detailCourse(row) {
-      this.$router.push({ path: `courses/${row.CourseID}` });
+      this.$router.push({ path: `myCourses/${row.CourseID}` });
     },
     modalInfo(row) {
       this.infoCourse.description = row.Description;

@@ -10,7 +10,8 @@ const state = {
   listClasses: [],
   subject: null,
   listMyClasses: [],
-  listMyCourses: []
+  listMyCourses: [],
+  listNotRegisterCourses: []
 };
 
 const actions = {
@@ -21,6 +22,17 @@ const actions = {
       return listCourses;
     } catch (error) {
       console.log(error);
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
+  },
+  async getNotRegisterCourses({ commit }) {
+    try {
+      let listNotRegisterCourses = await studentService.getNotRegisterCourses();
+      commit('getNotRegisterCourses', listNotRegisterCourses);
+      return listNotRegisterCourses;
+    } catch (error) {
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -108,6 +120,16 @@ const actions = {
       }
     }
   },
+  async registerClass({ commit }, classId) {
+    try {
+      let response = await studentService.registerClass(classId);
+      return response;
+    } catch (error) {
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
+  },
   async getMySubjects({ commit }) {
     try {
       let mySubjects = await studentService.getMySubjects();
@@ -144,6 +166,9 @@ const mutations = {
   },
   getAllCourses(state, listCourses) {
     state.listCourses = listCourses;
+  },
+  getNotRegisterCourses(state, listNotRegisterCourses) {
+    state.listNotRegisterCourses = listNotRegisterCourses;
   },
   getAllSubjects(state, listSubjects) {
     state.listSubjects = listSubjects;

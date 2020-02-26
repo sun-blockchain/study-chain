@@ -44,6 +44,8 @@
       :title="`Classes list`"
       :listAll="listClasses"
       :loadingData="loadingData"
+      :btnRegister="true"
+      :nameFunctionRegister="`enrollClass`"
       :btnInfo="true"
       :nameFunctionInfo="`modalInfo`"
       :listProperties="[
@@ -55,6 +57,7 @@
         { prop: 'Capacity', label: 'Capacity' }
       ]"
       @modalInfo="modalInfo($event)"
+      @enrollClass="enrollClass($event)"
     ></table-student>
   </div>
 </template>
@@ -84,13 +87,36 @@ export default {
     };
   },
   methods: {
-    ...mapActions('student', ['getClassesOfSubject', 'getSubject']),
+    ...mapActions('student', ['getClassesOfSubject', 'getSubject', 'registerClass']),
     modalInfo(row) {
       this.infoClass.description = row.Description;
       this.infoClass.startDate = row.StartDate;
       this.infoClass.endDate = row.EndDate;
       this.infoClass.repeat = row.Repeat;
       this.$root.$emit('bv::show::modal', 'modal-info');
+    },
+    async enrollClass(row) {
+      this.$swal({
+        text: 'Are you sure register this class ?',
+        type: 'success',
+        showCancelButton: true,
+        cancelButtonColor: '#d33',
+        confirmButtonColor: '#28a745',
+        confirmButtonText: 'Confirm',
+        reverseButtons: true
+      }).then(async (result) => {
+        if (result.value) {
+          this.fullscreenLoading = true;
+          let response = await this.registerClass(row.ClassID);
+          if (response.status === 200) {
+            this.fullscreenLoading = false;
+            this.$swal('Registered!', 'Class has been registered.', 'success');
+          } else {
+            this.fullscreenLoading = false;
+            this.$swal('Failed!', 'Fail to register class.', 'danger');
+          }
+        }
+      });
     }
   },
   computed: {
