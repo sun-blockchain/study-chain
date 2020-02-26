@@ -1645,6 +1645,269 @@ describe('POST /account/me/registerClass', () => {
   });
 });
 
+describe('POST /account/me/cancelRegisterClass', () => {
+  let connect;
+  let query;
+  let cancelRegisterClass;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+    cancelRegisterClass = sinon.stub(network, 'studentCancelRegisterClass');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+    cancelRegisterClass.restore();
+  });
+
+  it('Validate body fail!', (done) => {
+    request(app)
+      .post('/account/me/cancelRegisterClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        classId: ''
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('Permission Denied!', (done) => {
+    request(app)
+      .post('/account/me/cancelRegisterClass')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied!');
+        done();
+      });
+  });
+
+  it('Failed to connect to blockchain!', (done) => {
+    connect.returns(null);
+    request(app)
+      .post('/account/me/cancelRegisterClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain!');
+        done();
+      });
+  });
+
+  it('Can not query class in chaincode!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    query.returns({
+      success: false,
+      msg: 'Error'
+    });
+
+    request(app)
+      .post('/account/me/cancelRegisterClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not query chaincode!');
+        done();
+      });
+  });
+
+  it('You have not register this class yet!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    let classInfo = JSON.stringify({
+      ClassID: '123456',
+      Students: ['st02']
+    });
+
+    query.returns({
+      success: true,
+      msg: classInfo
+    });
+
+    request(app)
+      .post('/account/me/cancelRegisterClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('You have not register this class yet!');
+        done();
+      });
+  });
+
+  it('Class is Closed!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    let classInfo = JSON.stringify({
+      ClassID: '123456',
+      Students: ['hoangdd', 'st02'],
+      Status: 'Closed'
+    });
+
+    query.returns({
+      success: true,
+      msg: classInfo
+    });
+
+    request(app)
+      .post('/account/me/cancelRegisterClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Class is Closed!');
+        done();
+      });
+  });
+
+  it('Class is Closed!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    let classInfo = JSON.stringify({
+      ClassID: '123456',
+      Students: ['hoangdd', 'st02'],
+      Status: 'Completed'
+    });
+
+    query.returns({
+      success: true,
+      msg: classInfo
+    });
+
+    request(app)
+      .post('/account/me/cancelRegisterClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Class is Completed!');
+        done();
+      });
+  });
+
+  it('Can not invoke chaincode!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    let classInfo = JSON.stringify({
+      ClassID: '123456',
+      Students: ['hoangdd', 'st02'],
+      Status: 'Open'
+    });
+
+    query.returns({
+      success: true,
+      msg: classInfo
+    });
+
+    cancelRegisterClass.returns({
+      success: false,
+      msg: 'Can not invoke chaincode!'
+    });
+
+    request(app)
+      .post('/account/me/cancelRegisterClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not invoke chaincode!');
+        done();
+      });
+  });
+
+  it('Cancel Successfully!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    let classInfo = JSON.stringify({
+      ClassID: '123456',
+      Students: ['hoangdd', 'st02'],
+      Status: 'Open'
+    });
+
+    query.returns({
+      success: true,
+      msg: classInfo
+    });
+
+    cancelRegisterClass.returns({
+      success: true
+    });
+
+    request(app)
+      .post('/account/me/cancelRegisterClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        expect(res.body.msg).equal('Cancel Successfully!');
+        done();
+      });
+  });
+});
+
 describe('GET /account/me/notRegisterCourses', () => {
   let connect;
   let query;

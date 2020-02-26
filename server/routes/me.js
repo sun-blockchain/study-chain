@@ -544,6 +544,78 @@ router.post(
   }
 );
 
+router.post(
+  '/cancelRegisterClass',
+  [
+    body('classId')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape()
+  ],
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, errors: errors.array() });
+    }
+
+    if (req.decoded.user.role !== USER_ROLES.STUDENT) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied!'
+      });
+    }
+    let user = req.decoded.user;
+    let networkObj = await network.connectToNetwork(user);
+
+    if (!networkObj) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Failed connect to blockchain!'
+      });
+    }
+
+    let classId = req.body.classId;
+    query = await network.query(networkObj, 'QueryClass', classId);
+    if (!query.success) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Can not query chaincode!'
+      });
+    }
+    let classInfo = JSON.parse(query.msg);
+
+    if (!classInfo.Students || !classInfo.Students.includes(user.username)) {
+      return res.status(500).json({
+        success: false,
+        msg: 'You have not register this class yet!'
+      });
+    }
+
+    if (classInfo.Status !== 'Open') {
+      return res.status(500).json({
+        success: false,
+        msg: `Class is ${classInfo.Status}!`
+      });
+    }
+
+    networkObj = await network.connectToNetwork(user);
+
+    let response = await network.studentCancelRegisterClass(networkObj, user.username, classId);
+    if (!response.success) {
+      return res.status(500).json({
+        success: false,
+        msg: response.msg
+      });
+    }
+
+    return res.json({
+      success: true,
+      msg: 'Cancel Successfully!'
+    });
+  }
+);
+
 router.get('/createscore', async (req, res) => {
   if (req.decoded.user.role !== USER_ROLES.TEACHER) {
     return res.status(403).json({
