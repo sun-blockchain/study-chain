@@ -15,55 +15,62 @@
         </div>
       </div>
     </div>
-    <table-admin
-      :title="`Subjects List`"
-      :listAll="subjectsOfCourse ? subjectsOfCourse : []"
-      :loadingData="loadingData"
-      :btnInfo="true"
-      :nameFunctionInfo="`showInfoSubject`"
-      :btnDetail="true"
-      :nameFunctionDetail="`detailSubject`"
-      :nameFunctionDelete="`delStudent`"
-      :btnDelete="true"
-      :listProperties="[
-        { prop: 'SubjectName', label: 'Subject Name' },
-        { prop: 'SubjectCode', label: 'Subject Code' },
-        { prop: 'ShortDescription', label: 'Short Description' }
-      ]"
-      @detailSubject="detailSubject($event)"
-      @delStudent="delStudent($event)"
-      @showInfoSubject="showInfoSubject($event)"
-    >
-      <template v-slot:btn-create>
-        <el-button
-          type="success"
-          icon="fas fa-plus"
-          size="medium"
-          round
-          @click="dialogForm.addSubject = true"
-        ></el-button>
-        <!-- <div class="box-defaul-header"></div> -->
-      </template>
-    </table-admin>
-    <table-admin
-      :title="`Student List`"
-      :listAll="listStudents ? listStudents : []"
-      :loadingData="loadingData"
-      :btnInfo="true"
-      :nameFunctionInfo="`showInfoStudent`"
-      :btnDetail="true"
-      :nameFunctionDetail="`detailStudent`"
-      :nameFunctionDelete="`delStudent`"
-      :btnDelete="true"
-      :listProperties="[
-        { prop: 'Name', label: 'Student Name' },
-        { prop: 'Birthday', label: 'Date Of Birth' }
-      ]"
-      @detailStudent="detailStudent($event)"
-      @delStudent="delStudent($event)"
-      @showInfoStudent="showInfoStudent($event)"
-    >
-    </table-admin>
+    <el-tabs type="border-card">
+      <el-tab-pane label="Subject">
+        <table-admin
+          :title="`Subjects List`"
+          :listAll="subjectsOfCourse ? subjectsOfCourse : []"
+          :loadingData="loadingData"
+          :btnInfo="true"
+          :nameFunctionInfo="`showInfoSubject`"
+          :btnDetail="true"
+          :nameFunctionDetail="`detailSubject`"
+          :nameFunctionDelete="`delStudent`"
+          :btnDelete="true"
+          :listProperties="[
+            { prop: 'SubjectName', label: 'Subject Name' },
+            { prop: 'SubjectCode', label: 'Subject Code' },
+            { prop: 'ShortDescription', label: 'Short Description' }
+          ]"
+          @detailSubject="detailSubject($event)"
+          @delStudent="delStudent($event)"
+          @showInfoSubject="showInfoSubject($event)"
+        >
+          <template v-slot:btn-create>
+            <el-button
+              type="success"
+              icon="fas fa-plus"
+              size="medium"
+              round
+              @click="dialogForm.addSubject = true"
+            ></el-button>
+            <!-- <div class="box-defaul-header"></div> -->
+          </template>
+        </table-admin>
+      </el-tab-pane>
+      <el-tab-pane label="Student"
+        ><table-admin
+          :title="`Student List`"
+          :listAll="listStudents ? listStudents : []"
+          :loadingData="loadingData"
+          :btnInfo="true"
+          :nameFunctionInfo="`showInfoStudent`"
+          :btnDetail="true"
+          :nameFunctionDetail="`detailStudent`"
+          :nameFunctionDelete="`delStudent`"
+          :btnDelete="true"
+          :listProperties="[
+            { prop: 'Name', label: 'Student Name' },
+            { prop: 'Birthday', label: 'Date Of Birth' }
+          ]"
+          @detailStudent="detailStudent($event)"
+          @delStudent="delStudent($event)"
+          @showInfoStudent="showInfoStudent($event)"
+        >
+        </table-admin
+      ></el-tab-pane>
+    </el-tabs>
+
     <el-dialog title="Information Student" :visible.sync="showInfo" class="modal-with-create">
       <el-form :model="infoStudent" ref="infoStudent">
         <div>
@@ -186,7 +193,18 @@
 import { mapState, mapActions } from 'vuex';
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 import TableAdmin from '@/components/admin-academy/TableAdmin';
-import { Button, Select, Option, Dialog, Form, FormItem, Message, MessageBox } from 'element-ui';
+import {
+  Button,
+  Select,
+  Option,
+  Dialog,
+  Form,
+  FormItem,
+  Message,
+  MessageBox,
+  TabPane,
+  Tabs
+} from 'element-ui';
 export default {
   components: {
     ValidationObserver,
@@ -197,7 +215,9 @@ export default {
     'el-option': Option,
     'el-dialog': Dialog,
     'el-form': Form,
-    'el-form-item': FormItem
+    'el-form-item': FormItem,
+    'el-tab-pane': TabPane,
+    'el-tabs': Tabs
   },
   data() {
     return {

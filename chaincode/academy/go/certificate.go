@@ -1462,12 +1462,12 @@ func GetStudentsOfClass(stub shim.ChaincodeStubInterface, args []string) sc.Resp
 		return shim.Error("Class dose not exist - " + ClassID)
 	}
 
-	var tlist []Class
+	var tlist []Student
 	var i int
 
 	for i = 0; i < len(class.Students); i++ {
 
-		student, err := getClass(stub, "Student-"+class.Students[i])
+		student, err := getStudent(stub, "Student-"+class.Students[i])
 		if err != nil {
 			return shim.Error("Student does not exist - " + class.Students[i])
 		}

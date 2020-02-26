@@ -35,7 +35,8 @@ export const adminService = {
   confirmCertificate,
   getSubjectsNoCourse,
   addSubjectToCourse,
-  deleteSubjectFromCourse
+  deleteSubjectFromCourse,
+  getStudent
 };
 
 // Courses Manager
@@ -388,8 +389,6 @@ async function deleteClass(subjectId, classId) {
 
     return respone.data.courses;
   } catch (error) {
-    console.log(error);
-
     throw error;
   }
 }
@@ -399,7 +398,7 @@ async function getStudentsOfClass(classId) {
     let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/student/${classId}`, {
       headers: authHeader()
     });
-    return respone.data.students;
+    return respone.data;
   } catch (error) {
     throw error;
   }
@@ -617,6 +616,20 @@ async function getSubject(subjectId) {
   try {
     let respone = await axios.get(
       `${process.env.VUE_APP_API_BACKEND}/common/subject/${subjectId}`,
+      {
+        headers: authHeader()
+      }
+    );
+    return respone.data;
+  } catch (error) {
+    throw error;
+  }
+}
+//get student
+async function getStudent(username) {
+  try {
+    let respone = await axios.get(
+      `${process.env.VUE_APP_API_BACKEND}/academy/student/${username}`,
       {
         headers: authHeader()
       }
