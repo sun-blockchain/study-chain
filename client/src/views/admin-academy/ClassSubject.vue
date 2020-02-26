@@ -44,9 +44,9 @@
       :nameFunctionDelete="`delStudent`"
       :btnDelete="true"
       :listProperties="[
-        { prop: 'StudentID', label: 'Student ID' },
-        { prop: 'Name', label: 'Name' },
-        { prop: 'Birthday', label: 'Birthday' }
+        { prop: 'Fullname', label: 'FullName' },
+        { prop: 'Info.Birthday', label: 'Birthday' },
+        { prop: 'Info.Address', label: 'Address' }
       ]"
       @detailStudent="detailStudent($event)"
       @delStudent="delStudent($event)"

@@ -45,7 +45,72 @@
         <!-- <div class="box-defaul-header"></div> -->
       </template>
     </table-admin>
+    <table-admin
+      :title="`Student List`"
+      :listAll="listStudents ? listStudents : []"
+      :loadingData="loadingData"
+      :btnInfo="true"
+      :nameFunctionInfo="`showInfoStudent`"
+      :btnDetail="true"
+      :nameFunctionDetail="`detailStudent`"
+      :nameFunctionDelete="`delStudent`"
+      :btnDelete="true"
+      :listProperties="[
+        { prop: 'Name', label: 'Student Name' },
+        { prop: 'Birthday', label: 'Date Of Birth' }
+      ]"
+      @detailStudent="detailStudent($event)"
+      @delStudent="delStudent($event)"
+      @showInfoStudent="showInfoStudent($event)"
+    >
+    </table-admin>
+    <el-dialog title="Information Student" :visible.sync="showInfo" class="modal-with-create">
+      <el-form :model="infoStudent" ref="infoStudent">
+        <div>
+          <img
+            src="https://cdn4.iconfinder.com/data/icons/professions-1-2/151/8-512.png"
+            class="avatar"
+          />
+        </div>
 
+        <div class="form-group">
+          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
+            >Phone Number</label
+          >
+          <div class="col-sm-12">
+            <h4 class="pl-3">{{ infoStudent.PhoneNumber }}</h4>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
+            >Email</label
+          >
+          <div class="col-sm-12">
+            <h4 class="pl-3">{{ infoStudent.Email }}</h4>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
+            >Address</label
+          >
+          <div class="col-sm-12">
+            <h4 class="pl-3">{{ infoStudent.Address }}</h4>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
+            >Gender</label
+          >
+          <div class="col-sm-12">
+            <h4 class="pl-3">{{ infoStudent.Sex }}</h4>
+          </div>
+        </div>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="resetFormStudent()">Cancel</el-button>
+      </span>
+    </el-dialog>
     <el-dialog
       title="Add Subject To Course"
       :visible.sync="dialogForm.addSubject"
@@ -111,7 +176,7 @@
         </div>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="resetForm('infoSubject')">Cancel</el-button>
+        <el-button @click="resetFormStudent('infoSubject')">Cancel</el-button>
       </span>
     </el-dialog>
   </div>
@@ -136,6 +201,15 @@ export default {
   },
   data() {
     return {
+      infoStudent: {
+        PhoneNumber: '3423423424',
+        Email: 'abc@gmail.com',
+        Address: 'HN',
+        Sex: 'Male',
+        Birthday: '22/09/1999',
+        Avatar: '',
+        Country: 'VietNam'
+      },
       items: [
         {
           text: 'Course',
@@ -180,7 +254,8 @@ export default {
       dialogForm: {
         infoSubject: false,
         addSubject: false
-      }
+      },
+      showInfo: false
     };
   },
   methods: {
@@ -188,7 +263,8 @@ export default {
       'getCourse',
       'getSubjectsNoCourse',
       'addSubjectToCourse',
-      'deleteSubjectFromCourse'
+      'deleteSubjectFromCourse',
+      'getStudentsOfCourse'
     ]),
     detailSubject(row) {
       this.$router.push({ path: `/academy/subjects/${row.SubjectID}` });
@@ -272,15 +348,22 @@ export default {
       this[formName].description = '';
       this.$refs[formName].resetFields();
       this.dialogForm[formName] = false;
+    },
+    showInfoStudent(row) {
+      this.showInfo = true;
+    },
+    resetFormStudent() {
+      this.showInfo = false;
     }
   },
   computed: {
-    ...mapState('adminAcademy', ['subjectsOfCourse', 'listCourses'])
+    ...mapState('adminAcademy', ['subjectsOfCourse', 'listCourses', 'listStudents'])
   },
   async created() {
     await this.getCourse(this.$route.params.id);
     let subjectsNoCourse = await this.getSubjectsNoCourse(this.$route.params.id);
-    if (subjectsNoCourse.success) {
+    let studentList = await this.getStudentsOfCourse(this.$route.params.id);
+    if (subjectsNoCourse.success && studentList) {
       this.subjectsNoCourse = subjectsNoCourse.subjects;
     }
     this.loadingData = false;
@@ -299,5 +382,14 @@ export default {
   margin-top: 24px;
   margin-bottom: 24px;
   color: blue;
+}
+.avatar {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  align-self: center;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 </style>

@@ -1313,6 +1313,17 @@ func GetAllClassesOfSubject(stub shim.ChaincodeStubInterface, args []string) sc.
 
 func GetStudentsOfClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		return shim.Error("Error - cide.GetMSPID()")
+	}
+
+	if MSPID == "StudentMSP" {
+		return shim.Error("Permission denied!")
+	}
+
+
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}

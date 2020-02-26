@@ -141,6 +141,18 @@ const actions = {
       }
     }
   },
+  async getStudentsOfCourse({ commit }, { courseId }) {
+    try {
+      let data = await adminService.getStudentsOfCourse(courseId);
+
+      commit('getStudentsOfCourse', data.students);
+      return data.students;
+    } catch (error) {
+      // if (error.response.status === 403) {
+      //   router.push('/403');
+      // }
+    }
+  },
   // get subject by id
   async getSubject({ commit }, subjectId) {
     try {
@@ -436,6 +448,9 @@ const mutations = {
   },
   deleteCourse(state, listCourses) {
     state.listCourses = listCourses;
+  },
+  getStudentsOfCourse(state, listStudents) {
+    state.listStudents = listStudents;
   },
   // Subjects Manager
   getAllSubjects(state, listSubjects) {
