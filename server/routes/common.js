@@ -3,6 +3,7 @@ const network = require('../fabric/network.js');
 const checkJWT = require('../middlewares/check-jwt');
 const { validationResult, check } = require('express-validator');
 const USER_ROLES = require('../configs/constant').USER_ROLES;
+const User = require('../models/User');
 
 router.get('/courses', checkJWT, async (req, res) => {
   const user = req.decoded.user;
@@ -147,5 +148,81 @@ router.get(
     });
   }
 );
+
+// -------------------------------- classes of teacher --------------------------------------------
+router.get('/:username/classes', async (req, res, next) => {
+  if (
+    req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY &&
+    req.decoded.user.role !== USER_ROLES.TEACHER
+  ) {
+    return res.status(403).json({
+      success: false,
+      msg: 'Permission Denied'
+    });
+  }
+
+  const networkObj = await network.connectToNetwork(req.decoded.user);
+  if (!networkObj) {
+    return res.status(500).json({
+      success: false,
+      msg: 'Failed connect to blockchain!'
+    });
+  }
+
+  let classesByTeacher = await network.query(
+    networkObj,
+    'GetClassesByTeacher',
+    req.params.username
+  );
+  if (!classesByTeacher.success) {
+    return res.status(500).json({
+      success: false,
+      msg: classesByTeacher.msg.toString()
+    });
+  }
+
+  return res.json({
+    success: true,
+    classes: JSON.parse(classesByTeacher.msg)
+  });
+});
+
+// get unassigned classes
+router.get('/classesNoTeacher', async (req, res, next) => {
+  if (
+    req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY &&
+    req.decoded.user.role !== USER_ROLES.TEACHER
+  ) {
+    return res.status(403).json({
+      success: false,
+      msg: 'Permission Denied'
+    });
+  }
+
+  const networkObj = await network.connectToNetwork(req.decoded.user);
+  if (!networkObj) {
+    return res.status(500).json({
+      success: false,
+      msg: 'Failed connect to blockchain!'
+    });
+  }
+
+  let classes = await network.query(networkObj, 'GetAllClasses');
+  if (!classes.success) {
+    return res.status(500).json({
+      success: false,
+      msg: classes.msg.toString()
+    });
+  }
+
+  let classesNoTeacher = JSON.parse(classes.msg)
+    ? JSON.parse(classes.msg).filter((c) => c.TeacherUsername === '')
+    : [];
+
+  return res.json({
+    success: true,
+    classesNoTeacher: classesNoTeacher
+  });
+});
 
 module.exports = router;
