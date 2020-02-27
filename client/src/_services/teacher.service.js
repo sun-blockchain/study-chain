@@ -2,15 +2,18 @@ import { authHeader } from '../_helpers/auth-header.js';
 import axios from 'axios';
 
 export const teacherService = {
-  getAllSubjects,
+  getClassesOfTeacher,
   getStudentsOfSubject,
   setScoreForStudent
 };
 
-async function getAllSubjects() {
-  let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/me/mysubjects`, {
-    headers: authHeader()
-  });
+async function getClassesOfTeacher() {
+  let respone = await axios.get(
+    `${process.env.VUE_APP_API_BACKEND}/account/teacher/classesOfTeacher`,
+    {
+      headers: authHeader()
+    }
+  );
   return respone.data;
 }
 
