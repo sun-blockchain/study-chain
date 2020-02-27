@@ -4,3 +4,4 @@ go.mod
 go.sum
 fabric-samples/
 network/deploy-kubernetes/
+/.circleci/

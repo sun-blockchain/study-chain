@@ -35,7 +35,7 @@ jobs:
           command: |
             if [[ true ]];  then
               curl -X POST -H "X-ChatWorkToken: $CHATWORK_TOKEN" -d \
-                "body=[info]Hello[/info]" \
+                "body=[info][title][info]BUIL SUCCESS (flex)[/info] $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME[/title]Repository name: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME%0AAuthor: $CIRCLE_PR_USERNAME%0ABranch: $CIRCLE_BRANCH%0APull: $CIRCLE_PULL_REQUEST%0ACommit: https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/commit/$CIRCLE_SHA1%0ABuild link: https://circleci.com/gh/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$CIRCLE_BUILD_NUM[/info]" \
                 "https://api.chatwork.com/v2/rooms/$CHATWORK_ROOM/messages"
             fi
       - run:
@@ -56,9 +56,25 @@ jobs:
       enabled: true
     steps:
       - run:
+          name: Drop Database
+          command: |
+            ssh deploy@139.162.40.88 "echo -ne 'use studychain\ndb.dropDatabase()\nexit\n' mongo"
+      - run:
+          name: Yarn Installl Server
+          command: |
+            ssh deploy@139.162.40.88 "export GOPATH=/home/deploy/go && cd test/study-chain && git checkout master && git branch -D release && git checkout -b release && git pull origin release && cd server && yarn install"
+      - run:
           name: Up network
           command: |
-            ssh deploy@139.162.40.88 "cd test/study-chain && git pull tan master && cd network && echo -ne '\n' | ./network.sh down && echo -ne '\n' | ./network.sh up"
+            ssh deploy@139.162.40.88 "export GOPATH=/home/deploy/go && cd test/study-chain/network && echo -ne '\n' | ./network.sh down && echo -ne '\n' | ./network.sh up"
+      - run:
+          name: Start server
+          command: |
+            ssh deploy@139.162.40.88 "export GOPATH=/home/deploy/go && cd test/study-chain/server/cli && rm -r wallet && ./init.sh && cd .. && pm2 restart www"
+      - run:
+          name: Start Client
+          command: |
+            ssh deploy@139.162.40.88 "export GOPATH=/home/deploy/go && cd test/study-chain/client && rm -r dist && yarn build"
 workflows:
   version: 2
   build-and-up_network:
@@ -69,5 +85,5 @@ workflows:
             - build # only deploy once build job has completed
           filters:
             branches:
-              only: master # only deploy on the master branch
+              only: release # only deploy on the master branch
 

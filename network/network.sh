@@ -177,7 +177,7 @@ function networkUp() {
   if [ "${NO_CHAINCODE}" != "true" ]; then
     echo Vendoring Go dependencies ...
     pushd ../chaincode/academy/go
-    GO111MODULE=on go mod vendor
+    GO111MODULE="on go mod vendor"
     popd
     echo Finished vendoring Go dependencies
   fi
@@ -515,13 +515,15 @@ askProceed
 if [ "${MODE}" == "up" ]; then
   export CERTIFICATE_AUTHORITIES="true"
   networkUp
-  cd ../server/cli
-  rm -r wallet/*
-  ./init.sh
-  cd ../../network
+  # cd ../server/cli
+  # rm -r wallet/*
+  # ./init.sh
+  # cd ../../network
+  exit 0
 elif [ "${MODE}" == "down" ]; then ## Clear the network
   networkDown
   docker rm $(docker ps -aq)
+  exit 0
 elif [ "${MODE}" == "generate" ]; then ## Generate Artifacts
   generateCerts
   generateChannelArtifacts
