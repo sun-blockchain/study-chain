@@ -33,8 +33,8 @@ router.get(
 
     const user = req.decoded.user;
     const networkObj = await network.connectToNetwork(user);
-    const response = await network.query(networkObj, 'QueryCourse', courseId);
-    const listSubjects = await network.query(networkObj, 'QuerySubjectsOfCourse', courseId);
+    const response = await network.query(networkObj, 'GetCourse', courseId);
+    const listSubjects = await network.query(networkObj, 'GetSubjectsOfCourse', courseId);
 
     if (!response.success || !listSubjects.success) {
       return res.status(500).send({
@@ -60,7 +60,7 @@ router.get(
   async (req, res) => {
     const user = req.decoded.user;
     const networkObj = await network.connectToNetwork(user);
-    const response = await network.query(networkObj, 'QuerySubject', req.params.subjectId);
+    const response = await network.query(networkObj, 'GetSubject', req.params.subjectId);
 
     if (!response.success) {
       res.status(500).send({
@@ -80,7 +80,7 @@ router.get(
 router.get('/subject/:subjectId/classes', checkJWT, async (req, res) => {
   const user = req.decoded.user;
   const networkObj = await network.connectToNetwork(user);
-  const response = await network.query(networkObj, 'GetAllClassesOfSubject', req.params.subjectId);
+  const response = await network.query(networkObj, 'GetClassesOfSubject', req.params.subjectId);
   if (!response.success) {
     res.status(500).send({
       success: false,
@@ -126,7 +126,7 @@ router.get(
       });
     }
 
-    const response = await network.query(networkObj, 'QueryClass', req.params.classId);
+    const response = await network.query(networkObj, 'GetClass', req.params.classId);
 
     if (!response.success) {
       return res.status(500).send({

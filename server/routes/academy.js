@@ -127,7 +127,7 @@ router.post(
       });
     }
 
-    const course = await network.query(networkObj, 'QueryCourse', courseId);
+    const course = await network.query(networkObj, 'GetCourse', courseId);
 
     return res.json({
       success: true,
@@ -170,7 +170,7 @@ router.post(
     let courseId = req.body.courseId;
     let subjectId = req.body.subjectId;
 
-    let query = await network.query(networkObj, 'QueryCourse', courseId);
+    let query = await network.query(networkObj, 'GetCourse', courseId);
 
     if (!query.success) {
       return res.status(500).json({
@@ -233,7 +233,7 @@ router.get(
         msg: 'Failed connect to blockchain'
       });
     }
-    const courseQuery = await network.query(networkObj, 'QueryCourse', courseId);
+    const courseQuery = await network.query(networkObj, 'GetCourse', courseId);
     const allSubjecyQuery = await network.query(networkObj, 'GetAllSubjects');
 
     if (!courseQuery.success || !allSubjecyQuery.success) {
@@ -410,7 +410,7 @@ router.post(
       });
     }
 
-    const response = await network.query(networkObj, 'QueryCoursesOfStudent', username);
+    const response = await network.query(networkObj, 'GetCoursesOfStudent', username);
 
     if (!response.success) {
       return res.status(500).json({
@@ -534,7 +534,7 @@ router.post(
 
       const listNewClasses = await network.query(
         networkObj,
-        'GetAllClassesOfSubject',
+        'GetClassesOfSubject',
         req.params.subjectId
       );
 
@@ -659,7 +659,7 @@ router.put(
         });
       }
 
-      const listNewClass = await network.query(networkObj, 'GetAllClassesOfSubject', subjectId);
+      const listNewClass = await network.query(networkObj, 'GetClassesOfSubject', subjectId);
 
       return res.json({
         success: true,
@@ -774,7 +774,7 @@ router.put(
     }
     let { subject } = req.body;
     let networkObj = await network.connectToNetwork(req.decoded.user);
-    const responseQuery = await network.query(networkObj, 'QuerySubject', subject.subjectId);
+    const responseQuery = await network.query(networkObj, 'GetSubject', subject.subjectId);
 
     if (!responseQuery.success) {
       return res.status(500).json({
@@ -888,7 +888,7 @@ router.put(
         msg: 'Failed connect to blockchain!'
       });
     }
-    const responseQuery = await network.query(networkObj, 'QueryClass', classId);
+    const responseQuery = await network.query(networkObj, 'GetClass', classId);
 
     if (!responseQuery.success) {
       return res.status(500).json({
@@ -1083,7 +1083,7 @@ router.get(
       });
     }
 
-    const response = await network.query(networkObj, 'QueryStudent', req.params.username);
+    const response = await network.query(networkObj, 'GetStudent', req.params.username);
 
     if (!response.success) {
       return res.status(500).send({

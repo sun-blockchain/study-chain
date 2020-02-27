@@ -66,11 +66,11 @@ node query.js --userid=[UserId] --org=[OrgName] --func=[FunctionName] --args=[Ar
 Query student id is 1 with role academy admin:
 
 ```bash
-node query.js --username=adminacademy --func=QueryStudent --args=st01
+node query.js --username=adminacademy --func=GetStudent --args=st01
 ```
 
 ```bash
-node query.js --username=adminacademy --func=QueryTeacher --args=gv01
+node query.js --username=adminacademy --func=GetTeacher --args=gv01
 ```
 
 Query All student with role academy admin:
@@ -92,19 +92,19 @@ node query.js --username=adminacademy --func=GetAllClasses
 ```
 
 ```bash
-node query.js --username=adminacademy --func=QuerySubject --args=ethereum
+node query.js --username=adminacademy --func=GetSubject --args=ethereum
 ```
 
 ```bash
-node query.js --username=adminacademy --func=QueryClassesOfStudent --args="St01"
+node query.js --username=adminacademy --func=GetClassesOfStudent --args="St01"
 ```
 
 ```bash
-node query.js --username=adminacademy --func=QueryCoursesOfStudent --args="St01"
+node query.js --username=adminacademy --func=GetCoursesOfStudent --args="St01"
 ```
 
 ```bash
-node query.js --username=adminacademy --func=QueryStudentsOfCourse --args="xxxx"
+node query.js --username=adminacademy --func=GetStudentsOfCourse --args="xxxx"
 ```
 
 ```bash
@@ -113,10 +113,6 @@ node query.js --username=adminacademy --func=GetScoresByStudent --args=st01
 
 ```bash
 node query.js --username=adminacademy --func=GetAllScores
-```
-
-```bash
-node query.js --username=adminacademy --func=GetScoresBySubject --args=ethereum
 ```
 
 ```bash
@@ -135,17 +131,10 @@ node query.js --username=adminacademy --func=GetCertificatesBySubject --args=eth
 node query.js --username=adminacademy --func=GetStudentsOfClass --args=classId
 ```
 
-Query Score with role admin student with studentId and subjectId
-
-```bash
-// arguments = [StudentId, SubjectId]
-node query.js --username=trinh --func=QueryScore --args=10 --args=160212
-```
-
 Query all Subject of Course by CourseID
 
 ```bash
-node query.js --username=adminacademy --func=QuerySubjectsOfCourse --args=xxx
+node query.js --username=adminacademy --func=GetSubjectsOfCourse --args=xxx
 ```
 
 ## Invoke Ledger

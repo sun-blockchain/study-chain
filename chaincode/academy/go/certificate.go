@@ -123,66 +123,40 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return CreateCertificate(stub, args)
 	} else if function == "CreateTeacher" {
 		return CreateTeacher(stub, args)
-	} else if function == "QuerySubject" {
-		return QuerySubject(stub, args)
-	} else if function == "QuerySubjectsOfCourse" {
-		return QuerySubjectsOfCourse(stub, args)
-	} else if function == "QueryScore" {
-		return QueryScore(stub, args)
-	} else if function == "QueryStudent" {
-		return QueryStudent(stub, args)
-	} else if function == "QueryCertificate" {
-		return QueryCertificate(stub, args)
-	} else if function == "VerifyCertificate" {
-		return VerifyCertificate(stub, args)
-	} else if function == "QueryTeacher" {
-		return QueryTeacher(stub, args)
+	} else if function == "GetSubject" {
+		return GetSubject(stub, args)
+	} else if function == "GetSubjectsOfCourse" {
+		return GetSubjectsOfCourse(stub, args)
+	} else if function == "GetStudent" {
+		return GetStudent(stub, args)
+	} else if function == "GetTeacher" {
+		return GetTeacher(stub, args)
 	} else if function == "GetAllSubjects" {
 		return GetAllSubjects(stub)
-	} else if function == "GetAllClassesOfSubject" {
-		return GetAllClassesOfSubject(stub, args)
+	} else if function == "GetClassesOfSubject" {
+		return GetClassesOfSubject(stub, args)
 	} else if function == "GetAllClasses" {
 		return GetAllClasses(stub)
 	} else if function == "GetStudentsOfClass" {
 		return GetStudentsOfClass(stub, args)
 	} else if function == "GetAllStudents" {
 		return GetAllStudents(stub)
-	} else if function == "GetAllScores" {
-		return GetAllScores(stub)
 	} else if function == "GetAllTeachers" {
 		return GetAllTeachers(stub)
-	} else if function == "GetMyCerts" {
-		return GetMyCerts(stub)
-	} else if function == "GetMySubjects" {
-		return GetMySubjects(stub)
-	} else if function == "GetMyScores" {
-		return GetMyScores(stub)
 	} else if function == "StudentRegisterCourse" {
 		return StudentRegisterCourse(stub, args)
 	} else if function == "StudentRegisterClass" {
 		return StudentRegisterClass(stub, args)
 	} else if function == "StudentCancelRegisterClass" {
 		return StudentCancelRegisterClass(stub, args)
-	} else if function == "GetSubjectsByStudent" {
-		return GetSubjectsByStudent(stub, args)
-	} else if function == "GetCertificatesByStudent" {
-		return GetCertificatesByStudent(stub, args)
 	} else if function == "GetScoresByStudent" {
 		return GetScoresByStudent(stub, args)
-	} else if function == "GetSubjectsByTeacher" {
-		return GetSubjectsByTeacher(stub, args)
 	} else if function == "GetCertificatesBySubject" {
 		return GetCertificatesBySubject(stub, args)
-	} else if function == "GetStudentsBySubject" {
-		return GetStudentsBySubject(stub, args)
-	} else if function == "GetScoresBySubject" {
-		return GetScoresBySubject(stub, args)
-	} else if function == "GetScoresBySubjectOfTeacher" {
-		return GetScoresBySubjectOfTeacher(stub, args)
 	} else if function == "CreateCourse" {
 		return CreateCourse(stub, args)
-	} else if function == "QueryCourse" {
-		return QueryCourse(stub, args)
+	} else if function == "GetCourse" {
+		return GetCourse(stub, args)
 	} else if function == "GetAllCourses" {
 		return GetAllCourses(stub)
 	} else if function == "UpdateCourseInfo" {
@@ -205,16 +179,16 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return DeleteSubject(stub, args)
 	} else if function == "CloseRegisterClass" {
 		return CloseRegisterClass(stub, args)
-	} else if function == "QueryClass" {
-		return QueryClass(stub, args)
-	} else if function == "QueryClassesOfStudent" {
-		return QueryClassesOfStudent(stub, args)
-	} else if function == "QueryCoursesOfStudent" {
-		return QueryCoursesOfStudent(stub, args)
+	} else if function == "GetClass" {
+		return GetClass(stub, args)
+	} else if function == "GetClassesOfStudent" {
+		return GetClassesOfStudent(stub, args)
+	} else if function == "GetCoursesOfStudent" {
+		return GetCoursesOfStudent(stub, args)
 	} else if function == "RemoveClassFromSubject" {
 		return RemoveClassFromSubject(stub, args)
-	} else if function == "QueryStudentsOfCourse" {
-		return QueryStudentsOfCourse(stub, args)
+	} else if function == "GetStudentsOfCourse" {
+		return GetStudentsOfCourse(stub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name!")
@@ -994,7 +968,7 @@ func CloseRegisterClass(stub shim.ChaincodeStubInterface, args []string) sc.Resp
 	return shim.Success(nil)
 }
 
-func QuerySubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+func GetSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	var SubjectID string
 
@@ -1028,7 +1002,7 @@ func QuerySubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	return shim.Success(subjectAsBytes)
 }
 
-func QueryClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+func GetClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
@@ -1060,7 +1034,7 @@ func QueryClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	return shim.Success(classAsBytes)
 }
 
-func QueryCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+func GetCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	var CourseID string
 
@@ -1084,7 +1058,7 @@ func QueryCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	return shim.Success(courseAsBytes)
 }
 
-func QuerySubjectsOfCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+func GetSubjectsOfCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
@@ -1119,7 +1093,7 @@ func QuerySubjectsOfCourse(stub shim.ChaincodeStubInterface, args []string) sc.R
 	return shim.Success(jsonRow)
 }
 
-func QueryStudentsOfCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+func GetStudentsOfCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	MSPID, err := cid.GetMSPID(stub)
 
 	if err != nil {
@@ -1163,7 +1137,7 @@ func QueryStudentsOfCourse(stub shim.ChaincodeStubInterface, args []string) sc.R
 	return shim.Success(jsonRow)
 }
 
-func QueryStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+func GetStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
@@ -1216,21 +1190,21 @@ func QueryStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	}
 }
 
-func QueryTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+func GetTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		shim.Error("Error - cid.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		shim.Error("Permission Denied!")
+	}
 
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
-
-	// MSPID, err := cid.GetMSPID(stub)
-
-	// if err != nil {
-	// 	shim.Error("Error - cid.GetMSPID()")
-	// }
-
-	// if MSPID != "AcademyMSP" {
-	// 	shim.Error("Permission Denied!")
-	// }
 
 	Username := args[0]
 
@@ -1246,119 +1220,6 @@ func QueryTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	}
 
 	return shim.Success(teacherAsBytes)
-}
-
-func QueryScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
-
-	if len(args) != 2 {
-		return shim.Error("Incorrect number of arguments. Expecting 2")
-	}
-
-	var StudentUsername string
-	var SubjectID string
-
-	MSPID, err := cid.GetMSPID(stub)
-
-	if err != nil {
-		shim.Error("Error - cid.GetMSPID()")
-	}
-
-	if MSPID == "StudentMSP" {
-		StudentUsername, _, err = cid.GetAttributeValue(stub, "username")
-
-		if err != nil {
-			shim.Error("Error - Can not Get Student")
-		}
-
-	} else if MSPID == "AcademyMSP" {
-		StudentUsername = args[1]
-	} else {
-		shim.Error("Permission Denied!")
-	}
-	SubjectID = args[0]
-
-	key := "Score-" + " " + "Subject-" + SubjectID + " " + "Student-" + StudentUsername
-	scoreAsBytes, err := stub.GetState(key)
-
-	if err != nil {
-		return shim.Error("Failed")
-	}
-
-	if scoreAsBytes == nil {
-		return shim.Error("Score does not exist")
-	}
-
-	return shim.Success(scoreAsBytes)
-}
-
-func QueryCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Response {
-
-	// MSPID, err := cid.GetMSPID(stub)
-
-	// if err != nil {
-	// 	shim.Error("Error - cid.GetMSPID()")
-	// }
-
-	// if MSPID != "StudentMSP" && MSPID == "AcademyMSP" {
-	// 	shim.Error("Permission Denied!")
-	// }
-
-	if len(args) != 1 {
-		return shim.Error("Incorrect number of arguments. Expecting 1")
-	}
-
-	CertificateID := args[0]
-
-	key := "Certificate-" + CertificateID
-
-	certificateAsBytes, err := stub.GetState(key)
-
-	if err != nil {
-		return shim.Error("Failed")
-	}
-
-	if certificateAsBytes == nil {
-		return shim.Error("Certificate does not exist")
-	}
-
-	return shim.Success(certificateAsBytes)
-}
-
-func VerifyCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Response {
-
-	MSPID, err := cid.GetMSPID(stub)
-
-	if err != nil {
-		shim.Error("Error - cid.GetMSPID()")
-	}
-
-	if MSPID != "StudentMSP" && MSPID == "AcademyMSP" {
-		shim.Error("Permission Denied!")
-	}
-
-	if len(args) != 3 {
-		return shim.Error("Incorrect number of arguments. Expecting 1")
-	}
-
-	CertificateID := args[0]
-	SubjectID := args[1]
-	StudentUsername := args[2]
-
-	key := "Certificate-" + CertificateID
-
-	certificate, err := getCertificate(stub, key)
-	certificateAsBytes, _ := json.Marshal(certificate)
-
-	if err != nil {
-		fmt.Println(certificate)
-		return shim.Error("Certificate does not exist !")
-	} else {
-		if certificate.StudentUsername == StudentUsername && certificate.SubjectID == SubjectID {
-			return shim.Success(certificateAsBytes)
-		} else {
-			return shim.Error("Not Right!")
-		}
-	}
 }
 
 func GetAllSubjects(stub shim.ChaincodeStubInterface) sc.Response {
@@ -1402,7 +1263,7 @@ func GetAllSubjects(stub shim.ChaincodeStubInterface) sc.Response {
 	return shim.Success(jsonRow)
 }
 
-func GetAllClassesOfSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+func GetClassesOfSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
@@ -1648,219 +1509,7 @@ func GetAllTeachers(stub shim.ChaincodeStubInterface) sc.Response {
 	return shim.Success(jsonRow)
 }
 
-func GetAllScores(stub shim.ChaincodeStubInterface) sc.Response {
-
-	MSPID, err := cid.GetMSPID(stub)
-
-	if err != nil {
-		shim.Error("Error - cid.GetMSPID()")
-	}
-
-	if MSPID != "AcademyMSP" {
-		shim.Error("Permission Denied!")
-	}
-
-	allScores, err := getListScores(stub)
-
-	if err != nil {
-		shim.Error("Error - Can not get all scores")
-	}
-
-	defer allScores.Close()
-
-	var tlist []Score
-	var i int
-
-	for i = 0; allScores.HasNext(); i++ {
-
-		record, err := allScores.Next()
-
-		if err != nil {
-			return shim.Success(nil)
-		}
-
-		score := Score{}
-		json.Unmarshal(record.Value, &score)
-		tlist = append(tlist, score)
-	}
-
-	jsonRow, err := json.Marshal(tlist)
-
-	if err != nil {
-		return shim.Error("Failed")
-	}
-
-	return shim.Success(jsonRow)
-}
-
-func GetMyCerts(stub shim.ChaincodeStubInterface) sc.Response {
-
-	MSPID, err := cid.GetMSPID(stub)
-
-	if err != nil {
-		return shim.Error("Error - cid.GetMSPID()")
-	}
-
-	if MSPID != "StudentMSP" {
-		return shim.Error("Permission Denied!")
-	}
-
-	StudentUsername, ok, err := cid.GetAttributeValue(stub, "username")
-
-	if err != nil {
-		return shim.Error("Error - Can not Get StudentUsername")
-	}
-
-	if !ok {
-		return shim.Error("Permission Denied!")
-	}
-
-	allCertificates, err := getListCertificates(stub)
-
-	if err != nil {
-		return shim.Error("Error - Can not get all scores")
-	}
-
-	defer allCertificates.Close()
-
-	var tlist []Certificate
-	var i int
-
-	for i = 0; allCertificates.HasNext(); i++ {
-
-		record, err := allCertificates.Next()
-
-		if err != nil {
-			return shim.Success(nil)
-		}
-
-		certificate := Certificate{}
-		json.Unmarshal(record.Value, &certificate)
-
-		if certificate.StudentUsername == StudentUsername {
-			tlist = append(tlist, certificate)
-		}
-	}
-
-	jsonRow, err := json.Marshal(tlist)
-
-	if err != nil {
-		return shim.Error("Failed")
-	}
-
-	return shim.Success(jsonRow)
-}
-
-func GetMySubjects(stub shim.ChaincodeStubInterface) sc.Response {
-
-	// MSPID, err := cid.GetMSPID(stub)
-
-	// if err != nil {
-	// 	return shim.Error("Error - cid.GetMSPID()")
-	// }
-
-	// if MSPID != "StudentMSP" {
-	// 	return shim.Error("Permission Denied!")
-	// }
-
-	// StudentUsername, ok, err := cid.GetAttributeValue(stub, "username")
-
-	// if err != nil {
-	// 	return shim.Error("Error - Can not Get StudentUsername")
-	// }
-
-	// if !ok {
-	// 	return shim.Error("Permission Denied!")
-	// }
-
-	// student, err := getStudent(stub, "Student-" + StudentUsername)
-
-	// if err != nil {
-	// 	return shim.Error("Student dose not exist - " + StudentUsername)
-	// }
-
-	// var tlist []Subject
-	// var i int
-
-	// for i = 0; i < len(student.Subjects); i++ {
-
-	// 	subject, err := getSubject(stub, "Subject-"+student.Subjects[i])
-	// 	if err != nil {
-	// 		return shim.Error("Subject does not exist - " + student.Subjects[i])
-	// 	}
-	// 	subject.Students = nil
-	// 	tlist = append(tlist, subject)
-	// }
-
-	// jsonRow, err := json.Marshal(tlist)
-
-	// if err != nil {
-	// 	return shim.Error("Failed")
-	// }
-
-	// return shim.Success(jsonRow)
-	return shim.Success(nil)
-}
-
-func GetMyScores(stub shim.ChaincodeStubInterface) sc.Response {
-
-	MSPID, err := cid.GetMSPID(stub)
-
-	if err != nil {
-		return shim.Error("Error - cid.GetMSPID()")
-	}
-
-	if MSPID != "StudentMSP" {
-		return shim.Error("Permission Denied!")
-	}
-
-	StudentUsername, ok, err := cid.GetAttributeValue(stub, "username")
-
-	if err != nil {
-		return shim.Error("Error - Can not Get StudentUsername")
-	}
-
-	if !ok {
-		return shim.Error("Permission Denied!")
-	}
-
-	allScores, err := getListScores(stub)
-
-	if err != nil {
-		return shim.Error("Error - Can not get all scores")
-	}
-
-	defer allScores.Close()
-
-	var tlist []Score
-	var i int
-
-	for i = 0; allScores.HasNext(); i++ {
-
-		record, err := allScores.Next()
-
-		if err != nil {
-			return shim.Success(nil)
-		}
-
-		score := Score{}
-		json.Unmarshal(record.Value, &score)
-
-		if score.StudentUsername == StudentUsername {
-			tlist = append(tlist, score)
-		}
-	}
-
-	jsonRow, err := json.Marshal(tlist)
-
-	if err != nil {
-		return shim.Error("Failed")
-	}
-
-	return shim.Success(jsonRow)
-}
-
-func QueryClassesOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+func GetClassesOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
@@ -1894,7 +1543,7 @@ func QueryClassesOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.R
 	return shim.Success(jsonRow)
 }
 
-func QueryCoursesOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+func GetCoursesOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
@@ -1923,103 +1572,6 @@ func QueryCoursesOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.R
 
 	if err != nil {
 		return shim.Error("Cannot json encode list courses of student")
-	}
-
-	return shim.Success(jsonRow)
-}
-
-func GetSubjectsByStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
-	// MSPID, err := cid.GetMSPID(stub)
-
-	// if err != nil {
-	// 	fmt.Println("Error - cid.GetMSPID()")
-	// }
-
-	// if MSPID != "AcademyMSP" {
-	// 	shim.Error("Permission Denied!")
-	// }
-
-	// if len(args) != 1 {
-	// 	return shim.Error("Incorrect number of arguments. Expecting 1")
-	// }
-
-	// StudentUsername := args[0]
-
-	// student, err := getStudent(stub, "Student-"+StudentUsername)
-
-	// if err != nil {
-	// 	return shim.Error("Student dose not exist - " + StudentUsername)
-	// }
-
-	// var tlist []Subject
-	// var i int
-
-	// for i = 0; i < len(student.Subjects); i++ {
-
-	// 	subject, err := getSubject(stub, "Subject-"+student.Subjects[i])
-	// 	if err != nil {
-	// 		return shim.Error("Subject does not exist - " + student.Subjects[i])
-	// 	}
-	// 	subject.Students = nil
-	// 	tlist = append(tlist, subject)
-	// }
-
-	// jsonRow, err := json.Marshal(tlist)
-
-	// if err != nil {
-	// 	return shim.Error("Failed")
-	// }
-
-	// return shim.Success(jsonRow)
-
-	return shim.Success(nil)
-}
-
-func GetCertificatesByStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
-	// MSPID, err := cid.GetMSPID(stub)
-
-	// if err != nil {
-	// 	fmt.Println("Error - cid.GetMSPID()")
-	// }
-
-	// if MSPID != "AcademyMSP" {
-	// 	shim.Error("Permission Denied!")
-	// }
-
-	StudentUsername := args[0]
-
-	_, err := getStudent(stub, "Student-"+StudentUsername)
-
-	if err != nil {
-		return shim.Error("Student dose not exist - " + StudentUsername)
-	}
-
-	allCertificates, _ := getListCertificates(stub)
-
-	defer allCertificates.Close()
-
-	var tlist []Certificate
-	var i int
-
-	for i = 0; allCertificates.HasNext(); i++ {
-
-		record, err := allCertificates.Next()
-
-		if err != nil {
-			return shim.Success(nil)
-		}
-
-		certificate := Certificate{}
-		json.Unmarshal(record.Value, &certificate)
-		if certificate.StudentUsername == StudentUsername {
-			tlist = append(tlist, certificate)
-		}
-	}
-
-	jsonRow, err := json.Marshal(tlist)
-
-	if err != nil {
-		return shim.Error("Failed")
 	}
 
 	return shim.Success(jsonRow)
@@ -2125,128 +1677,6 @@ func GetSubjectsByTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Re
 	return shim.Success(nil)
 }
 
-func GetScoresBySubjectOfTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response {
-
-	// if len(args) != 1 {
-	// 	return shim.Error("Incorrect number of arguments. Expecting 1")
-	// }
-
-	// MSPID, err := cid.GetMSPID(stub)
-
-	// if err != nil {
-	// 	fmt.Println("Error - cid.GetMSPID()")
-	// }
-
-	// if MSPID != "AcademyMSP" {
-	// 	return shim.Error("Permission Denied!")
-	// }
-
-	// TeacherUsername, ok, err := cid.GetAttributeValue(stub, "username")
-
-	// if err != nil {
-	// 	return shim.Error("Error - Can not Get TeacherUsername")
-	// }
-
-	// if !ok {
-	// 	return shim.Error("Permission Denied!")
-	// }
-
-	// _, err = getTeacher(stub, "Teacher-"+TeacherUsername)
-
-	// if err != nil {
-	// 	return shim.Error("Error - Teacher Does not exist !")
-	// }
-
-	// SubjectID := args[0]
-
-	// subject, err := getSubject(stub, "Subject-"+SubjectID)
-
-	// if err != nil {
-	// 	return shim.Error("Subject dose not exist - " + SubjectID)
-	// }
-
-	// if subject.TeacherUsername != TeacherUsername {
-	// 	return shim.Error("Permission Denied!")
-	// }
-
-	// allScores, _ := getListScores(stub)
-
-	// defer allScores.Close()
-
-	// var tlist []Score
-	// var i int
-
-	// for i = 0; allScores.HasNext(); i++ {
-
-	// 	record, err := allScores.Next()
-
-	// 	if err != nil {
-	// 		return shim.Success(nil)
-	// 	}
-
-	// 	score := Score{}
-	// 	json.Unmarshal(record.Value, &score)
-	// 	if score.SubjectID == SubjectID {
-	// 		tlist = append(tlist, score)
-	// 	}
-	// }
-
-	// jsonRow, err := json.Marshal(tlist)
-
-	// if err != nil {
-	// 	return shim.Error("Failed")
-	// }
-
-	// return shim.Success(jsonRow)
-	return shim.Success(nil)
-}
-
-func GetStudentsBySubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
-	// MSPID, err := cid.GetMSPID(stub)
-
-	// if err != nil {
-	// 	fmt.Println("Error - cid.GetMSPID()")
-	// }
-
-	// if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
-	// 	shim.Error("Permission Denied!")
-	// }
-
-	// if len(args) != 1 {
-	// 	return shim.Error("Incorrect number of arguments. Expecting 1")
-	// }
-
-	// SubjectID := args[0]
-
-	// subject, err := getSubject(stub, "Subject-"+SubjectID)
-
-	// if err != nil {
-	// 	return shim.Error("Subject dose not exist - " + SubjectID)
-	// }
-
-	// var tlist []Student
-	// var i int
-
-	// for i = 0; i < len(subject.Students); i++ {
-
-	// 	student, err := getStudent(stub, "Student-"+subject.Students[i])
-	// 	if err != nil {
-	// 		return shim.Error("Student dose not exist - " + subject.Students[i])
-	// 	}
-	// 	student.Subjects = nil
-	// 	tlist = append(tlist, student)
-	// }
-
-	// jsonRow, err := json.Marshal(tlist)
-
-	// if err != nil {
-	// 	return shim.Error("Failed")
-	// }
-
-	// return shim.Success(jsonRow)
-	return shim.Success(nil)
-}
-
 func GetCertificatesBySubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	// MSPID, err := cid.GetMSPID(stub)
 
@@ -2285,56 +1715,6 @@ func GetCertificatesBySubject(stub shim.ChaincodeStubInterface, args []string) s
 		json.Unmarshal(record.Value, &certificate)
 		if certificate.SubjectID == SubjectID {
 			tlist = append(tlist, certificate)
-		}
-	}
-
-	jsonRow, err := json.Marshal(tlist)
-
-	if err != nil {
-		return shim.Error("Failed")
-	}
-
-	return shim.Success(jsonRow)
-}
-
-func GetScoresBySubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
-	// MSPID, err := cid.GetMSPID(stub)
-
-	// if err != nil {
-	// 	fmt.Println("Error - cid.GetMSPID()")
-	// }
-
-	// if MSPID != "AcademyMSP" {
-	// 	shim.Error("Permission Denied!")
-	// }
-
-	SubjectID := args[0]
-
-	_, err := getSubject(stub, "Subject-"+SubjectID)
-
-	if err != nil {
-		return shim.Error("Subject dose not exist - " + SubjectID)
-	}
-
-	allScores, _ := getListScores(stub)
-
-	defer allScores.Close()
-
-	var tlist []Score
-	var i int
-
-	for i = 0; allScores.HasNext(); i++ {
-
-		record, err := allScores.Next()
-
-		if err != nil {
-			return shim.Success(nil)
-		}
-
-		score := Score{}
-		json.Unmarshal(record.Value, &score)
-		if score.SubjectID == SubjectID {
-			tlist = append(tlist, score)
 		}
 	}
 

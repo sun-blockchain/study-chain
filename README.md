@@ -59,7 +59,7 @@ Phía Academy có các quyền:
 Phía Student có các quyền:
 
 - Register student mới
-- QueryStudent, Score, Certificate của chính mình
+- GetStudent, Score, Certificate của chính mình
 - GetAllSubjects
 
 (Các câu lệnh xem thêm trong README.md của từng thư mục)
