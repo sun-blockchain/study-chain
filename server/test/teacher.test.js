@@ -174,7 +174,7 @@ describe('Route /account/teacher', () => {
     //     });
     // });
 
-    it('error when call function QueryTeacher', (done) => {
+    it('error when call function GetTeacher', (done) => {
       findOneStub.onFirstCall().yields(undefined, {
         username: 'hoangdd',
         role: USER_ROLES.ADMIN_ACADEMY
@@ -188,7 +188,7 @@ describe('Route /account/teacher', () => {
 
       query.onFirstCall().returns({
         success: false,
-        msg: 'cannot call function QueryTeacher'
+        msg: 'cannot call function GetTeacher'
       });
 
       let subjectOfTeacher = JSON.stringify({

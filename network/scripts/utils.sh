@@ -312,7 +312,7 @@ chaincodeQuery() {
     sleep $DELAY
     echo "Attempting to Query ${MESS_FOR_PEER} ...$(($(date +%s) - starttime)) secs"
     set -x
-    peer chaincode query -C $CHANNEL_NAME -n academy -c '{"Args":["QueryStudent","20156425"]}' >&log.txt
+    peer chaincode query -C $CHANNEL_NAME -n academy -c '{"Args":["GetStudent","20156425"]}' >&log.txt
     res=$?
     set +x
     test $res -eq 0 && VALUE=$(cat log.txt | awk '/Query Result/ {print $NF}')

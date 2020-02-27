@@ -46,7 +46,7 @@ router.get('/:username', async (req, res, next) => {
     }
 
     const networkObj = await network.connectToNetwork(req.decoded.user);
-    const response = await network.query(networkObj, 'QueryTeacher', username);
+    const response = await network.query(networkObj, 'GetTeacher', username);
     let subjects = await network.query(networkObj, 'GetSubjectsByTeacher', username);
 
     if (!response.success || !subjects.success) {

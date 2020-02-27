@@ -25,7 +25,7 @@ router.get('/', async (req, res) => {
       });
     }
     let identity = user.username;
-    const response = await network.query(networkObj, 'QueryStudent', identity);
+    const response = await network.query(networkObj, 'GetStudent', identity);
     if (!response.success) {
       return res.status(500).json({
         success: false,
@@ -55,7 +55,7 @@ router.get('/', async (req, res) => {
       });
     }
 
-    const response = await network.query(networkObj, 'QueryTeacher', user.username);
+    const response = await network.query(networkObj, 'GetTeacher', user.username);
 
     if (!response.success) {
       return res.status(500).json({
@@ -129,10 +129,10 @@ router.put(
     let identity = user.username;
     let response;
     if (user.role === USER_ROLES.STUDENT) {
-      response = await network.query(networkObj, 'QueryStudent', identity);
+      response = await network.query(networkObj, 'GetStudent', identity);
     }
     if (user.role === USER_ROLES.TEACHER) {
-      response = await network.query(networkObj, 'QueryTeacher', identity);
+      response = await network.query(networkObj, 'GetTeacher', identity);
     }
     if (!response.success) {
       return res.status(500).json({
@@ -210,7 +210,7 @@ router.get('/myClasses', async (req, res) => {
     });
   }
 
-  const response = await network.query(networkObj, 'QueryClassesOfStudent', user.username);
+  const response = await network.query(networkObj, 'GetClassesOfStudent', user.username);
 
   if (!response.success) {
     return res.status(500).json({
@@ -399,7 +399,7 @@ router.post(
       });
     }
 
-    let query = await network.query(networkObj, 'QueryStudent', user.username);
+    let query = await network.query(networkObj, 'GetStudent', user.username);
     if (!query.success) {
       return res.status(500).json({
         success: false,
@@ -465,7 +465,7 @@ router.post(
       });
     }
 
-    let query = await network.query(networkObj, 'QueryStudent', user.username);
+    let query = await network.query(networkObj, 'GetStudent', user.username);
     if (!query.success) {
       return res.status(500).json({
         success: false,
@@ -483,7 +483,7 @@ router.post(
       });
     }
 
-    query = await network.query(networkObj, 'QueryClass', classId);
+    query = await network.query(networkObj, 'GetClass', classId);
     if (!query.success) {
       return res.status(500).json({
         success: false,
@@ -492,7 +492,7 @@ router.post(
     }
     let classInfo = JSON.parse(query.msg);
 
-    query = await network.query(networkObj, 'QueryClassesOfStudent', user.username);
+    query = await network.query(networkObj, 'GetClassesOfStudent', user.username);
     if (!query.success) {
       return res.status(500).json({
         success: false,
@@ -576,7 +576,7 @@ router.post(
     }
 
     let classId = req.body.classId;
-    query = await network.query(networkObj, 'QueryClass', classId);
+    query = await network.query(networkObj, 'GetClass', classId);
     if (!query.success) {
       return res.status(500).json({
         success: false,
@@ -856,7 +856,7 @@ router.get('/classes', async (req, res) => {
     });
   }
 
-  const response = await network.query(networkObj, 'QueryClassesOfStudent', user.username);
+  const response = await network.query(networkObj, 'GetClassesOfStudent', user.username);
 
   if (!response.success) {
     return res.status(500).json({
@@ -890,7 +890,7 @@ router.get('/courses', async (req, res) => {
     });
   }
 
-  const response = await network.query(networkObj, 'QueryCoursesOfStudent', user.username);
+  const response = await network.query(networkObj, 'GetCoursesOfStudent', user.username);
 
   if (!response.success) {
     return res.status(500).json({
@@ -925,7 +925,7 @@ router.get('/notRegisterCourses', async (req, res) => {
   }
 
   let allCourses = await network.query(networkObj, 'GetAllCourses');
-  let myCourses = await network.query(networkObj, 'QueryCoursesOfStudent', user.username);
+  let myCourses = await network.query(networkObj, 'GetCoursesOfStudent', user.username);
 
   if (!allCourses.success || !myCourses.success) {
     return res.status(500).json({

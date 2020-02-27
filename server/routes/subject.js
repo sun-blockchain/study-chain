@@ -128,7 +128,7 @@ router.get('/subjecjtsnoteacher', checkJWT, async (req, res, next) => {
 router.get('/:subjectId', async (req, res, next) => {
   const subjectID = req.params.subjectId;
   const networkObj = await network.connectToNetwork(req.decoded.user);
-  const response = await network.query(networkObj, 'QuerySubject', subjectID);
+  const response = await network.query(networkObj, 'GetSubject', subjectID);
 
   if (!response.success) {
     return res.status(500).json({
