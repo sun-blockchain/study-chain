@@ -2,11 +2,7 @@
   <div class="container-fluid">
     <h1 class="bannerTitle_1wzmt7u">ClassRoom: {{ listClasses.Room }}</h1>
     <b-breadcrumb>
-      <b-breadcrumb-item to="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-      <b-breadcrumb-item to="/academy/subjects"> Subject</b-breadcrumb-item>
-      <b-breadcrumb-item :to="`/academy/subjects/${this.$route.params.id}`"
-        >Subject Detail</b-breadcrumb-item
-      >
+      <b-breadcrumb-item to="/"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
       <b-breadcrumb-item active>Class Detail</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">
@@ -22,14 +18,6 @@
             }}</b-badge>
           </p>
           <p>{{ listClasses.Description }}</p>
-          <el-button
-            v-if="listClasses.Status === 'Open'"
-            type="danger"
-            round
-            size="mini"
-            @click="close()"
-            >Close</el-button
-          >
         </div>
       </div>
     </div>
@@ -39,16 +27,14 @@
       :loadingData="loadingData"
       :btnInfo="true"
       :nameFunctionInfo="`showInfoStudent`"
-      :btnDetail="true"
-      :nameFunctionDetail="`detailStudent`"
+      :btnDetail="false"
       :nameFunctionDelete="`delStudent`"
-      :btnDelete="true"
+      :btnDelete="false"
       :listProperties="[
         { prop: 'Fullname', label: 'FullName' },
         { prop: 'Info.Birthday', label: 'Birthday' },
         { prop: 'Info.Address', label: 'Address' }
       ]"
-      @detailStudent="detailStudent($event)"
       @delStudent="delStudent($event)"
       @showInfoStudent="showInfoStudent($event)"
     >
