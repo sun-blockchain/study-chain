@@ -2,21 +2,20 @@ import { teacherService } from '../_services/teacher.service';
 import { router } from '../router';
 
 const state = {
-  listSubjects: [],
+  listClasses: [],
   studentsOfSubject: []
 };
 
 const actions = {
-  async getAllSubjects({ dispatch, commit }) {
-    let res = await teacherService.getAllSubjects();
-    if (!res.success) {
-      dispatch('alert/error', res.msg, { root: true });
-      if ('403'.includes(res.msg)) {
+  async getClassesOfTeacher({ dispatch, commit }) {
+    try {
+      let data = await teacherService.getClassesOfTeacher();
+      commit('getClassesOfTeacher', data.classes);
+    } catch (error) {
+      if (error.response.status === 403) {
         router.push('/403');
       }
-    } else {
-      dispatch('alert/clear', res.success, { root: true });
-      commit('getAllSubjects', res.subjects);
+      return error.response;
     }
   },
   async getStudentsOfSubject({ dispatch, commit }, subjectId) {
@@ -47,8 +46,8 @@ const actions = {
 };
 
 const mutations = {
-  getAllSubjects(state, listSubjects) {
-    state.listSubjects = listSubjects;
+  getClassesOfTeacher(state, listClasses) {
+    state.listClasses = listClasses;
   },
   getStudentsOfSubject(state, studentsOfSubject) {
     state.studentsOfSubject = studentsOfSubject;

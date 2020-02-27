@@ -1,7 +1,7 @@
 <template>
   <div v-loading.fullscreen.lock="fullscreenLoading">
     <table-admin
-      :title="`List Of Teachers Subjects`"
+      :title="`List Classes Of Teacher`"
       :listAll="classessOfTeacher"
       :loadingData="loadingData"
       :btnDelete="true"

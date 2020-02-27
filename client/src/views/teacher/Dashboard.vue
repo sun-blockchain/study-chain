@@ -1,109 +1,160 @@
 <template>
   <div>
-    <div class="container-fluid">
-      <h1 class="h3 mb-2 text-gray-800">Danh Sách Môn Học Đang Dạy</h1>
-      <p class="mb-4 mt-4"></p>
-      <div class="card shadow mb-4">
-        <div class="card-header py-3">
-          <h6 class="m-0 font-weight-bold text-primary"></h6>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <b-table
-              show-empty
-              stacked="md"
-              :items="listSubjects ? listSubjects : []"
-              :fields="fields"
-              :current-page="currentPage"
-              :per-page="perPage"
-            >
-              <template slot="SubjectID" slot-scope="row">{{ row.item.SubjectID }}</template>
+    <table-teacher
+      :title="`List Classes Of Teacher`"
+      :listAll="listClasses ? listClasses : []"
+      :btnDetail="true"
+      :nameFunctionDetail="`detailClass`"
+      :btnInfo="true"
+      :nameFunctionInfo="`inforClass`"
+      :loadingData="loadingData"
+      :listProperties="[
+        { prop: 'ClassCode', label: 'Class Code' },
+        { prop: 'Room', label: 'Room' },
+        { prop: 'Time', label: 'Time' },
+        { prop: 'ShortDescription', label: 'Description' },
+        { prop: 'Status', label: 'Status' },
+        { prop: 'Capacity', label: 'Capacity' }
+      ]"
+      @detailClass="detailClass($event)"
+      @inforClass="inforClass($event)"
+    >
+    </table-teacher>
 
-              <template slot="Name" slot-scope="row">{{ row.item.Name }}</template>
-
-              <template slot="delete" slot-scope="row">
-                <div class="row justify-content-center">
-                  <b-button
-                    variant="info"
-                    class="mr-1 btn-circle btn-sm"
-                    :to="`teacher/${row.item.SubjectID}/students`"
-                    :id="`popover-info-${row.item.SubjectID}`"
-                  >
-                    <b-popover
-                      :target="`popover-info-${row.item.SubjectID}`"
-                      triggers="hover"
-                      placement="top"
-                    >Chi Tiết</b-popover>
-                    <i class="fas fa-info-circle"></i>
-                  </b-button>
-                </div>
-              </template>
-            </b-table>
+    <el-dialog
+      title="Information Subject"
+      :visible.sync="dialogForm.infoClass"
+      class="modal-with-create"
+    >
+      <el-form :model="infoClass" ref="infoClass">
+        <div class="form-group">
+          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
+            >Start Date</label
+          >
+          <div class="col-sm-12">
+            <h4 class="pl-3">{{ infoClass.StartDate }}</h4>
           </div>
-
-          <b-row>
-            <b-col md="6" class="my-1">
-              <b-pagination
-                :total-rows="listSubjects ? listSubjects.length : 0 "
-                :per-page="perPage"
-                v-model="currentPage"
-                class="my-0"
-              />
-            </b-col>
-          </b-row>
         </div>
-      </div>
-    </div>
+
+        <div class="form-group">
+          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
+            >End Date</label
+          >
+          <div class="col-sm-12">
+            <h4 class="pl-3">{{ infoClass.EndDate }}</h4>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
+            >Repeat</label
+          >
+          <div class="col-sm-12">
+            <h4 class="pl-3">{{ infoClass.Repeat }}</h4>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
+            >Description</label
+          >
+          <div class="col-sm-12">
+            <h4 class="pl-3">{{ infoClass.Description }}</h4>
+          </div>
+        </div>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="resetForm()">Cancel</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapState, mapActions } from 'vuex';
+import TableTeacher from '@/components/teacher/TableTeacher.vue';
+import { Button, Select, Option, Dialog, Form, FormItem, Message, MessageBox } from 'element-ui';
 export default {
+  components: {
+    TableTeacher,
+    'el-button': Button,
+    'el-select': Select,
+    'el-option': Option,
+    'el-dialog': Dialog,
+    'el-form': Form,
+    'el-form-item': FormItem
+  },
   data() {
     return {
-      form: {
-        Name: ""
+      dialogForm: {
+        infoClass: false
       },
-      newSubject: {
-        Name: ""
+      infoClass: {
+        ClassID: '',
+        SubjectID: '',
+        ClassCode: '',
+        Room: '',
+        Time: '',
+        Status: '',
+        ShortDescription: '',
+        Description: '',
+        StartDate: '',
+        EndDate: '',
+        Repeat: '',
+        Students: [],
+        Capacity: 0,
+        TeacherUsername: ''
       },
-      infoModal: {
-        SubjectID: "info-modal"
-      },
-      fields: [
-        {
-          key: "SubjectID",
-          label: "SubjectID",
-          class: "text-center",
-          sortable: true
-        },
-        {
-          key: "Name",
-          label: "Name Subject",
-          class: "text-center",
-          sortable: true
-        },
-        {
-          key: "delete",
-          label: "Actions",
-          class: "text-center",
-          sortable: true
-        }
-      ],
-      currentPage: 1,
-      perPage: 12,
-      pageOptions: [12, 24, 36]
+      loadingData: false
     };
   },
   computed: {
-    ...mapState("teacher", ["listSubjects"])
+    ...mapState('teacher', ['listClasses'])
   },
   methods: {
-    ...mapActions("teacher", ["getAllSubjects"])
+    ...mapActions('teacher', ['getClassesOfTeacher']),
+    detailClass(row) {
+      this.$router.push({
+        name: 'teacher-detail-class',
+        params: { subjectId: row.SubjectID, classId: row.ClassID }
+      });
+    },
+    inforClass(row) {
+      this.infoClass.ClassID = row.ClassID;
+      this.infoClass.SubjectID = row.SubjectID;
+      this.infoClass.ClassCode = row.ClassCode;
+      this.infoClass.Room = row.Room;
+      this.infoClass.Time = row.Time;
+      this.infoClass.Status = row.Status;
+      this.infoClass.ShortDescription = row.ShortDescription;
+      this.infoClass.Description = row.Description;
+      this.infoClass.StartDate = row.StartDate;
+      this.infoClass.EndDate = row.EndDate;
+      this.infoClass.Repeat = row.Repeat;
+      this.infoClass.Students = row.Students ? row.Students : [];
+      this.infoClass.Capacity = row.Capacity ? row.Capacity : 0;
+      this.infoClass.TeacherUsername = row.TeacherUsername;
+      this.dialogForm.infoClass = true;
+    },
+    resetForm() {
+      this.infoClass.ClassID = '';
+      this.infoClass.SubjectID = '';
+      this.infoClass.ClassCode = '';
+      this.infoClass.Room = '';
+      this.infoClass.Time = '';
+      this.infoClass.Status = '';
+      this.infoClass.ShortDescription = '';
+      this.infoClass.Description = '';
+      this.infoClass.StartDate = '';
+      this.infoClass.EndDate = '';
+      this.infoClass.Repeat = '';
+      this.infoClass.Students = [];
+      this.infoClass.Capacity = 0;
+      this.infoClass.TeacherUsername = '';
+      this.dialogForm.infoClass = false;
+    }
   },
-  created() {
-    this.getAllSubjects();
+  async created() {
+    await this.getClassesOfTeacher();
   }
 };
 </script>
