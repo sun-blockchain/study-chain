@@ -60,8 +60,9 @@
           :nameFunctionDelete="`delStudent`"
           :btnDelete="true"
           :listProperties="[
-            { prop: 'Name', label: 'Student Name' },
-            { prop: 'Birthday', label: 'Date Of Birth' }
+            { prop: 'Fullname', label: 'Student Name' },
+            { prop: 'Info.Birthday', label: 'Date Of Birth' },
+            { prop: 'Info.Address', label: 'Address' }
           ]"
           @detailStudent="detailStudent($event)"
           @delStudent="delStudent($event)"
@@ -74,10 +75,8 @@
     <el-dialog title="Information Student" :visible.sync="showInfo" class="modal-with-create">
       <el-form :model="infoStudent" ref="infoStudent">
         <div>
-          <img
-            src="https://cdn4.iconfinder.com/data/icons/professions-1-2/151/8-512.png"
-            class="avatar"
-          />
+          <img v-if="infoStudent.Avatar" :src="infoStudent.Avatar" :alt="Avatar" class="avatar" />
+          <img v-else src="@/assets/img/avatar-default.png" class="avatar" />
         </div>
 
         <div class="form-group">
@@ -183,7 +182,7 @@
         </div>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="resetFormStudent('infoSubject')">Cancel</el-button>
+        <el-button @click="resetForm('infoSubject')">Cancel</el-button>
       </span>
     </el-dialog>
   </div>
@@ -222,13 +221,13 @@ export default {
   data() {
     return {
       infoStudent: {
-        PhoneNumber: '3423423424',
-        Email: 'abc@gmail.com',
-        Address: 'HN',
-        Sex: 'Male',
-        Birthday: '22/09/1999',
+        PhoneNumber: '',
+        Email: '',
+        Address: '',
+        Sex: '',
+        Birthday: '',
         Avatar: '',
-        Country: 'VietNam'
+        Country: ''
       },
       items: [
         {
@@ -344,7 +343,6 @@ export default {
           }
           self.fullscreenLoading = false;
         } else {
-          console.log('error submit!!');
           return false;
         }
       });
@@ -369,8 +367,20 @@ export default {
       this.$refs[formName].resetFields();
       this.dialogForm[formName] = false;
     },
+    detailStudent(row) {
+      this.$router.push({
+        path: `/academy/student/${row.Username}`
+      });
+    },
     showInfoStudent(row) {
       this.showInfo = true;
+      this.infoStudent.PhoneNumber = row.Info.PhoneNumber;
+      this.infoStudent.Email = row.Info.Email;
+      this.infoStudent.Address = row.Info.Address;
+      this.infoStudent.Sex = row.Info.Sex;
+      this.infoStudent.Birthday = row.Info.Birthday;
+      this.infoStudent.Avatar = row.Info.Avatar;
+      this.infoStudent.Country = row.Info.Country;
     },
     resetFormStudent() {
       this.showInfo = false;

@@ -294,7 +294,6 @@ export default {
         if (valid) {
           this.fullscreenLoading = true;
           let data = await this.updateSubject(this.editSubject);
-          console.log(data);
           if (data.success) {
             this.dialogForm.editSubject = false;
             await this.resetForm('editSubject');

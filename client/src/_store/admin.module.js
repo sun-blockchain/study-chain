@@ -139,16 +139,16 @@ const actions = {
       }
     }
   },
-  async getStudentsOfCourse({ commit }, { courseId }) {
+  async getStudentsOfCourse({ commit }, courseId) {
     try {
       let data = await adminService.getStudentsOfCourse(courseId);
 
       commit('getStudentsOfCourse', data.students);
       return data.students;
     } catch (error) {
-      // if (error.response.status === 403) {
-      //   router.push('/403');
-      // }
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
     }
   },
   // get subject by id
@@ -158,9 +158,9 @@ const actions = {
       commit('getSubject', data.subject);
       return data.subject;
     } catch (error) {
-      // if (error.response.status === 403) {
-      //   router.push('/403');
-      // }
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
 
       return error.response;
     }
