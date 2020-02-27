@@ -20,68 +20,68 @@ router.get('/create', async (req, res) => {
   }
 });
 
-router.post(
-  '/addsubjectforteacher',
-  checkJWT,
-  [
-    body('teacherusername')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape(),
-    body('subjectId')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape()
-  ],
-  async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
-    }
+// router.post(
+//   '/addsubjectforteacher',
+//   checkJWT,
+//   [
+//     body('teacherusername')
+//       .not()
+//       .isEmpty()
+//       .trim()
+//       .escape(),
+//     body('subjectId')
+//       .not()
+//       .isEmpty()
+//       .trim()
+//       .escape()
+//   ],
+//   async (req, res, next) => {
+//     const errors = validationResult(req);
+//     if (!errors.isEmpty()) {
+//       return res.status(422).json({ success: false, errors: errors.array() });
+//     }
 
-    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
-      return res.status(403).json({
-        success: false,
-        msg: 'Permission Denied'
-      });
-    }
+//     if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
+//       return res.status(403).json({
+//         success: false,
+//         msg: 'Permission Denied'
+//       });
+//     }
 
-    try {
-      let teacher = await User.findOne({
-        username: req.body.teacherusername,
-        role: USER_ROLES.TEACHER
-      });
+//     try {
+//       let teacher = await User.findOne({
+//         username: req.body.teacherusername,
+//         role: USER_ROLES.TEACHER
+//       });
 
-      if (teacher) {
-        const networkObj = await network.connectToNetwork(req.decoded.user);
-        const response = await network.registerTeacherForSubject(
-          networkObj,
-          req.body.subjectId,
-          req.body.teacherusername
-        );
-        if (!response.success) {
-          return res.status(500).json({
-            success: false,
-            msg: response.msg
-          });
-        }
-        let subjects = await network.query(networkObj, 'GetSubjectsByTeacher', teacher.username);
-        return res.json({
-          success: true,
-          msg: response.msg,
-          subjects: JSON.parse(subjects.msg)
-        });
-      }
-    } catch (error) {
-      return res.status(500).json({
-        success: false,
-        msg: 'Internal Server Error'
-      });
-    }
-  }
-);
+//       if (teacher) {
+//         const networkObj = await network.connectToNetwork(req.decoded.user);
+//         const response = await network.registerTeacherForSubject(
+//           networkObj,
+//           req.body.subjectId,
+//           req.body.teacherusername
+//         );
+//         if (!response.success) {
+//           return res.status(500).json({
+//             success: false,
+//             msg: response.msg
+//           });
+//         }
+//         let subjects = await network.query(networkObj, 'GetSubjectsByTeacher', teacher.username);
+//         return res.json({
+//           success: true,
+//           msg: response.msg,
+//           subjects: JSON.parse(subjects.msg)
+//         });
+//       }
+//     } catch (error) {
+//       return res.status(500).json({
+//         success: false,
+//         msg: 'Internal Server Error'
+//       });
+//     }
+//   }
+// );
 
 router.get('/all', async (req, res, next) => {
   const networkObj = await network.connectToNetwork(req.decoded.user);

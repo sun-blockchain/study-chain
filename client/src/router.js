@@ -94,7 +94,7 @@ export const router = new Router({
         {
           path: '/academy/teachers/:id/subjects',
           name: 'academy-teacher-subject',
-          component: () => import('./views/admin-academy/TeacherSubjects')
+          component: () => import('./views/admin-academy/ClassessOfTeacher')
         },
         {
           path: '/academy/students',

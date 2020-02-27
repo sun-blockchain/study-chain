@@ -427,3 +427,312 @@ describe('#GET /common/class/:classId', () => {
       });
   });
 });
+
+// ------------------------------------------------- Class of teacher --------------------------------------------------
+describe('#GET /common/classes/:username', () => {
+  let connect;
+  let query;
+  let username = 'teacher01';
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+  });
+
+  it('Can not get class of teacher with role studnet', (done) => {
+    request(app)
+      .get(`/common/${username}/classes`)
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('Can not connect to network', (done) => {
+    connect.returns(null);
+    request(app)
+      .get(`/common/${username}/classes`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain!');
+        done();
+      });
+  });
+
+  it('Can not query chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    query.returns({ success: false, msg: 'Can not query chaincode!' });
+
+    request(app)
+      .get(`/common/${username}/classes`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not query chaincode!');
+        done();
+      });
+  });
+
+  it('success query class with admin', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let data = [
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590cac68',
+        ClassCode: 'Class01',
+        Room: 'Room01',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: ''
+      },
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590dfc98',
+        ClassCode: 'Class02',
+        Room: 'Room02',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: 'teacher01'
+      }
+    ];
+
+    query.returns({ success: true, msg: JSON.stringify([data[1]]) });
+
+    request(app)
+      .get(`/common/${username}/classes`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        expect(res.body.classes.length).equal(1);
+        done();
+      });
+  });
+
+  it('success query subject with teacher', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.TEACHER }
+    });
+
+    let data = [
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590cac68',
+        ClassCode: 'Class01',
+        Room: 'Room01',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: ''
+      },
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590dfc98',
+        ClassCode: 'Class02',
+        Room: 'Room02',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: 'teacher01'
+      }
+    ];
+
+    query.returns({ success: true, msg: JSON.stringify([data[1]]) });
+
+    request(app)
+      .get(`/common/${username}/classes`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        expect(res.body.classes.length).equal(1);
+        done();
+      });
+  });
+});
+
+// ------------------------------------------------- Get class no teacher --------------------------------------------------
+describe('#GET /common/classesNoTeacher', () => {
+  let connect;
+  let query;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+  });
+
+  it('Can not get class of teacher with role studnet', (done) => {
+    request(app)
+      .get(`/common/classesNoTeacher`)
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('Can not connect to network', (done) => {
+    connect.returns(null);
+    request(app)
+      .get(`/common/classesNoTeacher`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain!');
+        done();
+      });
+  });
+
+  it('Can not query chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    query.returns({ success: false, msg: 'Can not query chaincode!' });
+
+    request(app)
+      .get(`/common/classesNoTeacher`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not query chaincode!');
+        done();
+      });
+  });
+
+  it('success query class with admin', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let data = [
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590cac68',
+        ClassCode: 'Class01',
+        Room: 'Room01',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: ''
+      },
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590dfc98',
+        ClassCode: 'Class02',
+        Room: 'Room02',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: 'teacher01'
+      }
+    ];
+
+    query.returns({ success: true, msg: JSON.stringify(data) });
+
+    request(app)
+      .get(`/common/classesNoTeacher`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        expect(res.body.classesNoTeacher.length).equal(1);
+        done();
+      });
+  });
+
+  it('success query subject with teacher', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.TEACHER }
+    });
+
+    let data = [
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590cac68',
+        ClassCode: 'Class01',
+        Room: 'Room01',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: ''
+      },
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590dfc98',
+        ClassCode: 'Class02',
+        Room: 'Room02',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: 'teacher01'
+      }
+    ];
+
+    query.returns({ success: true, msg: JSON.stringify(data) });
+
+    request(app)
+      .get(`/common/classesNoTeacher`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        expect(res.body.classesNoTeacher.length).equal(1);
+        done();
+      });
+  });
+});

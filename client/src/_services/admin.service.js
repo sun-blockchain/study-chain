@@ -24,11 +24,11 @@ export const adminService = {
   getAllTeachers,
   deleteTeacher,
   getSubject,
-  getSubjectsOfTeacher,
+  getClassesOfTeacher,
   deleteSubjectOfTeacher,
-  addSubjectOfTeacher,
+  addClassToTeacher,
   createTeacher,
-  getSubjectsNoTeacher,
+  getClassesNoTeacher,
   getAllStudents,
   getSubjectsOfStudent,
   getCertificatesOfSubject,
@@ -445,34 +445,13 @@ async function deleteTeacher(teacher) {
   }
 }
 
-//  Subjects of Teacher
-async function getSubjectsOfTeacher(username) {
+//  Classes of Teacher
+async function getClassesOfTeacher(username) {
   try {
-    // let respone = await axios.get(
-    //   `${process.env.VUE_APP_API_BACKEND}/account/teacher/${username}/subjects`,
-    //   {
-    //     headers: authHeader()
-    //   }
-    // );
-    // return respone.data;
-    return {
-      success: true,
-      subjects: [
-        {
-          SubjectID: '61e3b1bb-77a7-4830-bbd2-23b35fcc24eb',
-          Name: 'Hyperledger',
-          TeacherUsername: 'Teacher01',
-          Students: ['st01']
-        },
-        {
-          SubjectID: '65640531-cc2f-4967-9b30-c548c7190c2e',
-          Name: 'a',
-          TeacherUsername: 'Teacher01',
-          Students: null
-        }
-      ],
-      subjectsNoTeacher: []
-    };
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/common/${username}/classes`, {
+      headers: authHeader()
+    });
+    return respone.data;
   } catch (error) {
     throw error;
   }
@@ -492,29 +471,29 @@ async function deleteSubjectOfTeacher(Username, subjectId) {
   }
 }
 
-async function addSubjectOfTeacher(username, subjectId) {
+async function addClassToTeacher(username, classId) {
   try {
     let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/subject/addsubjectforteacher`,
-      { teacherusername: username, subjectId: subjectId },
+      `${process.env.VUE_APP_API_BACKEND}/academy/addClassToTeacher`,
+      { username: username, classId: classId },
       {
         headers: authHeader()
       }
     );
-    return respone.data.subjects;
+    return respone.data;
   } catch (error) {
     throw error;
   }
 }
 
-async function getSubjectsNoTeacher() {
+async function getClassesNoTeacher() {
   try {
     let respone = await axios({
       method: 'get',
-      url: `${process.env.VUE_APP_API_BACKEND}/subject/subjecjtsnoteacher`,
+      url: `${process.env.VUE_APP_API_BACKEND}/common/classesNoTeacher`,
       headers: authHeader()
     });
-    return respone.data.subjects;
+    return respone.data;
   } catch (error) {
     throw error;
   }

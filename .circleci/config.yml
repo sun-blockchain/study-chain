@@ -35,7 +35,7 @@ jobs:
           command: |
             if [[ true ]];  then
               curl -X POST -H "X-ChatWorkToken: $CHATWORK_TOKEN" -d \
-                "body=[info][title][info]BUIL SUCCESS (flex)[/info] $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME[/title]Repository name: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME%0AAuthor: $CIRCLE_PR_USERNAME%0ABranch: $CIRCLE_BRANCH%0APull: $CIRCLE_PULL_REQUEST%0ACommit: https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/commit/$CIRCLE_SHA1%0ABuild link: https://circleci.com/gh/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$CIRCLE_BUILD_NUM[/info]" \
+                "body=[info]Hello[/info]" \
                 "https://api.chatwork.com/v2/rooms/$CHATWORK_ROOM/messages"
             fi
       - run:
@@ -51,3 +51,23 @@ jobs:
           key: dependency-cache-{{ checksum "server/package.json" }}
           paths:
             - node_modules
+  up_network:
+    machine:
+      enabled: true
+    steps:
+      - run:
+          name: Up network
+          command: |
+            ssh deploy@139.162.40.88 "cd test/study-chain && git pull tan master && cd network && echo -ne '\n' | ./network.sh down && echo -ne '\n' | ./network.sh up"
+workflows:
+  version: 2
+  build-and-up_network:
+    jobs:
+      - build
+      - up_network:
+          requires:
+            - build # only deploy once build job has completed
+          filters:
+            branches:
+              only: master # only deploy on the master branch
+

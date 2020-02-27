@@ -8,9 +8,8 @@ const state = {
   listStudents: [],
   listClasses: [],
   studentsOfSubject: [],
-  subjectsOfTeacher: [],
+  classessOfTeacher: [],
   subjectOfStudent: [],
-  subjectsNoTeacher: [],
   subjectsOfCourse: []
 };
 
@@ -312,14 +311,16 @@ const actions = {
   },
 
   //  Subjects of Teacher
-  async getSubjectsOfTeacher({ commit }, Username) {
+  async getClassesOfTeacher({ commit }, Username) {
     try {
-      let listSubjects = await adminService.getSubjectsOfTeacher(Username);
-      commit('getSubjectsOfTeacher', listSubjects);
+      let data = await adminService.getClassesOfTeacher(Username);
+      commit('getClassesOfTeacher', data.classes);
+      return data;
     } catch (error) {
       if (error.response.status === 403) {
         router.push('/403');
       }
+      return error.response.data;
     }
   },
   async deleteSubjectOfTeacher({ commit }, { Username, subjectId }) {
@@ -332,25 +333,27 @@ const actions = {
       }
     }
   },
-  async addSubjectOfTeacher({ commit }, { username, subjectId }) {
+  async addClassToTeacher({ commit }, { username, classId }) {
     try {
-      let listSubjects = await adminService.addSubjectOfTeacher(username, subjectId);
-      commit('addSubjectOfTeacher', listSubjects);
-      location.reload(true);
+      let data = await adminService.addClassToTeacher(username, classId);
+      commit('addClassToTeacher', data.classes);
+      return data;
     } catch (error) {
       if (error.response.status === 403) {
         router.push('/403');
       }
+      return error.response.data;
     }
   },
-  async getSubjectsNoTeacher({ commit }) {
+  async getClassesNoTeacher() {
     try {
-      let listSubjects = await adminService.getSubjectsNoTeacher();
-      commit('getSubjectsNoTeacher', listSubjects);
+      let data = await adminService.getClassesNoTeacher();
+      return data;
     } catch (error) {
       if (error.response.status === 403) {
         router.push('/403');
       }
+      return error.response.data;
     }
   },
 
@@ -502,18 +505,14 @@ const mutations = {
   },
 
   //  Subjects of Teacher
-  getSubjectsOfTeacher(state, listSubjects) {
-    state.subjectsOfTeacher = listSubjects.subjects;
-    state.subjectsNoTeacher = listSubjects.subjectsNoTeacher;
+  getClassesOfTeacher(state, classes) {
+    state.classessOfTeacher = classes;
   },
   deleteSubjectOfTeacher(state, listStudents) {
-    state.subjectsOfTeacher = listStudents;
+    state.classessOfTeacher = listStudents;
   },
-  addSubjectOfTeacher(state, listSubjects) {
-    state.listSubjects = listSubjects;
-  },
-  getSubjectsNoTeacher(state, listSubjects) {
-    state.subjectsNoTeacher = listSubjects;
+  addClassToTeacher(state, classes) {
+    state.classessOfTeacher = classes;
   },
 
   // Students Manager

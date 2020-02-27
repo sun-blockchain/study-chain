@@ -2554,3 +2554,385 @@ describe('#GET /academy/student/:username', () => {
       });
   });
 });
+
+describe('#POST /academy/addClassToTeacher', () => {
+  let connect;
+  let query;
+  let addClassToTeacher;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+    addClassToTeacher = sinon.stub(network, 'addClassToTeacher');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+    addClassToTeacher.restore();
+  });
+
+  it('param username empty', (done) => {
+    request(app)
+      .post('/academy/addClassToTeacher')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        username: '',
+        classId: '0ce15c8c-29dc-4d6d-be80-f224dac994b8'
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('param classId empty', (done) => {
+    request(app)
+      .post('/academy/addClassToTeacher')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        username: 'teacher',
+        classId: ''
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('permission denied when access routes with student', (done) => {
+    request(app)
+      .post('/academy/addClassToTeacher')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        username: 'teacher01',
+        classId: '0ce15c8c-29dc-4d6d-be80-f224dac994b8'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('permission denied when access routes with teacher', (done) => {
+    request(app)
+      .post('/academy/addClassToTeacher')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .send({
+        username: 'teacher01',
+        classId: '0ce15c8c-29dc-4d6d-be80-f224dac994b8'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('permission denied when access routes with admin student', (done) => {
+    request(app)
+      .post('/academy/addClassToTeacher')
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .send({
+        username: 'teacher01',
+        classId: '0ce15c8c-29dc-4d6d-be80-f224dac994b8'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('Can not connect to network', (done) => {
+    connect.returns(null);
+    request(app)
+      .post('/academy/addClassToTeacher')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'teacher01',
+        classId: '0ce15c8c-29dc-4d6d-be80-f224dac994b8'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain!');
+        done();
+      });
+  });
+
+  it('Can not query classes by teacher - query 1', (done) => {
+    query.onFirstCall().returns({ success: false, msg: "Can't query classes by teacher" });
+    request(app)
+      .post('/academy/addClassToTeacher')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'teacher01',
+        classId: '0ce15c8c-29dc-4d6d-be80-f224dac994b8'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain!');
+        done();
+      });
+  });
+
+  it('The class has been added!', (done) => {
+    let data = [
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590cac68',
+        ClassCode: 'Class01',
+        Room: 'Room01',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: 'teacher01'
+      },
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590dfc98',
+        ClassCode: 'Class02',
+        Room: 'Room02',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: 'teacher01'
+      }
+    ];
+
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    query.onFirstCall().returns({ success: true, msg: JSON.stringify(data) });
+
+    request(app)
+      .post('/academy/addClassToTeacher')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'teacher01',
+        classId: '4ca7fc39-7523-424d-984e-87ea590cac68'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('The class has been added!');
+        done();
+      });
+  });
+  it('add class to teacher error!', (done) => {
+    let data = [
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590cac68',
+        ClassCode: 'Class01',
+        Room: 'Room01',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: 'teacher01'
+      },
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590dfc98',
+        ClassCode: 'Class02',
+        Room: 'Room02',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: 'teacher01'
+      }
+    ];
+
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    query.onFirstCall().returns({ success: true, msg: JSON.stringify(data) });
+
+    addClassToTeacher.returns({
+      success: false,
+      msg: 'add class to teacher error!'
+    });
+
+    request(app)
+      .post('/academy/addClassToTeacher')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'teacher01',
+        classId: '4ca7fc39-7523-424d-984e-87ea590cac66'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('add class to teacher error!');
+        done();
+      });
+  });
+
+  it('Can not query classes by teacher - query 2', (done) => {
+    let data = [
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590cac68',
+        ClassCode: 'Class01',
+        Room: 'Room01',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: 'teacher01'
+      },
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590dfc98',
+        ClassCode: 'Class02',
+        Room: 'Room02',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: 'teacher01'
+      }
+    ];
+
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    query.onFirstCall().returns({ success: true, msg: JSON.stringify(data) });
+
+    addClassToTeacher.returns({
+      success: true,
+      msg: 'add class to teacher success!'
+    });
+
+    query.onFirstCall().returns({ success: false, msg: "Can't query classes by teacher" });
+
+    request(app)
+      .post('/academy/addClassToTeacher')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'teacher01',
+        classId: '4ca7fc39-7523-424d-984e-87ea590cac66'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal("Can't query classes by teacher");
+        done();
+      });
+  });
+
+  it('add class to teacher success!', (done) => {
+    let data = [
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590cac68',
+        ClassCode: 'Class01',
+        Room: 'Room01',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: 'teacher01'
+      },
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590dfc98',
+        ClassCode: 'Class02',
+        Room: 'Room02',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: 'teacher01'
+      }
+    ];
+
+    let data1 = [
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590cac68',
+        ClassCode: 'Class01',
+        Room: 'Room01',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: 'teacher01'
+      },
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590dfc98',
+        ClassCode: 'Class02',
+        Room: 'Room02',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: 'teacher01'
+      },
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590cac66',
+        ClassCode: 'Class03',
+        Room: 'Room02',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: 'teacher01'
+      }
+    ];
+
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    query.onFirstCall().returns({ success: true, msg: JSON.stringify(data) });
+
+    addClassToTeacher.returns({
+      success: true,
+      msg: 'add class to teacher success!'
+    });
+
+    query.onSecondCall().returns({ success: false, msg: JSON.stringify(data1) });
+
+    request(app)
+      .post('/academy/addClassToTeacher')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'teacher01',
+        classId: '4ca7fc39-7523-424d-984e-87ea590cac66'
+      })
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        expect(res.body.msg).equal('add class to teacher success!');
+        expect(res.body.classes.length).equal(3);
+        done();
+      });
+  });
+});
