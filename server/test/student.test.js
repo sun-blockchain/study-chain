@@ -573,10 +573,6 @@ describe('#GET /account/student/:classId', () => {
     request(app)
       .get(`/account/student/${classId}`)
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        username: 'thienthangaycanh',
-        fullname: 'Tan Trinh'
-      })
       .then((res) => {
         expect(res.status).equal(403);
         expect(res.body.success).equal(false);
@@ -615,6 +611,125 @@ describe('#GET /account/student/:classId', () => {
 
     request(app)
       .get(`/account/student/${classId}`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        done();
+      });
+  });
+});
+describe('#GET /account/student/course/:courseId', () => {
+  let connect;
+  let query;
+  let courseId = '4ca7fc39-7523-424d-984e-87ea590cac68';
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+  });
+  it('do not success query students of course with student role', (done) => {
+    request(app)
+      .get(`/account/student/course/${courseId}`)
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+  it('Can not connect to network', (done) => {
+    connect.returns(null);
+
+    request(app)
+      .get(`/account/student/course/${courseId}`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain!');
+        done();
+      });
+  });
+
+  it('Can not query chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    query.returns({
+      success: false,
+      msg: 'Can not query chaincode!'
+    });
+
+    request(app)
+      .get(`/account/student/course/${courseId}`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not query chaincode!');
+        done();
+      });
+  });
+
+  it('success query students of course with admin', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let data = JSON.stringify(
+      {
+        Username: 'abc',
+        Fullname: 'abcdef',
+        Info: {
+          PhoneNumber: 0376724057,
+          Email: 'abc@gmail.com',
+          Address: 'HN',
+          Sex: 'Male',
+          Birthday: 22 / 03 / 1990,
+          Avatar: 'https://images.com',
+          Country: 'VN'
+        },
+        Courses: 'Blockchain',
+        Classes: 'classA'
+      },
+      {
+        Username: 'abc',
+        Fullname: 'abcdef',
+        Info: {
+          PhoneNumber: 0376724057,
+          Email: 'abc@gmail.com',
+          Address: 'HN',
+          Sex: 'Male',
+          Birthday: 22 / 03 / 1990,
+          Avatar: 'https://images.com',
+          Country: 'VN'
+        },
+        Courses: 'Blockchain',
+        Classes: 'classA'
+      }
+    );
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .get(`/account/student/course/${courseId}`)
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(200);

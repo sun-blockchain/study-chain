@@ -192,4 +192,47 @@ router.get(
     });
   }
 );
+router.get(
+  '/course/:courseId',
+  check('courseId')
+    .trim()
+    .escape(),
+  checkJWT,
+  async (req, res) => {
+    const user = req.decoded.user;
+    if (
+      req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY &&
+      req.decoded.user.role !== USER_ROLES.TEACHER
+    ) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied'
+      });
+    }
+    const networkObj = await network.connectToNetwork(user);
+
+    if (!networkObj) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Failed connect to blockchain!'
+      });
+    }
+
+    const response = await network.query(networkObj, 'QueryStudentsOfCourse', req.params.courseId);
+
+    if (!response.success) {
+      return res.status(500).send({
+        success: false,
+        msg: response.msg.toString()
+      });
+    }
+
+    let students = JSON.parse(response.msg);
+
+    return res.json({
+      success: true,
+      students: students
+    });
+  }
+);
 module.exports = router;
