@@ -56,25 +56,29 @@ jobs:
       enabled: true
     steps:
       - run:
-          name: Drop Database
-          command: |
-            ssh deploy@139.162.40.88 "echo -ne 'use studychain\ndb.dropDatabase()\nexit\n' mongo"
-      - run:
-          name: Yarn Installl Server
-          command: |
-            ssh deploy@139.162.40.88 "export GOPATH=/home/deploy/go && cd test/study-chain && git checkout master && git branch -D release && git checkout -b release && git pull origin release && cd server && yarn install"
-      - run:
           name: Up network
           command: |
-            ssh deploy@139.162.40.88 "export GOPATH=/home/deploy/go && cd test/study-chain/network && echo -ne '\n' | ./network.sh down && echo -ne '\n' | ./network.sh up"
+            ssh ${USER}@${HOST} "export GOPATH=/home/deploy/go && cd test/study-chain && git checkout master && git branch -D release && git checkout -b release && git pull tan release && cd network && echo -ne '\n' | ./network.sh down && echo -ne '\n' | ./network.sh up"
+  start_server:
+    machine:
+      enabled: true
+    steps:
       - run:
-          name: Start server
+          name: Drop Database
           command: |
-            ssh deploy@139.162.40.88 "export GOPATH=/home/deploy/go && cd test/study-chain/server/cli && rm -r wallet && ./init.sh && cd .. && pm2 restart www"
+            ssh ${USER}@${HOST} "mongo studychain --eval 'printjson(db.dropDatabase())'"
       - run:
-          name: Start Client
+          name: Yarn install and restart server
           command: |
-            ssh deploy@139.162.40.88 "export GOPATH=/home/deploy/go && cd test/study-chain/client && rm -r dist && yarn build"
+            ssh ${USER}@${HOST} "cd test/study-chain/server && yarn install && cd cli && rm -r wallet && ./init.sh && cd .. && pm2 restart www"
+  run_client:
+    machine:
+      enabled: true
+    steps:
+      - run:
+          name: Run client
+          command: |
+            ssh ${USER}@${HOST} "cd test/study-chain/client && rm -r dist && yarn build"
 workflows:
   version: 2
   build-and-up_network:
@@ -82,8 +86,13 @@ workflows:
       - build
       - up_network:
           requires:
-            - build # only deploy once build job has completed
+            - build
+      - start_server:
+          requires:
+            - up_network
+      - run_client:
+          requires:
+            - start_server
           filters:
             branches:
-              only: release # only deploy on the master branch
-
+              only: release
