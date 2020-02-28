@@ -81,6 +81,72 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/summary', async (req, res) => {
+  const user = req.decoded.user;
+
+  if (user.role === USER_ROLES.STUDENT) {
+    const networkObj = await network.connectToNetwork(user);
+
+    if (!networkObj) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Failed connect to blockchain'
+      });
+    }
+
+    const response = await network.query(networkObj, 'GetStudent', user.username);
+
+    if (!response.success) {
+      return res.status(500).json({
+        success: false,
+        msg: response.msg.toString()
+      });
+    }
+
+    let data = JSON.parse(response.msg);
+
+    let courseCount = data.Courses ? data.Courses.length : 0;
+    let classCount = data.Classes ? data.Classes.length : 0;
+
+    return res.json({
+      success: true,
+      courseCount,
+      classCount
+    });
+  } else if (user.role === USER_ROLES.TEACHER) {
+    const networkObj = await network.connectToNetwork(user);
+
+    if (!networkObj) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Failed connect to blockchain'
+      });
+    }
+
+    const response = await network.query(networkObj, 'GetTeacher', user.username);
+
+    if (!response.success) {
+      return res.status(500).json({
+        success: false,
+        msg: response.msg.toString()
+      });
+    }
+
+    let data = JSON.parse(response.msg);
+    let classCount = data.Classes ? data.Classes.length : 0;
+
+    return res.json({
+      success: true,
+      classCount
+    });
+  } else {
+    return res.status(404).json({
+      success: false,
+      msg: 'Not Found'
+    });
+  }
+});
+
 router.put(
   '/info',
   [

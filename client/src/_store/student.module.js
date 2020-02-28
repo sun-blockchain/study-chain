@@ -11,10 +11,22 @@ const state = {
   subject: null,
   listMyClasses: [],
   listMyCourses: [],
-  listNotRegisterCourses: []
+  listNotRegisterCourses: [],
+  summaryInfo: []
 };
 
 const actions = {
+  async getSummaryInfo({ commit }) {
+    try {
+      let summaryInfo = await studentService.getSummaryInfo();
+      commit('getSummaryInfo', summaryInfo);
+      return summaryInfo;
+    } catch (error) {
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
+  },
   async getCourse({ commit }, courseId) {
     try {
       let listCourses = await studentService.getCourse(courseId);
@@ -165,6 +177,9 @@ const actions = {
 };
 
 const mutations = {
+  getSummaryInfo(state, summaryInfo) {
+    state.summaryInfo = summaryInfo;
+  },
   getCourse(state, listCourses) {
     state.listCourses = listCourses;
   },
