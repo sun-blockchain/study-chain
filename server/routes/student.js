@@ -218,7 +218,7 @@ router.get(
       });
     }
 
-    const response = await network.query(networkObj, 'QueryStudentsOfCourse', req.params.courseId);
+    const response = await network.query(networkObj, 'GetStudentsOfCourse', req.params.courseId);
 
     if (!response.success) {
       return res.status(500).send({

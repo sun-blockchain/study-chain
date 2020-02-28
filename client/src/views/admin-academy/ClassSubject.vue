@@ -172,6 +172,11 @@ export default {
     },
     resetForm() {
       this.showInfo = false;
+    },
+    detailStudent(row) {
+      this.$router.push({
+        path: `/academy/student/${row.Username}`
+      });
     }
   },
   computed: {

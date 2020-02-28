@@ -426,6 +426,18 @@ const actions = {
         router.push('/403');
       }
     }
+  },
+  async getTeacher({ commit }, username) {
+    try {
+      let data = await adminService.getTeacher(username);
+
+      commit('getTeacher', data.teacher);
+      return data.teacher;
+    } catch (error) {
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
   }
 };
 
@@ -537,6 +549,9 @@ const mutations = {
   },
   getStudent(state, listStudents) {
     state.listStudents = listStudents;
+  },
+  getTeacher(state, listTeachers) {
+    state.listTeachers = listTeachers;
   }
 };
 

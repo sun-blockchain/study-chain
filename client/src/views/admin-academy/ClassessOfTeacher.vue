@@ -1,5 +1,29 @@
 <template>
   <div v-loading.fullscreen.lock="fullscreenLoading">
+    <h1 class="bannerTitle_1wzmt7u">{{ listTeachers.Fullname }}</h1>
+    <div class="mb-5">
+      <div>
+        <div class="card-body row">
+          <div class="col">
+            <h1 class="h3 mb-2 text-gray-800">Personal information</h1>
+            <p>Date of birth: {{ listTeachers.Info.Birthday }}</p>
+            <p>Gender: {{ listTeachers.Info.Sex == 0 ? 'Male' : 'Female' }}</p>
+            <p>Address: {{ listTeachers.Info.Address }}</p>
+            <p>Date of birth: {{ listTeachers.Info.Email }}</p>
+            <p>Country: {{ listTeachers.Info.Country }}</p>
+          </div>
+          <div class="col">
+            <img
+              v-if="listTeachers.Info.Avatar"
+              :src="listTeachers.Info.Avatar"
+              :alt="Avatar"
+              class="avatar"
+            />
+            <img v-else src="@/assets/img/avatar-default.png" class="avatar" />
+          </div>
+        </div>
+      </div>
+    </div>
     <table-admin
       :title="`List Classes Of Teacher`"
       :listAll="classessOfTeacher"
@@ -85,14 +109,15 @@ export default {
     };
   },
   computed: {
-    ...mapState('adminAcademy', ['classessOfTeacher', 'subjectsNoTeacher'])
+    ...mapState('adminAcademy', ['classessOfTeacher', 'subjectsNoTeacher', 'listTeachers'])
   },
   methods: {
     ...mapActions('adminAcademy', [
       'getClassesOfTeacher',
       'deleteSubjectOfTeacher',
       'addClassToTeacher',
-      'getClassesNoTeacher'
+      'getClassesNoTeacher',
+      'getTeacher'
     ]),
     handleAddClass(formName) {
       let self = this;
@@ -158,12 +183,33 @@ export default {
     }
   },
   async created() {
-    await this.getClassesOfTeacher(this.$route.params.id);
+    let classOfTeacher = await this.getClassesOfTeacher(this.$route.params.id);
+    let teacher = await this.getTeacher(this.$route.params.id);
     let data = await this.getClassesNoTeacher();
-    if (data.success) {
+    if (classOfTeacher && data.success && teacher) {
       this.classesNoTeacher = data.classesNoTeacher;
     }
     this.loadingData = false;
   }
 };
 </script>
+<style scoped>
+.bannerTitle_1wzmt7u {
+  font-family: 'OpenSans-Bold', Arial, sans-serif;
+  font-size: 34px;
+  line-height: 46px;
+  font-weight: 700;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  color: blue;
+}
+.avatar {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  align-self: center;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>

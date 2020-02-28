@@ -36,7 +36,8 @@ export const adminService = {
   getSubjectsNoCourse,
   addSubjectToCourse,
   deleteSubjectFromCourse,
-  getStudent
+  getStudent,
+  getTeacher
 };
 
 // Courses Manager
@@ -594,6 +595,19 @@ async function getStudent(username) {
   try {
     let respone = await axios.get(
       `${process.env.VUE_APP_API_BACKEND}/academy/student/${username}`,
+      {
+        headers: authHeader()
+      }
+    );
+    return respone.data;
+  } catch (error) {
+    throw error;
+  }
+}
+async function getTeacher(username) {
+  try {
+    let respone = await axios.get(
+      `${process.env.VUE_APP_API_BACKEND}/academy/teacher/${username}`,
       {
         headers: authHeader()
       }
