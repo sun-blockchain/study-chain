@@ -256,7 +256,7 @@ export default {
         StudentName: '',
         Class: ''
       },
-      fullscreenLoading: false,
+      fullscreenLoading: true,
       loadingData: false,
       formAdd: {
         subjectId: null
@@ -390,13 +390,14 @@ export default {
     ...mapState('adminAcademy', ['subjectsOfCourse', 'listCourses', 'listStudents'])
   },
   async created() {
-    await this.getCourse(this.$route.params.id);
+    let course = await this.getCourse(this.$route.params.id);
     let subjectsNoCourse = await this.getSubjectsNoCourse(this.$route.params.id);
+    let subjectList = subjectsNoCourse.subjects;
     let studentList = await this.getStudentsOfCourse(this.$route.params.id);
-    if (subjectsNoCourse.success && studentList) {
-      this.subjectsNoCourse = subjectsNoCourse.subjects;
+    if (course && subjectList) {
+      this.subjectsNoCourse = subjectList;
+      this.fullscreenLoading = false;
     }
-    this.loadingData = false;
   }
 };
 </script>
