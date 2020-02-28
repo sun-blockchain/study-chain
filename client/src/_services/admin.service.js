@@ -36,7 +36,8 @@ export const adminService = {
   getSubjectsNoCourse,
   addSubjectToCourse,
   deleteSubjectFromCourse,
-  getStudent
+  getStudent,
+  getTeacher
 };
 
 // Courses Manager
@@ -120,28 +121,13 @@ async function createCourse(course) {
 }
 async function getStudentsOfCourse(courseId) {
   try {
-    // let respone = await axios.get(
-    //   `${process.env.VUE_APP_API_BACKEND}/account/teacher/${username}/subjects`,
-    //   {
-    //     headers: authHeader()
-    //   }
-    // );
-    // return respone.data;
-    return {
-      success: true,
-      students: [
-        {
-          StudentID: '61e3b1bb-77a7-4830-bbd2-23b35fcc24eb',
-          Name: 'Nguyen Van A',
-          Birthday: '23/03/1999'
-        },
-        {
-          StudentID: '65640531-cc2f-4967-9b30-c548c7190c2e',
-          Name: 'Nguyen Van B',
-          Birthday: '10/10/2000'
-        }
-      ]
-    };
+    let respone = await axios.get(
+      `${process.env.VUE_APP_API_BACKEND}/account/student/course/${courseId}`,
+      {
+        headers: authHeader()
+      }
+    );
+    return respone.data;
   } catch (error) {
     throw error;
   }
@@ -609,6 +595,19 @@ async function getStudent(username) {
   try {
     let respone = await axios.get(
       `${process.env.VUE_APP_API_BACKEND}/academy/student/${username}`,
+      {
+        headers: authHeader()
+      }
+    );
+    return respone.data;
+  } catch (error) {
+    throw error;
+  }
+}
+async function getTeacher(username) {
+  try {
+    let respone = await axios.get(
+      `${process.env.VUE_APP_API_BACKEND}/academy/teacher/${username}`,
       {
         headers: authHeader()
       }

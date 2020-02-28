@@ -159,7 +159,7 @@ export const router = new Router({
         },
         {
           path: '/myCourses/:id',
-          name: 'courses-of-student',
+          name: 'detail-courses-of-student',
           component: () => import('./views/student/MyCourseDetail.vue')
         },
         {
@@ -194,6 +194,11 @@ export const router = new Router({
           path: '/teacher/:id/students',
           name: 'teacher-subject-students',
           component: () => import('./views/teacher/StudentsOfSubject.vue')
+        },
+        {
+          path: '/teacher/subject/:subjectId/class/:classId',
+          name: 'teacher-detail-class',
+          component: () => import('./views/teacher/ClassSubject')
         }
       ]
     },
