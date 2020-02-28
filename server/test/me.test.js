@@ -160,6 +160,144 @@ describe('GET /account/me/', () => {
   });
 });
 
+describe('GET /account/me/summary', () => {
+  let connect;
+  let query;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+  });
+
+  it('failed connect to blockchain with student', (done) => {
+    connect.returns(null);
+
+    request(app)
+      .get('/account/me/summary')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain');
+        done();
+      });
+  });
+
+  it('failed connect to blockchain with teacher', (done) => {
+    connect.returns(null);
+
+    request(app)
+      .get('/account/me/summary')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain');
+        done();
+      });
+  });
+
+  it('failed to query summary info teacher in chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.TEACHER }
+    });
+
+    query.returns({ success: false, msg: 'Error' });
+
+    request(app)
+      .get('/account/me/summary')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Error');
+        done();
+      });
+  });
+
+  it('failed to query summary info student in chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    query.returns({ success: false, msg: 'Error' });
+
+    request(app)
+      .get('/account/me/summary')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        done();
+      });
+  });
+
+  it('success query summary info of user student', (done) => {
+    connect.returns({ error: null });
+
+    let data = JSON.stringify({
+      Courses: ['123', '456'],
+      Classes: ['4563']
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .get('/account/me/summary')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        done();
+      });
+  });
+
+  it('success query summary info of user teacher', (done) => {
+    connect.returns({ error: null });
+
+    let data = JSON.stringify({
+      Classes: ['4563', '1234']
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .get('/account/me/summary')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        done();
+      });
+  });
+
+  it('response 404 with admin academy', (done) => {
+    connect.returns({ error: null });
+
+    request(app)
+      .get('/account/me/summary')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(404);
+        done();
+      });
+  });
+});
+
 describe('PUT /account/me/info', () => {
   let connect;
   let query;

@@ -15,8 +15,20 @@ export const studentService = {
   registerClass,
   getMyCourses,
   getNotRegisterCourses,
-  cancelRegisteredClass
+  cancelRegisteredClass,
+  getSummaryInfo
 };
+
+async function getSummaryInfo() {
+  try {
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/me/summary`, {
+      headers: authHeader()
+    });
+    return respone.data;
+  } catch (error) {
+    throw error;
+  }
+}
 
 async function getAllCourses() {
   try {
