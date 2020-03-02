@@ -108,12 +108,12 @@ export default {
         if (result.value) {
           this.fullscreenLoading = true;
           let response = await this.registerClass(row.ClassID);
-          if (response.status === 200) {
+          if (!response) {
             this.fullscreenLoading = false;
-            this.$swal('Registered!', 'Class has been registered.', 'success');
-          } else {
+            this.$swal('Failed!', 'Failed to enroll this class.', 'error');
+          } else if (response.status === 200) {
             this.fullscreenLoading = false;
-            this.$swal('Failed!', 'Fail to register class.', 'danger');
+            this.$swal('Enrolled!', 'Successfully enrolled this class.', 'success');
           }
         }
       });

@@ -88,7 +88,7 @@ export default {
     },
     async cancelClass(row) {
       this.$swal({
-        text: 'Are you sure to cancel this class ?',
+        text: 'Are you sure to cancel enrollment this class ?',
         type: 'success',
         showCancelButton: true,
         cancelButtonColor: '#d33',
@@ -99,12 +99,13 @@ export default {
         if (result.value) {
           this.fullscreenLoading = true;
           let response = await this.cancelRegisteredClass(row.ClassID);
-          if (response.status === 200) {
+          if (!response) {
             this.fullscreenLoading = false;
-            this.$swal('Registered!', 'Successfully canceled.', 'success');
-          } else {
+            this.$swal('Failed!', 'Failed to cancel this class.', 'error');
+          } else if (response.status === 200) {
             this.fullscreenLoading = false;
-            this.$swal('Failed!', 'Failed to cancel this class.', 'danger');
+            this.$swal('Canceled!', 'Successfully canceled enrollment.', 'success');
+            await this.getMyClasses();
           }
         }
       });
