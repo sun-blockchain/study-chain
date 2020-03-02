@@ -228,10 +228,11 @@ router.get(
     }
 
     let students = JSON.parse(response.msg);
+    let studentList = students ? students : [];
 
     return res.json({
       success: true,
-      students: students
+      students: studentList
     });
   }
 );

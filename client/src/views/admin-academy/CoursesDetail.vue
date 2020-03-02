@@ -394,7 +394,7 @@ export default {
     let subjectsNoCourse = await this.getSubjectsNoCourse(this.$route.params.id);
     let subjectList = subjectsNoCourse.subjects;
     let studentList = await this.getStudentsOfCourse(this.$route.params.id);
-    if (course && subjectList) {
+    if (course && subjectList && studentList) {
       this.subjectsNoCourse = subjectList;
       this.fullscreenLoading = false;
     }

@@ -286,8 +286,6 @@ async function main() {
            * @param  {String} startDate
            * @param  {String} endDate
            * @param  {String} repeat
-           * @param  {String} shortDescription
-           * @param  {String} description
            * @param  {String} capacity
            *
            */
@@ -297,8 +295,6 @@ async function main() {
           let startDate = argv.startDate.toString();
           let endDate = argv.endDate.toString();
           let repeat = argv.repeat.toString();
-          let shortDescription = argv.shortDescription.toString();
-          let description = argv.description.toString();
           let subjectId = argv.subjectId.toString();
           let capacity = argv.capacity.toString();
 
@@ -329,8 +325,6 @@ async function main() {
            * @param  {String} startDate
            * @param  {String} endDate
            * @param  {String} repeat
-           * @param  {String} shortDescription
-           * @param  {String} description
            * @param  {String} capacity
            *
            */
@@ -342,8 +336,6 @@ async function main() {
           let startDate = argv.startDate.toString();
           let endDate = argv.endDate.toString();
           let repeat = argv.repeat.toString();
-          let shortDescription = argv.shortDescription.toString();
-          let description = argv.description.toString();
           let capacity = argv.capacity.toString();
 
           let _class = {
@@ -354,8 +346,6 @@ async function main() {
             startDate,
             endDate,
             repeat,
-            shortDescription,
-            description,
             capacity
           };
 

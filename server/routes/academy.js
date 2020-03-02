@@ -247,7 +247,9 @@ router.get(
       ? JSON.parse(courseQuery.msg).Subjects
       : [];
     let listSubjectAll = JSON.parse(allSubjecyQuery.msg);
-    let listSubjectOutside = listSubjectAll.filter(
+    let listSubjects = listSubjectAll ? listSubjectAll : [];
+
+    let listSubjectOutside = listSubjects.filter(
       (subject) => !listSubjectIn.includes(subject.SubjectID)
     );
 
@@ -461,16 +463,6 @@ router.post(
       .isEmpty()
       .trim()
       .escape(),
-    body('shortDescription')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape(),
-    body('description')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape(),
     body('capacity')
       .not()
       .isEmpty()
@@ -493,17 +485,7 @@ router.post(
 
       const user = req.decoded.user;
 
-      const {
-        classCode,
-        room,
-        time,
-        startDate,
-        endDate,
-        repeat,
-        shortDescription,
-        description,
-        capacity
-      } = req.body;
+      const { classCode, room, time, startDate, endDate, repeat, capacity } = req.body;
 
       const subjectId = req.params.subjectId;
 
@@ -515,8 +497,6 @@ router.post(
         startDate,
         endDate,
         repeat,
-        shortDescription,
-        description,
         subjectId,
         capacity
       };
@@ -585,16 +565,6 @@ router.put(
       .isEmpty()
       .trim()
       .escape(),
-    body('shortDescription')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape(),
-    body('description')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape(),
     body('subjectId')
       .not()
       .isEmpty()
@@ -628,8 +598,6 @@ router.put(
         classCode,
         room,
         time,
-        shortDescription,
-        description,
         subjectId,
         startDate,
         endDate,
@@ -645,8 +613,6 @@ router.put(
         startDate,
         endDate,
         repeat,
-        shortDescription,
-        description,
         capacity
       };
 
