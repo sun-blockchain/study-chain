@@ -4,7 +4,6 @@
       :title="`Teachers Manager`"
       :listAll="listTeachers"
       :loadingData="loadingData"
-      :btnDetail="true"
       :nameFunctionDetail="`detailTeacher`"
       :btnInfo="true"
       :nameFunctionInfo="`info`"

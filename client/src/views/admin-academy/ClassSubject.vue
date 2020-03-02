@@ -52,7 +52,6 @@
       :loadingData="loadingData"
       :btnInfo="true"
       :nameFunctionInfo="`showInfoStudent`"
-      :btnDetail="true"
       :nameFunctionDetail="`detailStudent`"
       :nameFunctionDelete="`delStudent`"
       :btnDelete="true"

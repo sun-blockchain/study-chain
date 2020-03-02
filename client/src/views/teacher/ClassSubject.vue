@@ -27,7 +27,6 @@
       :loadingData="loadingData"
       :btnInfo="true"
       :nameFunctionInfo="`showInfoStudent`"
-      :btnDetail="false"
       :nameFunctionDelete="`delStudent`"
       :btnDelete="false"
       :listProperties="[

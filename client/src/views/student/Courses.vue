@@ -15,7 +15,6 @@
       :loadingData="loadingData"
       :btnRegister="true"
       :nameFunctionRegister="`enrollCourse`"
-      :btnDetail="true"
       :nameFunctionDetail="`detailCourses`"
       :btnInfo="true"
       :nameFunctionInfo="`modalInfo`"
