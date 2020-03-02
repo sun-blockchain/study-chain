@@ -1,4 +1,8 @@
 version: 2
+release_only: &release_only
+  filters:
+    branches:
+      only: release
 jobs:
   build:
     working_directory: ~/server
@@ -67,10 +71,20 @@ jobs:
           name: Drop Database
           command: |
             ssh ${USER}@${HOST} "mongo studychain --eval 'printjson(db.dropDatabase())'"
+      - restore_cache:
+          key: dependency-cache-{{ checksum "test/studychain/server/package.json" }}
       - run:
-          name: Yarn install and restart server
+          name: Yarn install
           command: |
-            ssh ${USER}@${HOST} "cd test/study-chain/server && yarn install && cd cli && rm -r wallet && ./init.sh && cd .. && pm2 restart www"
+            ssh ${USER}@${HOST} "cd test/study-chain/server && yarn install"
+      - run:
+          name: Restart server
+          command: |
+            ssh ${USER}@${HOST} "cd test/study-chain/server/cli && rm -r wallet && ./init.sh && cd .. && pm2 restart www"
+      - save_cache:
+          key: dependency-cache-{{ checksum "test/studychain/server/package.json" }}
+          paths:
+            - node_modules
   run_client:
     machine:
       enabled: true
@@ -85,14 +99,14 @@ workflows:
     jobs:
       - build
       - up_network:
+          <<: *release_only
           requires:
             - build
       - start_server:
+          <<: *release_only
           requires:
             - up_network
       - run_client:
+          <<: *release_only
           requires:
             - start_server
-          filters:
-            branches:
-              only: release
