@@ -155,7 +155,7 @@ export default {
   methods: {
     ...mapActions('adminAcademy', ['getAllTeachers', 'deleteTeacher', 'createTeacher']),
     detailTeacher(row) {
-      this.$router.push({ path: `teachers/${row.Username}/subjects` });
+      this.$router.push({ path: `teachers/${row.Username}` });
     },
     info(row) {
       this.inforTeacher.fullName = row.Fullname;

@@ -47,8 +47,6 @@ type Class struct {
 	Room             string
 	Time             string
 	Status           ClassStatus
-	ShortDescription string
-	Description      string
 	StartDate        string
 	EndDate          string
 	Repeat           string
@@ -656,8 +654,8 @@ func UpdateClassInfo(stub shim.ChaincodeStubInterface, args []string) sc.Respons
 		return shim.Error("Permission Denied!")
 	}
 
-	if len(args) != 10 {
-		return shim.Error("Incorrect number of arguments. Expecting 10")
+	if len(args) != 8 {
+		return shim.Error("Incorrect number of arguments. Expecting 8")
 	}
 
 	ClassID := args[0]
@@ -667,9 +665,7 @@ func UpdateClassInfo(stub shim.ChaincodeStubInterface, args []string) sc.Respons
 	StartDate := args[4]
 	EndDate := args[5]
 	Repeat := args[6]
-	ShortDescription := args[7]
-	Description := args[8]
-	Capacity := args[9]
+	Capacity := args[7]
 
 	CapacityInt, err := strconv.ParseUint(Capacity, 10, 64)
 
@@ -692,10 +688,6 @@ func UpdateClassInfo(stub shim.ChaincodeStubInterface, args []string) sc.Respons
 	class.EndDate = EndDate
 
 	class.Repeat = Repeat
-
-	class.ShortDescription = ShortDescription
-
-	class.Description = Description
 
 	class.Capacity = CapacityInt
 

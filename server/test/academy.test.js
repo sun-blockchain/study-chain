@@ -526,16 +526,12 @@ describe('#POST /academy/:subjectId/class', () => {
       {
         classCode: 'CACLC2',
         room: 'Blockchain101',
-        time: '12122020',
-        shortDescription: 'short',
-        description: 'Blockchain'
+        time: '12122020'
       },
       {
         classCode: 'CACLC1',
         room: 'Blockchain101',
-        time: '12122020',
-        shortDescription: 'short',
-        description: 'long'
+        time: '12122020'
       }
     );
 
@@ -559,8 +555,6 @@ describe('#POST /academy/:subjectId/class', () => {
         startDate: '24-02-2020',
         endDate: '29-02-2020',
         repeat: 'Weekly Monday',
-        shortDescription: 'short',
-        description: 'long',
         capacity: 77
       })
       .then((res) => {
@@ -577,9 +571,7 @@ describe('#POST /academy/:subjectId/class', () => {
       .send({
         classCode: '',
         room: 'Blockchain101',
-        time: '12122020',
-        shortDescription: 'short',
-        description: 'long'
+        time: '12122020'
       })
       .then((res) => {
         expect(res.status).equal(422);
@@ -603,8 +595,6 @@ describe('#POST /academy/:subjectId/class', () => {
         startDate: '24-02-2020',
         endDate: '29-02-2020',
         repeat: 'Weekly Monday',
-        shortDescription: 'short',
-        description: 'long',
         capacity: 67
       })
       .then((res) => {
@@ -661,8 +651,6 @@ describe('#PUT /class', () => {
       startDate: '24-02-2020',
       endDate: '29-02-2020',
       repeat: 'Weekly Monday',
-      shortDescription: 'short',
-      description: 'long',
       subjectId: '123-456-a12b-1231`',
       capacity: 112
     });
@@ -688,8 +676,6 @@ describe('#PUT /class', () => {
         startDate: '24-02-2020',
         endDate: '29-02-2020',
         repeat: 'Weekly Monday',
-        shortDescription: 'short',
-        description: 'long',
         subjectId: '123-456-a12b-1231',
         capacity: 112
       })
@@ -709,8 +695,6 @@ describe('#PUT /class', () => {
         classCode: '',
         room: 'Blockchain101',
         time: '12122020',
-        shortDescription: 'short',
-        description: 'long',
         subjectId: 'sj',
         capacity: ''
       })
@@ -737,8 +721,6 @@ describe('#PUT /class', () => {
         startDate: '24-02-2020',
         endDate: '29-02-2020',
         repeat: 'Weekly Monday',
-        shortDescription: 'short',
-        description: 'long',
         subjectId: 'sj',
         capacity: 100
       })

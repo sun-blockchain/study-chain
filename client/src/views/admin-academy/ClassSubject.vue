@@ -13,15 +13,28 @@
       <div>
         <div class="card-body">
           <h2 class="h4 mb-2 text-gray-800">About this classs</h2>
-          <p>Time: {{ listClasses.Time }}</p>
-          <p>Capacity: {{ listClasses.Capacity }}</p>
-          <p>
-            Status:
-            <b-badge :variant="listClasses.Status === 'Open' ? 'success' : 'danger'">{{
-              listClasses.Status
-            }}</b-badge>
-          </p>
-          <p>{{ listClasses.Description }}</p>
+          <div class="row">
+            <div class="col">
+              <p>Time: {{ listClasses.Time }}</p>
+              <p>Start Date: {{ listClasses.StartDate }}</p>
+              <p>End Date: {{ listClasses.EndDate }}</p>
+            </div>
+            <div class="col">
+              <p>Capacity: {{ listClasses.Capacity }}</p>
+              <p>
+                Status:
+                <b-badge :variant="listClasses.Status === 'Open' ? 'success' : 'danger'">{{
+                  listClasses.Status
+                }}</b-badge>
+              </p>
+              <p>
+                Teacher:
+                <router-link :to="`/academy/teachers/${listClasses.TeacherUsername}`">
+                  {{ listClasses.TeacherUsername }}
+                </router-link>
+              </p>
+            </div>
+          </div>
           <el-button
             v-if="listClasses.Status === 'Open'"
             type="danger"

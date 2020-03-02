@@ -34,10 +34,6 @@
         <b>Repeat:</b>
         {{ infoClass.repeat }}
       </p>
-      <p>
-        <b>Description:</b>
-        {{ infoClass.description }}
-      </p>
     </b-modal>
     <table-admin
       :title="`Classes list`"
@@ -55,7 +51,6 @@
         { prop: 'ClassCode', label: 'Class Code' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
-        { prop: 'ShortDescription', label: 'Description' },
         { prop: 'Status', label: 'Status' },
         { prop: 'Capacity', label: 'Capacity' }
       ]"
@@ -166,33 +161,6 @@
               </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
-
-          <ValidationProvider rules="required" name="ShortDescription" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="text"
-                v-model="editClass.ShortDescription"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Class Short Description"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-
-          <ValidationProvider rules="required" name="ClassDescription" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-textarea
-                v-model="editClass.Description"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Class Description"
-              ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
           <ValidationProvider rules="required" name="Capacity" v-slot="{ valid, errors }">
             <b-form-group>
               <b-form-textarea
@@ -297,32 +265,6 @@
               </b-form-invalid-feedback>
             </b-form-group>
           </ValidationProvider>
-
-          <ValidationProvider rules="required" name="Short Description" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="text"
-                v-model="newClass.ShortDescription"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Class Short Description"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <ValidationProvider rules="required" name="Class Description" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-textarea
-                v-model="newClass.Description"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Class Description"
-              ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
           <ValidationProvider rules="required" name="Capacity" v-slot="{ valid, errors }">
             <b-form-group>
               <b-form-input
@@ -364,8 +306,6 @@ export default {
         StartDate: '',
         EndDate: '',
         Repeat: '',
-        ShortDescription: '',
-        Description: '',
         SubjectId: this.$route.params.id,
         Capacity: ''
       },
@@ -376,16 +316,13 @@ export default {
         StartDate: '',
         EndDate: '',
         Repeat: '',
-        ShortDescription: '',
-        Description: '',
         SubjectId: this.$route.params.id,
         Capacity: ''
       },
       infoClass: {
         startDate: '',
         endDate: '',
-        repeat: '',
-        description: ''
+        repeat: ''
       },
       fullscreenLoading: false,
       loadingData: false
@@ -412,13 +349,10 @@ export default {
       this.editClass.StartDate = row.StartDate;
       this.editClass.EndDate = row.EndDate;
       this.editClass.Repeat = row.Repeat;
-      this.editClass.ShortDescription = row.ShortDescription;
-      this.editClass.Description = row.Description;
       this.editClass.Capacity = row.Capacity;
       this.$root.$emit('bv::show::modal', 'modal-edit');
     },
     modalInfo(row) {
-      this.infoClass.description = row.Description;
       this.infoClass.startDate = row.StartDate;
       this.infoClass.endDate = row.EndDate;
       this.infoClass.repeat = row.Repeat;
@@ -458,8 +392,6 @@ export default {
       this.editClass.StartDate = '';
       this.editClass.EndDate = '';
       this.editClass.Repeat = '';
-      this.editClass.ShortDescription = '';
-      this.editClass.Description = '';
       this.editClass.Capacity = '';
     },
     resetInfoModalCreate() {
@@ -469,8 +401,6 @@ export default {
       this.newClass.StartDate = '';
       this.newClass.EndDate = '';
       this.newClass.Repeat = '';
-      this.newClass.ShortDescription = '';
-      this.newClass.Description = '';
       this.newClass.Capacity = '';
       requestAnimationFrame(() => {
         this.$refs.observer.reset();

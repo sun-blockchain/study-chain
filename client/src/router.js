@@ -92,9 +92,9 @@ export const router = new Router({
           component: () => import('./views/admin-academy/TeacherManager')
         },
         {
-          path: '/academy/teachers/:id/subjects',
-          name: 'academy-teacher-subject',
-          component: () => import('./views/admin-academy/ClassessOfTeacher')
+          path: '/academy/teachers/:id',
+          name: 'academy-teacher',
+          component: () => import('./views/admin-academy/TeacherDetail')
         },
         {
           path: '/academy/students',

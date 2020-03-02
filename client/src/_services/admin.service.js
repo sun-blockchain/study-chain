@@ -299,8 +299,6 @@ async function createClass(_class) {
         startDate: _class.StartDate,
         endDate: _class.EndDate,
         repeat: _class.Repeat,
-        shortDescription: _class.ShortDescription,
-        description: _class.Description,
         capacity: _class.Capacity
       },
       {
@@ -324,8 +322,6 @@ async function updateClass(_class) {
         startDate: _class.StartDate,
         endDate: _class.EndDate,
         repeat: _class.Repeat,
-        shortDescription: _class.ShortDescription,
-        description: _class.Description,
         subjectId: _class.SubjectId,
         capacity: _class.Capacity
       },

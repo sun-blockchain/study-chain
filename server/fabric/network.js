@@ -357,8 +357,6 @@ exports.createClass = async function(networkObj, _class) {
     !_class.startDate ||
     !_class.endDate ||
     !_class.repeat ||
-    !_class.shortDescription ||
-    !_class.description ||
     !_class.subjectId ||
     !_class.capacity
   ) {
@@ -376,8 +374,6 @@ exports.createClass = async function(networkObj, _class) {
       _class.startDate,
       _class.endDate,
       _class.repeat,
-      _class.shortDescription,
-      _class.description,
       _class.subjectId,
       _class.capacity
     );
@@ -432,8 +428,6 @@ exports.updateClassInfo = async function(networkObj, _class) {
     !_class.startDate ||
     !_class.endDate ||
     !_class.repeat ||
-    !_class.shortDescription ||
-    !_class.description ||
     !_class.capacity
   ) {
     let response = {};
@@ -451,8 +445,6 @@ exports.updateClassInfo = async function(networkObj, _class) {
       _class.startDate,
       _class.endDate,
       _class.repeat,
-      _class.shortDescription,
-      _class.description,
       _class.capacity
     );
 
