@@ -26,10 +26,6 @@
         <b>Repeat:</b>
         {{ infoClass.repeat }}
       </p>
-      <p>
-        <b>Description:</b>
-        {{ infoClass.description }}
-      </p>
     </b-modal>
     <table-student
       :title="`Classes list`"
@@ -43,7 +39,6 @@
         { prop: 'ClassCode', label: 'Class Code' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
-        { prop: 'ShortDescription', label: 'Short Description' },
         { prop: 'Status', label: 'Status' },
         { prop: 'Capacity', label: 'Capacity' }
       ]"
@@ -72,15 +67,13 @@ export default {
       infoClass: {
         startDate: '',
         endDate: '',
-        repeat: '',
-        description: ''
+        repeat: ''
       }
     };
   },
   methods: {
     ...mapActions('student', ['getMyClasses', 'cancelRegisteredClass']),
     modalInfo(row) {
-      this.infoClass.description = row.Description;
       this.infoClass.startDate = row.StartDate;
       this.infoClass.endDate = row.EndDate;
       this.infoClass.repeat = row.Repeat;

@@ -3,7 +3,6 @@
     <table-teacher
       :title="`List Classes Of Teacher`"
       :listAll="listClasses ? listClasses : []"
-      :btnDetail="true"
       :nameFunctionDetail="`detailClass`"
       :btnInfo="true"
       :nameFunctionInfo="`inforClass`"

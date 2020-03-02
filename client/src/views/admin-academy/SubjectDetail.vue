@@ -39,7 +39,6 @@
       :title="`Classes list`"
       :listAll="listClasses"
       :loadingData="loadingData"
-      :btnDetail="true"
       :nameFunctionDetail="`detailClass`"
       :btnInfo="true"
       :nameFunctionInfo="`modalInfo`"

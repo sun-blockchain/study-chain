@@ -13,7 +13,6 @@
       :title="`My Courses`"
       :listAll="listMyCourses"
       :loadingData="loadingData"
-      :btnDetail="true"
       :nameFunctionDetail="`detailCourses`"
       :btnInfo="true"
       :nameFunctionInfo="`modalInfo`"

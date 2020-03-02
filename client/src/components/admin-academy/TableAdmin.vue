@@ -17,6 +17,7 @@
               element-loading-spinner="el-icon-loading"
               element-loading-background="rgba(255, 255, 255, 0.7)"
               :data="listPagination"
+              @row-click="callFunctionDetail"
             >
               <el-table-column
                 sortable
@@ -35,22 +36,13 @@
                   />
                 </template>
                 <template slot-scope="scope">
-                  <el-tooltip v-if="btnDetail" class="item" content="Detail" placement="top">
-                    <el-button
-                      plain
-                      icon="fas fa-layer-group"
-                      round
-                      size="mini"
-                      @click="callFunctionDetail(scope.row)"
-                    ></el-button>
-                  </el-tooltip>
                   <el-tooltip v-if="btnInfo" class="item" content="Information" placement="top">
                     <el-button
                       icon="fa fa-info"
                       type="info"
                       round
                       size="mini"
-                      @click="callFunctionInfo(scope.row)"
+                      @click.stop="callFunctionInfo(scope.row)"
                     ></el-button>
                   </el-tooltip>
                   <el-tooltip v-if="btnEdit" class="item" content="Edit" placement="top">
@@ -59,7 +51,7 @@
                       icon="el-icon-edit"
                       round
                       size="mini"
-                      @click="callFunctionEdit(scope.row)"
+                      @click.stop="callFunctionEdit(scope.row)"
                     ></el-button>
                   </el-tooltip>
                   <el-tooltip v-if="btnDelete" class="item" content="Delete" placement="top">
@@ -68,7 +60,7 @@
                       type="danger"
                       icon="el-icon-delete"
                       round
-                      @click="callFunctionDelete(scope.row)"
+                      @click.stop="callFunctionDelete(scope.row)"
                     ></el-button>
                   </el-tooltip>
                   <el-tooltip
@@ -146,7 +138,6 @@ export default {
     title: String,
     btnCreate: Boolean,
     listAll: Array,
-    btnDetail: Boolean,
     btnInfo: Boolean,
     nameFunctionDetail: String,
     nameFunctionInfo: String,

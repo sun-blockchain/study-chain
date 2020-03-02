@@ -6,7 +6,6 @@
       :loadingData="loadingData"
       :btnInfo="true"
       :nameFunctionInfo="`showInfoSubject`"
-      :btnDetail="true"
       :nameFunctionDetail="`detailSubject`"
       :btnEdit="true"
       :nameFunctionEdit="`modalEdit`"
