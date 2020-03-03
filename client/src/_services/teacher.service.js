@@ -4,7 +4,7 @@ import axios from 'axios';
 export const teacherService = {
   getClassesOfTeacher,
   getStudentsOfSubject,
-  setScoreForStudent
+  updateScore
 };
 
 async function getClassesOfTeacher() {
@@ -27,13 +27,13 @@ async function getStudentsOfSubject(subjectId) {
   return respone.data;
 }
 
-async function setScoreForStudent(subjectId, username, score) {
+async function updateScore(classId, score, studentUsername) {
   let respone = await axios.post(
-    `${process.env.VUE_APP_API_BACKEND}/account/me/createscore`,
+    `${process.env.VUE_APP_API_BACKEND}/score`,
     {
-      subjectId: subjectId,
-      studentUsername: username,
-      scoreValue: score
+      classId: classId,
+      scoreValue: score,
+      student: studentUsername
     },
     {
       headers: authHeader()

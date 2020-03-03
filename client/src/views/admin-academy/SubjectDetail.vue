@@ -15,33 +15,12 @@
         </div>
       </div>
     </div>
-    <b-modal
-      id="modal-info"
-      ref="modal-info"
-      title="More Information About Class"
-      v-loading.fullscreen.lock="fullscreenLoading"
-      ok-only
-    >
-      <p>
-        <b>Start Date:</b>
-        {{ infoClass.startDate }}
-      </p>
-      <p>
-        <b>End Date:</b>
-        {{ infoClass.endDate }}
-      </p>
-      <p>
-        <b>Repeat:</b>
-        {{ infoClass.repeat }}
-      </p>
-    </b-modal>
+
     <table-admin
       :title="`Classes list`"
       :listAll="listClasses"
       :loadingData="loadingData"
       :nameFunctionDetail="`detailClass`"
-      :btnInfo="true"
-      :nameFunctionInfo="`modalInfo`"
       :btnEdit="true"
       :nameFunctionEdit="`modalEdit`"
       :nameFunctionDelete="`delClass`"
@@ -64,222 +43,145 @@
           icon="fas fa-plus"
           size="medium"
           round
-          v-b-modal.modal-create
+          @click="dialogForm.newClass = true"
         ></el-button>
         <!-- <div class="box-defaul-header"></div> -->
       </template>
     </table-admin>
 
-    <ValidationObserver ref="observer" v-slot="{ passes }">
-      <b-modal
-        id="modal-edit"
-        ref="modal-edit"
-        ok-title="Update"
-        @ok.prevent="passes(handleUpdate)"
-        title="Cập Nhật Khóa Học"
-      >
-        <b-form>
-          <ValidationProvider rules="required" name="ClassCode" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="text"
-                v-model="editClass.ClassCode"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Class Code"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
+    <el-dialog
+      title="Update Class"
+      :visible.sync="dialogForm.editClass"
+      class="modal-with-create"
+      v-loading.fullscreen.lock="fullscreenLoading"
+    >
+      <el-form :model="editClass" :rules="ruleClass" ref="editClass">
+        <el-form-item prop="ClassCode">
+          <el-input
+            v-model="editClass.ClassCode"
+            autocomplete="off"
+            placeholder="Class Code"
+          ></el-input>
+        </el-form-item>
+        <el-form-item prop="Room">
+          <el-input v-model="editClass.Room" autocomplete="off" placeholder="Class room"></el-input>
+        </el-form-item>
+        <el-form-item prop="Time">
+          <el-time-picker
+            v-model="editClass.Time"
+            placeholder="Time"
+            format="HH:mm"
+            value-format="HH:mm"
+          >
+          </el-time-picker>
+        </el-form-item>
+        <el-form-item prop="StartDate">
+          <el-date-picker
+            v-model="editClass.StartDate"
+            :picker-options="pickerOptions"
+            type="date"
+            placeholder="Start Date"
+            format="dd/MM/yyyy"
+            value-format="dd-MM-yyyy"
+          >
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item prop="EndDate">
+          <el-date-picker
+            v-model="editClass.EndDate"
+            :picker-options="pickerOptions"
+            type="date"
+            placeholder="End Date"
+            format="dd/MM/yyyy"
+            value-format="dd-MM-yyyy"
+          >
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item prop="Repeat">
+          <el-select v-model="editClass.Repeat" placeholder="Repeat">
+            <el-option v-for="item in repeatOptions" :key="item.value" :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item prop="Capacity">
+          <el-select v-model="editClass.Capacity" placeholder="Capacity">
+            <el-option v-for="item in capacityOptions" :key="item.value" :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="resetForm('editClass')">Cancel</el-button>
+        <el-button type="primary" @click="handleUpdate('editClass')">Confirm</el-button>
+      </span>
+    </el-dialog>
 
-          <ValidationProvider rules="required" name="Room" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="text"
-                v-model="editClass.Room"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Class room"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-
-          <ValidationProvider rules="required" name="Time" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="time"
-                v-model="editClass.Time"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Time"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-
-          <ValidationProvider rules="required" name="StartDate" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="date"
-                v-model="editClass.StartDate"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="StartDate"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <ValidationProvider rules="required" name="EndDate" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="date"
-                v-model="editClass.EndDate"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="EndDate"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <ValidationProvider rules="required" name="Repeat" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="text"
-                v-model="editClass.Repeat"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Repeat"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <ValidationProvider rules="required" name="Capacity" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-textarea
-                v-model="editClass.Capacity"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Capacity"
-              ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-        </b-form>
-      </b-modal>
-    </ValidationObserver>
-
-    <ValidationObserver ref="observer" v-slot="{ passes }">
-      <b-modal
-        id="modal-create"
-        ref="modal-create"
-        title="Create new class"
-        @ok.prevent="passes(handleCreate)"
-        @cancel="resetInfoModalCreate"
-        v-loading.fullscreen.lock="fullscreenLoading"
-      >
-        <b-form>
-          <ValidationProvider rules="required" name="Class Code" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="text"
-                v-model="newClass.ClassCode"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Class Code"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <ValidationProvider rules="required" name="Room" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="text"
-                v-model="newClass.Room"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Class room"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <ValidationProvider rules="required" name="Time" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="time"
-                v-model="newClass.Time"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Time"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <ValidationProvider rules="required" name="StartDate" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="date"
-                v-model="newClass.StartDate"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="StartDate"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <ValidationProvider rules="required" name="EndDate" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="date"
-                v-model="newClass.EndDate"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="EndDate"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <ValidationProvider rules="required" name="Repeat" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="text"
-                v-model="newClass.Repeat"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Repeat"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <ValidationProvider rules="required" name="Capacity" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="text"
-                v-model="newClass.Capacity"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Capacity"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">
-                {{ errors[0] }}
-              </b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-        </b-form>
-      </b-modal>
-    </ValidationObserver>
+    <el-dialog
+      title="Create Class"
+      :visible.sync="dialogForm.newClass"
+      class="modal-with-create"
+      v-loading.fullscreen.lock="fullscreenLoading"
+    >
+      <el-form :model="newClass" :rules="ruleClass" ref="newClass">
+        <el-form-item prop="ClassCode">
+          <el-input
+            v-model="newClass.ClassCode"
+            autocomplete="off"
+            placeholder="Class Code"
+          ></el-input>
+        </el-form-item>
+        <el-form-item prop="Room">
+          <el-input v-model="newClass.Room" autocomplete="off" placeholder="Class room"></el-input>
+        </el-form-item>
+        <el-form-item prop="Time">
+          <el-time-picker
+            v-model="newClass.Time"
+            placeholder="Time"
+            format="HH:mm"
+            value-format="HH:mm"
+          >
+          </el-time-picker>
+        </el-form-item>
+        <el-form-item prop="StartDate">
+          <el-date-picker
+            v-model="newClass.StartDate"
+            :picker-options="pickerOptions"
+            type="date"
+            placeholder="Start Date"
+            format="dd/MM/yyyy"
+            value-format="dd-MM-yyyy"
+          >
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item prop="EndDate">
+          <el-date-picker
+            v-model="newClass.EndDate"
+            :picker-options="pickerOptions"
+            type="date"
+            placeholder="End Date"
+            format="dd/MM/yyyy"
+            value-format="dd-MM-yyyy"
+          >
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item prop="Repeat">
+          <el-select v-model="newClass.Repeat" placeholder="Repeat">
+            <el-option v-for="item in repeatOptions" :key="item.value" :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item prop="Capacity">
+          <el-select v-model="newClass.Capacity" placeholder="Capacity">
+            <el-option v-for="item in capacityOptions" :key="item.value" :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="resetForm('newClass')">Cancel</el-button>
+        <el-button type="primary" @click="handleCreate('newClass')">Confirm</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -287,16 +189,49 @@
 import { mapState, mapActions } from 'vuex';
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 import TableAdmin from '@/components/admin-academy/TableAdmin';
-import { Button } from 'element-ui';
+import {
+  Dialog,
+  Form,
+  FormItem,
+  Input,
+  Button,
+  Message,
+  MessageBox,
+  Select,
+  Option,
+  DatePicker,
+  TimePicker
+} from 'element-ui';
+
 export default {
   components: {
     ValidationObserver,
     ValidationProvider,
     TableAdmin,
-    'el-button': Button
+    'el-dialog': Dialog,
+    'el-form': Form,
+    'el-form-item': FormItem,
+    'el-input': Input,
+    'el-button': Button,
+    'el-select': Select,
+    'el-option': Option,
+    'el-date-picker': DatePicker,
+    'el-time-picker': TimePicker
   },
   data() {
     return {
+      pickerOptions: {
+        disabledDate(time) {
+          return time.getTime() < Date.now();
+        }
+      },
+      repeatOptions: [
+        { value: 'Weekly' },
+        { value: 'Monthly' },
+        { value: 'Two times a week' },
+        { value: 'Two times a month' }
+      ],
+      capacityOptions: [{ value: 10 }, { value: 20 }, { value: 50 }, { value: 100 }],
       editClass: {
         ClassID: '',
         ClassCode: '',
@@ -324,7 +259,62 @@ export default {
         repeat: ''
       },
       fullscreenLoading: false,
-      loadingData: false
+      loadingData: false,
+      dialogForm: {
+        newClass: false,
+        editClass: false
+      },
+      ruleClass: {
+        ClassCode: [
+          {
+            required: true,
+            message: 'Class code is required',
+            trigger: 'blur'
+          }
+        ],
+        Room: [
+          {
+            required: true,
+            message: 'Class room is required',
+            trigger: 'blur'
+          }
+        ],
+        Time: [
+          {
+            required: true,
+            message: 'Time is required',
+            trigger: 'blur'
+          }
+        ],
+        StartDate: [
+          {
+            required: true,
+            message: 'Start Date is required',
+            trigger: 'blur'
+          }
+        ],
+        EndDate: [
+          {
+            required: true,
+            message: 'End Date is required',
+            trigger: 'blur'
+          }
+        ],
+        Repeat: [
+          {
+            required: true,
+            message: 'Class repeat is required',
+            trigger: 'blur'
+          }
+        ],
+        Capacity: [
+          {
+            required: true,
+            message: 'Class capacity is required',
+            trigger: 'blur'
+          }
+        ]
+      }
     };
   },
   methods: {
@@ -349,16 +339,12 @@ export default {
       this.editClass.EndDate = row.EndDate;
       this.editClass.Repeat = row.Repeat;
       this.editClass.Capacity = row.Capacity;
-      this.$root.$emit('bv::show::modal', 'modal-edit');
+      this.dialogForm.editClass = true;
     },
-    modalInfo(row) {
-      this.infoClass.startDate = row.StartDate;
-      this.infoClass.endDate = row.EndDate;
-      this.infoClass.repeat = row.Repeat;
-      this.$root.$emit('bv::show::modal', 'modal-info');
-    },
+
     async handleCreate() {
-      this.$refs['modal-create'].hide();
+      this.dialogForm.newClass = false;
+
       this.fullscreenLoading = true;
       let response = await this.createClass(this.newClass);
 
@@ -370,7 +356,7 @@ export default {
       await this.getClassesOfSubject(this.$route.params.id);
     },
     async handleUpdate() {
-      this.$refs['modal-edit'].hide();
+      this.dialogForm.editClass = false;
 
       this.fullscreenLoading = true;
 
@@ -455,5 +441,9 @@ export default {
   margin-top: 24px;
   margin-bottom: 24px;
   color: blue;
+}
+.el-select,
+.el-date-editor.el-input {
+  width: 100%;
 }
 </style>

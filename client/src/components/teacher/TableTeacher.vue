@@ -45,10 +45,10 @@
                       @click.stop="callFunctionInfo(scope.row)"
                     ></el-button>
                   </el-tooltip>
-                  <el-tooltip v-if="btnEdit" class="item" content="Edit" placement="top">
+                  <el-tooltip v-if="btnEdit" class="item" content="Score" placement="top">
                     <el-button
                       type="primary"
-                      icon="el-icon-edit"
+                      icon="el-icon-edit-outline"
                       round
                       size="mini"
                       @click.stop="callFunctionEdit(scope.row)"
