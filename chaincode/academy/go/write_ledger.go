@@ -229,69 +229,95 @@ func CreateClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	return shim.Success(nil)
 }
+
 func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	// MSPID, err := cid.GetMSPID(stub)
+	MSPID, err := cid.GetMSPID(stub)
 
-	// if err != nil {
-	// 	fmt.Println("Error - cide.GetMSPID()")
-	// }
+	if err != nil {
+		fmt.Println("Error - cide.GetMSPID()")
+	}
 
-	// if MSPID != "AcademyMSP" {
-	// 	return shim.Error("You Are Not Teacher!")
-	// }
+	if MSPID != "AcademyMSP" {
+		return shim.Error("You Are Not Teacher!")
+	}
 
-	// TeacherUsername, found, err := cid.GetAttributeValue(stub, "username")
+	TeacherUsername, found, err := cid.GetAttributeValue(stub, "username")
 
-	// if err != nil {
-	// 	return shim.Error("Error - cide.GetMSPID()?")
-	// }
+	if err != nil {
+		return shim.Error("Error - cide.GetMSPID()?")
+	}
 
-	// if !found {
-	// 	return shim.Error("Permission Denied!")
-	// }
+	if !found {
+		return shim.Error("Permission Denied!")
+	}
 
-	// fmt.Println("Start Create Score!")
+	fmt.Println("Start Create Score!")
 
-	// if len(args) != 3 {
-	// 	return shim.Error("Incorrect number of arguments. Expecting 3")
-	// }
+	if len(args) != 4 {
+		return shim.Error("Incorrect number of arguments. Expecting 3")
+	}
 
-	// SubjectID := args[0]
-	// StudentUsername := args[1]
-	// ScoreValue, err := strconv.ParseFloat(args[2], 64)
+	SubjectID := args[0]
+	ClassID := args[1]
+	StudentUsername := args[2]
+	ScoreValue, err := strconv.ParseFloat(args[3], 64)
 
-	// checkStudentExist, err := getStudent(stub, "Student-"+StudentUsername)
 
-	// if err != nil {
-	// 	fmt.Println(checkStudentExist)
-	// 	return shim.Error("Student dose not exist - " + StudentUsername)
-	// }
+	if err != nil {
+		return shim.Error("Failed convert string to float")
+	}
 
-	// checkSubjectExist, err := getSubject(stub, "Subject-"+SubjectID)
+	checkStudentExist, err := getStudent(stub, "Student-"+StudentUsername)
 
-	// if err != nil {
-	// 	fmt.Println(checkSubjectExist)
-	// 	return shim.Error("Subject does not exist - " + SubjectID)
-	// }
+	if err != nil {
+		fmt.Println(checkStudentExist)
+		return shim.Error("Student does not exist - " + StudentUsername)
+	}
 
-	// if checkSubjectExist.TeacherUsername != TeacherUsername {
-	// 	return shim.Error("Permission Denied!")
-	// }
+	subject, err := getSubject(stub, "Subject-"+SubjectID)
 
-	// key := "Score-" + " " + "Subject-" + SubjectID + " " + "Student-" + StudentUsername
-	// checkScoreExist, err := getScore(stub, key)
+	if err != nil {
+		return shim.Error("Subject does not exist - " + SubjectID)
+	}
 
-	// if err == nil {
-	// 	fmt.Println(checkScoreExist)
-	// 	return shim.Error("This score already exists.")
-	// }
+	class, err := getClass(stub, "Class-"+ClassID)
 
-	// var score = Score{SubjectID: SubjectID, StudentUsername: StudentUsername, ScoreValue: ScoreValue, Certificated: false}
+	if err != nil {
+		return shim.Error("Class does not exist - " + ClassID)
+	}
 
-	// scoreAsBytes, _ := json.Marshal(score)
+	var i int
+	var inSubject bool = false
 
-	// stub.PutState(key, scoreAsBytes)
+	for i = 0; i < len(subject.Classes); i++ {
+		if subject.Classes[i] == class.ClassID {
+			inSubject = true
+		}
+		
+	}
+
+	if !inSubject {
+		return shim.Error("Class is not in Subject")
+	}
+
+	if class.TeacherUsername != TeacherUsername {
+		return shim.Error("Permission Denied!")
+	}
+
+	key := "Score-" + " " + "Subject-" + SubjectID + " " + "Student-" + StudentUsername
+	checkScoreExist, err := getScore(stub, key)
+
+	if err == nil {
+		fmt.Println(checkScoreExist)
+		return shim.Error("This score already exists.")
+	}
+
+	var score = Score{SubjectID: SubjectID, StudentUsername: StudentUsername, ScoreValue: ScoreValue}
+
+	scoreAsBytes, _ := json.Marshal(score)
+
+	stub.PutState(key, scoreAsBytes)
 
 	return shim.Success(nil)
 }
@@ -330,8 +356,6 @@ func CreateCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 		return shim.Error("Score dose not exist")
 
 	} else {
-
-		score.Certificated = true
 
 		scoreAsBytes, _ := json.Marshal(score)
 

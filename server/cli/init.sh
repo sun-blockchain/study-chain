@@ -14,5 +14,5 @@ node query.js --username=adminacademy --func=GetAllCourses
 node query.js --username=adminacademy --func=GetAllSubjects
 
 # node invoke.js --username=adminacademy --func=AddSubjectToCourse --courseId=xxxx --subjectId=xxx
-# node invoke.js --username=adminacademy --func=CreateClass --classCode=ETH101 --room=F13 --time="11:00" --startDate="20/02/2020" --endDate="20/05/2020" --repeat="Weekly" --shortDescription=Ethereum --description="Sun Research Blockchain will teach you knowledge about Ethereum. After class, you can develop a Dapp on Ethereum" --subjectId= --capacity=75
-# node invoke.js --username=adminacademy --func=CreateClass --classCode=Fabric101 --room=F13 --time="13:00" --startDate="20/02/2020" --endDate="20/05/2020" --repeat="Weekly" --shortDescription=Hyperledger --description="Sun Research Blockchain will teach you knowledge about Hyperledger Fabric IBM. After class, you can develop Dapp on Hyperledger Fabric" --subjectId= --capacity=71
+# node invoke.js --username=adminacademy --func=CreateClass --classCode=ETH101 --room=F13 --time="11:00" --startDate="20/02/2020" --endDate="20/05/2020" --repeat="Weekly" --subjectId= --capacity=75
+# node invoke.js --username=adminacademy --func=CreateClass --classCode=Fabric101 --room=F13 --time="13:00" --startDate="20/02/2020" --endDate="20/05/2020" --repeat="Weekly" --subjectId= --capacity=71
