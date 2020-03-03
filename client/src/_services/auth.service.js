@@ -12,22 +12,24 @@ export const authService = {
 };
 
 async function login(username, password) {
-  let respone = await axios.post(
-    `${process.env.VUE_APP_API_BACKEND}/auth/login`,
-    {
-      username: username,
-      password: password
-    },
-    { 'content-type': 'application/x-www-form-urlencoded' }
-  );
-
-  let user = await handleResponse(respone);
-  if (user.token) {
-    localStorage.setItem('user', JSON.stringify(user));
-    return user;
+  try {
+    let respone = await axios.post(
+      `${process.env.VUE_APP_API_BACKEND}/auth/login`,
+      {
+        username: username,
+        password: password
+      },
+      { 'content-type': 'application/x-www-form-urlencoded' }
+    );
+    let user = respone.data;
+    if (respone.data.success) {
+      localStorage.setItem('user', JSON.stringify(user));
+      return user;
+    }
+    return null;
+  } catch (error) {
+    throw error;
   }
-
-  return new Error(user);
 }
 
 async function register(user) {

@@ -94,7 +94,7 @@ async function deleteCourse(courseId) {
       }
     );
 
-    return respone.data.courses;
+    return respone.data;
   } catch (error) {
     throw error;
   }
@@ -114,7 +114,7 @@ async function createCourse(course) {
         headers: authHeader()
       }
     );
-    return respone.data.courses;
+    return respone.data;
   } catch (error) {
     throw error;
   }

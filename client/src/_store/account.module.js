@@ -13,34 +13,37 @@ const state = user
     };
 
 const actions = {
-  login({ dispatch, commit }, { username, password }) {
-    commit('loginRequest', { username });
-    authService.login(username, password).then(
-      (user) => {
+  async login({ dispatch, commit }, { username, password }) {
+    try {
+      let user = await authService.login(username, password);
+      if (user) {
         commit('loginSuccess', user);
         router.push('/home');
-      },
-      (error) => {
-        commit('loginFailure', error);
-        dispatch('alert/error', error, { root: true });
       }
-    );
+    } catch (error) {
+      commit('loginFailure', error);
+      dispatch('alert/alertAuthor', error, { root: true });
+    }
   },
-  register({ dispatch, commit }, user) {
-    commit('registerRequest', user);
-    authService.register(user).then(
-      (data) => {
+  async register({ dispatch, commit }, user) {
+    try {
+      let response = await authService.register(user);
+      if (response.success) {
         commit('registerSuccess');
         router.push('/login');
         setTimeout(() => {
-          dispatch('alert/success', 'Registration successful', { root: true });
+          dispatch(
+            'alert/success',
+            { alert: false, message: 'Registration successful' },
+            { root: true }
+          );
         });
-      },
-      (error) => {
-        commit('registerFailure');
-        dispatch('alert/error', error, { root: true });
       }
-    );
+    } catch (error) {
+      commit('loginFailure', error);
+      commit('registerFailure');
+      dispatch('alert/alertAuthor', error, { root: true });
+    }
   },
 
   logout({ commit }) {
