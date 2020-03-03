@@ -215,7 +215,7 @@ func CreateClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("This subject does not exists - " + SubjectID)
 	}
 
-	var class = Class{ClassID: ClassID, SubjectID: SubjectID, ClassCode: ClassCode, Room: Room, Time: Time, StartDate: StartDate, EndDate: EndDate, Repeat: Repeat, Status: Open,Capacity: CapacityInt}
+	var class = Class{ClassID: ClassID, SubjectID: SubjectID, ClassCode: ClassCode, Room: Room, Time: Time, StartDate: StartDate, EndDate: EndDate, Repeat: Repeat, Status: Open, Capacity: CapacityInt}
 
 	classAsBytes, _ := json.Marshal(class)
 
@@ -229,69 +229,66 @@ func CreateClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	return shim.Success(nil)
 }
+
 func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	// MSPID, err := cid.GetMSPID(stub)
+	MSPID, err := cid.GetMSPID(stub)
 
-	// if err != nil {
-	// 	fmt.Println("Error - cide.GetMSPID()")
-	// }
+	if err != nil {
+		fmt.Println("Error - cide.GetMSPID()")
+	}
 
-	// if MSPID != "AcademyMSP" {
-	// 	return shim.Error("You Are Not Teacher!")
-	// }
+	if MSPID != "AcademyMSP" {
+		return shim.Error("Permission Denied!")
+	}
 
-	// TeacherUsername, found, err := cid.GetAttributeValue(stub, "username")
+	if err != nil {
+		return shim.Error("Error - cide.GetMSPID()?")
+	}
 
-	// if err != nil {
-	// 	return shim.Error("Error - cide.GetMSPID()?")
-	// }
+	if len(args) != 4 {
+		return shim.Error("Incorrect number of arguments. Expecting 4")
+	}
 
-	// if !found {
-	// 	return shim.Error("Permission Denied!")
-	// }
+	Teacher := args[0]
+	ClassID := args[1]
+	Student := args[2]
+	ScoreValue, err := strconv.ParseFloat(args[3], 64)
 
-	// fmt.Println("Start Create Score!")
+	if err != nil {
+		return shim.Error("Failed convert string to float")
+	}
 
-	// if len(args) != 3 {
-	// 	return shim.Error("Incorrect number of arguments. Expecting 3")
-	// }
+	_, err = getStudent(stub, "Student-"+Student)
 
-	// SubjectID := args[0]
-	// StudentUsername := args[1]
-	// ScoreValue, err := strconv.ParseFloat(args[2], 64)
+	if err != nil {
+		return shim.Error("Student does not exist - " + Student)
+	}
 
-	// checkStudentExist, err := getStudent(stub, "Student-"+StudentUsername)
+	class, err := getClass(stub, "Class-"+ClassID)
 
-	// if err != nil {
-	// 	fmt.Println(checkStudentExist)
-	// 	return shim.Error("Student dose not exist - " + StudentUsername)
-	// }
+	if err != nil {
+		return shim.Error("Class does not exist - " + ClassID)
+	}
 
-	// checkSubjectExist, err := getSubject(stub, "Subject-"+SubjectID)
+	if class.TeacherUsername != Teacher {
+		return shim.Error("Permission Denied!")
+	}
 
-	// if err != nil {
-	// 	fmt.Println(checkSubjectExist)
-	// 	return shim.Error("Subject does not exist - " + SubjectID)
-	// }
+	SubjectID := class.SubjectID
 
-	// if checkSubjectExist.TeacherUsername != TeacherUsername {
-	// 	return shim.Error("Permission Denied!")
-	// }
+	key := "Score-" + " " + "Subject-" + SubjectID + " " + "Student-" + Student
+	_, err = getScore(stub, key)
 
-	// key := "Score-" + " " + "Subject-" + SubjectID + " " + "Student-" + StudentUsername
-	// checkScoreExist, err := getScore(stub, key)
+	if err == nil {
+		return shim.Error("This score already exists.")
+	}
 
-	// if err == nil {
-	// 	fmt.Println(checkScoreExist)
-	// 	return shim.Error("This score already exists.")
-	// }
+	var score = Score{SubjectID: SubjectID, StudentUsername: Student, ScoreValue: ScoreValue}
 
-	// var score = Score{SubjectID: SubjectID, StudentUsername: StudentUsername, ScoreValue: ScoreValue, Certificated: false}
+	scoreAsBytes, _ := json.Marshal(score)
 
-	// scoreAsBytes, _ := json.Marshal(score)
-
-	// stub.PutState(key, scoreAsBytes)
+	stub.PutState(key, scoreAsBytes)
 
 	return shim.Success(nil)
 }
@@ -330,8 +327,6 @@ func CreateCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 		return shim.Error("Score dose not exist")
 
 	} else {
-
-		score.Certificated = true
 
 		scoreAsBytes, _ := json.Marshal(score)
 
