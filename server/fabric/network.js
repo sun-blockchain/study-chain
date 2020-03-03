@@ -796,8 +796,8 @@ exports.createScore = async function(networkObj, score) {
 
 exports.createCertificate = async function(networkObj, certificate) {
   if (
-    !certificate.certificateID ||
-    !certificate.subjectID ||
+    !certificate.certificateId ||
+    !certificate.courseId ||
     !certificate.studentUsername ||
     !certificate.issueDate
   ) {
@@ -808,21 +808,11 @@ exports.createCertificate = async function(networkObj, certificate) {
   try {
     await networkObj.contract.submitTransaction(
       'CreateCertificate',
-      certificate.certificateID,
-      certificate.subjectID,
+      certificate.certificateId,
+      certificate.courseId,
       certificate.studentUsername,
       certificate.issueDate
     );
-
-    let certificateData = new Certificate({
-      certificateID: certificate.certificateID,
-      subjectID: certificate.subjectID,
-      username: certificate.studentUsername,
-      issueDate: certificate.issueDate
-    });
-
-    await certificateData.save();
-
     let response = {
       success: true,
       msg: 'Create Successfully!'
