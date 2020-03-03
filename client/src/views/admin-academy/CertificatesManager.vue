@@ -4,7 +4,6 @@
       :title="`Certificates Manager`"
       :listAll="listSubjects"
       :loadingData="loadingData"
-      :btnDetail="true"
       :nameFunctionDetail="`detailCertificate`"
       :listProperties="[
         { prop: 'SubjectID', label: 'SubjectID' },

@@ -1,6 +1,11 @@
 <template>
   <div v-loading.fullscreen.lock="fullscreenLoading">
     <h1 class="bannerTitle_1wzmt7u">{{ listTeachers.Fullname }}</h1>
+    <b-breadcrumb>
+      <b-breadcrumb-item to="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
+      <b-breadcrumb-item to="/academy/teachers">Teacher</b-breadcrumb-item>
+      <b-breadcrumb-item active>Teacher Detail</b-breadcrumb-item>
+    </b-breadcrumb>
     <div class="mb-5">
       <div>
         <div class="card-body row">

@@ -23,7 +23,6 @@
           :loadingData="loadingData"
           :btnInfo="true"
           :nameFunctionInfo="`showInfoSubject`"
-          :btnDetail="true"
           :nameFunctionDetail="`detailSubject`"
           :nameFunctionDelete="`delStudent`"
           :btnDelete="true"
@@ -55,7 +54,6 @@
           :loadingData="loadingData"
           :btnInfo="true"
           :nameFunctionInfo="`showInfoStudent`"
-          :btnDetail="true"
           :nameFunctionDetail="`detailStudent`"
           :nameFunctionDelete="`delStudent`"
           :btnDelete="true"
@@ -394,7 +392,7 @@ export default {
     let subjectsNoCourse = await this.getSubjectsNoCourse(this.$route.params.id);
     let subjectList = subjectsNoCourse.subjects;
     let studentList = await this.getStudentsOfCourse(this.$route.params.id);
-    if (course && subjectList) {
+    if (course && subjectList && studentList) {
       this.subjectsNoCourse = subjectList;
       this.fullscreenLoading = false;
     }

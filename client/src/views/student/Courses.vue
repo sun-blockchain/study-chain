@@ -15,7 +15,6 @@
       :loadingData="loadingData"
       :btnRegister="true"
       :nameFunctionRegister="`enrollCourse`"
-      :btnDetail="true"
       :nameFunctionDetail="`detailCourses`"
       :btnInfo="true"
       :nameFunctionInfo="`modalInfo`"
@@ -75,6 +74,7 @@ export default {
           if (response.status === 200) {
             this.fullscreenLoading = false;
             this.$swal('Registered!', 'Course has been registered.', 'success');
+            this.$router.push({ path: `/myCourses` });
           } else {
             this.fullscreenLoading = false;
             this.$swal('Failed!', 'Fail to register course.', 'danger');

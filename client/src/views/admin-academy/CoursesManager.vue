@@ -4,7 +4,6 @@
       :title="`Courses Manager`"
       :listAll="listCourses ? listCourses : []"
       :loadingData="loadingData"
-      :btnDetail="true"
       :nameFunctionDetail="`detailCourses`"
       :btnEdit="true"
       :nameFunctionEdit="`modalEdit`"

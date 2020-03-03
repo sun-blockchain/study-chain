@@ -26,10 +26,6 @@
         <b>Repeat:</b>
         {{ infoClass.repeat }}
       </p>
-      <p>
-        <b>Description:</b>
-        {{ infoClass.description }}
-      </p>
     </b-modal>
     <table-student
       :title="`Classes list`"
@@ -43,7 +39,6 @@
         { prop: 'ClassCode', label: 'Class Code' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
-        { prop: 'ShortDescription', label: 'Short Description' },
         { prop: 'Status', label: 'Status' },
         { prop: 'Capacity', label: 'Capacity' }
       ]"
@@ -72,15 +67,13 @@ export default {
       infoClass: {
         startDate: '',
         endDate: '',
-        repeat: '',
-        description: ''
+        repeat: ''
       }
     };
   },
   methods: {
     ...mapActions('student', ['getMyClasses', 'cancelRegisteredClass']),
     modalInfo(row) {
-      this.infoClass.description = row.Description;
       this.infoClass.startDate = row.StartDate;
       this.infoClass.endDate = row.EndDate;
       this.infoClass.repeat = row.Repeat;
@@ -88,7 +81,7 @@ export default {
     },
     async cancelClass(row) {
       this.$swal({
-        text: 'Are you sure to cancel this class ?',
+        text: 'Are you sure to cancel enrollment this class ?',
         type: 'success',
         showCancelButton: true,
         cancelButtonColor: '#d33',
@@ -99,12 +92,13 @@ export default {
         if (result.value) {
           this.fullscreenLoading = true;
           let response = await this.cancelRegisteredClass(row.ClassID);
-          if (response.status === 200) {
+          if (!response) {
             this.fullscreenLoading = false;
-            this.$swal('Registered!', 'Successfully canceled.', 'success');
-          } else {
+            this.$swal('Failed!', 'Failed to cancel this class.', 'error');
+          } else if (response.status === 200) {
             this.fullscreenLoading = false;
-            this.$swal('Failed!', 'Failed to cancel this class.', 'danger');
+            this.$swal('Canceled!', 'Successfully canceled enrollment.', 'success');
+            await this.getMyClasses();
           }
         }
       });

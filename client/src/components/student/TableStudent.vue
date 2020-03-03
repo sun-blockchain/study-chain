@@ -12,6 +12,7 @@
               element-loading-spinner="el-icon-loading"
               element-loading-background="rgba(255, 255, 255, 0.7)"
               :data="listPagination"
+              @row-click="callFunctionDetail"
             >
               <el-table-column
                 sortable
@@ -36,17 +37,7 @@
                       type="primary"
                       round
                       size="mini"
-                      @click="callFunctionRegister(scope.row)"
-                    ></el-button>
-                  </el-tooltip>
-                  <el-tooltip v-if="btnDetail" class="item" content="Detail" placement="top">
-                    <el-button
-                      plain
-                      icon="fas fa-layer-group"
-                      type="primary"
-                      round
-                      size="mini"
-                      @click="callFunctionDetail(scope.row)"
+                      @click.stop="callFunctionRegister(scope.row)"
                     ></el-button>
                   </el-tooltip>
                   <el-tooltip v-if="btnInfo" class="item" content="Information" placement="top">
@@ -55,7 +46,7 @@
                       type="success"
                       round
                       size="mini"
-                      @click="callFunctionInfo(scope.row)"
+                      @click.stop="callFunctionInfo(scope.row)"
                     ></el-button>
                   </el-tooltip>
                   <el-tooltip
@@ -69,7 +60,7 @@
                       type="danger"
                       round
                       size="mini"
-                      @click="callFunctionCancelRegistered(scope.row)"
+                      @click.stop="callFunctionCancelRegistered(scope.row)"
                     ></el-button>
                   </el-tooltip>
                 </template>
@@ -118,7 +109,6 @@ export default {
   props: {
     title: String,
     listAll: Array,
-    btnDetail: Boolean,
     btnInfo: Boolean,
     btnRegister: Boolean,
     btnCancel: Boolean,

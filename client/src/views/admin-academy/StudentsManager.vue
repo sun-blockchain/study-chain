@@ -4,7 +4,6 @@
       :title="`Students Manager`"
       :listAll="listStudents"
       :loadingData="loadingData"
-      :btnDetail="true"
       :nameFunctionDetail="`detailStudent`"
       :btnInfo="true"
       :nameFunctionInfo="`info`"

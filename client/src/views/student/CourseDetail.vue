@@ -2,9 +2,7 @@
   <div class="container-fluid">
     <h1 class="bannerTitle_1wzmt7u">{{ listCourses.CourseName }}</h1>
     <b-breadcrumb>
-      <b-breadcrumb-item href="/student">
-        <i class="blue fas fa-home"></i>Home
-      </b-breadcrumb-item>
+      <b-breadcrumb-item href="/student"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
       <b-breadcrumb-item href="/student/courses">Course</b-breadcrumb-item>
       <b-breadcrumb-item active>Course Detail</b-breadcrumb-item>
     </b-breadcrumb>
@@ -29,7 +27,6 @@
       :title="`List Subjects`"
       :listAll="listSubjects"
       :loadingData="loadingData"
-      :btnDetail="true"
       :btnInfo="true"
       :nameFunctionDetail="`detailSubjects`"
       :nameFunctionInfo="`modalInfo`"
@@ -45,9 +42,9 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
-import { ValidationObserver, ValidationProvider } from "vee-validate";
-import TableStudent from "@/components/student/TableStudent";
+import { mapState, mapActions } from 'vuex';
+import { ValidationObserver, ValidationProvider } from 'vee-validate';
+import TableStudent from '@/components/student/TableStudent';
 export default {
   components: {
     ValidationObserver,
@@ -58,50 +55,50 @@ export default {
     return {
       items: [
         {
-          text: "Course",
+          text: 'Course',
           href: `${process.env.VUE_APP_API_BACKEND}/common/courses`
         },
         {
-          text: "Course Detail",
+          text: 'Course Detail',
           active: true
         }
       ],
       course: {
-        courseCode: "",
-        courseName: "",
-        description: ""
+        courseCode: '',
+        courseName: '',
+        description: ''
       },
       options: [
         {
-          value: "Option1",
-          label: "Option1"
+          value: 'Option1',
+          label: 'Option1'
         },
         {
-          value: "Option2",
-          label: "Option2"
+          value: 'Option2',
+          label: 'Option2'
         },
         {
-          value: "Option3",
-          label: "Option3"
+          value: 'Option3',
+          label: 'Option3'
         },
         {
-          value: "Option4",
-          label: "Option4"
+          value: 'Option4',
+          label: 'Option4'
         },
         {
-          value: "Option5",
-          label: "Option5"
+          value: 'Option5',
+          label: 'Option5'
         }
       ],
       infoSubject: {
-        description: ""
+        description: ''
       },
       fullscreenLoading: false,
       loadingData: false
     };
   },
   methods: {
-    ...mapActions("student", ["getCourse", "getSubjectsOfCourse"]),
+    ...mapActions('student', ['getCourse', 'getSubjectsOfCourse']),
     detailSubject(row) {
       this.$router.push({
         path: `/student/courses/${this.$route.params.id}/subject/${row.SubjectID}`
@@ -109,11 +106,11 @@ export default {
     },
     modalInfo(row) {
       this.infoSubject.description = row.Description;
-      this.$root.$emit("bv::show::modal", "modal-info");
+      this.$root.$emit('bv::show::modal', 'modal-info');
     }
   },
   computed: {
-    ...mapState("student", ["listSubjects", "listCourses"])
+    ...mapState('student', ['listSubjects', 'listCourses'])
   },
   async created() {
     let course = await this.getCourse(this.$route.params.id);
@@ -130,7 +127,7 @@ export default {
   width: 100%;
 }
 .bannerTitle_1wzmt7u {
-  font-family: "OpenSans-Bold", Arial, sans-serif;
+  font-family: 'OpenSans-Bold', Arial, sans-serif;
   font-size: 34px;
   line-height: 46px;
   font-weight: 700;

@@ -27,7 +27,6 @@
       :title="`List Subjects`"
       :listAll="listSubjects"
       :loadingData="loadingData"
-      :btnDetail="true"
       :btnInfo="true"
       :nameFunctionDetail="`detailSubjects`"
       :nameFunctionInfo="`modalInfo`"
