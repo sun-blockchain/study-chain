@@ -264,16 +264,18 @@ async function main() {
         } else if (functionName === 'CreateScore' && user.role === USER_ROLES.TEACHER) {
           /**
            * Create Score
-           * @param  {String} subjectid Subject Id (required)
-           * @param  {String} student Student Username (required)
-           * @param  {String} score Point of Subject (required)
+           * @param  {String} classId Class Id (required)
+           * @param  {String} studentUsername Student Username (required)
+           * @param  {String} scoreValue Point of Subject (required)
            *
            */
-          let SubjectID = argv.subjectid.toString();
-          let Student = argv.student.toString();
-          let ScoreValue = argv.score.toString();
 
-          let score = { subjectID: SubjectID, studentUsername: Student, scoreValue: ScoreValue };
+          let classId = argv.classId.toString();
+          let studentUsername = argv.studentUsername.toString();
+          let scoreValue = argv.scoreValue.toString();
+          let teacher = user.username;
+
+          let score = { teacher, classId, studentUsername, scoreValue };
           await conn.createScore(networkObj, score);
           console.log('Transaction has been submitted');
           process.exit(0);
@@ -306,8 +308,6 @@ async function main() {
             startDate,
             endDate,
             repeat,
-            shortDescription,
-            description,
             subjectId,
             capacity
           };
