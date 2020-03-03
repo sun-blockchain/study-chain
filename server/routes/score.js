@@ -1,67 +1,74 @@
 const router = require('express').Router();
 const USER_ROLES = require('../configs/constant').USER_ROLES;
 const network = require('../fabric/network');
-const { check, validationResult } = require('express-validator');
+const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const checkJWT = require('../middlewares/check-jwt');
 
-router.get(
-  '/:subjectId/:studentUsername',
-  checkJWT,
+router.post(
+  '/',
   [
-    check('subjectId')
+    body('classId')
+      .not()
+      .isEmpty()
       .trim()
       .escape(),
-    check('studentUsername')
+    body('student')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('scoreValue')
+      .not()
+      .isEmpty()
       .trim()
       .escape()
   ],
-  async (req, res, next) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
+      return res.status(422).json({ errors: errors.array() });
     }
 
-    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
+    const user = req.decoded.user;
+    const { classId, student, scoreValue } = req.body;
+
+    if (user.role !== USER_ROLES.TEACHER) {
       return res.status(403).json({
         success: false,
         msg: 'Permission Denied'
       });
     }
 
-    let identity = req.params.studentUsername;
+    const score = {
+      teacher: user.username,
+      classId,
+      studentUsername: student,
+      scoreValue
+    };
 
-    try {
-      let student = await User.findOne({ username: identity, role: USER_ROLES.STUDENT });
-      let score = [req.params.subjectId, identity];
+    const networkObj = await network.connectToNetwork(user);
 
-      if (!student) {
-        return res.status(404).json({
-          success: false,
-          msg: 'student is not exists'
-        });
-      }
-
-      const networkObj = await network.connectToNetwork(req.decoded.user);
-      const response = await network.query(networkObj, 'GetScoresBySubject', score);
-
-      if (!response.success) {
-        return res.status(500).json({
-          success: false,
-          msg: response.msg
-        });
-      }
-
-      return res.json({
-        success: true,
-        msg: response.msg
-      });
-    } catch (error) {
+    if (!networkObj) {
       return res.status(500).json({
         success: false,
-        msg: 'Internal Server Error'
+        msg: 'Failed to connect blockchain'
       });
     }
+
+    const response = await network.createScore(networkObj, score);
+
+    if (!response.success) {
+      return res.status(500).json({
+        success: false,
+        msg: response.msg
+      });
+    }
+
+    return res.json({
+      success: true,
+      msg: 'Create score successfully'
+    });
   }
 );
 
@@ -74,7 +81,6 @@ router.get('/all', async (req, res) => {
   }
 
   const networkObj = await network.connectToNetwork(req.decoded.user);
-
   const response = await network.query(networkObj, 'GetAllScores');
 
   if (!response.success) {

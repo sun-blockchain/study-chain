@@ -11,103 +11,126 @@ const app = require('../app');
 require('dotenv').config();
 
 describe('Route : /score', () => {
-  describe('# GET /score/:subjectId/:studentUsername ', () => {
+  describe('#POST /score', () => {
     let connect;
-    let query;
-    let findOneStub;
+    let createScore;
 
     beforeEach(() => {
       connect = sinon.stub(network, 'connectToNetwork');
-      query = sinon.stub(network, 'query');
-      findOneStub = sinon.stub(User, 'findOne');
+      createScore = sinon.stub(network, 'createScore');
     });
 
     afterEach(() => {
       connect.restore();
-      query.restore();
-      findOneStub.restore();
+      createScore.restore();
     });
 
-    it('do not success query score with admin student', (done) => {
+    it('permission denied with admin academy', (done) => {
       request(app)
-        .get('/score/IT00/tan')
-        .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+        .post('/score')
+        .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+        .send({
+          classId: '11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000',
+          student: 'tantrinh',
+          scoreValue: 9.5
+        })
         .then((res) => {
           expect(res.status).equal(403);
-          expect(res.body.success).equal(false);
-          expect(res.body.msg).equal('Permission Denied');
           done();
         });
     });
 
-    it('do not success query score with student', (done) => {
+    it('permission denied with student', (done) => {
       request(app)
-        .get('/score/IT00/tan')
+        .post('/score')
         .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+        .send({
+          classId: '11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000',
+          student: 'tantrinh',
+          scoreValue: 9.5
+        })
         .then((res) => {
           expect(res.status).equal(403);
-          expect(res.body.success).equal(false);
-          expect(res.body.msg).equal('Permission Denied');
           done();
         });
     });
 
-    it('do not success query score with teacher', (done) => {
-      request(app)
-        .get('/score/IT00/tan')
-        .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
-        .then((res) => {
-          expect(res.status).equal(403);
-          expect(res.body.success).equal(false);
-          expect(res.body.msg).equal('Permission Denied');
-          done();
-        });
-    });
-
-    it('do not success because student is not exists', (done) => {
-      findOneStub.returns(null);
-      request(app)
-        .get('/score/IT00/tan')
-        .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-        .then((res) => {
-          expect(res.body.success).equal(false);
-          expect(res.body.msg).equal('student is not exists');
-          expect(res.status).equal(404);
-          done();
-        });
-    });
-
-    it('error when query chaincode', (done) => {
-      findOneStub.returns({ username: 'hoangdd', role: USER_ROLES.STUDENT });
-      query.returns({ success: false, msg: 'error' });
-      request(app)
-        .get('/score/IT00/tan')
-        .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-        .then((res) => {
-          expect(res.status).equal(500);
-          expect(res.body.success).equal(false);
-
-          done();
-        });
-    });
-
-    it('success query score', (done) => {
-      findOneStub.returns({ username: 'hoangdd', role: USER_ROLES.ADMIN_ACADEMY });
-
-      let data = JSON.stringify({
-        SubjectId: '00',
-        studentUsername: 'tan',
-        scoreValue: 10.0,
-        Certificate: true
+    it('do not success create score with teacher because error chaincode', (done) => {
+      connect.returns({
+        contract: 'academy',
+        network: 'certificatechannel',
+        gateway: 'gateway',
+        user: { username: 'hoangdd', role: USER_ROLES.TEACHER }
       });
 
-      query.returns({ success: true, msg: data });
+      createScore.returns({ success: false, msg: 'err' });
+
       request(app)
-        .get('/score/IT00/tan')
-        .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+        .post('/score')
+        .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+        .send({
+          classId: '11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000',
+          student: 'tantrinh',
+          scoreValue: 9.5
+        })
+        .then((res) => {
+          expect(res.status).equal(500);
+          done();
+        });
+    });
+
+    it('invalid req.body', (done) => {
+      request(app)
+        .post('/score')
+        .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+        .send({
+          classId: '11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000',
+          student: 'tantrinh',
+          scoreValue: ''
+        })
+        .then((res) => {
+          expect(res.status).equal(422);
+          done();
+        });
+    });
+
+    it('success create score by teacher', (done) => {
+      connect.returns({
+        contract: 'academy',
+        network: 'certificatechannel',
+        gateway: 'gateway',
+        user: { username: 'hoangdd', role: USER_ROLES.TEACHER }
+      });
+
+      createScore.returns({ success: true, msg: 'success' });
+      request(app)
+        .post('/score')
+        .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+        .send({
+          classId: '11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000',
+          student: 'tantrinh',
+          scoreValue: 10
+        })
         .then((res) => {
           expect(res.status).equal(200);
-          expect(res.body.success).equal(true);
+          done();
+        });
+    });
+
+    it('failed to connect blockchain', (done) => {
+      connect.returns(null);
+
+      createScore.returns({ success: true, msg: 'success' });
+      request(app)
+        .post('/score')
+        .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+        .send({
+          classId: '11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000',
+          student: 'tantrinh',
+          scoreValue: 10
+        })
+        .then((res) => {
+          expect(res.status).equal(500);
           done();
         });
     });

@@ -5,7 +5,6 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 const checkJWT = require('./middlewares/check-jwt');
 
 const app = express();
@@ -22,11 +21,6 @@ const meRoutes = require('./routes/me');
 const academyRoutes = require('./routes/academy');
 const commonRoutes = require('./routes/common');
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
-});
-
 // Connect database
 mongoose.connect(
   process.env.MONGODB_URI,
@@ -41,10 +35,6 @@ app.use(express.json({ limit: '5mb' }));
 
 // security
 app.use(helmet());
-
-if (process.env.NODE_ENV !== 'test') {
-  app.use(limiter);
-}
 
 // show log
 app.use(logger('dev'));
