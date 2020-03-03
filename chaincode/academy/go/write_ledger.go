@@ -277,8 +277,8 @@ func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	SubjectID := class.SubjectID
 
-	key := "Score-" + " " + "Subject-" + SubjectID + " " + "Student-" + Student
-	_, err = getScore(stub, key)
+	keyScore := "Score-" + " " + "Subject-" + SubjectID + " " + "Student-" + Student
+	_, err = getScore(stub, keyScore)
 
 	if err == nil {
 		return shim.Error("This score already exists.")
@@ -286,9 +286,13 @@ func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	var score = Score{SubjectID: SubjectID, StudentUsername: Student, ScoreValue: ScoreValue}
 
-	scoreAsBytes, _ := json.Marshal(score)
+	scoreAsBytes, err := json.Marshal(score)
 
-	stub.PutState(key, scoreAsBytes)
+	if err != nil {
+		return shim.Error("Can not convert data to bytes!")
+	}
+
+	stub.PutState(keyScore, scoreAsBytes)
 
 	return shim.Success(nil)
 }
@@ -301,43 +305,52 @@ func CreateCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 		return shim.Error("Error - cide.GetMSPID()")
 	}
 
-	if MSPID != "AcademyMSP" {
-		return shim.Error("You Are Not Teacher!")
+	if MSPID != "StudentMSP" {
+		return shim.Error("Permission Denied!")
 	}
 
-	fmt.Println("Start Create Certificate!")
-
 	if len(args) != 4 {
-		return shim.Error("Incorrecr")
+		return shim.Error("Incorrect number of arguments. Expecting 4")
 	}
 
 	CertificateID := args[0]
-	SubjectID := args[1]
+	CourseID := args[1]
 	StudentUsername := args[2]
 	IssueDate := args[3]
 
 	keyCertificate := "Certificate-" + CertificateID
 
-	keyScore := "Score-" + " " + "Subject-" + SubjectID + " " + "Student-" + StudentUsername
+	_, err = getCertificate(stub, keyCertificate)
 
-	score, err := getScore(stub, keyScore)
+	if err == nil {
+		return shim.Error("This certificate already exists!")
+	}
+
+	keyCourse := "Course-" + CourseID
+	course, err := getCourse(stub, keyCourse)
 
 	if err != nil {
-
-		return shim.Error("Score dose not exist")
-
-	} else {
-
-		scoreAsBytes, _ := json.Marshal(score)
-
-		stub.PutState(keyScore, scoreAsBytes)
-
-		var certificate = Certificate{CertificateID: CertificateID, StudentUsername: StudentUsername, SubjectID: SubjectID, IssueDate: IssueDate}
-
-		certificateAsBytes, _ := json.Marshal(certificate)
-
-		stub.PutState(keyCertificate, certificateAsBytes)
-
-		return shim.Success(nil)
+		return shim.Error("This course does not exist!")
 	}
+
+	var i int
+	for i = 0; i < len(course.Subjects); i++ {
+		keyScore := "Score-" + " " + "Subject-" + course.Subjects[i] + " " + "Student-" + StudentUsername
+		_, err = getScore(stub, keyScore)
+		if err != nil {
+			return shim.Error("You have not completed all subjects in course yet!")
+		}
+	}
+
+	var certificate = Certificate{CertificateID: CertificateID, CourseID: CourseID, StudentUsername: StudentUsername, IssueDate: IssueDate}
+
+	certificateAsBytes, err := json.Marshal(certificate)
+
+	if err != nil {
+		return shim.Error("Can not convert data to bytes!")
+	}
+
+	stub.PutState(keyCertificate, certificateAsBytes)
+
+	return shim.Success(nil)
 }

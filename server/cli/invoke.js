@@ -225,25 +225,6 @@ async function main() {
           await conn.closeRegisterClass(networkObj, classId);
           console.log('Transaction has been submitted');
           process.exit(0);
-        } else if (functionName === 'CreateCertificate' && user.role === USER_ROLES.ADMIN_ACADEMY) {
-          /**
-           * Create Certificate
-           * @param  {String} subjectid Subject Id (required)
-           * @param  {String} student Student Username (required)
-           */
-          let Student = argv.student.toString();
-          let SubjectID = argv.subjectid.toString();
-          var issueDate = new Date().toString();
-          let certificate = {
-            certificateID: uuidv4(),
-            subjectID: SubjectID,
-            studentUsername: Student,
-            issueDate: issueDate
-          };
-          await conn.createCertificate(networkObj, certificate);
-          console.log('Transaction has been submitted 1');
-
-          process.exit(0);
         } else if (
           functionName === 'TeacherRegisterSubject' &&
           user.role === USER_ROLES.ADMIN_ACADEMY
@@ -277,6 +258,24 @@ async function main() {
 
           let score = { teacher, classId, studentUsername, scoreValue };
           await conn.createScore(networkObj, score);
+          console.log('Transaction has been submitted');
+          process.exit(0);
+        } else if (functionName === 'CreateCertificate' && user.role === USER_ROLES.STUDENT) {
+          /**
+           * Create Score
+           * @param  {String} courseId course Id (required)
+           * @param  {String} studentUsername Student Username (required)
+           * @param  {String} issueDate issue Date (required)
+           *
+           */
+
+          let certificateId = uuidv4();
+          let courseId = argv.courseId.toString();
+          let studentUsername = user.username;
+          let issueDate = argv.issueDate.toString();
+
+          let certificate = { certificateId, courseId, studentUsername, issueDate };
+          await conn.createCertificate(networkObj, certificate);
           console.log('Transaction has been submitted');
           process.exit(0);
         } else if (functionName === 'CreateClass' && user.role === USER_ROLES.ADMIN_ACADEMY) {
