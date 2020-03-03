@@ -41,18 +41,18 @@ type Subject struct {
 }
 
 type Class struct {
-	ClassID          string
-	SubjectID        string
-	ClassCode        string
-	Room             string
-	Time             string
-	Status           ClassStatus
-	StartDate        string
-	EndDate          string
-	Repeat           string
-	Students         []string
-	Capacity         uint64
-	TeacherUsername  string
+	ClassID         string
+	SubjectID       string
+	ClassCode       string
+	Room            string
+	Time            string
+	Status          ClassStatus
+	StartDate       string
+	EndDate         string
+	Repeat          string
+	Students        []string
+	Capacity        uint64
+	TeacherUsername string
 }
 
 type Teacher struct {
@@ -84,7 +84,6 @@ type Score struct {
 	SubjectID       string
 	StudentUsername string
 	ScoreValue      float64
-	Certificated    bool
 }
 
 type Certificate struct {
@@ -142,6 +141,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return GetAllStudents(stub)
 	} else if function == "GetAllTeachers" {
 		return GetAllTeachers(stub)
+	} else if function == "GetAllScores" {
+		return GetAllScores(stub)
 	} else if function == "StudentRegisterCourse" {
 		return StudentRegisterCourse(stub, args)
 	} else if function == "StudentRegisterClass" {
@@ -1548,6 +1549,46 @@ func GetAllTeachers(stub shim.ChaincodeStubInterface) sc.Response {
 		teacher := Teacher{}
 		json.Unmarshal(record.Value, &teacher)
 		tlist = append(tlist, teacher)
+	}
+
+	jsonRow, err := json.Marshal(tlist)
+
+	if err != nil {
+		return shim.Error("Failed")
+	}
+
+	return shim.Success(jsonRow)
+}
+
+func GetAllScores(stub shim.ChaincodeStubInterface) sc.Response {
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		fmt.Println("Error - cid.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		shim.Error("Permission Denied!")
+	}
+
+	allScores, _ := getListScores(stub)
+
+	defer allScores.Close()
+
+	var tlist []Score
+	var i int
+
+	for i = 0; allScores.HasNext(); i++ {
+
+		record, err := allScores.Next()
+
+		if err != nil {
+			return shim.Success(nil)
+		}
+
+		score := Score{}
+		json.Unmarshal(record.Value, &score)
+		tlist = append(tlist, score)
 	}
 
 	jsonRow, err := json.Marshal(tlist)
