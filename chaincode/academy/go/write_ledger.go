@@ -166,6 +166,7 @@ func CreateCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	return shim.Success(nil)
 }
+
 func CreateClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	MSPID, err := cid.GetMSPID(stub)
@@ -322,8 +323,9 @@ func CreateCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 
 	_, err = getCertificate(stub, keyCertificate)
 
+	// truong hop uuidv4() sinh bi trung
 	if err == nil {
-		return shim.Error("This certificate already exists!")
+		return shim.Error("This CertificateID already exists!")
 	}
 
 	keyCourse := "Course-" + CourseID
@@ -333,7 +335,38 @@ func CreateCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 		return shim.Error("This course does not exist!")
 	}
 
+	keyStudent := "Student-" + StudentUsername
+	student, err := getStudent(stub, keyStudent)
+	if err != nil {
+		return shim.Error("Student does not exist!")
+	}
+
 	var i int
+	for i = 0; i < len(student.Certificates); i++ {
+		key := "Certificate-" + student.Certificates[i]
+		cert, err := getCertificate(stub, key)
+		if err != nil {
+			return shim.Error("Can not query chaincode!")
+		}
+
+		if cert.CourseID == CourseID {
+			return shim.Error("Certificate already exist!")
+		}
+	}
+
+	var checkExist = false
+	for i = 0; i < len(course.Students); i++ {
+		if course.Students[i] == StudentUsername {
+			checkExist = true
+			break
+		}
+	}
+
+	if !checkExist {
+		return shim.Error("You have not studied this course yet!")
+	}
+
+	// kiem tra da du diem cac mon hoc cua course day hay chua
 	for i = 0; i < len(course.Subjects); i++ {
 		keyScore := "Score-" + " " + "Subject-" + course.Subjects[i] + " " + "Student-" + StudentUsername
 		_, err = getScore(stub, keyScore)
@@ -342,13 +375,11 @@ func CreateCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 		}
 	}
 
+	student.Certificates = append(student.Certificates, CertificateID)
+
 	var certificate = Certificate{CertificateID: CertificateID, CourseID: CourseID, StudentUsername: StudentUsername, IssueDate: IssueDate}
 
-	certificateAsBytes, err := json.Marshal(certificate)
-
-	if err != nil {
-		return shim.Error("Can not convert data to bytes!")
-	}
+	certificateAsBytes, err := json.Marshal(certificateAsBytes)
 
 	stub.PutState(keyCertificate, certificateAsBytes)
 

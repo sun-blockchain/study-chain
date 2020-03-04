@@ -116,15 +116,15 @@ node query.js --username=adminacademy --func=GetAllScores
 ```
 
 ```bash
+node query.js --username=adminacademy --func=GetCertificate --args=CertificateId
+```
+
+```bash
 node query.js --username=adminacademy --func=GetSubjectsByStudent --args=st01
 ```
 
 ```bash
-node query.js --username=adminacademy --func=GetCertificatesByStudent --args=st01
-```
-
-```bash
-node query.js --username=adminacademy --func=GetCertificatesBySubject --args=ethereum
+node query.js --username=adminacademy --func=GetCertificatesOfStudent --args=st01
 ```
 
 ```bash

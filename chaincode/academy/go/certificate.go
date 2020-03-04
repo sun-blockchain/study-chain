@@ -130,6 +130,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return GetStudent(stub, args)
 	} else if function == "GetTeacher" {
 		return GetTeacher(stub, args)
+	} else if function == "GetCertificate" {
+		return GetCertificate(stub, args)
 	} else if function == "GetAllSubjects" {
 		return GetAllSubjects(stub)
 	} else if function == "GetClassesOfSubject" {
@@ -194,6 +196,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return RemoveClassFromSubject(stub, args)
 	} else if function == "GetStudentsOfCourse" {
 		return GetStudentsOfCourse(stub, args)
+	} else if function == "GetCertificatesOfStudent" {
+		return GetCertificatesOfStudent(stub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name!")
@@ -1110,6 +1114,27 @@ func GetCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	return shim.Success(courseAsBytes)
 }
 
+func GetCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	CertificateID := args[0]
+
+	key := "Certificate-" + CertificateID
+	certificateAsBytes, err := stub.GetState(key)
+
+	if err != nil {
+		return shim.Error("Failed to get data in the ledger")
+	}
+
+	if certificateAsBytes == nil {
+		return shim.Error("Certificate does not exist - " + args[0])
+	}
+
+	return shim.Success(certificateAsBytes)
+}
+
 func GetSubjectsOfCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 1 {
@@ -1178,6 +1203,41 @@ func GetStudentsOfCourse(stub shim.ChaincodeStubInterface, args []string) sc.Res
 			return shim.Error("Student does not exist - " + course.Students[i])
 		}
 		tlist = append(tlist, student)
+	}
+
+	jsonRow, err := json.Marshal(tlist)
+
+	if err != nil {
+		return shim.Error("Can not convert data to bytes!")
+	}
+
+	return shim.Success(jsonRow)
+}
+
+func GetCertificatesOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	StudentUsername := args[0]
+
+	student, err := getStudent(stub, "Student-"+StudentUsername)
+
+	if err != nil {
+		return shim.Error("Student dose not exist - " + StudentUsername)
+	}
+
+	var tlist []Certificate
+	var i int
+
+	for i = 0; i < len(student.Certificates); i++ {
+
+		certificate, err := getCertificate(stub, "Certificate-"+student.Certificates[i])
+		if err != nil {
+			return shim.Error("Certificate does not exist - " + student.Certificates[i])
+		}
+		tlist = append(tlist, certificate)
 	}
 
 	jsonRow, err := json.Marshal(tlist)
