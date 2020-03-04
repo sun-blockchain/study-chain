@@ -40,13 +40,13 @@
                       @click.stop="callFunctionRegister(scope.row)"
                     ></el-button>
                   </el-tooltip>
-                  <el-tooltip v-if="btnInfo" class="item" content="Information" placement="top">
+                  <el-tooltip v-if="btnGetCert" class="item" content="GetCert" placement="top">
                     <el-button
-                      icon="fa fa-info"
-                      type="success"
+                      icon="el-icon-postcard"
+                      type="primary"
                       round
                       size="mini"
-                      @click.stop="callFunctionInfo(scope.row)"
+                      @click.stop="callFunctionGetCert(scope.row)"
                     ></el-button>
                   </el-tooltip>
                   <el-tooltip
@@ -109,11 +109,11 @@ export default {
   props: {
     title: String,
     listAll: Array,
-    btnInfo: Boolean,
+    btnGetCert: Boolean,
     btnRegister: Boolean,
     btnCancel: Boolean,
     nameFunctionDetail: String,
-    nameFunctionInfo: String,
+    nameFunctionGetCert: String,
     nameFunctionRegister: String,
     nameFunctionCancelRegistered: String,
     loadingData: Boolean,
@@ -166,8 +166,8 @@ export default {
     callFunctionDetail(row) {
       this.$emit(this.nameFunctionDetail, row);
     },
-    callFunctionInfo(row) {
-      this.$emit(this.nameFunctionInfo, row);
+    callFunctionGetCert(row) {
+      this.$emit(this.nameFunctionGetCert, row);
     },
     callFunctionRegister(row) {
       this.$emit(this.nameFunctionRegister, row);

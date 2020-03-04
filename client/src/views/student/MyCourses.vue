@@ -1,28 +1,19 @@
 <template>
-  <div>
-    <b-modal
-      id="modal-info"
-      ref="modal-info"
-      title="Description Course"
-      v-loading.fullscreen.lock="fullscreenLoading"
-      ok-only
-    >
-      <p>{{ infoCourse.description }}</p>
-    </b-modal>
+  <div class="container-fluid" v-loading.fullscreen.lock="fullscreenLoading">
     <table-student
       :title="`My Courses`"
       :listAll="listMyCourses"
       :loadingData="loadingData"
+      :btnGetCert="true"
       :nameFunctionDetail="`detailCourses`"
-      :btnInfo="true"
-      :nameFunctionInfo="`modalInfo`"
+      :nameFunctionGetCert="`getCert`"
       :listProperties="[
         { prop: 'CourseCode', label: 'CourseCode' },
         { prop: 'CourseName', label: 'CourseName' },
         { prop: 'ShortDescription', label: 'Description' }
       ]"
       @detailCourses="detailCourse($event)"
-      @modalInfo="modalInfo($event)"
+      @getCert="getCertificate($event)"
     ></table-student>
   </div>
 </template>
@@ -40,20 +31,24 @@ export default {
   data() {
     return {
       fullscreenLoading: false,
-      loadingData: false,
-      infoCourse: {
-        description: ''
-      }
+      loadingData: false
     };
   },
   methods: {
-    ...mapActions('student', ['getMyCourses']),
+    ...mapActions('student', ['getMyCourses', 'claimCertificate']),
     detailCourse(row) {
       this.$router.push({ path: `myCourses/${row.CourseID}` });
     },
-    modalInfo(row) {
-      this.infoCourse.description = row.Description;
-      this.$root.$emit('bv::show::modal', 'modal-info');
+    async getCertificate(row) {
+      this.fullscreenLoading = true;
+      let data = await this.claimCertificate(row.CourseID);
+      if (data.success) {
+        Message.success('Get certificate successfully!');
+        this.$router.push({ path: `student/mycertificates` });
+      } else {
+        Message.success('fail to get certificate!');
+      }
+      this.fullscreenLoading = false;
     }
   },
   computed: {
@@ -61,6 +56,7 @@ export default {
   },
   async created() {
     let response = await this.getMyCourses();
+
     if (response) {
       this.loadingData = false;
     }

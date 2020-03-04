@@ -2,8 +2,8 @@
   <div class="container-fluid">
     <h1 class="bannerTitle_1wzmt7u">{{ listCourses.CourseName }}</h1>
     <b-breadcrumb>
-      <b-breadcrumb-item href="/student"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-      <b-breadcrumb-item href="/student/courses">Course</b-breadcrumb-item>
+      <b-breadcrumb-item to="/student"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
+      <b-breadcrumb-item to="/student/courses">Course</b-breadcrumb-item>
       <b-breadcrumb-item active>Course Detail</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">
@@ -14,22 +14,12 @@
         </div>
       </div>
     </div>
-    <b-modal
-      id="modal-info"
-      ref="modal-info"
-      title="Description Subject"
-      v-loading.fullscreen.lock="fullscreenLoading"
-      ok-only
-    >
-      <p>{{ infoSubject.description }}</p>
-    </b-modal>
+
     <table-student
       :title="`List Subjects`"
       :listAll="listSubjects"
       :loadingData="loadingData"
-      :btnInfo="true"
       :nameFunctionDetail="`detailSubjects`"
-      :nameFunctionInfo="`modalInfo`"
       :listProperties="[
         { prop: 'SubjectCode', label: 'Subject Code' },
         { prop: 'SubjectName', label: 'Subject Name' },
@@ -103,10 +93,6 @@ export default {
       this.$router.push({
         path: `/myCourses/${this.$route.params.id}/subject/${row.SubjectID}`
       });
-    },
-    modalInfo(row) {
-      this.infoSubject.description = row.Description;
-      this.$root.$emit('bv::show::modal', 'modal-info');
     }
   },
   computed: {

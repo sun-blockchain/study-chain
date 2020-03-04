@@ -58,9 +58,10 @@ router.get('/:username/subjects', async (req, res, next) => {
         msg: subjectsByStudent.msg.toString()
       });
     }
+    let subjects = JSON.parse(subjectsByStudent.msg) ? JSON.parse(subjectsByStudent.msg) : [];
     return res.json({
       success: true,
-      subjects: JSON.parse(subjectsByStudent.msg)
+      subjects: subjects
     });
   } catch (error) {
     return res.status(500).json({
