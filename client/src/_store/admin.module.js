@@ -107,36 +107,31 @@ const actions = {
       }
     }
   },
-  async createCourse({ commit }, course) {
+  async createCourse({ commit, dispatch }, course) {
     try {
-      let listCourses = await adminService.createCourse(course);
-      commit('createCourse', listCourses);
-      return listCourses;
+      let data = await adminService.createCourse(course);
+      commit('createCourse', data.courses);
+      return data;
     } catch (error) {
-      // if (error.response.status === 403) {
-      //   router.push('/403');
-      // }
+      dispatch('alert/alertError', error, { root: true });
     }
   },
-  async updateCourse({ commit }, course) {
+  async updateCourse({ commit, dispatch }, course) {
     try {
-      let listCourses = await adminService.updateCourse(course);
-      commit('updateCourse', listCourses);
-      return listCourses;
+      let data = await adminService.updateCourse(course);
+      commit('updateCourse', data.courses);
+      return data;
     } catch (error) {
-      if (error.response.status === 403) {
-        router.push('/403');
-      }
+      dispatch('alert/alertError', error, { root: true });
     }
   },
-  async deleteCourse({ commit }, courseId) {
+  async deleteCourse({ commit, dispatch }, courseId) {
     try {
-      let listCourses = await adminService.deleteCourse(courseId);
-      commit('deleteCourse', listCourses);
+      let data = await adminService.deleteCourse(courseId);
+      commit('deleteCourse', data.courses);
+      return data;
     } catch (error) {
-      if (error.response.status === 403) {
-        router.push('/403');
-      }
+      dispatch('alert/alertError', error, { root: true });
     }
   },
   async getStudentsOfCourse({ commit }, courseId) {
@@ -204,51 +199,40 @@ const actions = {
   },
 
   // Subjects Manager
-  async getAllSubjects({ commit }) {
+  async getAllSubjects({ commit, dispatch }) {
     try {
       let listSubjects = await adminService.getAllSubjects();
       commit('getAllSubjects', listSubjects);
       return listSubjects;
     } catch (error) {
-      if (error.response.status === 403) {
-        router.push('/403');
-      }
+      dispatch('alert/alertError', error, { root: true });
     }
   },
-  async createSubject({ commit }, subject) {
+  async createSubject({ commit, dispatch }, subject) {
     try {
       let data = await adminService.createSubject(subject);
       commit('createSubject', data.subjects);
       return data;
     } catch (error) {
-      if (error.response.status === 403) {
-        router.push('/403');
-      }
-      return error.response.data;
+      dispatch('alert/alertError', error, { root: true });
     }
   },
-  async updateSubject({ commit }, subject) {
+  async updateSubject({ commit, dispatch }, subject) {
     try {
       let data = await adminService.updateSubject(subject);
       commit('updateSubject', data.subjects);
       return data;
     } catch (error) {
-      if (error.response.status === 403) {
-        router.push('/403');
-      }
-      return error.response.data;
+      dispatch('alert/alertError', error, { root: true });
     }
   },
-  async deleteSubject({ commit }, subjectId) {
+  async deleteSubject({ commit, dispatch }, subjectId) {
     try {
       let data = await adminService.deleteSubject(subjectId);
       commit('deleteSubject', data.subjects);
       return data;
     } catch (error) {
-      if (error.response.status === 403) {
-        router.push('/403');
-      }
-      return error.response;
+      dispatch('alert/alertError', error, { root: true });
     }
   },
 

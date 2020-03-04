@@ -173,7 +173,7 @@
 import { mapState, mapActions } from 'vuex';
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 import TableAdmin from '@/components/admin-academy/TableAdmin';
-import { Button } from 'element-ui';
+import { Button, Message, MessageBox } from 'element-ui';
 export default {
   components: {
     ValidationObserver,
@@ -220,27 +220,34 @@ export default {
       this.$root.$emit('bv::show::modal', 'modal-edit');
     },
     async handleCreate() {
-      this.$refs['modal-create'].hide();
       this.fullscreenLoading = true;
-      let response = await this.createCourse(this.newCourse);
-      if (response) {
-        await this.resetInfoModalCreate();
+      let data = await this.createCourse(this.newCourse);
+      if (data) {
+        if (data.success) {
+          this.$refs['modal-create'].hide();
+          await this.resetInfoModalCreate();
+          await this.getAllCourses();
+          Message.success('Create success!');
+        } else {
+          Message.error(data.msg);
+        }
       }
-      await this.getAllCourses();
       this.fullscreenLoading = false;
-      this.$swal('Success!', 'Course has been created.', 'success');
     },
     async handleUpdate() {
-      this.$refs['modal-edit'].hide();
       this.fullscreenLoading = true;
-      let response = await this.updateCourse(this.editCourse);
-      if (response) {
-        await this.resetInfoModalEdit();
-        this.fullscreenLoading = false;
+      let data = await this.updateCourse(this.editCourse);
+      if (data) {
+        if (data.success) {
+          this.$refs['modal-create'].hide();
+          await this.resetInfoModalEdit();
+          await this.getAllCourses();
+          Message.success('Update success!');
+        } else {
+          Message.error(data.msg);
+        }
       }
-
-      await this.getAllCourses();
-      this.$swal('Success!', 'Course has been edited.', 'success');
+      this.fullscreenLoading = false;
     },
     resetInfoModalEdit() {
       this.editCourse.CourseCode = '';
@@ -258,25 +265,28 @@ export default {
       });
     },
     async delCourse(row) {
-      this.$swal({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
+      MessageBox.confirm(`You won't be able to revert this!`, 'Delete', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
         type: 'warning',
-        showCancelButton: true,
-        cancelButtonColor: '#d33',
-        confirmButtonColor: '#28a745',
-        confirmButtonText: 'Yes, delete it!',
-        reverseButtons: true
-      }).then(async (result) => {
-        if (result.value) {
+        center: true
+      })
+        .then(async () => {
           this.fullscreenLoading = true;
-          await this.deleteCourse(row.CourseID);
-          await this.getAllCourses();
+          let data = await await this.deleteCourse(row.CourseID);
+          if (data) {
+            if (data.success) {
+              await this.getAllCourses();
+              Message.success('Delete completed!');
+            } else {
+              Message.error(data.msg);
+            }
+          }
           this.fullscreenLoading = false;
-
-          this.$swal('Deleted!', 'Course has been deleted.', 'success');
-        }
-      });
+        })
+        .catch(() => {
+          Message.info('Delete canceled');
+        });
     },
     btnCreate(item, button) {
       this.$root.$emit('bv::show::modal', button);
