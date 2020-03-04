@@ -191,7 +191,8 @@ export default {
     let classOfTeacher = await this.getClassesOfTeacher(this.$route.params.id);
     let teacher = await this.getTeacher(this.$route.params.id);
     let data = await this.getClassesNoTeacher();
-    if (classOfTeacher && data.success && teacher) {
+
+    if (classOfTeacher && data && teacher) {
       this.classesNoTeacher = data.classesNoTeacher;
     }
     this.loadingData = false;
