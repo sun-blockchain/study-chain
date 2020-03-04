@@ -116,6 +116,10 @@ node query.js --username=adminacademy --func=GetAllScores
 ```
 
 ```bash
+node query.js --username=adminacademy --func=GetCertificate --args=CertificateId
+```
+
+```bash
 node query.js --username=adminacademy --func=GetSubjectsByStudent --args=st01
 ```
 

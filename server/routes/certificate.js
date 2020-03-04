@@ -2,7 +2,7 @@ const router = require('express').Router();
 const USER_ROLES = require('../configs/constant').USER_ROLES;
 const STATUS_CERT = require('../configs/constant').STATUS_CERT;
 const network = require('../fabric/network');
-const { body, validationResult } = require('express-validator');
+const { check, body, validationResult } = require('express-validator');
 const checkJWT = require('../middlewares/check-jwt');
 const Certificate = require('../models/Certificate');
 const User = require('../models/User');
@@ -147,30 +147,29 @@ router.get('/all', checkJWT, async (req, res) => {
   });
 });
 
-router.get('/:certId', async (req, res) => {
-  var certId = req.params.certId;
+router.get(
+  '/:certId',
+  check('certId')
+    .trim()
+    .escape(),
+  async (req, res) => {
+    const certId = req.params.certId;
+    const adminStudent = { role: USER_ROLES.ADMIN_STUDENT, username: 'adminstudent' };
+    const networkObj = await network.connectToNetwork(adminStudent);
 
-  try {
-    let ceritificate = await Certificate.findOne({ certificateID: certId });
-
-    if (!ceritificate) {
-      return res.status(404).json({
-        success: false,
-        msg: 'certificate is not exists'
-      });
+    if (!networkObj) {
+      return res.status(500).json({ msg: 'Failed to connect blockchain' });
     }
 
-    return res.json({
-      success: true,
-      msg: ceritificate
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      msg: 'Internal Server Error'
-    });
+    const response = await network.query(networkObj, 'GetCertificate', certId);
+
+    if (!response.success) {
+      return res.status(500).json({ msg: 'Failed to query certificate' });
+    }
+
+    return res.json({ certificate: JSON.parse(response.msg) });
   }
-});
+);
 
 router.get('/:certId/verify', checkJWT, async (req, res) => {
   let user = req.decoded.user;

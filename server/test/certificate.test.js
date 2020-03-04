@@ -332,54 +332,77 @@ describe('Route : /certificate', () => {
   });
 
   describe('# GET /certificate/:certId ', () => {
-    let findOneStub;
-
-    let certId = '5d9ac9e4fc93231bc694cb4c';
+    let certId = 'cdb63720-9628-5ef6-bbca-2e5ce6094f3c';
+    let courseId = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
+    let connect;
+    let query;
 
     beforeEach(() => {
-      findOneStub = sinon.stub(Cert, 'findOne');
+      connect = sinon.stub(network, 'connectToNetwork');
+      query = sinon.stub(network, 'query');
     });
 
     afterEach(() => {
-      findOneStub.restore();
+      connect.restore();
+      query.restore();
     });
 
     it('should get data success', (done) => {
-      findOneStub.returns({
-        certificateID: '5d9ac9e4fc93231bc694cb4c',
-        SubjectID: 'Blockchain',
-        username: 'tantv',
-        issueDate: 'Mon Oct 07 2019 00:07:17 GMT+0700 (Indochina Time)'
+      connect.returns({
+        contract: 'academy',
+        network: 'certificatechannel',
+        gateway: 'gateway',
+        user: { username: 'hoangdd', role: USER_ROLES.ADMIN_STUDENT }
+      });
+
+      let data = JSON.stringify([
+        {
+          CertificateID: certId,
+          CourseID: courseId,
+          StudentUsername: 'tantrinh',
+          IssueDate: '01-01-2020'
+        }
+      ]);
+
+      query.returns({
+        success: true,
+        msg: data
       });
 
       request(app)
         .get(`/certificate/${certId}`)
         .then((res) => {
           expect(res.status).equal(200);
-          expect(res.body.success).equal(true);
           done();
         });
     });
 
-    it('error query certificate with id', (done) => {
-      findOneStub.yields({ error: 'failed query cert' }, null);
+    it('Failed to connect blockchain', (done) => {
+      connect.returns(null);
       request(app)
         .get(`/certificate/${certId}`)
         .then((res) => {
           expect(res.status).equal(500);
-          expect(res.body.success).equal(false);
           done();
         });
     });
 
-    it('certificate is not exists', (done) => {
-      findOneStub.returns(undefined, null);
+    it('Error chaincode', (done) => {
+      connect.returns({
+        contract: 'academy',
+        network: 'certificatechannel',
+        gateway: 'gateway',
+        user: { username: 'hoangdd', role: USER_ROLES.ADMIN_STUDENT }
+      });
+
+      query.returns({
+        success: false,
+        msg: 'error'
+      });
       request(app)
         .get(`/certificate/${certId}`)
         .then((res) => {
-          expect(res.status).equal(404);
-          expect(res.body.success).equal(false);
-          expect(res.body.msg).equal('certificate is not exists');
+          expect(res.status).equal(500);
           done();
         });
     });
