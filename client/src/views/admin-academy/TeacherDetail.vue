@@ -243,8 +243,8 @@ export default {
 
     if (data && teacher) {
       this.classesNoTeacher = data.classesNoTeacher;
-      this.loadingData = false;
     }
+    this.loadingData = false;
   }
 };
 </script>

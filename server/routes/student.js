@@ -158,7 +158,7 @@ router.get(
   check('classId')
     .trim()
     .escape(),
-  checkJWT,
+
   async (req, res) => {
     const user = req.decoded.user;
     if (req.decoded.user.role === USER_ROLES.STUDENT) {
@@ -198,7 +198,7 @@ router.get(
   check('courseId')
     .trim()
     .escape(),
-  checkJWT,
+
   async (req, res) => {
     const user = req.decoded.user;
     if (

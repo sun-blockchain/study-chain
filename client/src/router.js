@@ -21,11 +21,6 @@ export const router = new Router({
           component: () => import('./views/HomePage.vue')
         },
         {
-          path: '/cert/:id',
-          name: 'cert',
-          component: () => import('./views/CertPage.vue')
-        },
-        {
           path: '/404',
           name: '404',
           component: () => import('./views/404.vue')
@@ -34,6 +29,11 @@ export const router = new Router({
           path: '/403',
           name: '403',
           component: () => import('./views/403.vue')
+        },
+        {
+          path: '/cert/:certId',
+          name: 'detail-Certificates',
+          component: () => import('./views/CertPage')
         }
       ],
       meta: {
@@ -178,8 +178,8 @@ export const router = new Router({
           component: () => import('./views/student/ClassSubject')
         },
         {
-          path: '/student/mycertificates',
-          name: 'student-mycertificates',
+          path: '/myCertificates',
+          name: 'myCertificates',
           component: () => import('./views/student/MyCertificates')
         }
       ]
