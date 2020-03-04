@@ -24,7 +24,7 @@
           :btnInfo="true"
           :nameFunctionInfo="`showInfoSubject`"
           :nameFunctionDetail="`detailSubject`"
-          :nameFunctionDelete="`delStudent`"
+          :nameFunctionDelete="`delSubject`"
           :btnDelete="true"
           :listProperties="[
             { prop: 'SubjectName', label: 'Subject Name' },
@@ -32,7 +32,7 @@
             { prop: 'ShortDescription', label: 'Short Description' }
           ]"
           @detailSubject="detailSubject($event)"
-          @delStudent="delStudent($event)"
+          @delSubject="delSubject($event)"
           @showInfoSubject="showInfoSubject($event)"
         >
           <template v-slot:btn-create>
@@ -55,15 +55,12 @@
           :btnInfo="true"
           :nameFunctionInfo="`showInfoStudent`"
           :nameFunctionDetail="`detailStudent`"
-          :nameFunctionDelete="`delStudent`"
-          :btnDelete="true"
           :listProperties="[
             { prop: 'Fullname', label: 'Student Name' },
             { prop: 'Info.Birthday', label: 'Date Of Birth' },
             { prop: 'Info.Address', label: 'Address' }
           ]"
           @detailStudent="detailStudent($event)"
-          @delStudent="delStudent($event)"
           @showInfoStudent="showInfoStudent($event)"
         >
         </table-admin
@@ -286,7 +283,7 @@ export default {
     detailSubject(row) {
       this.$router.push({ path: `/academy/subjects/${row.SubjectID}` });
     },
-    async delStudent(row) {
+    async delSubject(row) {
       MessageBox.confirm(`You won't be able to revert this!`, 'Delete', {
         confirmButtonText: 'OK',
         cancelButtonText: 'Cancel',
@@ -305,7 +302,7 @@ export default {
             if (subjectsNoCourse.success) {
               this.subjectsNoCourse = subjectsNoCourse.subjects;
             }
-            Message.success('Delete completed!');
+            Message.success('Remove completed!');
           } else {
             if (data.data.msg) {
               Message.error(data.data.msg);
@@ -316,7 +313,7 @@ export default {
           this.fullscreenLoading = false;
         })
         .catch(() => {
-          Message.info('Delete canceled');
+          Message.info('Remove canceled');
         });
     },
     async handleAddSubject(formName) {
@@ -328,16 +325,18 @@ export default {
             courseId: self.$route.params.id,
             subjectId: self.formAdd.subjectId
           });
-          if (data.success) {
-            await self.getCourse(this.$route.params.id);
-            let subjectsNoCourse = await self.getSubjectsNoCourse(self.$route.params.id);
-            if (subjectsNoCourse.success) {
-              self.subjectsNoCourse = subjectsNoCourse.subjects;
+          if (data) {
+            if (data.success) {
+              await self.getCourse(this.$route.params.id);
+              let subjectsNoCourse = await self.getSubjectsNoCourse(self.$route.params.id);
+              if (subjectsNoCourse.success) {
+                self.subjectsNoCourse = subjectsNoCourse.subjects;
+              }
+              self.resetAddSubject('formAdd');
+              Message.success('Add subject to course successfully!');
+            } else {
+              Message.error(data.msg);
             }
-            self.resetAddSubject('formAdd');
-            Message.success('Add subject to course success!');
-          } else {
-            Message.error(data.msg);
           }
           self.fullscreenLoading = false;
         } else {

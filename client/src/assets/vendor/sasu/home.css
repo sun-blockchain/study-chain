@@ -219,6 +219,10 @@ ul.social-network li {
   width: 100%;
 }
 
+.el-table__row {
+  cursor: pointer;
+}
+
 @media (max-width: 768px) {
   .table-responsive {
     overflow-x: auto;

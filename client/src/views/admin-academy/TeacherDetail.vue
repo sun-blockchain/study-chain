@@ -11,15 +11,58 @@
         <div class="card-body row">
           <div class="col">
             <h1 class="h3 mb-2 text-gray-800">Personal information</h1>
-            <p>Date of birth: {{ listTeachers.Info.Birthday }}</p>
-            <p>Gender: {{ listTeachers.Info.Sex == 0 ? 'Male' : 'Female' }}</p>
-            <p>Address: {{ listTeachers.Info.Address }}</p>
-            <p>Date of birth: {{ listTeachers.Info.Email }}</p>
-            <p>Country: {{ listTeachers.Info.Country }}</p>
+            <p>
+              Date of birth:
+              {{
+                listTeachers.Info
+                  ? listTeachers.Info.Birthday
+                    ? listTeachers.Info.Birthday
+                    : ''
+                  : ''
+              }}
+            </p>
+            <p>
+              Gender:
+              {{
+                listTeachers.Info
+                  ? listTeachers.Info.Sex
+                    ? listTeachers.Info.Sex == 0
+                      ? 'Male'
+                      : 'Female'
+                    : ''
+                  : ''
+              }}
+            </p>
+            <p>
+              Address:
+              {{
+                listTeachers.Info
+                  ? listTeachers.Info.Address
+                    ? listTeachers.Info.Address
+                    : ''
+                  : ''
+              }}
+            </p>
+            <p>
+              Date of birth:
+              {{
+                listTeachers.Info ? (listTeachers.Info.Email ? listTeachers.Info.Email : '') : ''
+              }}
+            </p>
+            <p>
+              Country:
+              {{
+                listTeachers.Info
+                  ? listTeachers.Info.Country
+                    ? listTeachers.Info.Country
+                    : ''
+                  : ''
+              }}
+            </p>
           </div>
           <div class="col">
             <img
-              v-if="listTeachers.Info.Avatar"
+              v-if="listTeachers.Info && listTeachers.Info.Avatar"
               :src="listTeachers.Info.Avatar"
               :alt="Avatar"
               class="avatar"
