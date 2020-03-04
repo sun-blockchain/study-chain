@@ -90,7 +90,7 @@ router.get('/subject/:subjectId/classes', checkJWT, async (req, res) => {
     return;
   }
 
-  let classes = JSON.parse(response.msg);
+  let classes = JSON.parse(response.msg) ? JSON.parse(response.msg) : [];
 
   if (user.role === USER_ROLES.STUDENT) {
     for (let index = 0; index < classes.length; index++) {

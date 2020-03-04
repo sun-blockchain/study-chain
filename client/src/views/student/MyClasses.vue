@@ -7,34 +7,14 @@
         </div>
       </div>
     </div>
-    <b-modal
-      id="modal-info"
-      ref="modal-info"
-      title="More Information About Class"
-      v-loading.fullscreen.lock="fullscreenLoading"
-      ok-only
-    >
-      <p>
-        <b>Start Date:</b>
-        {{ infoClass.startDate }}
-      </p>
-      <p>
-        <b>End Date:</b>
-        {{ infoClass.endDate }}
-      </p>
-      <p>
-        <b>Repeat:</b>
-        {{ infoClass.repeat }}
-      </p>
-    </b-modal>
+
     <table-student
       :title="`Classes list`"
       :listAll="listMyClasses"
       :loadingData="loadingData"
-      :btnInfo="true"
       :btnCancel="true"
-      :nameFunctionInfo="`modalInfo`"
       :nameFunctionCancelRegistered="`cancelClass`"
+      :nameFunctionDetail="`detailClass`"
       :listProperties="[
         { prop: 'ClassCode', label: 'Class Code' },
         { prop: 'Room', label: 'Room' },
@@ -44,6 +24,7 @@
       ]"
       @modalInfo="modalInfo($event)"
       @cancelClass="cancelClass($event)"
+      @detailClass="detailClass($event)"
     ></table-student>
   </div>
 </template>
@@ -63,22 +44,17 @@ export default {
   data() {
     return {
       fullscreenLoading: false,
-      loadingData: false,
-      infoClass: {
-        startDate: '',
-        endDate: '',
-        repeat: ''
-      }
+      loadingData: false
     };
   },
   methods: {
     ...mapActions('student', ['getMyClasses', 'cancelRegisteredClass']),
-    modalInfo(row) {
-      this.infoClass.startDate = row.StartDate;
-      this.infoClass.endDate = row.EndDate;
-      this.infoClass.repeat = row.Repeat;
-      this.$root.$emit('bv::show::modal', 'modal-info');
+    detailClass(row) {
+      this.$router.push({
+        path: `/student/subjects/${this.$route.subjectId}/class/${row.ClassID}`
+      });
     },
+
     async cancelClass(row) {
       this.$swal({
         text: 'Are you sure to cancel enrollment this class ?',

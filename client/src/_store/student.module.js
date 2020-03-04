@@ -8,7 +8,7 @@ const state = {
   myCertificates: [],
   listCourses: [],
   listClasses: [],
-  subject: null,
+  subjects: [],
   listMyClasses: [],
   listMyCourses: [],
   listNotRegisterCourses: [],
@@ -33,7 +33,6 @@ const actions = {
       commit('getCourse', listCourses);
       return listCourses;
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -65,9 +64,7 @@ const actions = {
       let subject = await studentService.getSubject(subjectId);
       commit('getSubject', subject);
       return subject;
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   },
   async getSubjectsOfCourse({ commit }, courseId) {
     try {
@@ -75,7 +72,6 @@ const actions = {
       commit('getSubjectsOfCourse', listSubjects);
       return listSubjects;
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -85,9 +81,8 @@ const actions = {
     try {
       let listClasses = await studentService.getClassesOfSubject(subjectId);
       commit('getClassesOfSubject', listClasses);
-    } catch (error) {
-      console.log(error);
-    }
+      return listClasses;
+    } catch (error) {}
   },
   async getAllCourses({ commit }) {
     try {
@@ -95,7 +90,6 @@ const actions = {
       commit('getAllCourses', listCourses);
       return listCourses;
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -106,7 +100,6 @@ const actions = {
       let listSubjects = await studentService.getAllSubjects(username);
       commit('getAllSubjects', listSubjects);
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -126,6 +119,7 @@ const actions = {
     try {
       let listMyCourses = await studentService.getMyCourses();
       commit('getMyCourses', listMyCourses);
+      return listMyCourses;
     } catch (error) {
       if (error.response.status === 403) {
         router.push('/403');
@@ -157,7 +151,6 @@ const actions = {
       let mySubjects = await studentService.getMySubjects();
       commit('getMySubjects', mySubjects);
     } catch (error) {
-      console.log(error);
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -168,7 +161,17 @@ const actions = {
       let myCertificates = await studentService.getMyCertificates();
       commit('getMyCertificates', myCertificates);
     } catch (error) {
-      console.log(error);
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
+  },
+  async claimCertificate({ commit }, courseId) {
+    try {
+      let myCertificates = await studentService.claimCertificate(courseId);
+      commit('claimCertificate', myCertificates);
+      return myCertificates;
+    } catch (error) {
       if (error.response.status === 403) {
         router.push('/403');
       }
@@ -183,8 +186,8 @@ const mutations = {
   getCourse(state, listCourses) {
     state.listCourses = listCourses;
   },
-  getSubject(state, subject) {
-    state.subject = subject;
+  getSubject(state, subjects) {
+    state.subjects = subjects;
   },
   getSubjectsOfCourse(state, listSubjects) {
     state.listSubjects = listSubjects;
@@ -214,6 +217,9 @@ const mutations = {
     state.mySubjects = mySubjects;
   },
   getMyCertificates(state, myCertificates) {
+    state.myCertificates = myCertificates;
+  },
+  claimCertificate(state, myCertificates) {
     state.myCertificates = myCertificates;
   }
 };

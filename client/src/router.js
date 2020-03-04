@@ -173,6 +173,11 @@ export const router = new Router({
           component: () => import('./views/student/MyClasses')
         },
         {
+          path: '/student/subjects/:id/class/:classId',
+          name: 'student-subject-class',
+          component: () => import('./views/student/ClassSubject')
+        },
+        {
           path: '/student/mycertificates',
           name: 'student-mycertificates',
           component: () => import('./views/student/MyCertificates')

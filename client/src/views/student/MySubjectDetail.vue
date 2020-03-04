@@ -1,9 +1,9 @@
 <template>
-  <div class="container-fluid">
-    <h1 class="bannerTitle_1wzmt7u mt-4">{{ subject.SubjectName }}</h1>
+  <div class="container-fluid" v-loading.fullscreen.lock="fullscreenLoading">
+    <h1 class="bannerTitle_1wzmt7u mt-4">{{ subjects.SubjectName }}</h1>
     <b-breadcrumb>
-      <b-breadcrumb-item href="/student"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-      <b-breadcrumb-item :href="`/student/courses/${this.$route.params.id}`"
+      <b-breadcrumb-item to="/"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
+      <b-breadcrumb-item :to="`/student/courses/${this.$route.params.id}`"
         >Course Detail</b-breadcrumb-item
       >
       <b-breadcrumb-item active>Subject Detail</b-breadcrumb-item>
@@ -12,42 +12,18 @@
       <div>
         <div class="card-body">
           <h1 class="h3 mb-2 text-gray-800">About this subject</h1>
-          <p>{{ subject.Description }}</p>
+          <p>{{ subjects.Description }}</p>
         </div>
       </div>
     </div>
-    <b-modal
-      id="modal-info"
-      ref="modal-info"
-      title="More Information About Class"
-      v-loading.fullscreen.lock="fullscreenLoading"
-      ok-only
-    >
-      <p>
-        <b>Start Date:</b>
-        {{ infoClass.startDate }}
-      </p>
-      <p>
-        <b>End Date:</b>
-        {{ infoClass.endDate }}
-      </p>
-      <p>
-        <b>Repeat:</b>
-        {{ infoClass.repeat }}
-      </p>
-      <p>
-        <b>Description:</b>
-        {{ infoClass.description }}
-      </p>
-    </b-modal>
+
     <table-student
       :title="`Classes list`"
       :listAll="listClasses"
       :loadingData="loadingData"
       :btnRegister="true"
       :nameFunctionRegister="`enrollClass`"
-      :btnInfo="true"
-      :nameFunctionInfo="`modalInfo`"
+      :nameFunctionDetail="`detailClass`"
       :listProperties="[
         { prop: 'ClassCode', label: 'Class Code' },
         { prop: 'Room', label: 'Room' },
@@ -56,8 +32,8 @@
         { prop: 'Status', label: 'Status' },
         { prop: 'Capacity', label: 'Capacity' }
       ]"
-      @modalInfo="modalInfo($event)"
       @enrollClass="enrollClass($event)"
+      @detailClass="detailClass($event)"
     ></table-student>
   </div>
 </template>
@@ -76,24 +52,16 @@ export default {
   },
   data() {
     return {
-      fullscreenLoading: false,
-      loadingData: false,
-      infoClass: {
-        startDate: '',
-        endDate: '',
-        repeat: '',
-        description: ''
-      }
+      fullscreenLoading: true,
+      loadingData: false
     };
   },
   methods: {
     ...mapActions('student', ['getClassesOfSubject', 'getSubject', 'registerClass']),
-    modalInfo(row) {
-      this.infoClass.description = row.Description;
-      this.infoClass.startDate = row.StartDate;
-      this.infoClass.endDate = row.EndDate;
-      this.infoClass.repeat = row.Repeat;
-      this.$root.$emit('bv::show::modal', 'modal-info');
+    detailClass(row) {
+      this.$router.push({
+        path: `/student/subjects/${this.$route.subjectId}/class/${row.ClassID}`
+      });
     },
     async enrollClass(row) {
       this.$swal({
@@ -120,13 +88,14 @@ export default {
     }
   },
   computed: {
-    ...mapState('student', ['listClasses', 'subject'])
+    ...mapState('student', ['listClasses', 'subjects'])
   },
   async created() {
-    let subject = await this.getSubject(this.$route.params.subjectId);
+    let subjects = await this.getSubject(this.$route.params.subjectId);
     let classes = await this.getClassesOfSubject(this.$route.params.subjectId);
 
-    if (classes && subject) {
+    if (classes && subjects) {
+      this.fullscreenLoading = false;
       this.loadingData = false;
     }
   }

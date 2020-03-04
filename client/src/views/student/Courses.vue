@@ -1,14 +1,5 @@
 <template>
   <div>
-    <b-modal
-      id="modal-info"
-      ref="modal-info"
-      title="Description Course"
-      v-loading.fullscreen.lock="fullscreenLoading"
-      ok-only
-    >
-      <p>{{ infoCourse.description }}</p>
-    </b-modal>
     <table-student
       :title="`List Not Register Courses`"
       :listAll="listNotRegisterCourses"
@@ -16,8 +7,6 @@
       :btnRegister="true"
       :nameFunctionRegister="`enrollCourse`"
       :nameFunctionDetail="`detailCourses`"
-      :btnInfo="true"
-      :nameFunctionInfo="`modalInfo`"
       :listProperties="[
         { prop: 'CourseCode', label: 'CourseCode' },
         { prop: 'CourseName', label: 'CourseName' },
