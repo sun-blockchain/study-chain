@@ -130,6 +130,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return GetStudent(stub, args)
 	} else if function == "GetTeacher" {
 		return GetTeacher(stub, args)
+	} else if function == "GetCertificate" {
+		return GetCertificate(stub, args)
 	} else if function == "GetAllSubjects" {
 		return GetAllSubjects(stub)
 	} else if function == "GetClassesOfSubject" {
@@ -1108,6 +1110,27 @@ func GetCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	}
 
 	return shim.Success(courseAsBytes)
+}
+
+func GetCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	CertificateID := args[0]
+
+	key := "Certificate-" + CertificateID
+	certificateAsBytes, err := stub.GetState(key)
+
+	if err != nil {
+		return shim.Error("Failed to get data in the ledger")
+	}
+
+	if certificateAsBytes == nil {
+		return shim.Error("Certificate does not exist - " + args[0])
+	}
+
+	return shim.Success(certificateAsBytes)
 }
 
 func GetSubjectsOfCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
