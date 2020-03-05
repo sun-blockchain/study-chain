@@ -176,6 +176,14 @@ const actions = {
         router.push('/403');
       }
     }
+  },
+  async getCertificate({ commit }, certId) {
+    try {
+      let cert = await studentService.getCertificate(certId);
+      return cert;
+    } catch (error) {
+      router.push('/404');
+    }
   }
 };
 

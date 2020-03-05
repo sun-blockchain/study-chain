@@ -146,13 +146,35 @@ router.get(
       return res.status(500).json({ msg: 'Failed to connect blockchain' });
     }
 
-    const response = await network.query(networkObj, 'GetCertificate', certId);
+    let cert = await network.query(networkObj, 'GetCertificate', certId);
 
-    if (!response.success) {
+    if (!cert.success) {
       return res.status(500).json({ msg: 'Failed to query certificate' });
     }
 
-    return res.json({ certificate: JSON.parse(response.msg) });
+    cert = JSON.parse(cert.msg);
+    let student = await network.query(networkObj, 'GetStudent', cert.StudentUsername);
+    let course = await network.query(networkObj, 'GetCourse', cert.CourseID);
+
+    if (!student.success || !course.success) {
+      return res.status(500).json({ msg: 'Failed to query certificate' });
+    }
+
+    student = JSON.parse(student.msg);
+    course = JSON.parse(course.msg);
+
+    delete student.Username;
+    delete student.Courses;
+    delete student.Info;
+    delete student.Classes;
+    delete student.Certificates;
+
+    delete course.Students;
+
+    cert.CourseName = course.CourseName;
+    cert.Fullname = student.Fullname;
+
+    return res.json({ cert });
   }
 );
 

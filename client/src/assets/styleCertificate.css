@@ -9,6 +9,12 @@
   font-family: 'Rochester', cursive !important;
 }
 
+.issuer {
+  color: #ff2200;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
 .sans {
   font-family: 'Open Sans', sans-serif;
 }
@@ -115,7 +121,7 @@
 }
 
 .pm-certificate-container .pm-certificate-border .pm-certificate-body {
-  padding: 20px;
+  padding: 10px;
 }
 
 .pm-certificate-container .pm-certificate-border .pm-certificate-body .pm-name-text {

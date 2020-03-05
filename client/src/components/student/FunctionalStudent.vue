@@ -25,7 +25,7 @@
       </router-link>
     </li>
     <li class="nav-item">
-      <router-link class="nav-link color-black" :to="`/student/mycertificates`">
+      <router-link class="nav-link color-black" :to="`/myCertificates`">
         <i class="color-999 fas fa-award"></i>
         My Certificates
       </router-link>

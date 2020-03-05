@@ -346,82 +346,6 @@ describe('#POST /certificate ', () => {
       });
   });
 });
-describe('# GET /certificate/:certId ', () => {
-  let certId = 'cdb63720-9628-5ef6-bbca-2e5ce6094f3c';
-  let courseId = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
-  let connect;
-  let query;
-
-  beforeEach(() => {
-    connect = sinon.stub(network, 'connectToNetwork');
-    query = sinon.stub(network, 'query');
-  });
-
-  afterEach(() => {
-    connect.restore();
-    query.restore();
-  });
-
-  it('should get data success', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'hoangdd', role: USER_ROLES.ADMIN_STUDENT }
-    });
-
-    let data = JSON.stringify([
-      {
-        CertificateID: certId,
-        CourseID: courseId,
-        StudentUsername: 'tantrinh',
-        IssueDate: '01-01-2020'
-      }
-    ]);
-
-    query.returns({
-      success: true,
-      msg: data
-    });
-
-    request(app)
-      .get(`/certificate/${certId}`)
-      .then((res) => {
-        expect(res.status).equal(200);
-        done();
-      });
-  });
-
-  it('Failed to connect blockchain', (done) => {
-    connect.returns(null);
-    request(app)
-      .get(`/certificate/${certId}`)
-      .then((res) => {
-        expect(res.status).equal(500);
-        done();
-      });
-  });
-
-  it('Error chaincode', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'hoangdd', role: USER_ROLES.ADMIN_STUDENT }
-    });
-
-    query.returns({
-      success: false,
-      msg: 'error'
-    });
-    request(app)
-      .get(`/certificate/${certId}`)
-      .then((res) => {
-        expect(res.status).equal(500);
-        done();
-      });
-  });
-});
 
 describe('# GET /certificate/all ', () => {
   let findOneUserStub;
@@ -528,6 +452,183 @@ describe('# GET /certificate/all ', () => {
         expect(res.status).equal(404);
         expect(res.body.success).equal(false);
         expect(res.body.msg).equal('do not have certificate');
+        done();
+      });
+  });
+});
+
+describe('# GET /certificate/:certId ', () => {
+  let certId = 'cdb63720-9628-5ef6-bbca-2e5ce6094f3c';
+  let courseId = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
+  let connect;
+  let query;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+  });
+
+  it('should get data success', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.ADMIN_STUDENT }
+    });
+
+    let cert = JSON.stringify([
+      {
+        CertificateID: certId,
+        CourseID: courseId,
+        StudentUsername: 'tantrinh',
+        IssueDate: '01-01-2020'
+      }
+    ]);
+
+    let student = JSON.stringify({
+      Username: 'hoangdd',
+      Fullname: 'Do Hoang'
+    });
+
+    let course = JSON.stringify({
+      CourseName: 'Blockchain',
+      CourseCode: 'BC101'
+    });
+
+    query.onFirstCall().returns({
+      success: true,
+      msg: cert
+    });
+
+    query.onSecondCall().returns({
+      success: true,
+      msg: student
+    });
+
+    query.onThirdCall().returns({
+      success: true,
+      msg: course
+    });
+
+    request(app)
+      .get(`/certificate/${certId}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        done();
+      });
+  });
+
+  it('Failed to connect blockchain', (done) => {
+    connect.returns(null);
+    request(app)
+      .get(`/certificate/${certId}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        done();
+      });
+  });
+
+  it('Error chaincode when query certificate', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.ADMIN_STUDENT }
+    });
+
+    query.onFirstCall().returns({
+      success: false,
+      msg: 'error'
+    });
+    request(app)
+      .get(`/certificate/${certId}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        done();
+      });
+  });
+
+  it('Error chaincode when query student', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.ADMIN_STUDENT }
+    });
+
+    let cert = JSON.stringify([
+      {
+        CertificateID: certId,
+        CourseID: courseId,
+        StudentUsername: 'tantrinh',
+        IssueDate: '01-01-2020'
+      }
+    ]);
+
+    query.onFirstCall().returns({
+      success: true,
+      msg: cert
+    });
+
+    query.onSecondCall().returns({
+      success: false,
+      msg: 'error'
+    });
+
+    request(app)
+      .get(`/certificate/${certId}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        done();
+      });
+  });
+
+  it('Error chaincode when query course', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.ADMIN_STUDENT }
+    });
+
+    let cert = JSON.stringify([
+      {
+        CertificateID: certId,
+        CourseID: courseId,
+        StudentUsername: 'tantrinh',
+        IssueDate: '01-01-2020'
+      }
+    ]);
+
+    let student = JSON.stringify({
+      Username: 'hoangdd',
+      Fullname: 'Do Hoang'
+    });
+
+    query.onFirstCall().returns({
+      success: true,
+      msg: cert
+    });
+
+    query.onSecondCall().returns({
+      success: true,
+      msg: student
+    });
+
+    query.onThirdCall().returns({
+      success: false,
+      msg: 'error'
+    });
+
+    request(app)
+      .get(`/certificate/${certId}`)
+      .then((res) => {
+        expect(res.status).equal(500);
         done();
       });
   });

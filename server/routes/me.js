@@ -389,17 +389,31 @@ router.get('/certificates', async (req, res) => {
     });
   }
 
-  const response = await network.query(networkObj, 'GetMyCerts');
+  let certs = await network.query(networkObj, 'GetCertificatesOfStudent', user.username);
+  let courses = await network.query(networkObj, 'GetCoursesOfStudent', user.username);
 
-  if (!response.success) {
+  if (!certs.success) {
     return res.status(500).json({
       success: false,
       msg: response.msg.toString()
     });
   }
+
+  certs = JSON.parse(certs.msg);
+  courses = JSON.parse(courses.msg);
+
+  for (let i = 0; i < certs.length; i++) {
+    for (let k = 0; k < courses.length; k++) {
+      if (certs[i].CourseID === courses[k].CourseID) {
+        certs[i].CourseName = courses[k].CourseName;
+        certs[i].Description = courses[k].ShortDescription;
+      }
+    }
+  }
+
   return res.json({
     success: true,
-    certificates: JSON.parse(response.msg)
+    certificates: certs
   });
 });
 

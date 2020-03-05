@@ -7,10 +7,10 @@
       <div class="pm-certificate-border col-xs-12">
         <div class="row pm-certificate-header">
           <div class="pm-certificate-title col-xs-12 margin-0 text-center">
-            <h2 class="sans">CERTIFICATE OF EXCELLENCE</h2>
+            <h1 class="issuer">Sun* Academy</h1>
+            <h2 class="sans mt-2">CERTIFICATE OF EXCELLENCE</h2>
           </div>
         </div>
-
         <div class="row pm-certificate-body">
           <div class="pm-certificate-block">
             <div class="col-xs-12">
@@ -26,7 +26,7 @@
 
             <div class="col-xs-12">
               <div class="pm-certificate-name underline margin-0 col-xs-8 text-center">
-                <span class="nameOfUser bold Rochester">{{this.cert.username}}</span>
+                <span class="nameOfUser bold Rochester">{{ cert.fullname }}</span>
               </div>
               <div class="col-xs-2">
                 <!-- LEAVE EMPTY -->
@@ -36,7 +36,7 @@
             <div class="col-xs-12">
               <div class="pm-certificate-name margin-0 col-xs-8 text-center">
                 <p class="bold">Has been recognized for outstanding achievement</p>
-                <p class="bold">at {{this.cert.subjectID}} course</p>
+                <p class="bold">at {{ cert.courseName }} course</p>
               </div>
               <div class="col-xs-2">
                 <!-- LEAVE EMPTY -->
@@ -51,15 +51,15 @@
             <div class="row">
               <div class="col-md-6 text-center">
                 <div class="pm-certificate-name underline margin-0 text-center">
-                  <p>{{this.cert.issueDate}}</p>
+                  <p>{{ cert.issueDate }}</p>
                 </div>
                 <p>
-                  <strong>DATE</strong>
+                  <strong>ISSUE DATE</strong>
                 </p>
               </div>
               <div class="col-md-6 text-center">
                 <div class="pm-certificate-name underline margin-0 text-center">
-                  <p class="Rochester">{{this.cert.certificateID}}</p>
+                  <p class="Rochester">{{ cert.certificateId }}</p>
                 </div>
                 <p>
                   <strong>Certificate ID</strong>
@@ -70,59 +70,50 @@
         </div>
       </div>
     </div>
-    <div v-else class="container">
-      <h1 class="msg-text">{{this.msg}}</h1>
-    </div>
   </div>
 </template>
 
 <script>
-import axios from "axios";
+import axios from 'axios';
+import { mapState, mapActions } from 'vuex';
 
 export default {
   data() {
     return {
       success: Boolean,
       cert: {
-        username: String,
-        issueDate: String,
-        certificateID: String,
-        subjectID: String
+        certificateId: '',
+        courseId: '',
+        username: '',
+        issueDate: '',
+        courseName: '',
+        fullname: ''
       },
       msg: String
     };
   },
+  methods: {
+    ...mapActions('student', ['getCertificate'])
+  },
+  computed: {
+    ...mapState('student', ['myCertificates'])
+  },
   created: async function() {
-    let response = await axios.get(
-      `${process.env.VUE_APP_API_BACKEND}/certificate/${this.$route.params.id}`
-    );
+    let cert = await this.getCertificate(this.$route.params.certId);
 
-    this.success = response.data.success;
-
-    if (response.data.success) {
-      // Convert Date to dd/mm/yy
-      var today = new Date(response.data.msg.issueDate);
-      var dd = today.getDate();
-      var mm = today.getMonth() + 1; //January is 0!
-
-      var yyyy = today.getFullYear();
-      if (dd < 10) {
-        dd = "0" + dd;
-      }
-      if (mm < 10) {
-        mm = "0" + mm;
-      }
-      response.data.msg.issueDate = dd + "/" + mm + "/" + yyyy;
-
-      this.cert = response.data.msg;
-      console.log();
-    } else {
-      this.msg = response.data.msg;
+    if (cert) {
+      this.cert.certificateId = cert.CertificateID;
+      this.cert.courseId = cert.CourseID;
+      this.cert.username = cert.StudentUsername;
+      this.cert.issueDate = cert.IssueDate;
+      this.cert.courseName = cert.CourseName;
+      this.cert.fullname = cert.Fullname;
     }
+    this.loadingData = false;
   }
 };
 </script>
 
 <style scoped>
-@import "../assets/styleCertificate.css";
+@import '../assets/styleCertificate.css';
 </style>

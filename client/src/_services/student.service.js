@@ -17,6 +17,7 @@ export const studentService = {
   getNotRegisterCourses,
   cancelRegisteredClass,
   getSummaryInfo,
+  getCertificate,
   claimCertificate
 };
 
@@ -205,6 +206,7 @@ async function getMyCertificates() {
     throw error;
   }
 }
+
 async function claimCertificate(courseId) {
   try {
     let response = await axios.post(
@@ -216,6 +218,15 @@ async function claimCertificate(courseId) {
     );
 
     return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getCertificate(certId) {
+  try {
+    let response = await axios.get(`${process.env.VUE_APP_API_BACKEND}/certificate/${certId}`);
+    return response.data.cert;
   } catch (error) {
     throw error;
   }

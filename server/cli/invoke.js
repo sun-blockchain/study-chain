@@ -412,6 +412,19 @@ async function main() {
           await conn.studentCancelRegisterClass(networkObj, student, classId);
           console.log('Transaction has been submitted');
           process.exit(0);
+        } else if (functionName === 'AddClassToTeacher' && user.role === USER_ROLES.ADMIN_ACADEMY) {
+          /**
+           * Remove Subject From Course
+           * @param  {String} classId class Id (required)
+           * @param  {String} username username (required)
+           */
+
+          let classId = argv.classId.toString();
+          let username = argv.username.toString();
+
+          await conn.addClassToTeacher(networkObj, classId, username);
+          console.log('Transaction has been submitted');
+          process.exit(0);
         } else {
           console.log('Failed!');
           process.exit(0);

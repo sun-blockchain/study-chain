@@ -1,23 +1,16 @@
 <template>
   <div>
-    <b-modal
-      id="modal-info"
-      ref="modal-info"
-      title="My Certificates"
-      v-loading.fullscreen.lock="fullscreenLoading"
-      ok-only
-    >
-    </b-modal>
     <table-student
       :title="`My Certificates`"
-      :listAll="listMyCourses"
+      :listAll="myCertificates"
       :loadingData="loadingData"
+      :nameFunctionDetail="`detailCertificate`"
       :listProperties="[
         { prop: 'CourseName', label: 'CourseName' },
+        { prop: 'Description', label: 'Description' },
         { prop: 'IssueDate', label: 'IssueDate' }
       ]"
-      @detailCourses="detailCourse($event)"
-      @modalInfo="modalInfo($event)"
+      @detailCertificate="detailCertificate($event)"
     ></table-student>
   </div>
 </template>
@@ -35,17 +28,23 @@ export default {
   data() {
     return {
       fullscreenLoading: false,
-      loadingData: false
+      loadingData: false,
+      infoCert: {
+        courseName: ''
+      }
     };
   },
   methods: {
-    ...mapActions('student', ['getMyCertificates'])
+    ...mapActions('student', ['getMyCertificates']),
+    detailCertificate(row) {
+      this.$router.push({ path: `cert/${row.CertificateID}` });
+    }
   },
   computed: {
-    ...mapState('student', ['listCertificate'])
+    ...mapState('student', ['myCertificates'])
   },
   async created() {
-    let response = await this.getMyCourses();
+    let response = await this.getMyCertificates();
     if (response) {
       this.loadingData = false;
     }
