@@ -2163,3 +2163,157 @@ describe('GET /account/me/notRegisterCourses', () => {
       });
   });
 });
+
+describe('#GET /account/me/scores/:courseId', () => {
+  let connect;
+  let query;
+  let courseId = 'db7e8bd0-df7d-40c7-928b-ca3bfe8e5574';
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+  });
+
+  it('not get subjects with role other student', (done) => {
+    request(app)
+      .get(`/account/me/scores/${courseId}`)
+      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('Can not connect to network', (done) => {
+    connect.returns(null);
+
+    request(app)
+      .get(`/account/me/scores/${courseId}`)
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain');
+        done();
+      });
+  });
+
+  it('query subjects of course error', (done) => {
+    connect.returns({
+      contract: 'student',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    query.onFirstCall().returns({ success: false, msg: 'query subjects error' });
+
+    request(app)
+      .get(`/account/me/scores/${courseId}`)
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('query chaincode error!');
+        done();
+      });
+  });
+
+  it('query get scores of student error', (done) => {
+    connect.returns({
+      contract: 'student',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    let listSubjects = [
+      {
+        SubjectID: '4e3efb82-8bdb-4f73-8efb-94520ba7c804',
+        SubjectCode: 'ET01',
+        SubjectName: 'Ethereum',
+        ShortDescription: 'Ethereum',
+        Description:
+          'Ethereum basic: you will be learnt about solidity, EVM and architech of Ethereum Blockchain',
+        Classes: ['6cd59291-fbb5-47ad-9db2-eb026e2d2b57', '2d285a2c-5f81-4656-8a2d-5f4fb21248e3']
+      },
+      {
+        SubjectID: '45294c64-2beb-47dd-9478-13eb4db7fc70',
+        SubjectCode: 'Tomo',
+        SubjectName: 'TomoChain',
+        ShortDescription: 'Tomo',
+        Description: 'Tomo',
+        Classes: ['0ef3aa77-c9c5-4733-997a-f88d11772c9b', '9b3d5a62-76bd-4c67-8c9b-53f72e23320b']
+      }
+    ];
+
+    query.onFirstCall().returns({ success: true, msg: JSON.stringify(listSubjects) });
+    query.onSecondCall().returns({ success: false, msg: 'query score error' });
+
+    request(app)
+      .get(`/account/me/scores/${courseId}`)
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('query chaincode error!');
+        done();
+      });
+  });
+
+  it('get scores of subject success', (done) => {
+    connect.returns({
+      contract: 'student',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    let listSubjects = [
+      {
+        SubjectID: '4e3efb82-8bdb-4f73-8efb-94520ba7c804',
+        SubjectCode: 'ET01',
+        SubjectName: 'Ethereum',
+        ShortDescription: 'Ethereum',
+        Description:
+          'Ethereum basic: you will be learnt about solidity, EVM and architech of Ethereum Blockchain',
+        Classes: ['6cd59291-fbb5-47ad-9db2-eb026e2d2b57', '2d285a2c-5f81-4656-8a2d-5f4fb21248e3']
+      },
+      {
+        SubjectID: '45294c64-2beb-47dd-9478-13eb4db7fc70',
+        SubjectCode: 'Tomo',
+        SubjectName: 'TomoChain',
+        ShortDescription: 'Tomo',
+        Description: 'Tomo',
+        Classes: ['0ef3aa77-c9c5-4733-997a-f88d11772c9b', '9b3d5a62-76bd-4c67-8c9b-53f72e23320b']
+      }
+    ];
+    let listScores = [
+      {
+        SubjectID: '4e3efb82-8bdb-4f73-8efb-94520ba7c804',
+        StudentUsername: 'st01',
+        ScoreValue: 10
+      }
+    ];
+
+    query.onFirstCall().returns({ success: true, msg: JSON.stringify(listSubjects) });
+    query.onSecondCall().returns({ success: true, msg: JSON.stringify(listScores) });
+
+    request(app)
+      .get(`/account/me/scores/${courseId}`)
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        expect(res.body.subjects.length).equal(2);
+        done();
+      });
+  });
+});

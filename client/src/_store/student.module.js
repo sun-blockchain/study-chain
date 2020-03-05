@@ -12,7 +12,8 @@ const state = {
   listMyClasses: [],
   listMyCourses: [],
   listNotRegisterCourses: [],
-  summaryInfo: []
+  summaryInfo: [],
+  subject: null
 };
 
 const actions = {
@@ -61,20 +62,18 @@ const actions = {
   },
   async getSubject({ commit }, subjectId) {
     try {
-      let subject = await studentService.getSubject(subjectId);
-      commit('getSubject', subject);
-      return subject;
+      let data = await studentService.getSubject(subjectId);
+      commit('getSubject', data.subject);
+      return data;
     } catch (error) {}
   },
-  async getSubjectsOfCourse({ commit }, courseId) {
+  async getSubjectsOfCourse({ commit, dispatch }, courseId) {
     try {
-      let listSubjects = await studentService.getSubjectsOfCourse(courseId);
-      commit('getSubjectsOfCourse', listSubjects);
-      return listSubjects;
+      let data = await studentService.getSubjectsOfCourse(courseId);
+      commit('getSubjectsOfCourse', data.subjects);
+      return data;
     } catch (error) {
-      if (error.response.status === 403) {
-        router.push('/403');
-      }
+      dispatch('alert/alertError', error, { root: true });
     }
   },
   async getClassesOfSubject({ commit }, subjectId) {
@@ -194,8 +193,8 @@ const mutations = {
   getCourse(state, listCourses) {
     state.listCourses = listCourses;
   },
-  getSubject(state, subjects) {
-    state.subjects = subjects;
+  getSubject(state, subject) {
+    state.subject = subject;
   },
   getSubjectsOfCourse(state, listSubjects) {
     state.listSubjects = listSubjects;

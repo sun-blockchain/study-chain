@@ -91,7 +91,7 @@ async function getSubject(subjectId) {
         headers: authHeader()
       }
     );
-    return respone.data.subject;
+    return respone.data;
   } catch (error) {
     throw error;
   }
@@ -99,10 +99,13 @@ async function getSubject(subjectId) {
 
 async function getSubjectsOfCourse(courseId) {
   try {
-    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/common/course/${courseId}`, {
-      headers: authHeader()
-    });
-    return respone.data.listSubjects;
+    let respone = await axios.get(
+      `${process.env.VUE_APP_API_BACKEND}/account/me/scores/${courseId}`,
+      {
+        headers: authHeader()
+      }
+    );
+    return respone.data;
   } catch (error) {
     throw error;
   }

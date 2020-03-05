@@ -1034,4 +1034,52 @@ router.get('/notRegisterCourses', async (req, res) => {
   });
 });
 
+router.get('/scores/:courseId', async (req, res) => {
+  const user = req.decoded.user;
+  if (user.role !== USER_ROLES.STUDENT) {
+    return res.status(403).json({
+      success: false,
+      msg: 'Permission Denied'
+    });
+  }
+
+  var courseId = req.params.courseId;
+  var username = user.username;
+
+  const networkObj = await network.connectToNetwork(user);
+  if (!networkObj) {
+    return res.status(500).json({
+      success: false,
+      msg: 'Failed connect to blockchain'
+    });
+  }
+  const resSubjects = await network.query(networkObj, 'GetSubjectsOfCourse', courseId);
+  const resScores = await network.query(networkObj, 'GetScoresOfStudent', [username, courseId]);
+  if (!resSubjects.success || !resScores.success) {
+    return res.status(500).json({
+      success: false,
+      msg: 'query chaincode error!'
+    });
+  }
+  let listSubjects = JSON.parse(resSubjects.msg);
+  let listScores = JSON.parse(resScores.msg);
+
+  if (listScores && listSubjects) {
+    for (let i = 0; i < listScores.length; i++) {
+      for (let j = 0; j < listSubjects.length; j++) {
+        if (listScores[i].SubjectID === listSubjects[j].SubjectID) {
+          let subject = listSubjects[j];
+          subject['score'] = listScores[i].ScoreValue;
+          listSubjects[j] = subject;
+        }
+      }
+    }
+  }
+
+  return res.json({
+    success: true,
+    subjects: listSubjects
+  });
+});
+
 module.exports = router;

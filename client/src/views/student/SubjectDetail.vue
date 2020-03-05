@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid">
-    <h1 class="bannerTitle_1wzmt7u mt-4">{{ subject.SubjectName }}</h1>
+    <h1 class="bannerTitle_1wzmt7u mt-4">{{ subject ? subject.SubjectName : '' }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item href="/student"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
       <b-breadcrumb-item :href="`/student/courses/${this.$route.params.id}`"
@@ -12,7 +12,7 @@
       <div>
         <div class="card-body">
           <h1 class="h3 mb-2 text-gray-800">About this subject</h1>
-          <p>{{ subject.Description }}</p>
+          <p>{{ subject ? subject.Description : '' }}</p>
         </div>
       </div>
     </div>
@@ -97,12 +97,9 @@ export default {
     ...mapState('student', ['listClasses', 'subject'])
   },
   async created() {
-    let subject = await this.getSubject(this.$route.params.subjectId);
-    let classes = await this.getClassesOfSubject(this.$route.params.subjectId);
-
-    if (classes && subject) {
-      this.loadingData = false;
-    }
+    await this.getSubject(this.$route.params.subjectId);
+    await this.getClassesOfSubject(this.$route.params.subjectId);
+    this.loadingData = false;
   }
 };
 </script>
