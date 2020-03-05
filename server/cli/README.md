@@ -175,6 +175,10 @@ node invoke.js --username=adminacademy --func=CreateClass --classCode=ETH101 --r
 ```
 
 ```bash
+node invoke.js --username=adminacademy --func=AddClassToTeacher --classId=xxxx --teacher=xxxx
+```
+
+```bash
 node invoke.js --username=adminacademy --func=UpdateSubjectInfo --subjectId=xxxx  --subjectCode=BC01 --subjectName=Blockchain --description=Blockchain --shortDescription=Blockchain0001
 ```
 
@@ -196,10 +200,6 @@ node invoke.js --username=adminacademy --func=RemoveClassFromSubject --subjectId
 
 ```bash
 node invoke.js --username=adminacademy --func=CloseRegisterClass --classId=xxxx
-```
-
-```bash
-node invoke.js --username=adminacademy --func=TeacherRegisterSubject --subjectid=ethereum --teacher=gv01
 ```
 
 ```bash

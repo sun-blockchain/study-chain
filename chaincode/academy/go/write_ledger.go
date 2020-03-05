@@ -376,12 +376,20 @@ func CreateCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 	}
 
 	student.Certificates = append(student.Certificates, CertificateID)
+	studentAsBytes, err := json.Marshal(student)
+	if err != nil {
+		return shim.Error("Can not convert data to bytes!")
+	}
 
 	var certificate = Certificate{CertificateID: CertificateID, CourseID: CourseID, StudentUsername: StudentUsername, IssueDate: IssueDate}
 
-	certificateAsBytes, err := json.Marshal(certificateAsBytes)
+	certificateAsBytes, err := json.Marshal(certificate)
+	if err != nil {
+		return shim.Error("Can not convert data to bytes!")
+	}
 
 	stub.PutState(keyCertificate, certificateAsBytes)
+	stub.PutState(keyStudent, studentAsBytes)
 
 	return shim.Success(nil)
 }
