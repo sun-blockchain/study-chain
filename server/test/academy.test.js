@@ -2094,23 +2094,23 @@ describe('#PUT /academy/closeRegisterClass', () => {
   });
 });
 
-describe('#POST /academy/removeClassFromSubject', () => {
+describe('#POST /academy/deleteClass', () => {
   let connect;
-  let removeClassFromSubject;
+  let deleteClass;
 
   beforeEach(() => {
     connect = sinon.stub(network, 'connectToNetwork');
-    removeClassFromSubject = sinon.stub(network, 'removeClassFromSubject');
+    deleteClass = sinon.stub(network, 'deleteClass');
   });
 
   afterEach(() => {
     connect.restore();
-    removeClassFromSubject.restore();
+    deleteClass.restore();
   });
 
   it('Permission denied when access routes with student', (done) => {
     request(app)
-      .post('/academy/removeClassFromSubject')
+      .post('/academy/deleteClass')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(403);
@@ -2127,16 +2127,15 @@ describe('#POST /academy/removeClassFromSubject', () => {
       user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
     });
 
-    removeClassFromSubject.returns({
+    deleteClass.returns({
       success: true,
       msg: 'Successfully Removed!'
     });
 
     request(app)
-      .post('/academy/removeClassFromSubject')
+      .post('/academy/deleteClass')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
-        subjectId: '96e9ebca-0e3e-40f0-ac30-94827b0c013a',
         classId: '12e9easa-0e3e-40f0-ac30-94827b0c013a'
       })
       .then((res) => {
@@ -2147,11 +2146,10 @@ describe('#POST /academy/removeClassFromSubject', () => {
 
   it('delete subject failed because req.body is invalid', (done) => {
     request(app)
-      .post('/academy/removeClassFromSubject')
+      .post('/academy/deleteClass')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
-        subjectId: '',
-        classId: '12e9easa-0e3e-40f0-ac30-94827b0c013a'
+        classId: ''
       })
       .then((res) => {
         expect(res.status).equal(422);
@@ -2167,15 +2165,14 @@ describe('#POST /academy/removeClassFromSubject', () => {
       user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
     });
 
-    removeClassFromSubject.returns({
+    deleteClass.returns({
       success: false,
       msg: 'Failed Removed!'
     });
     request(app)
-      .post('/academy/removeClassFromSubject')
+      .post('/academy/deleteClass')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
-        subjectId: '96e9ebca-0e3e-40f0-ac30-94827b0c013a',
         classId: '12e9easa-0e3e-40f0-ac30-94827b0c013a'
       })
       .then((res) => {

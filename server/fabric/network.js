@@ -628,18 +628,18 @@ exports.removeSubjectFromCourse = async function(networkObj, courseId, subjectId
   }
 };
 
-exports.removeClassFromSubject = async function(networkObj, subjectId, classId) {
-  if (!classId || !subjectId) {
+exports.deleteClass = async function(networkObj, classId) {
+  if (!classId) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can update!';
     return response;
   }
 
   try {
-    await networkObj.contract.submitTransaction('RemoveClassFromSubject', subjectId, classId);
+    await networkObj.contract.submitTransaction('DeleteClass', classId);
     let response = {
       success: true,
-      msg: 'Successfully Removed!'
+      msg: 'Delete Successfully!'
     };
 
     await networkObj.gateway.disconnect();

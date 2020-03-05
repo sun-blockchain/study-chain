@@ -889,13 +889,8 @@ router.put(
 );
 
 router.post(
-  '/removeClassFromSubject',
+  '/deleteClass',
   [
-    body('subjectId')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape(),
     body('classId')
       .not()
       .isEmpty()
@@ -928,7 +923,7 @@ router.post(
         });
       }
 
-      const response = await network.removeClassFromSubject(networkObj, subjectId, classId);
+      const response = await network.deleteClass(networkObj, classId);
 
       if (!response.success) {
         throw new Error('Chaincode return error');
@@ -936,7 +931,7 @@ router.post(
 
       return res.json({
         success: true,
-        msg: 'Remove Successfully!'
+        msg: 'Delete Successfully!'
       });
     } catch (error) {
       return res.status(500).json({
