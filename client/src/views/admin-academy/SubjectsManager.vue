@@ -133,19 +133,18 @@
       <el-form :model="infoSubject" ref="infoSubject">
         <div class="form-group">
           <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
-            >Subject Name</label
-          >
-          <div class="col-sm-12">
-            <h4 class="pl-3">{{ infoSubject.subjectName }}</h4>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
             >Subject Code</label
           >
           <div class="col-sm-12">
             <h4 class="pl-3">{{ infoSubject.subjectCode }}</h4>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
+            >Subject Name</label
+          >
+          <div class="col-sm-12">
+            <h4 class="pl-3">{{ infoSubject.subjectName }}</h4>
           </div>
         </div>
         <div class="form-group">
