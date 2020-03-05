@@ -367,13 +367,16 @@ func CreateCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 	}
 
 	// kiem tra da du diem cac mon hoc cua course day hay chua
+	var totalScore float64
 	for i = 0; i < len(course.Subjects); i++ {
 		keyScore := "Score-" + " " + "Subject-" + course.Subjects[i] + " " + "Student-" + StudentUsername
-		_, err = getScore(stub, keyScore)
+		score, err := getScore(stub, keyScore)
 		if err != nil {
 			return shim.Error("You have not completed all subjects in course yet!")
 		}
+		totalScore = totalScore + score.ScoreValue
 	}
+	GPA := totalScore / float64(len(course.Subjects))
 
 	student.Certificates = append(student.Certificates, CertificateID)
 	studentAsBytes, err := json.Marshal(student)
@@ -381,7 +384,7 @@ func CreateCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 		return shim.Error("Can not convert data to bytes!")
 	}
 
-	var certificate = Certificate{CertificateID: CertificateID, CourseID: CourseID, StudentUsername: StudentUsername, IssueDate: IssueDate}
+	var certificate = Certificate{CertificateID: CertificateID, CourseID: CourseID, StudentUsername: StudentUsername, IssueDate: IssueDate, GPA: GPA}
 
 	certificateAsBytes, err := json.Marshal(certificate)
 	if err != nil {

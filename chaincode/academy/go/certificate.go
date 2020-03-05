@@ -92,6 +92,7 @@ type Certificate struct {
 	CourseID        string
 	StudentUsername string
 	IssueDate       string
+	GPA             float64
 }
 
 func (s *SmartContract) Init(stub shim.ChaincodeStubInterface) sc.Response {
