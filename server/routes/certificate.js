@@ -79,13 +79,13 @@ router.post(
       });
     }
 
-    var issueDate = new Date().toString();
+    let issueDate = new Date().toJSON().slice(0, 10);
 
     let certificate = {
       certificateId: uuidv4(),
       courseId: req.body.courseId,
       studentUsername: user.username,
-      issueDate: issueDate
+      issueDate
     };
 
     networkObj = await network.connectToNetwork(user);
