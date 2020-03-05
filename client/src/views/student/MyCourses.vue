@@ -22,6 +22,8 @@
 import { mapState, mapActions } from 'vuex';
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 import TableStudent from '@/components/student/TableStudent';
+import { Message, MessageBox } from 'element-ui';
+
 export default {
   components: {
     ValidationObserver,

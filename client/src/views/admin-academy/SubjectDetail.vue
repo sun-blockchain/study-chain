@@ -25,11 +25,11 @@
       :nameFunctionEdit="`modalEdit`"
       :nameFunctionDelete="`delClass`"
       :btnDelete="true"
+      :statusCol="true"
       :listProperties="[
         { prop: 'ClassCode', label: 'Class Code' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
-        { prop: 'Status', label: 'Status' },
         { prop: 'Capacity', label: 'Capacity' }
       ]"
       @detailClass="detailClass($event)"
@@ -399,7 +399,6 @@ export default {
           });
           if (data) {
             if (data.success) {
-              await this.getClassesOfSubject(this.$route.params.id);
               await this.getClassesOfSubject(this.$route.params.id);
               Message.success('Delete completed!');
             } else {
