@@ -299,7 +299,7 @@ const actions = {
     try {
       let data = await adminService.getClassesOfTeacher(Username);
       commit('getClassesOfTeacher', data.classes);
-      return data;
+      return data.classes;
     } catch (error) {
       if (error.response.status === 403) {
         router.push('/403');
@@ -414,7 +414,6 @@ const actions = {
   async getTeacher({ commit }, username) {
     try {
       let data = await adminService.getTeacher(username);
-
       commit('getTeacher', data.teacher);
       return data.teacher;
     } catch (error) {

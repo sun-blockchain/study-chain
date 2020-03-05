@@ -35,15 +35,16 @@
       :loadingData="loadingData"
       :btnDelete="true"
       :nameFunctionDelete="`delSubject`"
+      :nameFunctionDetail="`detailClass`"
       :listProperties="[
         { prop: 'ClassCode', label: 'Class Code' },
         { prop: 'Time', label: 'Time' },
         { prop: 'StartDate', label: 'Start Date' },
         { prop: 'EndDate', label: 'End Date' },
-        { prop: 'Capacity', label: 'Capacity' },
-        { prop: 'ShortDescription', label: 'Short Description' }
+        { prop: 'Capacity', label: 'Capacity' }
       ]"
       @delSubject="delSubject($event)"
+      @detailClass="detailClass($event)"
     >
       <template v-slot:btn-create>
         <el-button
@@ -124,6 +125,11 @@ export default {
       'getClassesNoTeacher',
       'getTeacher'
     ]),
+    detailClass(row) {
+      this.$router.push({
+        path: `/academy/subjects/${row.SubjectID}/class/${row.ClassID}`
+      });
+    },
     handleAddClass(formName) {
       let self = this;
       this.$refs[formName].validate(async (valid) => {
@@ -188,14 +194,14 @@ export default {
     }
   },
   async created() {
-    let classOfTeacher = await this.getClassesOfTeacher(this.$route.params.id);
     let teacher = await this.getTeacher(this.$route.params.id);
+    let classOfTeacher = await this.getClassesOfTeacher(this.$route.params.id);
     let data = await this.getClassesNoTeacher();
 
     if (classOfTeacher && data && teacher) {
       this.classesNoTeacher = data.classesNoTeacher;
+      this.loadingData = false;
     }
-    this.loadingData = false;
   }
 };
 </script>

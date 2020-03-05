@@ -1191,7 +1191,7 @@ router.get(
       });
     }
 
-    let teacher = JSON.parse(response.msg);
+    let teacher = JSON.parse(response.msg) ? JSON.parse(response.msg) : {};
 
     return res.json({
       success: true,
