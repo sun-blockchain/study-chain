@@ -192,8 +192,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return GetClassesOfStudent(stub, args)
 	} else if function == "GetCoursesOfStudent" {
 		return GetCoursesOfStudent(stub, args)
-	} else if function == "RemoveClassFromSubject" {
-		return RemoveClassFromSubject(stub, args)
+	} else if function == "DeleteClass" {
+		return DeleteClass(stub, args)
 	} else if function == "GetStudentsOfCourse" {
 		return GetStudentsOfCourse(stub, args)
 	} else if function == "GetCertificatesOfStudent" {
@@ -557,7 +557,7 @@ func RemoveSubjectFromCourse(stub shim.ChaincodeStubInterface, args []string) sc
 
 }
 
-func RemoveClassFromSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+func DeleteClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	MSPID, err := cid.GetMSPID(stub)
 
 	if err != nil {
@@ -568,23 +568,53 @@ func RemoveClassFromSubject(stub shim.ChaincodeStubInterface, args []string) sc.
 		return shim.Error("Permission Denied!")
 	}
 
-	if len(args) != 2 {
-		return shim.Error("Incorrect number of arguments. Expecting 2")
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
 
-	SubjectID := args[0]
-	ClassID := args[1]
+	ClassID := args[0]
 
-	keySubject := "Subject-" + SubjectID
+	keyClass := "Class-" + ClassID
+
+	class, err := getClass(stub, keyClass)
+	if err != nil {
+		return shim.Error("This class does not exist!")
+	}
+
+	if class.Status != Open {
+		return shim.Error("Can not delete this class now!")
+	}
+
+	var i int
+	for i = 0; i < len(class.Students); i++ {
+		keyStudent := "Student-" + class.Students[i]
+		student, err := getStudent(stub, keyStudent)
+		var j int
+		var lenClasses = len(student.Classes)
+		for j = 0; j < lenClasses; j++ {
+			if student.Classes[j] == ClassID {
+				break
+			}
+		}
+		copy(student.Classes[j:], student.Classes[j+1:])
+		student.Classes[lenClasses-1] = ""
+		student.Classes = student.Classes[:lenClasses-1]
+
+		studentAsBytes, err := json.Marshal(student)
+		if err != nil {
+			return shim.Error("Can not conver data to bytes!")
+		}
+		stub.PutState(keyStudent, studentAsBytes)
+	}
+
+	keySubject := "Subject-" + class.SubjectID
 	subject, err := getSubject(stub, keySubject)
 
 	if err != nil {
 		return shim.Error("This subject doesn't eixst!")
 	}
 
-	var i int
 	len := len(subject.Classes)
-
 	for i = 0; i < len; i++ {
 		if subject.Classes[i] == ClassID {
 			break
@@ -595,9 +625,36 @@ func RemoveClassFromSubject(stub shim.ChaincodeStubInterface, args []string) sc.
 	subject.Classes[len-1] = ""
 	subject.Classes = subject.Classes[:len-1]
 
-	subjectAsBytes, _ := json.Marshal(subject)
+	keyTeacher := "Teacher-" + class.TeacherUsername
+	teacher, err := getTeacher(stub, keyTeacher)
+	if err != nil {
+		return shim.Error("Teacher does not eixst!")
+	}
 
+	len = len(teacher.Classes)
+	for i = 0; i < len; i++ {
+		if subject.Classes[i] == ClassID {
+			break
+		}
+	}
+
+	copy(teacher.Classes[i:], teacher.Classes[i+1:])
+	teacher.Classes[len-1] = ""
+	teacher.Classes = teacher.Classes[:len-1]
+
+	subjectAsBytes, err := json.Marshal(subject)
+	if err != nil {
+		return shim.Error("Can not convert data to bytes!")
+	}
+
+	teacherAsBytes, err := json.Marshal(teacher)
+	if err != nil {
+		return shim.Error("Can not convert data to bytes!")
+	}
+
+	stub.PutState(keyTeacher, teacherAsBytes)
 	stub.PutState(keySubject, subjectAsBytes)
+	stub.DelState(keyClass)
 
 	return shim.Success(nil)
 
@@ -945,12 +1002,11 @@ func DeleteCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 		return shim.Error("Course does not exist !")
 
-	} else {
-
-		stub.DelState(keyCourse)
-
-		return shim.Success(nil)
 	}
+
+	stub.DelState(keyCourse)
+
+	return shim.Success(nil)
 }
 
 func DeleteSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {

@@ -46,9 +46,9 @@ const actions = {
       }
     }
   },
-  async deleteClass({ commit, dispatch }, { subjectId, classId }) {
+  async deleteClass({ commit, dispatch }, { classId }) {
     try {
-      let data = await adminService.deleteClass(subjectId, classId);
+      let data = await adminService.deleteClass(classId);
       commit('deleteClass', data.courses);
     } catch (error) {
       dispatch('alert/alertError', error, { root: true });

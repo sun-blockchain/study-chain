@@ -359,11 +359,11 @@ async function getClass(classId) {
     throw error;
   }
 }
-async function deleteClass(subjectId, classId) {
+async function deleteClass(classId) {
   try {
     let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/academy/removeClassFromSubject`,
-      { subjectId: subjectId, classId: classId },
+      `${process.env.VUE_APP_API_BACKEND}/academy/deleteClass`,
+      { classId: classId },
       {
         headers: authHeader()
       }

@@ -195,7 +195,7 @@ node invoke.js --username=adminacademy --func=RemoveSubjectFromCourse --courseId
 ```
 
 ```bash
-node invoke.js --username=adminacademy --func=RemoveClassFromSubject --subjectId=xxxx --classId=xxxx
+node invoke.js --username=adminacademy --func=DeleteClass --classId=xxxx
 ```
 
 ```bash
