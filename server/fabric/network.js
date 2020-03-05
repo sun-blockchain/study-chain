@@ -829,15 +829,15 @@ exports.createCertificate = async function(networkObj, certificate) {
   }
 };
 
-exports.addClassToTeacher = async function(networkObj, classId, username) {
-  if (!classId || !username) {
+exports.addClassToTeacher = async function(networkObj, classId, teacher) {
+  if (!classId || !teacher) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can register!';
     return response;
   }
 
   try {
-    await networkObj.contract.submitTransaction('AddClassToTeacher', classId, username);
+    await networkObj.contract.submitTransaction('AddClassToTeacher', classId, teacher);
     let response = {
       success: true,
       msg: 'Create Successfully!'
