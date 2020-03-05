@@ -42,7 +42,7 @@ async function register(user) {
 }
 
 async function logout() {
-  await localStorage.removeItem('user');
+  localStorage.removeItem('user');
   location.reload(true);
 }
 

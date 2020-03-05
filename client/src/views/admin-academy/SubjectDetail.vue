@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid">
+  <div class="container-fluid" v-loading.fullscreen.lock="fullscreenLoading">
     <h1 class="bannerTitle_1wzmt7u">{{ listSubjects.SubjectName }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item to="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
@@ -49,12 +49,7 @@
       </template>
     </table-admin>
 
-    <el-dialog
-      title="Update Class"
-      :visible.sync="dialogForm.editClass"
-      class="modal-with-create"
-      v-loading.fullscreen.lock="fullscreenLoading"
-    >
+    <el-dialog title="Update Class" :visible.sync="dialogForm.editClass" class="modal-with-create">
       <el-form :model="editClass" :rules="ruleClass" ref="editClass">
         <el-form-item prop="ClassCode">
           <el-input
@@ -116,12 +111,7 @@
       </span>
     </el-dialog>
 
-    <el-dialog
-      title="Create Class"
-      :visible.sync="dialogForm.newClass"
-      class="modal-with-create"
-      v-loading.fullscreen.lock="fullscreenLoading"
-    >
+    <el-dialog title="Create Class" :visible.sync="dialogForm.newClass" class="modal-with-create">
       <el-form :model="newClass" :rules="ruleClass" ref="newClass">
         <el-form-item prop="ClassCode">
           <el-input
@@ -342,79 +332,85 @@ export default {
       this.dialogForm.editClass = true;
     },
 
-    async handleCreate() {
-      this.dialogForm.newClass = false;
+    async handleCreate(formName) {
+      let self = this;
+      this.$refs[formName].validate(async (valid) => {
+        if (valid) {
+          this.fullscreenLoading = true;
+          let data = await this.createClass(this.newClass);
+          if (data) {
+            if (data.success) {
+              this.resetForm('newClass');
+              Message.success('Class has been created!');
+              this.dialogForm.newClass = false;
+            } else {
+              Message.error(data.msg);
+            }
+          }
+          this.fullscreenLoading = false;
 
-      this.fullscreenLoading = true;
-      let response = await this.createClass(this.newClass);
-
-      if (response) {
-        this.resetInfoModalCreate();
-        this.fullscreenLoading = false;
-        this.$swal('Success!', 'Class has been created.', 'success');
-      }
-      await this.getClassesOfSubject(this.$route.params.id);
-    },
-    async handleUpdate() {
-      this.dialogForm.editClass = false;
-
-      this.fullscreenLoading = true;
-
-      let response = await this.updateClass(this.editClass);
-
-      if (response) {
-        //this.resetInfoModalEdit();
-        this.fullscreenLoading = false;
-        this.$swal('Success!', 'Class has been edited.', 'success');
-      }
-
-      await this.getClassesOfSubject(this.$route.params.id);
-    },
-    resetInfoModalEdit() {
-      this.editClass.ClassCode = '';
-      this.editClass.Room = '';
-      this.editClass.Time = '';
-      this.editClass.StartDate = '';
-      this.editClass.EndDate = '';
-      this.editClass.Repeat = '';
-      this.editClass.Capacity = '';
-    },
-    resetInfoModalCreate() {
-      this.newClass.ClassCode = '';
-      this.newClass.Room = '';
-      this.newClass.Time = '';
-      this.newClass.StartDate = '';
-      this.newClass.EndDate = '';
-      this.newClass.Repeat = '';
-      this.newClass.Capacity = '';
-      requestAnimationFrame(() => {
-        this.$refs.observer.reset();
+          await this.getClassesOfSubject(this.$route.params.id);
+        }
       });
     },
-    async delClass(row) {
-      this.$swal({
-        title: 'Are you sure to delete this?',
-        text: "You won't be able to revert this!",
-        type: 'warning',
-        showCancelButton: true,
-        cancelButtonColor: '#d33',
-        confirmButtonColor: '#28a745',
-        confirmButtonText: 'Yes, delete it!',
-        reverseButtons: true
-      }).then(async (result) => {
-        if (result.value) {
+    async handleUpdate(formName) {
+      let self = this;
+      this.$refs[formName].validate(async (valid) => {
+        if (valid) {
           this.fullscreenLoading = true;
-          await this.deleteClass({
+          let data = await this.updateClass(this.editClass);
+          if (data) {
+            if (data.success) {
+              this.dialogForm.editClass = false;
+              await this.resetForm('editClass');
+              Message.success('Update success!');
+            } else {
+              Message.error(data.msg);
+            }
+          }
+          this.fullscreenLoading = false;
+        }
+      });
+      await this.getClassesOfSubject(this.$route.params.id);
+    },
+    resetForm(formName) {
+      this[formName].ClassCode = '';
+      this[formName].Room = '';
+      this[formName].Time = '';
+      this[formName].StartDate = '';
+      this[formName].EndDate = '';
+      this[formName].Repeat = '';
+      this[formName].Capacity = '';
+      this.$refs[formName].resetFields();
+      this.dialogForm[formName] = false;
+    },
+    async delClass(row) {
+      MessageBox.confirm(`You won't be able to revert this!`, 'Delete', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+        center: true
+      })
+        .then(async () => {
+          this.fullscreenLoading = true;
+          let data = await this.deleteClass({
             subjectId: this.listSubjects.SubjectID,
             classId: row.ClassID
           });
-
-          await this.getClassesOfSubject(this.$route.params.id);
+          if (data) {
+            if (data.success) {
+              await this.getClassesOfSubject(this.$route.params.id);
+              await this.getClassesOfSubject(this.$route.params.id);
+              Message.success('Delete completed!');
+            } else {
+              Message.error(data.msg);
+            }
+          }
           this.fullscreenLoading = false;
-
-          this.$swal('Deleted!', 'Your file has been deleted.', 'success');
-        }
-      });
+        })
+        .catch(() => {
+          Message.info('Delete canceled');
+        });
     },
     btnCreate(item, button) {
       this.$root.$emit('bv::show::modal', button);

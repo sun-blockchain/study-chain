@@ -305,7 +305,7 @@ async function createClass(_class) {
         headers: authHeader()
       }
     );
-    return respone.data.classes;
+    return respone.data;
   } catch (error) {
     throw error;
   }
@@ -329,7 +329,7 @@ async function updateClass(_class) {
         headers: authHeader()
       }
     );
-    return respone.data.classes;
+    return respone.data;
   } catch (error) {
     throw error;
   }
@@ -369,7 +369,7 @@ async function deleteClass(subjectId, classId) {
       }
     );
 
-    return respone.data.courses;
+    return respone.data;
   } catch (error) {
     throw error;
   }
