@@ -625,34 +625,37 @@ func DeleteClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	subject.Classes[lenClass-1] = ""
 	subject.Classes = subject.Classes[:lenClass-1]
 
-	keyTeacher := "Teacher-" + class.TeacherUsername
-	teacher, err := getTeacher(stub, keyTeacher)
-	if err != nil {
-		return shim.Error("Teacher does not eixst!")
-	}
+	if class.TeacherUsername != "" {
 
-	lenClass = len(teacher.Classes)
-	for i = 0; i < lenClass; i++ {
-		if subject.Classes[i] == ClassID {
-			break
+		keyTeacher := "Teacher-" + class.TeacherUsername
+		teacher, err := getTeacher(stub, keyTeacher)
+		if err != nil {
+			return shim.Error("Teacher does not eixst!")
 		}
-	}
 
-	copy(teacher.Classes[i:], teacher.Classes[i+1:])
-	teacher.Classes[lenClass-1] = ""
-	teacher.Classes = teacher.Classes[:lenClass-1]
+		lenClass = len(teacher.Classes)
+		for i = 0; i < lenClass; i++ {
+			if teacher.Classes[i] == ClassID {
+				break
+			}
+		}
+
+		copy(teacher.Classes[i:], teacher.Classes[i+1:])
+		teacher.Classes[lenClass-1] = ""
+		teacher.Classes = teacher.Classes[:lenClass-1]
+
+		teacherAsBytes, err := json.Marshal(teacher)
+		if err != nil {
+			return shim.Error("Can not convert data to bytes!")
+		}
+		stub.PutState(keyTeacher, teacherAsBytes)
+	}
 
 	subjectAsBytes, err := json.Marshal(subject)
 	if err != nil {
 		return shim.Error("Can not convert data to bytes!")
 	}
 
-	teacherAsBytes, err := json.Marshal(teacher)
-	if err != nil {
-		return shim.Error("Can not convert data to bytes!")
-	}
-
-	stub.PutState(keyTeacher, teacherAsBytes)
 	stub.PutState(keySubject, subjectAsBytes)
 	stub.DelState(keyClass)
 
