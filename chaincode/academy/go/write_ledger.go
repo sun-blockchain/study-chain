@@ -276,6 +276,22 @@ func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("Permission Denied!")
 	}
 
+	if class.Status != Closed {
+		return shim.Error("Can not entry score now!")
+	}
+
+	var checkExist = false
+	for i = 0; i < len(class.Students); i++ {
+		if class.Students[i] == Student {
+			checkExist = true
+			break
+		}
+	}
+
+	if !checkExist {
+		return shim.Error("The student does not study in this class!")
+	}
+
 	SubjectID := class.SubjectID
 
 	keyScore := "Score-" + " " + "Subject-" + SubjectID + " " + "Student-" + Student
