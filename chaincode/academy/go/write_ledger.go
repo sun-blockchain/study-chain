@@ -281,6 +281,7 @@ func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	}
 
 	var checkExist = false
+	var i int
 	for i = 0; i < len(class.Students); i++ {
 		if class.Students[i] == Student {
 			checkExist = true
