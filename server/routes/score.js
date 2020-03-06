@@ -50,7 +50,7 @@ router.post(
       });
     }
 
-    let query = await network.query('GetClass', classId);
+    let query = await network.query(networkObj, 'GetClass', classId);
     if (!query.success) {
       return res.status(500).json({
         success: false,
