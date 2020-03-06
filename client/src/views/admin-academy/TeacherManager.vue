@@ -5,16 +5,11 @@
       :listAll="listTeachers"
       :loadingData="loadingData"
       :nameFunctionDetail="`detailTeacher`"
-      :btnInfo="true"
-      :nameFunctionInfo="`info`"
-      :btnDelete="true"
-      :nameFunctionDelete="`delTeacher`"
       :listProperties="[
         { prop: 'Fullname', label: 'Fullname' },
         { prop: 'Username', label: 'Username' }
       ]"
       @delTeacher="delTeacher($event)"
-      @info="info($event)"
       @detailTeacher="detailTeacher($event)"
     >
       <template v-slot:btn-create>
@@ -156,11 +151,6 @@ export default {
     detailTeacher(row) {
       this.$router.push({ path: `teachers/${row.Username}` });
     },
-    info(row) {
-      this.inforTeacher.fullName = row.Fullname;
-      this.inforTeacher.username = row.Username;
-      this.dialogForm.inforTeacher = true;
-    },
     handleCreate(formName) {
       this.$refs[formName].validate(async (valid) => {
         if (valid) {
@@ -184,23 +174,6 @@ export default {
       this[formName].fullName = '';
       this.$refs[formName].resetFields();
       this.dialogForm[formName] = false;
-    },
-    delTeacher(teacher) {
-      this.$swal({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        type: 'warning',
-        showCancelButton: true,
-        cancelButtonColor: '#d33',
-        confirmButtonColor: '#28a745',
-        confirmButtonText: 'Yes, delete it!',
-        reverseButtons: true
-      }).then((result) => {
-        if (result.value) {
-          this.deleteTeacher(teacher);
-          this.$swal('Deleted!', 'Your file has been deleted.', 'success');
-        }
-      });
     }
   },
   async created() {
