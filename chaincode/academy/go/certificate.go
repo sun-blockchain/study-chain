@@ -537,17 +537,17 @@ func RemoveSubjectFromCourse(stub shim.ChaincodeStubInterface, args []string) sc
 	}
 
 	var i int
-	len := len(course.Subjects)
+	lenSubjects := len(course.Subjects)
 
-	for i = 0; i < len; i++ {
+	for i = 0; i < lenSubjects; i++ {
 		if course.Subjects[i] == SubjectID {
 			break
 		}
 	}
 
 	copy(course.Subjects[i:], course.Subjects[i+1:])
-	course.Subjects[len-1] = ""
-	course.Subjects = course.Subjects[:len-1]
+	course.Subjects[lenSubjects-1] = ""
+	course.Subjects = course.Subjects[:lenSubjects-1]
 
 	courseAsBytes, _ := json.Marshal(course)
 
@@ -614,16 +614,16 @@ func DeleteClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("This subject doesn't eixst!")
 	}
 
-	len := len(subject.Classes)
-	for i = 0; i < len; i++ {
+	lenClass := len(subject.Classes)
+	for i = 0; i < lenClass; i++ {
 		if subject.Classes[i] == ClassID {
 			break
 		}
 	}
 
 	copy(subject.Classes[i:], subject.Classes[i+1:])
-	subject.Classes[len-1] = ""
-	subject.Classes = subject.Classes[:len-1]
+	subject.Classes[lenClass-1] = ""
+	subject.Classes = subject.Classes[:lenClass-1]
 
 	keyTeacher := "Teacher-" + class.TeacherUsername
 	teacher, err := getTeacher(stub, keyTeacher)
@@ -631,16 +631,16 @@ func DeleteClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("Teacher does not eixst!")
 	}
 
-	len = len(teacher.Classes)
-	for i = 0; i < len; i++ {
+	lenClass = len(teacher.Classes)
+	for i = 0; i < lenClass; i++ {
 		if subject.Classes[i] == ClassID {
 			break
 		}
 	}
 
 	copy(teacher.Classes[i:], teacher.Classes[i+1:])
-	teacher.Classes[len-1] = ""
-	teacher.Classes = teacher.Classes[:len-1]
+	teacher.Classes[lenClass-1] = ""
+	teacher.Classes = teacher.Classes[:lenClass-1]
 
 	subjectAsBytes, err := json.Marshal(subject)
 	if err != nil {
