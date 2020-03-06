@@ -23,7 +23,8 @@
       :listProperties="[
         { prop: 'SubjectCode', label: 'Subject Code' },
         { prop: 'SubjectName', label: 'Subject Name' },
-        { prop: 'ShortDescription', label: 'Short Description' }
+        { prop: 'ShortDescription', label: 'Short Description' },
+        { prop: 'score', label: 'Score' }
       ]"
       @detailSubjects="detailSubject($event)"
       @modalInfo="modalInfo($event)"
@@ -58,28 +59,6 @@ export default {
         courseName: '',
         description: ''
       },
-      options: [
-        {
-          value: 'Option1',
-          label: 'Option1'
-        },
-        {
-          value: 'Option2',
-          label: 'Option2'
-        },
-        {
-          value: 'Option3',
-          label: 'Option3'
-        },
-        {
-          value: 'Option4',
-          label: 'Option4'
-        },
-        {
-          value: 'Option5',
-          label: 'Option5'
-        }
-      ],
       infoSubject: {
         description: ''
       },
@@ -99,12 +78,9 @@ export default {
     ...mapState('student', ['listSubjects', 'listCourses'])
   },
   async created() {
-    let course = await this.getCourse(this.$route.params.id);
-    let subjects = await this.getSubjectsOfCourse(this.$route.params.id);
-
-    if (course && subjects) {
-      this.loadingData = false;
-    }
+    await this.getCourse(this.$route.params.id);
+    await this.getSubjectsOfCourse(this.$route.params.id);
+    this.loadingData = false;
   }
 };
 </script>

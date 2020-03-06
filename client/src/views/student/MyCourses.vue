@@ -48,7 +48,6 @@ export default {
         Message.error('fail to get certificate!');
       } else if (data.success) {
         Message.success('Get certificate successfully!');
-        this.$router.push({ path: `student/mycertificates` });
       }
       this.fullscreenLoading = false;
     }

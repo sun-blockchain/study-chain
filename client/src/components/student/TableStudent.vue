@@ -92,7 +92,7 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
-import { STATUS_CERT } from '../../_helpers/constants';
+import { STATUS_REGISTERED } from '../../_helpers/constants';
 import { Button, Table, TableColumn, Pagination, Input, Tooltip } from 'element-ui';
 export default {
   name: 'common-view-student',
@@ -121,7 +121,7 @@ export default {
   },
   data() {
     return {
-      STATUS_CERT: STATUS_CERT,
+      STATUS_REGISTERED: STATUS_REGISTERED,
       currentPage: 1,
       pageOptions: [10, 20, 50, 100],
       fullscreenLoading: false,
@@ -164,7 +164,13 @@ export default {
       this.setlistPagination();
     },
     callFunctionDetail(row) {
-      this.$emit(this.nameFunctionDetail, row);
+      if (row.score) {
+        if (row.score < 1) {
+          this.$emit(this.nameFunctionDetail, row);
+        }
+      } else {
+        this.$emit(this.nameFunctionDetail, row);
+      }
     },
     callFunctionGetCert(row) {
       this.$emit(this.nameFunctionGetCert, row);

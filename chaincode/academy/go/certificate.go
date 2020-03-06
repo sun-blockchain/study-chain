@@ -154,8 +154,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return StudentRegisterClass(stub, args)
 	} else if function == "StudentCancelRegisterClass" {
 		return StudentCancelRegisterClass(stub, args)
-	} else if function == "GetScoresByStudent" {
-		return GetScoresByStudent(stub, args)
+	} else if function == "GetScoresOfStudent" {
+		return GetScoresOfStudent(stub, args)
 	} else if function == "GetClassesByTeacher" {
 		return GetClassesByTeacher(stub, args)
 	} else if function == "CreateCourse" {
@@ -1825,43 +1825,48 @@ func GetCoursesOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.Res
 	return shim.Success(jsonRow)
 }
 
-func GetScoresByStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
-	// MSPID, err := cid.GetMSPID(stub)
+func GetScoresOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	// if err != nil {
-	// 	fmt.Println("Error - cid.GetMSPID()")
-	// }
-
-	// if MSPID != "AcademyMSP" {
-	// 	shim.Error("Permission Denied!")
-	// }
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2")
+	}
 
 	StudentUsername := args[0]
 
-	_, err := getStudent(stub, "Student-"+StudentUsername)
+	student, err := getStudent(stub, "Student-"+StudentUsername)
 
 	if err != nil {
 		return shim.Error("Student dose not exist - " + StudentUsername)
 	}
 
-	allScores, _ := getListScores(stub)
+	CourseID := args[1]
 
-	defer allScores.Close()
+	var exist = false
+	var j int
+	for j = 0; j < len(student.Courses); j++ {
+		if CourseID == student.Courses[j] {
+			exist = true
+			break
+		}
+	}
+
+	if !exist {
+		return shim.Error("Student does not in course!")
+	}
+
+	course, err := getCourse(stub, "Course-"+CourseID)
+
+	if err != nil {
+		return shim.Error("Course dose not exist - " + CourseID)
+	}
 
 	var tlist []Score
 	var i int
 
-	for i = 0; allScores.HasNext(); i++ {
+	for i = 0; i < len(course.Subjects); i++ {
 
-		record, err := allScores.Next()
-
-		if err != nil {
-			return shim.Success(nil)
-		}
-
-		score := Score{}
-		json.Unmarshal(record.Value, &score)
-		if score.StudentUsername == StudentUsername {
+		score, err := getScore(stub, "Score-"+" "+"Subject-"+course.Subjects[i]+" "+"Student-"+StudentUsername)
+		if err == nil {
 			tlist = append(tlist, score)
 		}
 	}
@@ -1869,7 +1874,7 @@ func GetScoresByStudent(stub shim.ChaincodeStubInterface, args []string) sc.Resp
 	jsonRow, err := json.Marshal(tlist)
 
 	if err != nil {
-		return shim.Error("Failed")
+		return shim.Error("Can not convert data to bytes!")
 	}
 
 	return shim.Success(jsonRow)

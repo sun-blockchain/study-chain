@@ -251,7 +251,7 @@ export default {
         StudentName: '',
         Class: ''
       },
-      fullscreenLoading: true,
+      fullscreenLoading: false,
       loadingData: false,
       formAdd: {
         subjectId: null
@@ -393,7 +393,6 @@ export default {
     let studentList = await this.getStudentsOfCourse(this.$route.params.id);
     if (course && subjectList && studentList) {
       this.subjectsNoCourse = subjectList;
-      this.fullscreenLoading = false;
     }
   }
 };

@@ -64,7 +64,7 @@
             <img
               v-if="listTeachers.Info && listTeachers.Info.Avatar"
               :src="listTeachers.Info.Avatar"
-              :alt="Avatar"
+              alt="Avatar"
               class="avatar"
             />
             <img v-else src="@/assets/img/avatar-default.png" class="avatar" />
@@ -237,12 +237,12 @@ export default {
     }
   },
   async created() {
-    let teacher = await this.getTeacher(this.$route.params.id);
-    let classOfTeacher = await this.getClassesOfTeacher(this.$route.params.id);
-    let data = await this.getClassesNoTeacher();
+    await this.getTeacher(this.$route.params.id);
+    await this.getClassesOfTeacher(this.$route.params.id);
+    let res = await this.getClassesNoTeacher();
 
-    if (data && teacher) {
-      this.classesNoTeacher = data.classesNoTeacher;
+    if (res) {
+      this.classesNoTeacher = res.classesNoTeacher;
     }
     this.loadingData = false;
   }

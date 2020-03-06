@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading.fullscreen.lock="fullscreenLoading">
     <table-student
       :title="`List Not Register Courses`"
       :listAll="listNotRegisterCourses"
