@@ -2317,3 +2317,157 @@ describe('#GET /account/me/scores/:courseId', () => {
       });
   });
 });
+
+describe('#GET /account/me/subject/:subjectId', () => {
+  let connect;
+  let query;
+  let subjectId = '0defc52c-6ebb-4373-8971-a36cf789e5d9';
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+  });
+
+  it('permission denied when access routes with role admin', (done) => {
+    request(app)
+      .get(`/account/me/subject/${subjectId}`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+  it('failed connect to blockchain', (done) => {
+    connect.returns(null);
+    request(app)
+      .get(`/account/me/subject/${subjectId}`)
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain!');
+        done();
+      });
+  });
+  it('Query subject chain code error', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'nghianv', role: USER_ROLES.STUDENT }
+    });
+
+    query.onFirstCall().returns({ success: false, msg: 'query subject error' });
+
+    request(app)
+      .get(`/account/me/subject/${subjectId}`)
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Query chaincode error!');
+        done();
+      });
+  });
+
+  it('Query classes chain code error', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'nghianv', role: USER_ROLES.STUDENT }
+    });
+
+    let subject = {
+      SubjectID: '0defc52c-6ebb-4373-8971-a36cf789e5d9',
+      SubjectCode: 'ET01',
+      SubjectName: 'Ethereum',
+      ShortDescription: 'Ethereum',
+      Description:
+        'Ethereum basic: you will be learnt about solidity, EVM and architech of Ethereum Blockchain',
+      Classes: ['e61bf835-7df3-4448-a488-2e44f872823a', '82db1096-7c46-485f-ad1e-664b3da2949e']
+    };
+
+    query.onFirstCall().returns({ success: true, msg: JSON.stringify(subject) });
+    query.onSecondCall().returns({ success: false, msg: 'Query classes error' });
+
+    request(app)
+      .get(`/account/me/subject/${subjectId}`)
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Query chaincode error!');
+        done();
+      });
+  });
+
+  it('get subject success', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    let subject = {
+      SubjectID: '0defc52c-6ebb-4373-8971-a36cf789e5d9',
+      SubjectCode: 'ET01',
+      SubjectName: 'Ethereum',
+      ShortDescription: 'Ethereum',
+      Description:
+        'Ethereum basic: you will be learnt about solidity, EVM and architech of Ethereum Blockchain',
+      Classes: ['e61bf835-7df3-4448-a488-2e44f872823a', '82db1096-7c46-485f-ad1e-664b3da2949e']
+    };
+
+    let classes = [
+      {
+        ClassID: 'e61bf835-7df3-4448-a488-2e44f872823a',
+        SubjectID: '0defc52c-6ebb-4373-8971-a36cf789e5d9',
+        ClassCode: 'ETH01',
+        Room: 'room 1',
+        Time: '10:24',
+        Status: 'Open',
+        StartDate: '10-03-2020',
+        EndDate: '31-03-2020',
+        Repeat: 'Weekly',
+        Students: ['hoangdd'],
+        Capacity: 10,
+        TeacherUsername: ''
+      },
+      {
+        ClassID: '82db1096-7c46-485f-ad1e-664b3da2949e',
+        SubjectID: '0defc52c-6ebb-4373-8971-a36cf789e5d9',
+        ClassCode: 'ETH02',
+        Room: 'room 2',
+        Time: '10:25',
+        Status: 'Open',
+        StartDate: '10-03-2020',
+        EndDate: '31-03-2020',
+        Repeat: 'Weekly',
+        Students: [],
+        Capacity: 10,
+        TeacherUsername: ''
+      }
+    ];
+    query.onFirstCall().returns({ success: true, msg: JSON.stringify(subject) });
+    query.onSecondCall().returns({ success: true, msg: JSON.stringify(classes) });
+
+    request(app)
+      .get(`/account/me/subject/${subjectId}`)
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        expect(res.body.subject.classRegistered).equal('e61bf835-7df3-4448-a488-2e44f872823a');
+        done();
+      });
+  });
+});

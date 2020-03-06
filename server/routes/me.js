@@ -3,7 +3,7 @@ const USER_ROLES = require('../configs/constant').USER_ROLES;
 const STATUS_REGISTERED = require('../configs/constant').STATUS_REGISTERED;
 const network = require('../fabric/network.js');
 const User = require('../models/User');
-const { validationResult, body } = require('express-validator');
+const { validationResult, body, check } = require('express-validator');
 const checkJWT = require('../middlewares/check-jwt');
 const cloudinary = require('cloudinary').v2;
 const multipart = require('connect-multiparty');
@@ -1081,5 +1081,60 @@ router.get('/scores/:courseId', async (req, res) => {
     subjects: listSubjects
   });
 });
+
+router.get(
+  '/subject/:subjectId',
+  check('subjectId')
+    .trim()
+    .escape(),
+  checkJWT,
+  async (req, res) => {
+    const user = req.decoded.user;
+    if (req.decoded.user.role !== USER_ROLES.STUDENT) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied'
+      });
+    }
+    const networkObj = await network.connectToNetwork(user);
+    if (!networkObj) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Failed connect to blockchain!'
+      });
+    }
+    const querySubject = await network.query(networkObj, 'GetSubject', req.params.subjectId);
+    const queryClassesOfSubject = await network.query(
+      networkObj,
+      'GetClassesOfSubject',
+      req.params.subjectId
+    );
+
+    if (!querySubject.success || !queryClassesOfSubject.success) {
+      res.status(500).send({
+        success: false,
+        msg: 'Query chaincode error!'
+      });
+      return;
+    }
+
+    let subject = JSON.parse(querySubject.msg);
+    let classes = JSON.parse(queryClassesOfSubject.msg);
+
+    if (classes) {
+      for (let i = 0; i < classes.length; i++) {
+        const aClass = classes[i];
+        if (aClass.Students && aClass.Students.includes(user.username)) {
+          subject['classRegistered'] = aClass.ClassID;
+          break;
+        }
+      }
+    }
+    return res.json({
+      success: true,
+      subject: subject
+    });
+  }
+);
 
 module.exports = router;

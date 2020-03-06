@@ -31,7 +31,12 @@
                   />
                 </template>
                 <template slot-scope="scope">
-                  <el-tooltip v-if="btnRegister" class="item" content="Register" placement="top">
+                  <el-tooltip
+                    v-if="btnRegister && !registeredId"
+                    class="item"
+                    content="Register"
+                    placement="top"
+                  >
                     <el-button
                       icon="fa fa-registered"
                       type="primary"
@@ -50,7 +55,10 @@
                     ></el-button>
                   </el-tooltip>
                   <el-tooltip
-                    v-if="btnCancel"
+                    v-if="
+                      (btnCancel && registeredId && scope.row[attrId] === registeredId) ||
+                        (btnCancel && !btnRegister)
+                    "
                     class="item"
                     content="Cancel Register"
                     placement="top"
@@ -61,7 +69,8 @@
                       round
                       size="mini"
                       @click.stop="callFunctionCancelRegistered(scope.row)"
-                    ></el-button>
+                    >
+                    </el-button>
                   </el-tooltip>
                 </template>
               </el-table-column>
@@ -117,7 +126,9 @@ export default {
     nameFunctionRegister: String,
     nameFunctionCancelRegistered: String,
     loadingData: Boolean,
-    listProperties: Array
+    listProperties: Array,
+    registeredId: String,
+    attrId: String
   },
   data() {
     return {

@@ -30,9 +30,9 @@ const actions = {
   },
   async getCourse({ commit }, courseId) {
     try {
-      let listCourses = await studentService.getCourse(courseId);
-      commit('getCourse', listCourses);
-      return listCourses;
+      let data = await studentService.getCourse(courseId);
+      commit('getCourse', data);
+      return data;
     } catch (error) {
       if (error.response.status === 403) {
         router.push('/403');
@@ -41,8 +41,8 @@ const actions = {
   },
   async cancelRegisteredClass({ commit }, classId) {
     try {
-      let response = await studentService.cancelRegisteredClass(classId);
-      return response;
+      let data = await studentService.cancelRegisteredClass(classId);
+      return data;
     } catch (error) {
       if (error.response.status === 403) {
         router.push('/403');
@@ -137,8 +137,8 @@ const actions = {
   },
   async registerClass({ commit }, classId) {
     try {
-      let response = await studentService.registerClass(classId);
-      return response;
+      let data = await studentService.registerClass(classId);
+      return data;
     } catch (error) {
       if (error.response.status === 403) {
         router.push('/403');
