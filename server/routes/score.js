@@ -30,24 +30,18 @@ router.post(
       return res.status(422).json({ errors: errors.array() });
     }
 
-    const user = req.decoded.user;
     const { classId, student, scoreValue } = req.body;
 
-    if (user.role !== USER_ROLES.TEACHER) {
+    if (req.decoded.user.role !== USER_ROLES.TEACHER) {
       return res.status(403).json({
         success: false,
         msg: 'Permission Denied'
       });
     }
 
-    const score = {
-      teacher: user.username,
-      classId,
-      studentUsername: student,
-      scoreValue
-    };
+    let teacher = req.decoded.user;
 
-    const networkObj = await network.connectToNetwork(user);
+    let networkObj = await network.connectToNetwork(teacher);
 
     if (!networkObj) {
       return res.status(500).json({
@@ -55,6 +49,45 @@ router.post(
         msg: 'Failed to connect blockchain'
       });
     }
+
+    let query = await network.query('GetClass', classId);
+    if (!query.success) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Can not query chaincode!'
+      });
+    }
+    let classInfo = JSON.parse(query.msg);
+
+    if (classInfo.TeacherUsername !== teacher.username) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied'
+      });
+    }
+
+    if (classInfo.Status != 'Closed') {
+      return res.status(403).json({
+        success: false,
+        msg: 'Can not entry score now!'
+      });
+    }
+
+    if (!classInfo.Students || !classInfo.Students.includes(student)) {
+      return res.status(403).json({
+        success: false,
+        msg: 'The student does not study in this class!'
+      });
+    }
+
+    const score = {
+      teacher: teacher.username,
+      classId,
+      studentUsername: student,
+      scoreValue
+    };
+
+    networkObj = await network.connectToNetwork(teacher);
 
     const response = await network.createScore(networkObj, score);
 
@@ -67,7 +100,7 @@ router.post(
 
     return res.json({
       success: true,
-      msg: 'Create score successfully'
+      msg: 'Create score successfully!'
     });
   }
 );
