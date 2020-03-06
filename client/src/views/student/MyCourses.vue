@@ -44,11 +44,11 @@ export default {
     async getCertificate(row) {
       this.fullscreenLoading = true;
       let data = await this.claimCertificate(row.CourseID);
-      if (data.success) {
+      if (!data) {
+        Message.error('fail to get certificate!');
+      } else if (data.success) {
         Message.success('Get certificate successfully!');
         this.$router.push({ path: `student/mycertificates` });
-      } else {
-        Message.success('fail to get certificate!');
       }
       this.fullscreenLoading = false;
     }
