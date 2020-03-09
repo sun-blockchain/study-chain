@@ -593,7 +593,7 @@ router.post(
       }
     }
 
-    if (classInfo.Status === 'Closed') {
+    if (classInfo.Status === 'InProgress') {
       return res.status(500).json({
         success: false,
         msg: 'Class register closed!'

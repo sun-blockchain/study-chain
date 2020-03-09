@@ -14,7 +14,7 @@
             <p>Capacity: {{ listClasses.Capacity }}</p>
             <p>
               Status:
-              <b-badge :variant="listClasses.Status === 'Open' ? 'success' : 'danger'">{{
+              <b-badge :variant="listClasses.Status === 'Open' ? 'success' : 'primary'">{{
                 listClasses.Status
               }}</b-badge>
             </p>
@@ -161,34 +161,9 @@ export default {
     'el-input-number': InputNumber
   },
   methods: {
-    ...mapActions('adminAcademy', ['getClass', 'closeClass', 'getStudentsOfClass']),
+    ...mapActions('adminAcademy', ['getClass', 'getStudentsOfClass']),
     ...mapActions('teacher', ['updateScore']),
 
-    close() {
-      this.$swal({
-        title: 'Are you sure to close this class?',
-        text: "You won't be able to revert this!",
-        type: 'warning',
-        showCancelButton: true,
-        cancelButtonColor: '#d33',
-        confirmButtonColor: '#28a745',
-        confirmButtonText: 'Yes, close it!',
-        reverseButtons: true
-      }).then(async (result) => {
-        if (result.value) {
-          this.fullscreenLoading = true;
-          await this.closeClass({
-            classId: this.$route.params.classId
-          });
-
-          await this.getClass(this.$route.params.classId);
-          this.fullscreenLoading = false;
-          this.status = false;
-
-          this.$swal('Closed!', 'This class has been closed.', 'success');
-        }
-      });
-    },
     editScoreModal(row) {
       this.showEditScore = true;
       this.Score.studentUsername = row.Username;

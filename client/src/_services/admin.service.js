@@ -343,7 +343,7 @@ async function closeClass(classId) {
         headers: authHeader()
       }
     );
-    return respone.data.success;
+    return respone.data;
   } catch (error) {
     throw error;
   }

@@ -233,7 +233,7 @@ describe('Route : /score', () => {
       let data = JSON.stringify({
         ClassID: '11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000',
         TeacherUsername: 'hoangdd',
-        Status: 'Closed',
+        Status: 'InProgress',
         Students: []
       });
 
@@ -269,7 +269,7 @@ describe('Route : /score', () => {
       let data = JSON.stringify({
         ClassID: '11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000',
         TeacherUsername: 'hoangdd',
-        Status: 'Closed',
+        Status: 'InProgress',
         Students: ['tantrinh']
       });
 
@@ -305,7 +305,7 @@ describe('Route : /score', () => {
       let data = JSON.stringify({
         ClassID: '11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000',
         TeacherUsername: 'hoangdd',
-        Status: 'Closed',
+        Status: 'InProgress',
         Students: ['tantrinh']
       });
 
