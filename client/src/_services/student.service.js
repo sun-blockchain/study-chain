@@ -48,7 +48,7 @@ async function getCourse(courseId) {
     let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/common/course/${courseId}`, {
       headers: authHeader()
     });
-    return respone.data.course;
+    return respone.data;
   } catch (error) {
     throw error;
   }
@@ -77,7 +77,7 @@ async function cancelRegisteredClass(classId) {
         headers: authHeader()
       }
     );
-    return respone;
+    return respone.data;
   } catch (error) {
     throw error;
   }
@@ -86,7 +86,7 @@ async function cancelRegisteredClass(classId) {
 async function getSubject(subjectId) {
   try {
     let respone = await axios.get(
-      `${process.env.VUE_APP_API_BACKEND}/common/subject/${subjectId}`,
+      `${process.env.VUE_APP_API_BACKEND}/account/me/subject/${subjectId}`,
       {
         headers: authHeader()
       }
@@ -182,7 +182,7 @@ async function registerClass(classId) {
         headers: authHeader()
       }
     );
-    return response;
+    return response.data;
   } catch (error) {
     throw error;
   }

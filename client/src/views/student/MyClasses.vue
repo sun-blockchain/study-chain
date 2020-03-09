@@ -1,15 +1,11 @@
 <template>
   <div class="container-fluid">
     <div class="mb-5">
-      <div>
-        <div class="card-body">
-          <h1 class="h3 mb-2 text-gray-800">My Classes</h1>
-        </div>
-      </div>
+      <div></div>
     </div>
 
     <table-student
-      :title="`Classes list`"
+      :title="`My Classes`"
       :listAll="listMyClasses"
       :loadingData="loadingData"
       :btnCancel="true"

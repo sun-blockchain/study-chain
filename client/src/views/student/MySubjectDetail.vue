@@ -24,6 +24,8 @@
       :btnRegister="true"
       :nameFunctionRegister="`enrollClass`"
       :nameFunctionDetail="`detailClass`"
+      :btnCancel="true"
+      :nameFunctionCancelRegistered="`cancelClass`"
       :listProperties="[
         { prop: 'ClassCode', label: 'Class Code' },
         { prop: 'Room', label: 'Room' },
@@ -31,8 +33,11 @@
         { prop: 'Status', label: 'Status' },
         { prop: 'Capacity', label: 'Capacity' }
       ]"
+      :registeredId="subject && subject.classRegistered ? subject.classRegistered : ''"
+      :attrId="`ClassID`"
       @enrollClass="enrollClass($event)"
       @detailClass="detailClass($event)"
+      @cancelClass="cancelClass($event)"
     ></table-student>
   </div>
 </template>
@@ -41,7 +46,7 @@
 import { mapState, mapActions } from 'vuex';
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 import TableStudent from '@/components/student/TableStudent';
-import { Button } from 'element-ui';
+import { Button, MessageBox, Message } from 'element-ui';
 export default {
   components: {
     ValidationObserver,
@@ -51,52 +56,74 @@ export default {
   },
   data() {
     return {
-      fullscreenLoading: true,
+      fullscreenLoading: false,
       loadingData: false
     };
   },
   methods: {
-    ...mapActions('student', ['getClassesOfSubject', 'getSubject', 'registerClass']),
+    ...mapActions('student', [
+      'getClassesOfSubject',
+      'getSubject',
+      'registerClass',
+      'cancelRegisteredClass'
+    ]),
     detailClass(row) {
       this.$router.push({
         path: `/student/subjects/${this.$route.subjectId}/class/${row.ClassID}`
       });
     },
-    async enrollClass(row) {
-      this.$swal({
-        text: 'Are you sure register this class ?',
+    enrollClass(row) {
+      MessageBox.confirm(`Are you sure register this class ?`, 'Enroll', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
         type: 'success',
-        showCancelButton: true,
-        cancelButtonColor: '#d33',
-        confirmButtonColor: '#28a745',
-        confirmButtonText: 'Confirm',
-        reverseButtons: true
-      }).then(async (result) => {
-        if (result.value) {
+        center: true
+      })
+        .then(async () => {
           this.fullscreenLoading = true;
-          let response = await this.registerClass(row.ClassID);
-          if (!response) {
-            this.fullscreenLoading = false;
-            this.$swal('Failed!', 'Failed to enroll this class.', 'error');
-          } else if (response.status === 200) {
-            this.fullscreenLoading = false;
-            this.$swal('Enrolled!', 'Successfully enrolled this class.', 'success');
+          let data = await this.registerClass(row.ClassID);
+          if (data) {
+            if (data.success) {
+              Message.success('Successfully enrolled this class!');
+              await this.getSubject(this.$route.params.subjectId);
+            } else {
+              Message.error('Failed to enroll this class!');
+            }
           }
-        }
-      });
+          this.fullscreenLoading = false;
+        })
+        .catch(() => {});
+    },
+    cancelClass(row) {
+      MessageBox.confirm(`Are you sure to cancel enrollment this class ?`, 'Cancel', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+        center: true
+      })
+        .then(async () => {
+          this.fullscreenLoading = true;
+          let data = await this.cancelRegisteredClass(row.ClassID);
+          if (data) {
+            if (data.success) {
+              Message.success('Successfully canceled enrollment!');
+              await this.getSubject(this.$route.params.subjectId);
+            } else {
+              Message.error('Failed to cancel this class!');
+            }
+          }
+          this.fullscreenLoading = false;
+        })
+        .catch(() => {});
     }
   },
   computed: {
-    ...mapState('student', ['listClasses', 'subjects'])
+    ...mapState('student', ['listClasses', 'subjects', 'subject'])
   },
   async created() {
-    let subjects = await this.getSubject(this.$route.params.subjectId);
-    let classes = await this.getClassesOfSubject(this.$route.params.subjectId);
-
-    if (classes && subjects) {
-      this.fullscreenLoading = false;
-      this.loadingData = false;
-    }
+    await this.getSubject(this.$route.params.subjectId);
+    await this.getClassesOfSubject(this.$route.params.subjectId);
+    this.loadingData = false;
   }
 };
 </script>
