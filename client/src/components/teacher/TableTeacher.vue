@@ -26,6 +26,26 @@
                 :prop="attibute.prop"
                 :key="index"
               ></el-table-column>
+              <el-table-column
+                v-if="statusCol"
+                sortable
+                label="Status"
+                :filters="[
+                  { text: 'Open', value: 'Open' },
+                  { text: 'In Progress', value: 'InProgress' }
+                ]"
+                :filter-method="filterTag"
+                filter-placement="bottom-end"
+              >
+                <template slot-scope="scope">
+                  <el-tag
+                    align="center"
+                    size="medium"
+                    :type="scope.row.Status === 'Open' ? 'success' : 'primary'"
+                    >{{ scope.row.Status }}</el-tag
+                  >
+                </template>
+              </el-table-column>
               <el-table-column align="center">
                 <template slot="header" slot-scope="scope">
                   <el-input
@@ -45,10 +65,10 @@
                       @click.stop="callFunctionInfo(scope.row)"
                     ></el-button>
                   </el-tooltip>
-                  <el-tooltip v-if="btnEdit" class="item" content="Score" placement="top">
+                  <el-tooltip v-if="btnEdit" class="item" content="Edit" placement="top">
                     <el-button
                       type="primary"
-                      icon="el-icon-edit-outline"
+                      icon="el-icon-edit"
                       round
                       size="mini"
                       @click.stop="callFunctionEdit(scope.row)"
@@ -121,7 +141,7 @@
 import { mapState, mapActions } from 'vuex';
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 import { STATUS_CERT } from '../../_helpers/constants';
-import { Button, Table, TableColumn, Pagination, Input, Tooltip } from 'element-ui';
+import { Button, Table, TableColumn, Pagination, Input, Tooltip, Tag } from 'element-ui';
 export default {
   name: 'common-view-admin',
   components: {
@@ -132,7 +152,8 @@ export default {
     'el-table-column': TableColumn,
     'el-pagination': Pagination,
     'el-input': Input,
-    'el-tooltip': Tooltip
+    'el-tooltip': Tooltip,
+    'el-tag': Tag
   },
   props: {
     title: String,
@@ -150,7 +171,8 @@ export default {
     btnCert: Boolean,
     nameFunctionCert: String,
     loadingData: Boolean,
-    listProperties: Array
+    listProperties: Array,
+    statusCol: Boolean
   },
   data() {
     return {
@@ -213,6 +235,9 @@ export default {
     },
     callFunctionCert(row) {
       this.$emit(this.nameFunctionCert, row);
+    },
+    filterTag(value, row) {
+      return row.Status === value;
     }
   }
 };

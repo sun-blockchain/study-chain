@@ -10,7 +10,11 @@
         <div>
           <div class="card-body">
             <h2 class="h4 mb-2 text-gray-800">About this classs</h2>
+            <p>Subject Name: {{ subjectName }}</p>
             <p>Time: {{ listClasses.Time }}</p>
+            <p>Start Date: {{ listClasses.StartDate }}</p>
+            <p>End Date: {{ listClasses.EndDate }}</p>
+            <p>Repeat: {{ listClasses.Repeat }}</p>
             <p>Capacity: {{ listClasses.Capacity }}</p>
             <p>
               Status:
@@ -137,6 +141,7 @@ export default {
       fullscreenLoading: false,
       showInfo: false,
       showEditScore: false,
+      subjectName: '',
       infoStudent: {
         PhoneNumber: '',
         Email: '',
@@ -161,7 +166,7 @@ export default {
     'el-input-number': InputNumber
   },
   methods: {
-    ...mapActions('adminAcademy', ['getClass', 'getStudentsOfClass']),
+    ...mapActions('adminAcademy', ['getClass', 'getStudentsOfClass', 'getSubject']),
     ...mapActions('teacher', ['updateScore']),
 
     editScoreModal(row) {
@@ -207,10 +212,13 @@ export default {
     ...mapState('teacher', ['scores'])
   },
   async created() {
-    let _class = await this.getClass(this.$route.params.classId);
+    let classInfo = await this.getClass(this.$route.params.classId);
     let student = await this.getStudentsOfClass(this.$route.params.classId);
-    if (_class.success && student) {
-      this.listClasses = _class.class;
+    let subjectInfo = await this.getSubject(classInfo.SubjectID);
+
+    if (classInfo && student.success && subjectInfo) {
+      this.listClasses = classInfo.class;
+      this.subjectName = subjectInfo.subject.SubjectName;
     }
     this.loadingData = false;
   }

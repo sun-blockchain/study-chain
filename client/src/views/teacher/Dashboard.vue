@@ -4,19 +4,17 @@
       :title="`List Classes Of Teacher`"
       :listAll="listClasses ? listClasses : []"
       :nameFunctionDetail="`detailClass`"
-      :btnInfo="true"
-      :nameFunctionInfo="`inforClass`"
       :loadingData="loadingData"
+      :statusCol="true"
       :listProperties="[
         { prop: 'ClassCode', label: 'Class Code' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
-        { prop: 'ShortDescription', label: 'Description' },
+        { prop: 'Repeat', label: 'Repeat' },
         { prop: 'Status', label: 'Status' },
         { prop: 'Capacity', label: 'Capacity' }
       ]"
       @detailClass="detailClass($event)"
-      @inforClass="inforClass($event)"
     >
     </table-teacher>
 
@@ -94,8 +92,6 @@ export default {
         Room: '',
         Time: '',
         Status: '',
-        ShortDescription: '',
-        Description: '',
         StartDate: '',
         EndDate: '',
         Repeat: '',
@@ -117,23 +113,6 @@ export default {
         params: { subjectId: row.SubjectID, classId: row.ClassID }
       });
     },
-    inforClass(row) {
-      this.infoClass.ClassID = row.ClassID;
-      this.infoClass.SubjectID = row.SubjectID;
-      this.infoClass.ClassCode = row.ClassCode;
-      this.infoClass.Room = row.Room;
-      this.infoClass.Time = row.Time;
-      this.infoClass.Status = row.Status;
-      this.infoClass.ShortDescription = row.ShortDescription;
-      this.infoClass.Description = row.Description;
-      this.infoClass.StartDate = row.StartDate;
-      this.infoClass.EndDate = row.EndDate;
-      this.infoClass.Repeat = row.Repeat;
-      this.infoClass.Students = row.Students ? row.Students : [];
-      this.infoClass.Capacity = row.Capacity ? row.Capacity : 0;
-      this.infoClass.TeacherUsername = row.TeacherUsername;
-      this.dialogForm.infoClass = true;
-    },
     resetForm() {
       this.infoClass.ClassID = '';
       this.infoClass.SubjectID = '';
@@ -141,8 +120,6 @@ export default {
       this.infoClass.Room = '';
       this.infoClass.Time = '';
       this.infoClass.Status = '';
-      this.infoClass.ShortDescription = '';
-      this.infoClass.Description = '';
       this.infoClass.StartDate = '';
       this.infoClass.EndDate = '';
       this.infoClass.Repeat = '';
