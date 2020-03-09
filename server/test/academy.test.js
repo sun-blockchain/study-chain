@@ -2096,55 +2096,46 @@ describe('#PUT /academy/closeRegisterClass', () => {
 
 describe('#POST /academy/deleteClass', () => {
   let connect;
+  let query;
   let deleteClass;
 
   beforeEach(() => {
     connect = sinon.stub(network, 'connectToNetwork');
     deleteClass = sinon.stub(network, 'deleteClass');
+    query = sinon.stub(network, 'query');
   });
 
   afterEach(() => {
     connect.restore();
     deleteClass.restore();
+    query.restore();
   });
 
-  it('Permission denied when access routes with student', (done) => {
+  it('Permission denied when access routes with student!', (done) => {
     request(app)
       .post('/academy/deleteClass')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(403);
         expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied!');
         done();
       });
   });
 
-  it('delete subject successfully', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
-    });
-
-    deleteClass.returns({
-      success: true,
-      msg: 'Successfully Removed!'
-    });
-
+  it('Permission denied when access routes with teacher!', (done) => {
     request(app)
       .post('/academy/deleteClass')
-      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-      .send({
-        classId: '12e9easa-0e3e-40f0-ac30-94827b0c013a'
-      })
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
       .then((res) => {
-        expect(res.status).equal(200);
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied!');
         done();
       });
   });
 
-  it('delete subject failed because req.body is invalid', (done) => {
+  it('Invalid Body!', (done) => {
     request(app)
       .post('/academy/deleteClass')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
@@ -2153,11 +2144,28 @@ describe('#POST /academy/deleteClass', () => {
       })
       .then((res) => {
         expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
         done();
       });
   });
 
-  it('delete subject failed because chaincode error', (done) => {
+  it('Failed connect to blockchain!', (done) => {
+    connect.returns(null);
+    request(app)
+      .post('/academy/deleteClass')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain!');
+        done();
+      });
+  });
+
+  it('Can not query chaincode!', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -2165,18 +2173,124 @@ describe('#POST /academy/deleteClass', () => {
       user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
     });
 
-    deleteClass.returns({
-      success: false,
-      msg: 'Failed Removed!'
+    query.returns({
+      success: false
     });
+
     request(app)
       .post('/academy/deleteClass')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
-        classId: '12e9easa-0e3e-40f0-ac30-94827b0c013a'
+        classId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not query chaincode!');
+        done();
+      });
+  });
+
+  it('Can delete this class now!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let classInfo = JSON.stringify({
+      ClassID: '123456',
+      Status: 'Closed'
+    });
+
+    query.returns({
+      success: true,
+      msg: classInfo
+    });
+
+    request(app)
+      .post('/academy/deleteClass')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can delete this class now!');
+        done();
+      });
+  });
+
+  it('Can not invoke chaincode!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let classInfo = JSON.stringify({
+      ClassID: '123456',
+      Status: 'Open'
+    });
+
+    query.returns({
+      success: true,
+      msg: classInfo
+    });
+
+    deleteClass.returns({
+      success: false
+    });
+
+    request(app)
+      .post('/academy/deleteClass')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not invoke chaincode!');
+        done();
+      });
+  });
+
+  it('Can not invoke chaincode!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let classInfo = JSON.stringify({
+      ClassID: '123456',
+      Status: 'Open'
+    });
+
+    query.returns({
+      success: true,
+      msg: classInfo
+    });
+
+    deleteClass.returns({
+      success: true
+    });
+
+    request(app)
+      .post('/academy/deleteClass')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        expect(res.body.msg).equal('Delete Successfully!');
         done();
       });
   });

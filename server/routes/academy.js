@@ -901,44 +901,57 @@ router.post(
     if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
       return res.status(403).json({
         success: false,
-        msg: 'Permission Denied'
+        msg: 'Permission Denied!'
       });
     }
 
-    try {
-      const errors = validationResult(req);
+    const errors = validationResult(req);
 
-      if (!errors.isEmpty()) {
-        return res.status(422).json({ success: false, errors: errors.array() });
-      }
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, errors: errors.array() });
+    }
 
-      const user = req.decoded.user;
-      const { subjectId, classId } = req.body;
-      let networkObj = await network.connectToNetwork(user);
+    const user = req.decoded.user;
+    const { classId } = req.body;
+    let networkObj = await network.connectToNetwork(user);
 
-      if (!networkObj) {
-        return res.status(500).json({
-          success: false,
-          msg: 'Failed connect to blockchain!'
-        });
-      }
-
-      const response = await network.deleteClass(networkObj, classId);
-
-      if (!response.success) {
-        throw new Error('Chaincode return error');
-      }
-
-      return res.json({
-        success: true,
-        msg: 'Delete Successfully!'
-      });
-    } catch (error) {
+    if (!networkObj) {
       return res.status(500).json({
         success: false,
-        msg: 'Remove Failed'
+        msg: 'Failed connect to blockchain!'
       });
     }
+
+    let query = await network.query(networkObj, 'GetClass', classId);
+    if (!query.success) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Can not query chaincode!'
+      });
+    }
+
+    let classInfo = JSON.parse(query.msg);
+    if (classInfo.Status !== 'Open') {
+      return res.status(500).json({
+        success: false,
+        msg: 'Can delete this class now!'
+      });
+    }
+
+    networkObj = await network.connectToNetwork(user);
+    const response = await network.deleteClass(networkObj, classId);
+
+    if (!response.success) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Can not invoke chaincode!'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      msg: 'Delete Successfully!'
+    });
   }
 );
 
