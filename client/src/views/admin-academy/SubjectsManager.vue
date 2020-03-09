@@ -4,8 +4,6 @@
       :title="`Subjects Manager`"
       :listAll="listSubjects"
       :loadingData="loadingData"
-      :btnInfo="true"
-      :nameFunctionInfo="`showInfoSubject`"
       :nameFunctionDetail="`detailSubject`"
       :btnEdit="true"
       :nameFunctionEdit="`modalEdit`"
@@ -124,51 +122,6 @@
         <el-button type="primary" @click="handleCreate('newSubject')">Confirm</el-button>
       </span>
     </el-dialog>
-
-    <el-dialog
-      title="Information Subject"
-      :visible.sync="dialogForm.infoSubject"
-      class="modal-with-create"
-    >
-      <el-form :model="infoSubject" ref="infoSubject">
-        <div class="form-group">
-          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
-            >Subject Code</label
-          >
-          <div class="col-sm-12">
-            <h4 class="pl-3">{{ infoSubject.subjectCode }}</h4>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
-            >Subject Name</label
-          >
-          <div class="col-sm-12">
-            <h4 class="pl-3">{{ infoSubject.subjectName }}</h4>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
-            >Short Description</label
-          >
-          <div class="col-sm-12">
-            <h4 class="pl-3">{{ infoSubject.shortDescription }}</h4>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
-            >Description</label
-          >
-          <div class="col-sm-12">
-            <h4 class="pl-3">{{ infoSubject.description }}</h4>
-          </div>
-        </div>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="resetForm('infoSubject')">Cancel</el-button>
-      </span>
-    </el-dialog>
   </div>
 </template>
 
@@ -201,12 +154,6 @@ export default {
       },
       editSubject: {
         subjectId: '',
-        subjectName: '',
-        subjectCode: '',
-        shortDescription: '',
-        description: ''
-      },
-      infoSubject: {
         subjectName: '',
         subjectCode: '',
         shortDescription: '',

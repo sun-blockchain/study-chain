@@ -18,6 +18,7 @@
               <p>Time: {{ listClasses.Time }}</p>
               <p>Start Date: {{ listClasses.StartDate }}</p>
               <p>End Date: {{ listClasses.EndDate }}</p>
+              <p>Repeat: {{ listClasses.Repeat }}</p>
             </div>
             <div class="col">
               <p>Capacity: {{ listClasses.Capacity }}</p>
@@ -31,6 +32,12 @@
                 Teacher:
                 <router-link :to="`/academy/teachers/${listClasses.TeacherUsername}`">
                   {{ listClasses.TeacherUsername }}
+                </router-link>
+              </p>
+              <p>
+                Subject:
+                <router-link :to="`/academy/subjects/${listClasses.SubjectID}`">
+                  {{ listClasses.SubjectID }}
                 </router-link>
               </p>
             </div>

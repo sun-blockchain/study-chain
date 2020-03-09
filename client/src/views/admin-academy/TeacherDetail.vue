@@ -86,6 +86,7 @@
         { prop: 'EndDate', label: 'End Date' },
         { prop: 'Capacity', label: 'Capacity' }
       ]"
+      :statusCol="true"
       @delSubject="delSubject($event)"
       @detailClass="detailClass($event)"
     >
@@ -212,25 +213,35 @@ export default {
       this.dialogForm.addClass = false;
     },
     delSubject(subject) {
-      this.$swal({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
+      MessageBox.confirm(`You won't be able to revert this!`, 'Remove', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
         type: 'warning',
-        showCancelButton: true,
-        cancelButtonColor: '#d33',
-        confirmButtonColor: '#28a745',
-        confirmButtonText: 'Yes, delete it!',
-        reverseButtons: true
-      }).then((result) => {
-        if (result.value) {
-          const Username = this.$route.params.id;
-          this.deleteSubjectOfTeacher({
+        center: true
+      })
+        .then(async () => {
+          this.fullscreenLoading = true;
+          //sua chaincode sau
+          let data = await this.deleteSubjectOfTeacher({
             Username: Username,
             subjectId: subject.SubjectID
           });
-          this.$swal('Deleted!', 'Your file has been deleted.', 'success');
-        }
-      });
+          if (data.success) {
+            await this.getClassesOfTeacher(this.$route.params.id);
+
+            Message.success('Remove completed!');
+          } else {
+            if (data.data.msg) {
+              Message.error(data.data.msg);
+            } else {
+              Message.error(data.statusText);
+            }
+          }
+          this.fullscreenLoading = false;
+        })
+        .catch(() => {
+          Message.info('Remove canceled');
+        });
     },
     addSubject(item, button) {
       this.$root.$emit('bv::show::modal', button);
