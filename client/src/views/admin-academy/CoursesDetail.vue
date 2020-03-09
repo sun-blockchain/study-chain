@@ -21,8 +21,6 @@
           :title="`Subjects List`"
           :listAll="subjectsOfCourse ? subjectsOfCourse : []"
           :loadingData="loadingData"
-          :btnInfo="true"
-          :nameFunctionInfo="`showInfoSubject`"
           :nameFunctionDetail="`detailSubject`"
           :nameFunctionDelete="`delSubject`"
           :btnDelete="true"
@@ -134,52 +132,6 @@
         <el-button type="primary" @click="handleAddSubject('formAdd')">Add</el-button>
       </span>
     </el-dialog>
-
-    <el-dialog
-      title="Information Subject"
-      :visible.sync="dialogForm.infoSubject"
-      class="modal-with-create"
-    >
-      <el-form :model="infoSubject" ref="infoSubject">
-        <div class="form-group">
-          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
-            >Subject Name</label
-          >
-          <div class="col-sm-12">
-            <h4 class="pl-3">{{ infoSubject.subjectName }}</h4>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
-            >Subject Code</label
-          >
-          <div class="col-sm-12">
-            <h4 class="pl-3">{{ infoSubject.subjectCode }}</h4>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
-            >Short Description</label
-          >
-          <div class="col-sm-12">
-            <h4 class="pl-3">{{ infoSubject.shortDescription }}</h4>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
-            >Description</label
-          >
-          <div class="col-sm-12">
-            <h4 class="pl-3">{{ infoSubject.description }}</h4>
-          </div>
-        </div>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="resetForm('infoSubject')">Cancel</el-button>
-      </span>
-    </el-dialog>
   </div>
 </template>
 
@@ -259,14 +211,7 @@ export default {
       ruleAdd: {
         subjectId: [{ required: true, message: 'Subject is required', trigger: 'blur' }]
       },
-      infoSubject: {
-        subjectName: '',
-        subjectCode: '',
-        shortDescription: '',
-        description: ''
-      },
       dialogForm: {
-        infoSubject: false,
         addSubject: false
       },
       showInfo: false
@@ -284,7 +229,7 @@ export default {
       this.$router.push({ path: `/academy/subjects/${row.SubjectID}` });
     },
     async delSubject(row) {
-      MessageBox.confirm(`You won't be able to revert this!`, 'Delete', {
+      MessageBox.confirm(`You won't be able to revert this!`, 'Remove', {
         confirmButtonText: 'OK',
         cancelButtonText: 'Cancel',
         type: 'warning',
@@ -347,13 +292,6 @@ export default {
     async resetAddSubject(formName) {
       this.$refs[formName].resetFields();
       this.dialogForm.addSubject = false;
-    },
-    showInfoSubject(row) {
-      this.infoSubject.subjectName = row.SubjectName;
-      this.infoSubject.subjectCode = row.SubjectCode;
-      this.infoSubject.shortDescription = row.ShortDescription;
-      this.infoSubject.description = row.Description;
-      this.dialogForm.infoSubject = true;
     },
     resetForm(formName) {
       this[formName].subjectId = '';

@@ -41,7 +41,7 @@
                   <el-tag
                     align="center"
                     size="medium"
-                    :type="scope.row.Status === 'Open' ? 'success' : 'danger'"
+                    :type="scope.row.Status === 'Open' ? 'success' : 'primary'"
                     >{{ scope.row.Status }}</el-tag
                   >
                 </template>
