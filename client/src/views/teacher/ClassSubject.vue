@@ -30,9 +30,7 @@
         :title="`Student List`"
         :listAll="listStudents ? listStudents : []"
         :loadingData="loadingData"
-        :btnInfo="true"
         :btnEdit="true"
-        :nameFunctionInfo="`showInfoStudent`"
         :nameFunctionEdit="`updateScore`"
         :nameFunctionDelete="`delStudent`"
         :btnDelete="false"
@@ -43,7 +41,6 @@
           { prop: 'Score', label: 'Score' }
         ]"
         @delStudent="delStudent($event)"
-        @showInfoStudent="showInfoStudent($event)"
         @updateScore="editScoreModal($event)"
       >
       </table-teacher>
@@ -62,52 +59,6 @@
         <span slot="footer" class="dialog-footer">
           <el-button type="danger" @click="cancelEdit()">Cancel</el-button>
           <el-button type="primary" @click="handleEditScore()">Confirm</el-button>
-        </span>
-      </el-dialog>
-
-      <el-dialog title="Information Student" :visible.sync="showInfo" class="modal-with-create">
-        <el-form :model="infoStudent" ref="infoStudent">
-          <div>
-            <img v-if="infoStudent.Avatar" :src="infoStudent.Avatar" :alt="Avatar" class="avatar" />
-            <img v-else src="@/assets/img/avatar-default.png" class="avatar" />
-          </div>
-
-          <div class="form-group">
-            <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
-              >Phone Number</label
-            >
-            <div class="col-sm-12">
-              <h4 class="pl-3">{{ infoStudent.PhoneNumber }}</h4>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
-              >Email</label
-            >
-            <div class="col-sm-12">
-              <h4 class="pl-3">{{ infoStudent.Email }}</h4>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
-              >Address</label
-            >
-            <div class="col-sm-12">
-              <h4 class="pl-3">{{ infoStudent.Address }}</h4>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
-              >Gender</label
-            >
-            <div class="col-sm-12">
-              <h4 class="pl-3">{{ infoStudent.Sex }}</h4>
-            </div>
-          </div>
-        </el-form>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="resetForm()">Cancel</el-button>
         </span>
       </el-dialog>
     </div>
@@ -182,7 +133,10 @@ export default {
         score: this.Score.scoreValue,
         studentUsername: this.Score.studentUsername
       });
-      if (score.success) {
+
+      let students = await this.getStudentsOfClass(this.$route.params.classId);
+
+      if (score.success && students.success) {
         Message.success('Success!');
       } else {
         Message.error('Error!');
@@ -192,16 +146,6 @@ export default {
     },
     cancelEdit() {
       this.showEditScore = false;
-    },
-    showInfoStudent(row) {
-      this.showInfo = true;
-      this.infoStudent.PhoneNumber = row.Info.PhoneNumber;
-      this.infoStudent.Email = row.Info.Email;
-      this.infoStudent.Address = row.Info.Address;
-      this.infoStudent.Sex = row.Info.Sex;
-      this.infoStudent.Birthday = row.Info.Birthday;
-      this.infoStudent.Avatar = row.Info.Avatar;
-      this.infoStudent.Country = row.Info.Country;
     },
     resetForm() {
       this.showInfo = false;

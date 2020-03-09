@@ -72,7 +72,7 @@
     ],
     "all": true,
     "check-coverage": true,
-    "lines": 70,
-    "statements": 70
+    "lines": 85,
+    "statements": 85
   }
 }
