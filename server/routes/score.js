@@ -66,7 +66,7 @@ router.post(
       });
     }
 
-    if (classInfo.Status != 'Closed') {
+    if (classInfo.Status != 'InProgress') {
       return res.status(403).json({
         success: false,
         msg: 'Can not entry score now!'

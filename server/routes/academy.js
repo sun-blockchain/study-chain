@@ -4,7 +4,7 @@ const network = require('../fabric/network.js');
 const checkJWT = require('../middlewares/check-jwt');
 const { body, validationResult, check } = require('express-validator');
 const uuidv4 = require('uuid/v4');
-const Status = { Open: 'Open', Closed: 'Closed', Completed: 'Completed' };
+const Status = { Open: 'Open', InProgress: 'InProgress', Completed: 'Completed' };
 const User = require('../models/User');
 
 // Edit course info

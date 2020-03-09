@@ -1574,7 +1574,7 @@ describe('POST /account/me/registerClass', () => {
     let classInfo = JSON.stringify({
       ClassID: '123456',
       SubjectID: 'Subject01',
-      Status: 'Closed'
+      Status: 'InProgress'
     });
 
     query.onSecondCall().returns({
@@ -1904,7 +1904,7 @@ describe('POST /account/me/cancelRegisteredClass', () => {
       });
   });
 
-  it('Class is Closed!', (done) => {
+  it('Class is InProgress!', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -1915,7 +1915,7 @@ describe('POST /account/me/cancelRegisteredClass', () => {
     let classInfo = JSON.stringify({
       ClassID: '123456',
       Students: ['hoangdd', 'st02'],
-      Status: 'Closed'
+      Status: 'InProgress'
     });
 
     query.returns({
@@ -1932,12 +1932,12 @@ describe('POST /account/me/cancelRegisteredClass', () => {
       .then((res) => {
         expect(res.status).equal(500);
         expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Class is Closed!');
+        expect(res.body.msg).equal('Class is InProgress!');
         done();
       });
   });
 
-  it('Class is Closed!', (done) => {
+  it('Class is InProgress!', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',

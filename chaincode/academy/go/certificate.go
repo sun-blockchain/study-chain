@@ -17,7 +17,7 @@ type ClassStatus string
 
 const (
 	Open      ClassStatus = "Open"
-	Closed    ClassStatus = "Closed"
+	InProgress    ClassStatus = "InProgress"
 	Completed ClassStatus = "Completed"
 )
 
@@ -241,7 +241,7 @@ func StudentRegisterClass(stub shim.ChaincodeStubInterface, args []string) sc.Re
 		return shim.Error("This class was completed!")
 	}
 
-	if class.Status == Closed {
+	if class.Status == InProgress {
 		return shim.Error("Class register closed!")
 	}
 
@@ -1071,7 +1071,7 @@ func CloseRegisterClass(stub shim.ChaincodeStubInterface, args []string) sc.Resp
 		return shim.Error("Can not close register!")
 	}
 
-	class.Status = Closed
+	class.Status = InProgress
 
 	classAsBytes, _ := json.Marshal(class)
 

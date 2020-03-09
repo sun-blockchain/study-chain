@@ -32,7 +32,7 @@
                 label="Status"
                 :filters="[
                   { text: 'Open', value: 'Open' },
-                  { text: 'Closed', value: 'Closed' }
+                  { text: 'In Progress', value: 'InProgress' }
                 ]"
                 :filter-method="filterTag"
                 filter-placement="bottom-end"

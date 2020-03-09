@@ -276,7 +276,7 @@ func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("Permission Denied!")
 	}
 
-	if class.Status != Closed {
+	if class.Status != InProgress {
 		return shim.Error("Can not entry score now!")
 	}
 

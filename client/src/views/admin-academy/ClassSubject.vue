@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid">
+  <div class="container-fluid" v-loading.fullscreen.lock="fullscreenLoading">
     <h1 class="bannerTitle_1wzmt7u">ClassRoom: {{ listClasses.Room }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item to="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
@@ -23,7 +23,7 @@
               <p>Capacity: {{ listClasses.Capacity }}</p>
               <p>
                 Status:
-                <b-badge :variant="listClasses.Status === 'Open' ? 'success' : 'danger'">{{
+                <b-badge :variant="listClasses.Status === 'Open' ? 'success' : 'primary'">{{
                   listClasses.Status
                 }}</b-badge>
               </p>
@@ -37,11 +37,11 @@
           </div>
           <el-button
             v-if="listClasses.Status === 'Open'"
-            type="danger"
+            type="primary"
             round
             size="mini"
-            @click="close()"
-            >Close</el-button
+            @click="startClass()"
+            >Start</el-button
           >
         </div>
       </div>
@@ -50,18 +50,12 @@
       :title="`Student List`"
       :listAll="listStudents ? listStudents : []"
       :loadingData="loadingData"
-      :btnInfo="true"
-      :nameFunctionInfo="`showInfoStudent`"
-      :nameFunctionDetail="`detailStudent`"
-      :nameFunctionDelete="`delStudent`"
-      :btnDelete="true"
+      :nameFunctionDetail="`showInfoStudent`"
       :listProperties="[
         { prop: 'Fullname', label: 'FullName' },
         { prop: 'Info.Birthday', label: 'Birthday' },
         { prop: 'Info.Address', label: 'Address' }
       ]"
-      @detailStudent="detailStudent($event)"
-      @delStudent="delStudent($event)"
       @showInfoStudent="showInfoStudent($event)"
     >
     </table-admin>
@@ -71,7 +65,22 @@
           <img v-if="infoStudent.Avatar" :src="infoStudent.Avatar" :alt="Avatar" class="avatar" />
           <img v-else src="@/assets/img/avatar-default.png" class="avatar" />
         </div>
-
+        <div class="form-group">
+          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
+            >Full name</label
+          >
+          <div class="col-sm-12">
+            <h4 class="pl-3">{{ infoStudent.Fullname }}</h4>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
+            >Birthday</label
+          >
+          <div class="col-sm-12">
+            <h4 class="pl-3">{{ infoStudent.Birthday }}</h4>
+          </div>
+        </div>
         <div class="form-group">
           <label for="colFormLabelLg" class="col-sm-12 col-form-label col-form-label-md"
             >Phone Number</label
@@ -122,6 +131,7 @@ export default {
   data() {
     return {
       loadingData: false,
+      fullscreenLoading: false,
       showInfo: false,
       infoStudent: {
         PhoneNumber: '',
@@ -147,30 +157,33 @@ export default {
   },
   methods: {
     ...mapActions('adminAcademy', ['getClass', 'closeClass', 'getStudentsOfClass']),
-    close() {
-      this.$swal({
-        title: 'Are you sure to close this class?',
-        text: "You won't be able to revert this!",
+    startClass() {
+      MessageBox.confirm(`Are you sure to start this class?`, {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
         type: 'warning',
-        showCancelButton: true,
-        cancelButtonColor: '#d33',
-        confirmButtonColor: '#28a745',
-        confirmButtonText: 'Yes, close it!',
-        reverseButtons: true
-      }).then(async (result) => {
-        if (result.value) {
+        center: true
+      })
+        .then(async () => {
           this.fullscreenLoading = true;
-          await this.closeClass({
-            classId: this.$route.params.classId
-          });
 
+          let data = await this.closeClass({ classId: this.$route.params.classId });
+
+          if (data) {
+            if (data.success) {
+              await this.getClass();
+              this.status = false;
+              Message.success('This class has been started!');
+            } else {
+              Message.error(data.msg);
+            }
+          }
           await this.getClass(this.$route.params.classId);
           this.fullscreenLoading = false;
-          this.status = false;
-
-          this.$swal('Closed!', 'This class has been closed.', 'success');
-        }
-      });
+        })
+        .catch(() => {
+          Message.info('Canceled');
+        });
     },
     showInfoStudent(row) {
       this.showInfo = true;
@@ -184,11 +197,6 @@ export default {
     },
     resetForm() {
       this.showInfo = false;
-    },
-    detailStudent(row) {
-      this.$router.push({
-        path: `/academy/student/${row.Username}`
-      });
     }
   },
   computed: {
