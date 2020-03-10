@@ -377,12 +377,10 @@ router.post(
   }
 );
 
-router.post(
-  '/coursesOfStudent',
+router.get(
+  '/coursesOfStudent/:username',
   checkJWT,
-  body('username')
-    .not()
-    .isEmpty()
+  check('username')
     .trim()
     .escape(),
   async (req, res) => {
@@ -393,8 +391,6 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
     }
-
-    const username = req.body.username;
 
     if (user.role !== USER_ROLES.ADMIN_ACADEMY) {
       return res.status(403).json({
@@ -412,7 +408,7 @@ router.post(
       });
     }
 
-    const response = await network.query(networkObj, 'GetCoursesOfStudent', username);
+    const response = await network.query(networkObj, 'GetCoursesOfStudent', req.params.username);
 
     if (!response.success) {
       return res.status(500).json({
@@ -427,7 +423,53 @@ router.post(
     });
   }
 );
+//get class of student
+router.get(
+  '/classesOfStudent/:username',
+  checkJWT,
+  check('username')
+    .trim()
+    .escape(),
+  async (req, res) => {
+    const user = req.decoded.user;
 
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    if (user.role !== USER_ROLES.ADMIN_ACADEMY) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied'
+      });
+    }
+
+    const networkObj = await network.connectToNetwork(user);
+
+    if (!networkObj) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Connect to blockchain failed'
+      });
+    }
+
+    const response = await network.query(networkObj, 'GetClassesOfStudent', req.params.username);
+
+    if (!response.success) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Query chaincode failed'
+      });
+    }
+    let classes = JSON.parse(response.msg) ? JSON.parse(response.msg) : [];
+    return res.json({
+      success: true,
+      classes: classes
+    });
+  }
+);
 // Create class
 router.post(
   '/subject/:subjectId/class',
