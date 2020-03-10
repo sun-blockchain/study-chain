@@ -54,7 +54,7 @@
                   <el-tooltip
                     v-if="btnRegister && !registeredId"
                     class="item"
-                    content="Register"
+                    content="Enroll"
                     placement="top"
                   >
                     <el-button
@@ -80,7 +80,7 @@
                         (btnCancel && !btnRegister)
                     "
                     class="item"
-                    content="Cancel Register"
+                    content="Cancel Enrollment"
                     placement="top"
                   >
                     <el-button

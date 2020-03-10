@@ -23,6 +23,7 @@
 import { mapState, mapActions } from 'vuex';
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 import TableStudent from '@/components/student/TableStudent';
+import { MessageBox, Message } from 'element-ui';
 export default {
   components: {
     ValidationObserver,
@@ -47,29 +48,27 @@ export default {
       this.infoCourse.description = row.Description;
       this.$root.$emit('bv::show::modal', 'modal-info');
     },
-    async enrollCourse(row) {
-      this.$swal({
-        text: 'Are you sure register this course ?',
+    enrollCourse(row) {
+      MessageBox.confirm(`Are you sure enroll this course ?`, 'Enroll', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
         type: 'success',
-        showCancelButton: true,
-        cancelButtonColor: '#d33',
-        confirmButtonColor: '#28a745',
-        confirmButtonText: 'Confirm',
-        reverseButtons: true
-      }).then(async (result) => {
-        if (result.value) {
+        center: true
+      })
+        .then(async () => {
           this.fullscreenLoading = true;
-          let response = await this.registerCourse(row.CourseID);
-          if (response.status === 200) {
-            this.fullscreenLoading = false;
-            this.$swal('Registered!', 'Course has been registered.', 'success');
-            this.$router.push({ path: `/myCourses` });
-          } else {
-            this.fullscreenLoading = false;
-            this.$swal('Failed!', 'Fail to register course.', 'danger');
+          let data = await this.registerCourse(row.CourseID);
+          if (data) {
+            if (data.success) {
+              Message.success('Successfully enrolled this course!');
+              this.$router.push({ path: `/myCourses` });
+            } else {
+              Message.error('Failed to enroll this course!');
+            }
           }
-        }
-      });
+          this.fullscreenLoading = false;
+        })
+        .catch(() => {});
     }
   },
   computed: {

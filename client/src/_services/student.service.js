@@ -167,7 +167,7 @@ async function registerCourse(courseId) {
         headers: authHeader()
       }
     );
-    return response;
+    return response.data;
   } catch (error) {
     throw error;
   }

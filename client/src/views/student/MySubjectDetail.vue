@@ -73,7 +73,7 @@ export default {
       });
     },
     enrollClass(row) {
-      MessageBox.confirm(`Are you sure register this class ?`, 'Enroll', {
+      MessageBox.confirm(`Are you sure to enroll this class ?`, 'Enroll', {
         confirmButtonText: 'OK',
         cancelButtonText: 'Cancel',
         type: 'success',
