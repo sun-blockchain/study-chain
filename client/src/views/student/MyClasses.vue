@@ -13,6 +13,7 @@
       :nameFunctionDetail="`detailClass`"
       :listProperties="[
         { prop: 'ClassCode', label: 'Class Code' },
+        { prop: 'SubjectName', label: 'Subject Name' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
         { prop: 'Status', label: 'Status' },

@@ -936,18 +936,31 @@ router.get('/classes', async (req, res) => {
     });
   }
 
-  const response = await network.query(networkObj, 'GetClassesOfStudent', user.username);
+  let classes = await network.query(networkObj, 'GetClassesOfStudent', user.username);
+  let subjects = await network.query(networkObj, 'GetAllSubjects');
 
-  if (!response.success) {
+  if (!classes.success || !subjects.success) {
     return res.status(500).json({
       success: false,
       msg: 'Query chaincode failed'
     });
   }
 
+  classes = JSON.parse(classes.msg) ? JSON.parse(classes.msg) : [];
+  subjects = JSON.parse(subjects.msg) ? JSON.parse(subjects.msg) : [];
+
+  for (let i = 0; i < classes.length; i++) {
+    for (let k = 0; k < subjects.length; k++) {
+      if (classes[i].SubjectID === subjects[k].SubjectID) {
+        classes[i].SubjectName = subjects[k].SubjectName;
+        break;
+      }
+    }
+  }
+
   return res.json({
     success: true,
-    classes: JSON.parse(response.msg)
+    classes
   });
 });
 
