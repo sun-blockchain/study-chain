@@ -11,6 +11,7 @@
       :btnCancel="true"
       :nameFunctionCancelRegistered="`cancelClass`"
       :nameFunctionDetail="`detailClass`"
+      :statusCol="true"
       :listProperties="[
         { prop: 'ClassCode', label: 'Class Code' },
         { prop: 'Room', label: 'Room' },
