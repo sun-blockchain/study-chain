@@ -13,7 +13,8 @@ const state = {
   listMyCourses: [],
   listNotRegisterCourses: [],
   summaryInfo: [],
-  subject: null
+  subject: null,
+  courseInfo: []
 };
 
 const actions = {
@@ -190,8 +191,8 @@ const mutations = {
   getSummaryInfo(state, summaryInfo) {
     state.summaryInfo = summaryInfo;
   },
-  getCourse(state, listCourses) {
-    state.listCourses = listCourses;
+  getCourse(state, courseInfo) {
+    state.courseInfo = courseInfo;
   },
   getSubject(state, subject) {
     state.subject = subject;

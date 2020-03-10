@@ -25,7 +25,7 @@
     </b-modal>
     <table-student
       :title="`List Subjects`"
-      :listAll="listSubjects"
+      :listAll="courseInfo.listSubjects"
       :loadingData="loadingData"
       :btnInfo="true"
       :nameFunctionDetail="`detailSubjects`"
@@ -110,13 +110,12 @@ export default {
     }
   },
   computed: {
-    ...mapState('student', ['listSubjects', 'listCourses'])
+    ...mapState('student', ['listSubjects', 'listCourses', 'courseInfo'])
   },
   async created() {
     let course = await this.getCourse(this.$route.params.id);
-    let subjects = await this.getSubjectsOfCourse(this.$route.params.id);
 
-    if (course && subjects) {
+    if (course) {
       this.loadingData = false;
     }
   }
