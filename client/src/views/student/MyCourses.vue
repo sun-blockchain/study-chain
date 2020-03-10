@@ -4,6 +4,7 @@
       :title="`My Courses`"
       :listAll="listMyCourses"
       :loadingData="loadingData"
+      :Progressing="true"
       :btnGetCert="true"
       :nameFunctionDetail="`detailCourses`"
       :nameFunctionGetCert="`getCert`"

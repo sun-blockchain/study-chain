@@ -41,6 +41,26 @@
                   >
                 </template>
               </el-table-column>
+              <el-table-column
+                v-if="Progressing"
+                sortable
+                label="Progressing"
+                :filters="[
+                  { text: 'Completed', value: 'Completed' },
+                  { text: 'Learning', value: 'Learning' }
+                ]"
+                :filter-method="filterProgress"
+                filter-placement="bottom-end"
+              >
+                <template slot-scope="scope">
+                  <el-tag
+                    align="center"
+                    size="medium"
+                    :type="scope.row.Progressing === 'Completed' ? 'success' : 'primary'"
+                    >{{ scope.row.Progressing }}</el-tag
+                  >
+                </template>
+              </el-table-column>
               <el-table-column align="center">
                 <template slot="header" slot-scope="scope">
                   <el-input
@@ -150,7 +170,8 @@ export default {
     listProperties: Array,
     registeredId: String,
     attrId: String,
-    statusCol: Boolean
+    statusCol: Boolean,
+    Progressing: Boolean
   },
   data() {
     return {
@@ -216,6 +237,9 @@ export default {
     },
     filterTag(value, row) {
       return row.Status === value;
+    },
+    filterProgress(value, row) {
+      return row.Progressing === value;
     }
   }
 };

@@ -983,18 +983,36 @@ router.get('/courses', async (req, res) => {
     });
   }
 
-  const response = await network.query(networkObj, 'GetCoursesOfStudent', user.username);
+  let courses = await network.query(networkObj, 'GetCoursesOfStudent', user.username);
+  let certs = await network.query(networkObj, 'GetCertificatesOfStudent', user.username);
 
-  if (!response.success) {
+  if (!courses.success || !certs.success) {
     return res.status(500).json({
       success: false,
       msg: 'Query chaincode failed'
     });
   }
 
+  courses = JSON.parse(courses.msg) ? JSON.parse(courses.msg) : [];
+  certs = JSON.parse(certs.msg) ? JSON.parse(certs.msg) : [];
+
+  for (let i = 0; i < courses.length; i++) {
+    courses[i].Progressing = 'Learning';
+    delete courses[i].Students;
+  }
+
+  for (let i = 0; i < courses.length; i++) {
+    for (let k = 0; k < certs.length; k++) {
+      if (courses[i].CourseID === certs[k].CourseID) {
+        courses[i].Progressing = 'Completed';
+        break;
+      }
+    }
+  }
+
   return res.json({
     success: true,
-    courses: JSON.parse(response.msg)
+    courses
   });
 });
 
