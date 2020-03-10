@@ -128,8 +128,8 @@ const actions = {
   },
   async registerCourse({ commit }, courseId) {
     try {
-      let response = await studentService.registerCourse(courseId);
-      return response;
+      let data = await studentService.registerCourse(courseId);
+      return data;
     } catch (error) {
       if (error.response.status === 403) {
         router.push('/403');
