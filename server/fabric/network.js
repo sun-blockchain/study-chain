@@ -738,6 +738,30 @@ exports.closeCourse = async function(networkObj, courseId) {
   }
 };
 
+exports.openCourse = async function(networkObj, courseId) {
+  if (!courseId) {
+    let response = {};
+    response.error = 'Error! You need to fill all fields before you can register!';
+    return response;
+  }
+
+  try {
+    await networkObj.contract.submitTransaction('OpenCourse', courseId);
+    let response = {
+      success: true,
+      msg: 'Close successfully!'
+    };
+    await networkObj.gateway.disconnect();
+    return response;
+  } catch (error) {
+    let response = {
+      success: false,
+      msg: error
+    };
+    return response;
+  }
+};
+
 exports.deleteSubject = async function(networkObj, subjectId) {
   if (!subjectId) {
     let response = {};

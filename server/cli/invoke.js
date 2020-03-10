@@ -115,6 +115,16 @@ async function main() {
           await conn.closeCourse(networkObj, courseId);
           console.log('Transaction has been submitted');
           process.exit(0);
+        } else if (functionName === 'OpenCourse' && user.role === USER_ROLES.ADMIN_ACADEMY) {
+          /**
+           * Close Course
+           * @param  {String} courseId course Id (required)
+           */
+
+          let courseId = argv.courseId.toString();
+          await conn.openCourse(networkObj, courseId);
+          console.log('Transaction has been submitted');
+          process.exit(0);
         } else if (
           functionName === 'UpdateUserInfo' &&
           (user.role === USER_ROLES.STUDENT || user.role === USER_ROLES.TEACHER)

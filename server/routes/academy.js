@@ -366,7 +366,7 @@ router.post(
     }
 
     let { courseId } = req.body;
-    let query = await network.query('GetCourse', courseId);
+    let query = await network.query(networkObj, 'GetCourse', courseId);
     if (!query.success) {
       return res.status(500).json({
         success: false,

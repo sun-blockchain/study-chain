@@ -174,6 +174,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return UpdateClassInfo(stub, args)
 	} else if function == "CloseCourse" {
 		return CloseCourse(stub, args)
+	} else if function == "OpenCourse" {
+		return OpenCourse(stub, args)
 	} else if function == "UpdateUserInfo" {
 		return UpdateUserInfo(stub, args)
 	} else if function == "UpdateUserAvatar" {
@@ -1030,6 +1032,49 @@ func CloseCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	}
 
 	course.Status = Closed
+
+	courseAsBytes, err := json.Marshal(course)
+
+	if err != nil {
+		return shim.Error("Can not convert data to bytes!")
+	}
+
+	stub.PutState(keyCourse, courseAsBytes)
+
+	return shim.Success(nil)
+}
+
+func OpenCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		return shim.Error("Error - cid.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		return shim.Error("Permission Denied!")
+	}
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	CourseID := args[0]
+
+	keyCourse := "Course-" + CourseID
+	course, err := getCourse(stub, keyCourse)
+
+	if err != nil {
+
+		return shim.Error("Course does not exist !")
+
+	}
+
+	if course.Status == Open {
+		return shim.Error("This course is open!")
+	}
+
+	course.Status = Open
 
 	courseAsBytes, err := json.Marshal(course)
 

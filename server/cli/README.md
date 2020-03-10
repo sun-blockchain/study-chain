@@ -167,6 +167,10 @@ node invoke.js --username=adminacademy --func=CloseCourse --courseId=xxxx
 ```
 
 ```bash
+node invoke.js --username=adminacademy --func=OpenCourse --courseId=xxxx
+```
+
+```bash
 node invoke.js --username=adminacademy --func=CreateSubject --subjectCode=ET01 --subjectName=Ethereum --shortDescription=Ethereum --description=Ethereum
 ```
 
