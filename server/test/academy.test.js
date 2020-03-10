@@ -362,9 +362,10 @@ describe('#POST /academy/deleteCourse', () => {
   });
 });
 
-describe('#POST /academy/coursesOfStudent', () => {
+describe('#GET /academy/coursesOfStudent/:username', () => {
   let queryCourses;
   let connect;
+  let username = 'quangnt';
 
   beforeEach(() => {
     connect = sinon.stub(network, 'connectToNetwork');
@@ -378,26 +379,10 @@ describe('#POST /academy/coursesOfStudent', () => {
 
   it('permission denied', (done) => {
     request(app)
-      .post('/academy/coursesOfStudent')
+      .get(`/academy/coursesOfStudent/${username}`)
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        username: 'conglt'
-      })
       .then((res) => {
         expect(res.status).equal(403);
-        done();
-      });
-  });
-
-  it('failed because req.body is invalid', (done) => {
-    request(app)
-      .post('/academy/coursesOfStudent')
-      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-      .send({
-        username: ''
-      })
-      .then((res) => {
-        expect(res.status).equal(422);
         done();
       });
   });
@@ -406,7 +391,7 @@ describe('#POST /academy/coursesOfStudent', () => {
     connect.returns(null);
 
     request(app)
-      .post('/academy/coursesOfStudent')
+      .get(`/academy/coursesOfStudent/${username}`)
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
         username: 'conglt'
@@ -435,7 +420,7 @@ describe('#POST /academy/coursesOfStudent', () => {
     });
 
     request(app)
-      .post('/academy/coursesOfStudent')
+      .get(`/academy/coursesOfStudent/${username}`)
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
         username: 'conglt'
@@ -469,7 +454,7 @@ describe('#POST /academy/coursesOfStudent', () => {
     });
 
     request(app)
-      .post('/academy/coursesOfStudent')
+      .get(`/academy/coursesOfStudent/${username}`)
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
         username: 'conglt'
@@ -732,6 +717,129 @@ describe('#PUT /class', () => {
   });
 });
 
+describe('#GET /academy/classesOfStudent/:username', () => {
+  let queryClasses;
+  let connect;
+  let username = 'quangnt';
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    queryClasses = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    queryClasses.restore();
+  });
+
+  it('permission denied', (done) => {
+    request(app)
+      .get(`/academy/classesOfStudent/${username}`)
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        username: 'quangnt'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        done();
+      });
+  });
+
+  it('failed connect to blockchain', (done) => {
+    connect.returns(null);
+
+    request(app)
+      .get(`/academy/classesOfStudent/${username}`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'quangnt'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        done();
+      });
+  });
+
+  it('failed to query classes of student in chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    let data = JSON.stringify({
+      error: 'Error Network'
+    });
+
+    queryClasses.returns({
+      success: false,
+      msg: data
+    });
+
+    request(app)
+      .get(`/academy/classesOfStudent/${username}`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'quangnt'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        done();
+      });
+  });
+
+  it('success query classes of user student', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    let data = JSON.stringify([
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590dfc98',
+        ClassCode: 'Class02',
+        Room: 'Room02',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: 'teacher01'
+      },
+      {
+        ClassID: '4ca7fc39-7523-424d-984e-87ea590dfc98',
+        ClassCode: 'Class02',
+        Room: 'Room02',
+        Time: 'Time',
+        Status: 'Register Open',
+        ShortDescription: 'aaaa',
+        Description: 'bbbb',
+        Students: ['student1', 'student2'],
+        TeacherUsername: 'teacher01'
+      }
+    ]);
+
+    queryClasses.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .get(`/academy/classesOfStudent/${username}`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'quangnt'
+      })
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        done();
+      });
+  });
+});
 describe('#POST /academy/subject', () => {
   let connect;
   let createSubjectStub;

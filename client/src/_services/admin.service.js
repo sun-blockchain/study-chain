@@ -30,14 +30,14 @@ export const adminService = {
   createTeacher,
   getClassesNoTeacher,
   getAllStudents,
-  getSubjectsOfStudent,
-  getCertificatesOfSubject,
   confirmCertificate,
   getSubjectsNoCourse,
   addSubjectToCourse,
   deleteSubjectFromCourse,
   getStudent,
-  getTeacher
+  getTeacher,
+  getClassesOfStudent,
+  getCoursesOfStudent
 };
 
 // Courses Manager
@@ -493,70 +493,31 @@ async function getAllStudents() {
   }
 }
 
-// Subjects of student
-async function getSubjectsOfStudent(username) {
+async function getClassesOfStudent(username) {
   try {
-    // let respone = await axios.get(
-    //   `${process.env.VUE_APP_API_BACKEND}/account/student/${username}/subjects`,
-    //   {
-    //     headers: authHeader()
-    //   }
-    // );
-    // return respone.data.subjects;
-    return [
+    let respone = await axios.get(
+      `${process.env.VUE_APP_API_BACKEND}/academy/classesOfStudent/${username}`,
       {
-        SubjectID: '61e3b1bb-77a7-4830-bbd2-23b35fcc24eb',
-        Name: 'Hyperledger',
-        TeacherUsername: 'Teacher01',
-        Students: ['st01']
-      },
-      {
-        SubjectID: '65640531-cc2f-4967-9b30-c548c7190c2e',
-        Name: 'a',
-        TeacherUsername: 'Teacher01',
-        Students: null
+        headers: authHeader()
       }
-    ];
+    );
+    return respone.data;
   } catch (error) {
     throw error;
   }
 }
-
-// Student Subject Certificate
-async function getCertificatesOfSubject(subjectId) {
-  // let respone = await axios.get(
-  //   `${process.env.VUE_APP_API_BACKEND}/subject/${subjectId}/certificates`,
-  //   {
-  //     headers: authHeader()
-  //   }
-  // );
-  // return respone.data;
-  return {
-    success: true,
-    students: [
+async function getCoursesOfStudent(username) {
+  try {
+    let respone = await axios.get(
+      `${process.env.VUE_APP_API_BACKEND}/academy/coursesOfStudent/${username}`,
       {
-        Username: 'st00',
-        Fullname: 'student00',
-        Subjects: null,
-        statusCertificate: 0,
-        ScoreValue: 10
-      },
-      {
-        Username: 'st01',
-        Fullname: 'student01',
-        Subjects: null,
-        statusCertificate: 1,
-        ScoreValue: 10
-      },
-      {
-        Username: 'st02',
-        Fullname: 'student02',
-        Subjects: null,
-        statusCertificate: 2,
-        ScoreValue: 10
+        headers: authHeader()
       }
-    ]
-  };
+    );
+    return respone.data;
+  } catch (error) {
+    throw error;
+  }
 }
 async function confirmCertificate(studentUsername, subjectId) {
   try {

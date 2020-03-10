@@ -493,14 +493,11 @@ const mutations = {
     state.listStudents = listStudents;
   },
 
-  // Subjects of student
-  getSubjectsOfStudent(state, listSubjects) {
-    state.subjectOfStudent = listSubjects;
+  getClassesOfStudent(state, classes) {
+    state.classessOfStudent = classes;
   },
-
-  // Student Subject Certificate
-  getCertificatesOfSubject(state, studentsOfSubject) {
-    state.studentsOfSubject = studentsOfSubject;
+  getCoursesOfStudent(state, courses) {
+    state.coursesOfStudent = courses;
   },
   confirmCertificate(state, studentsOfSubject) {
     state.studentsOfSubject = studentsOfSubject;
