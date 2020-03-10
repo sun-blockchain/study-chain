@@ -251,26 +251,26 @@ describe('#POST /academy/course', () => {
   });
 });
 
-describe('#POST /academy/deleteCourse', () => {
+describe('#POST /academy/closeCourse', () => {
   let connect;
   let query;
-  let deleteCourse;
+  let closeCourse;
 
   beforeEach(() => {
     connect = sinon.stub(network, 'connectToNetwork');
     query = sinon.stub(network, 'query');
-    deleteCourse = sinon.stub(network, 'deleteCourse');
+    closeCourse = sinon.stub(network, 'closeCourse');
   });
 
   afterEach(() => {
     connect.restore();
     query.restore();
-    deleteCourse.restore();
+    closeCourse.restore();
   });
 
   it('permission denied when access routes with student', (done) => {
     request(app)
-      .post('/academy/deleteCourse')
+      .post('/academy/closeCourse')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(403);
@@ -281,7 +281,7 @@ describe('#POST /academy/deleteCourse', () => {
 
   it('permission denied when access routes with teacher', (done) => {
     request(app)
-      .post('/academy/deleteCourse')
+      .post('/academy/closeCourse')
       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(403);
@@ -290,25 +290,73 @@ describe('#POST /academy/deleteCourse', () => {
       });
   });
 
-  it('success delete courses', (done) => {
-    let data = JSON.stringify(
-      {
-        CourseID: '123-456-789',
-        CourseName: 'Blockchain101',
-        CourseCode: 'BC101',
-        Description: 'Blockchain'
-      },
-      {
-        CourseID: '123-456-783',
-        CourseName: 'Blockchain102',
-        CourseCode: 'BC102',
-        Description: 'Blockchain'
-      }
-    );
+  it('invalid body', (done) => {
+    request(app)
+      .post('/academy/closeCourse')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: ''
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
 
-    deleteCourse.returns({
-      success: true,
-      msg: 'Delete success!'
+  it('Failed connect to blockchain!', (done) => {
+    connect.returns(null);
+    request(app)
+      .post('/academy/closeCourse')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain!');
+        done();
+      });
+  });
+
+  it('Can not query chaincode!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    query.returns({
+      success: false
+    });
+
+    request(app)
+      .post('/academy/closeCourse')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not query chaincode!');
+        done();
+      });
+  });
+
+  it('This course was closed!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let data = JSON.stringify({
+      CourseID: '123456',
+      Status: 'Closed'
     });
 
     query.returns({
@@ -317,46 +365,87 @@ describe('#POST /academy/deleteCourse', () => {
     });
 
     request(app)
-      .post('/academy/deleteCourse')
+      .post('/academy/closeCourse')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
-        courseId: '132-456-987'
-      })
-      .then((res) => {
-        expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
-        done();
-      });
-  });
-
-  it('do not success create course because req.body invalid', (done) => {
-    request(app)
-      .post('/academy/deleteCourse')
-      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-      .send({
-        courseId: ''
-      })
-      .then((res) => {
-        expect(res.status).equal(422);
-        done();
-      });
-  });
-
-  it('create course fail when call deleteCourse function', (done) => {
-    deleteCourse.returns({
-      success: false,
-      msg: 'Error'
-    });
-
-    request(app)
-      .post('/academy/deleteCourse')
-      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-      .send({
-        courseId: '132-456-987'
+        courseId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(500);
         expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('This course was closed!');
+        done();
+      });
+  });
+
+  it('Can not invoke chaincode!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let data = JSON.stringify({
+      CourseID: '123456',
+      Status: 'Open'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    closeCourse.returns({
+      success: false
+    });
+
+    request(app)
+      .post('/academy/closeCourse')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not invoke chaincode!');
+        done();
+      });
+  });
+
+  it('Close Successfully!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let data = JSON.stringify({
+      CourseID: '123456',
+      Status: 'Open'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    closeCourse.returns({
+      success: true
+    });
+
+    request(app)
+      .post('/academy/closeCourse')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        expect(res.body.msg).equal('Close Successfully!');
         done();
       });
   });

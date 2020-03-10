@@ -158,7 +158,7 @@ func CreateCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("This course already exists - " + CourseID)
 	}
 
-	var course = Course{CourseID: CourseID, CourseCode: CourseCode, CourseName: CourseName, ShortDescription: ShortDescription, Description: Description}
+	var course = Course{CourseID: CourseID, CourseCode: CourseCode, CourseName: CourseName, ShortDescription: ShortDescription, Description: Description, Status: Open}
 
 	courseAsBytes, _ := json.Marshal(course)
 

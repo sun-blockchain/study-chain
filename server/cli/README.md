@@ -163,7 +163,7 @@ node invoke.js --username=st01 --func=UpdateUserInfo --phoneNumber=0382794668  -
 ```
 
 ```bash
-node invoke.js --username=adminacademy --func=DeleteCourse --courseId=xxxx
+node invoke.js --username=adminacademy --func=CloseCourse --courseId=xxxx
 ```
 
 ```bash

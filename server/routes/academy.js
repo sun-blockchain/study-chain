@@ -333,7 +333,7 @@ router.post(
 );
 
 router.post(
-  '/deleteCourse',
+  '/closeCourse',
   checkJWT,
   body('courseId')
     .not()
@@ -346,34 +346,57 @@ router.post(
         success: false,
         msg: 'Permission Denied'
       });
-    } else {
-      const errors = validationResult(req);
+    }
+    const errors = validationResult(req);
 
-      if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
-      }
-
-      const user = req.decoded.user;
-      const networkObj = await network.connectToNetwork(user);
-
-      const { courseId } = req.body;
-
-      const response = await network.deleteCourse(networkObj, courseId);
-
-      if (!response.success) {
-        return res.status(500).json({
-          success: false,
-          msg: response.msg
-        });
-      }
-
-      const listNewCourse = await network.query(networkObj, 'GetAllCourses');
-
-      return res.json({
-        success: true,
-        courses: JSON.parse(listNewCourse.msg)
+    if (!errors.isEmpty()) {
+      return res.status(422).json({
+        success: false,
+        errors: errors.array()
       });
     }
+
+    let user = req.decoded.user;
+    let networkObj = await network.connectToNetwork(user);
+    if (!networkObj) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Failed connect to blockchain!'
+      });
+    }
+
+    let { courseId } = req.body;
+    let query = await network.query('GetCourse', courseId);
+    if (!query.success) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Can not query chaincode!'
+      });
+    }
+
+    courseInfo = JSON.parse(query.msg);
+    if (courseInfo.Status === 'Closed') {
+      return res.status(500).json({
+        success: false,
+        msg: 'This course was closed!'
+      });
+    }
+
+    networkObj = await network.connectToNetwork(user);
+
+    let response = await network.closeCourse(networkObj, courseId);
+
+    if (!response.success) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Can not invoke chaincode!'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      msg: 'Close Successfully!'
+    });
   }
 );
 

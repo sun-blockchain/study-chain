@@ -87,7 +87,7 @@ async function updateCourse(course) {
 async function deleteCourse(courseId) {
   try {
     let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/academy/deleteCourse`,
+      `${process.env.VUE_APP_API_BACKEND}/academy/closeCourse`,
       { courseId: courseId },
       {
         headers: authHeader()

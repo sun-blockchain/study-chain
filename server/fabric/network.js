@@ -714,7 +714,7 @@ exports.updateUserAvatar = async function(networkObj, avatar) {
   }
 };
 
-exports.deleteCourse = async function(networkObj, courseId) {
+exports.closeCourse = async function(networkObj, courseId) {
   if (!courseId) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can register!';
@@ -722,10 +722,10 @@ exports.deleteCourse = async function(networkObj, courseId) {
   }
 
   try {
-    await networkObj.contract.submitTransaction('DeleteCourse', courseId);
+    await networkObj.contract.submitTransaction('CloseCourse', courseId);
     let response = {
       success: true,
-      msg: 'Deleted successfully!'
+      msg: 'Close successfully!'
     };
     await networkObj.gateway.disconnect();
     return response;
