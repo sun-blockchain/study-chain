@@ -517,6 +517,7 @@ describe('GET /account/student', () => {
     });
   });
 });
+
 describe('#GET /account/student/:classId', () => {
   let connect;
   let query;
@@ -551,12 +552,30 @@ describe('#GET /account/student/:classId', () => {
       contract: 'academy',
       network: 'certificatechannel',
       gateway: 'gateway',
-      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+      user: { username: 'adminacademy', role: USER_ROLES.TEACHER }
     });
 
-    query.returns({
+    query.onFirstCall().returns({
       success: false,
       msg: 'Can not query chaincode!'
+    });
+
+    let scores = JSON.stringify([
+      {
+        SubjectID: 'dcd6a715-a479-4ff8-9ab7-748b1266a715',
+        StudentUsername: 'conglt',
+        ScoreValue: 9
+      },
+      {
+        SubjectID: 'dcd6a715-a479-4ff8-9ab7-748b1266a715',
+        StudentUsername: 'lecong',
+        ScoreValue: 7
+      }
+    ]);
+
+    query.onSecondCall().returns({
+      success: false,
+      msg: scores
     });
 
     request(app)
@@ -564,11 +583,10 @@ describe('#GET /account/student/:classId', () => {
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Can not query chaincode!');
         done();
       });
   });
+
   it('do not success query teacher with student', (done) => {
     request(app)
       .get(`/account/student/${classId}`)
@@ -580,6 +598,7 @@ describe('#GET /account/student/:classId', () => {
         done();
       });
   });
+
   it('success query student of class with admin', (done) => {
     connect.returns({
       contract: 'academy',
@@ -588,25 +607,62 @@ describe('#GET /account/student/:classId', () => {
       user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
     });
 
-    let data = JSON.stringify({
-      Username: 'abc',
-      Fullname: 'abcdef',
-      Info: {
-        PhoneNumber: 0376724057,
-        Email: 'abc@gmail.com',
-        Address: 'HN',
-        Sex: 'Male',
-        Birthday: 22 / 03 / 1990,
-        Avatar: 'https://images.com',
-        Country: 'VN'
+    let students = JSON.stringify([
+      {
+        Username: 'conglt',
+        Fullname: 'conglt',
+        Info: {
+          PhoneNumber: '',
+          Email: '',
+          Address: '',
+          Sex: '',
+          Birthday: '',
+          Avatar: '',
+          Country: ''
+        },
+        Courses: ['2d4231a6-7b64-4cab-a431-e996b34b7ecb'],
+        Classes: ['3337211c-0995-47a3-a63c-2a8466e560b8'],
+        Certificates: null
       },
-      Courses: 'Blockchain',
-      Classes: 'ClassA'
+      {
+        Username: 'kedumuc',
+        Fullname: 'kedumuc',
+        Info: {
+          PhoneNumber: '',
+          Email: '',
+          Address: '',
+          Sex: '',
+          Birthday: '',
+          Avatar: '',
+          Country: ''
+        },
+        Courses: ['2d4231a6-7b64-4cab-a431-e996b34b7ecb'],
+        Classes: ['3337211c-0995-47a3-a63c-2a8466e560b8'],
+        Certificates: null
+      }
+    ]);
+
+    let scores = JSON.stringify([
+      {
+        SubjectID: 'dcd6a715-a479-4ff8-9ab7-748b1266a715',
+        StudentUsername: 'conglt',
+        ScoreValue: 9
+      },
+      {
+        SubjectID: 'dcd6a715-a479-4ff8-9ab7-748b1266a715',
+        StudentUsername: 'lecong',
+        ScoreValue: 7
+      }
+    ]);
+
+    query.onFirstCall().returns({
+      success: true,
+      msg: students
     });
 
-    query.returns({
+    query.onSecondCall().returns({
       success: true,
-      msg: data
+      msg: scores
     });
 
     request(app)
@@ -618,7 +674,39 @@ describe('#GET /account/student/:classId', () => {
         done();
       });
   });
+
+  it('success query when response chaincode is null', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let students = null;
+
+    let scores = null;
+
+    query.onFirstCall().returns({
+      success: true,
+      msg: students
+    });
+
+    query.onSecondCall().returns({
+      success: true,
+      msg: scores
+    });
+
+    request(app)
+      .get(`/account/student/${classId}`)
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        done();
+      });
+  });
 });
+
 describe('#GET /account/student/course/:courseId', () => {
   let connect;
   let query;

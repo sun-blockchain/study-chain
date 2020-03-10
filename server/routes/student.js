@@ -176,16 +176,27 @@ router.get(
       });
     }
 
-    const response = await network.query(networkObj, 'GetStudentsOfClass', req.params.classId);
+    let students = await network.query(networkObj, 'GetStudentsOfClass', req.params.classId);
+    let scores = await network.query(networkObj, 'GetScoresOfClass', req.params.classId);
 
-    if (!response.success) {
+    if (!students.success || !scores.success) {
       return res.status(500).send({
         success: false,
-        msg: response.msg.toString()
+        msg: 'Failed to query chaincode'
       });
     }
 
-    let students = JSON.parse(response.msg);
+    students = JSON.parse(students.msg) ? JSON.parse(students.msg) : [];
+    scores = JSON.parse(scores.msg) ? JSON.parse(scores.msg) : [];
+
+    for (let i = 0; i < students.length; i++) {
+      for (let k = 0; k < scores.length; k++) {
+        if (students[i].Username === scores[k].StudentUsername) {
+          students[i].Score = scores[k].ScoreValue;
+          break;
+        }
+      }
+    }
 
     return res.json({
       success: true,

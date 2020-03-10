@@ -198,6 +198,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return GetStudentsOfCourse(stub, args)
 	} else if function == "GetCertificatesOfStudent" {
 		return GetCertificatesOfStudent(stub, args)
+	} else if function == "GetScoresOfClass" {
+		return GetScoresOfClass(stub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name!")
@@ -1829,7 +1831,6 @@ func GetCoursesOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.Res
 }
 
 func GetScoresOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
-
 	if len(args) != 2 {
 		return shim.Error("Incorrect number of arguments. Expecting 2")
 	}
@@ -1881,6 +1882,48 @@ func GetScoresOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.Resp
 	}
 
 	return shim.Success(jsonRow)
+}
+
+func GetScoresOfClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		fmt.Println("Error - cid.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		shim.Error("Permission Denied!")
+	}
+	
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}	
+
+	ClassID := args[0]
+
+	class, err := getClass(stub, "Class-"+ClassID)
+
+	if err != nil {
+		return shim.Error("Class does not exist - " + ClassID)
+	}
+
+	var tlist []Score
+
+	for i := 0; i < len(class.Students); i++ {
+
+		score, err := getScore(stub, "Score-"+" "+"Subject-"+class.SubjectID+" "+"Student-"+class.Students[i])
+		if err == nil {
+			tlist = append(tlist, score)
+		}
+	}
+
+	jsonRow, err := json.Marshal(tlist)
+
+	if err != nil {
+		return shim.Error("Can not convert data to bytes!")
+	}
+
+	return shim.Success(jsonRow)	
 }
 
 func GetClassesByTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response {
