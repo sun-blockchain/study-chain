@@ -21,6 +21,26 @@
                 :prop="attibute.prop"
                 :key="index"
               ></el-table-column>
+              <el-table-column
+                v-if="statusCol"
+                sortable
+                label="Status"
+                :filters="[
+                  { text: 'Open', value: 'Open' },
+                  { text: 'In Progress', value: 'InProgress' }
+                ]"
+                :filter-method="filterTag"
+                filter-placement="bottom-end"
+              >
+                <template slot-scope="scope">
+                  <el-tag
+                    align="center"
+                    size="medium"
+                    :type="scope.row.Status === 'Open' ? 'success' : 'primary'"
+                    >{{ scope.row.Status }}</el-tag
+                  >
+                </template>
+              </el-table-column>
               <el-table-column align="center">
                 <template slot="header" slot-scope="scope">
                   <el-input
@@ -102,7 +122,7 @@
 import { mapState, mapActions } from 'vuex';
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 import { STATUS_REGISTERED } from '../../_helpers/constants';
-import { Button, Table, TableColumn, Pagination, Input, Tooltip } from 'element-ui';
+import { Button, Table, TableColumn, Pagination, Input, Tooltip, Tag } from 'element-ui';
 export default {
   name: 'common-view-student',
   components: {
@@ -113,7 +133,8 @@ export default {
     'el-table-column': TableColumn,
     'el-pagination': Pagination,
     'el-input': Input,
-    'el-tooltip': Tooltip
+    'el-tooltip': Tooltip,
+    'el-tag': Tag
   },
   props: {
     title: String,
@@ -128,7 +149,8 @@ export default {
     loadingData: Boolean,
     listProperties: Array,
     registeredId: String,
-    attrId: String
+    attrId: String,
+    statusCol: Boolean
   },
   data() {
     return {
@@ -191,6 +213,9 @@ export default {
     },
     callFunctionCancelRegistered(row) {
       this.$emit(this.nameFunctionCancelRegistered, row);
+    },
+    filterTag(value, row) {
+      return row.Status === value;
     }
   }
 };
