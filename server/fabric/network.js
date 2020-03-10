@@ -749,7 +749,7 @@ exports.openCourse = async function(networkObj, courseId) {
     await networkObj.contract.submitTransaction('OpenCourse', courseId);
     let response = {
       success: true,
-      msg: 'Close successfully!'
+      msg: 'Open successfully!'
     };
     await networkObj.gateway.disconnect();
     return response;
