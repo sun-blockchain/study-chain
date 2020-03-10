@@ -4,7 +4,7 @@
     <b-breadcrumb>
       <b-breadcrumb-item to="/"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
       <b-breadcrumb-item to="/academy/students">Student</b-breadcrumb-item>
-      <b-breadcrumb-item active>Course Detail</b-breadcrumb-item>
+      <b-breadcrumb-item active>Student Detail</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">
       <div>
@@ -29,6 +29,41 @@
         </div>
       </div>
     </div>
+    <el-tabs type="border-card">
+      <el-tab-pane label="Classes">
+        <table-admin
+          :title="`Class List`"
+          :listAll="classesOfStudent ? classesOfStudent :[] "
+          :loadingData="loadingData"
+          :nameFunctionDetail="`detailClass`"
+          :listProperties="[
+            { prop: 'ClassCode', label: 'Class Code' },
+            { prop: 'Time', label: 'Time' },
+            { prop: 'StartDate', label: 'Start Date' },
+            { prop: 'EndDate', label: 'End Date' },
+            { prop: 'Capacity', label: 'Capacity' }
+          ]"
+          :statusCol="true"
+          @detailClass="detailClass($event)"
+        >
+        </table-admin>
+      </el-tab-pane>
+      <el-tab-pane label="Courses">
+        <table-admin
+          :title="`Courses`"
+          :listAll="coursesOfStudent ? coursesOfStudent : []"
+          :loadingData="loadingData"
+          :nameFunctionDetail="`detailCourses`"
+          :listProperties="[
+            { prop: 'CourseCode', label: 'CourseCode' },
+            { prop: 'CourseName', label: 'CourseName' },
+            { prop: 'ShortDescription', label: 'Description' }
+          ]"
+          @detailCourses="detailCourse($event)"
+        >
+        </table-admin>
+      </el-tab-pane>
+    </el-tabs>
   </div>
 </template>
 
@@ -36,22 +71,56 @@
 import { mapState, mapActions } from 'vuex';
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 import TableAdmin from '@/components/admin-academy/TableAdmin';
-import { Button, Select, Option, Dialog, Form, FormItem, Message, MessageBox } from 'element-ui';
+import {
+  Button,
+  Select,
+  Option,
+  Dialog,
+  Form,
+  FormItem,
+  Message,
+  MessageBox,
+  TabPane,
+  Tabs
+} from 'element-ui';
 export default {
+  components: {
+    'el-button': Button,
+    'el-select': Select,
+    'el-option': Option,
+    'el-dialog': Dialog,
+    'el-form': Form,
+    'el-form-item': FormItem,
+    'el-tab-pane': TabPane,
+    'el-tabs': Tabs,
+    'table-admin': TableAdmin
+  },
   data() {
     return {
-      fullscreenLoading: false
+      fullscreenLoading: false,
+      loadingData: true
     };
   },
   methods: {
-    ...mapActions('adminAcademy', ['getStudent'])
+    ...mapActions('adminAcademy', ['getStudent', 'getCoursesOfStudent', 'getClassesOfStudent']),
+    detailClass(row) {
+      this.$router.push({
+        path: `/academy/subjects/${row.SubjectID}/class/${row.ClassID}`
+      });
+    },
+    detailCourse(row) {
+      this.$router.push({ path: `/academy/courses/${row.CourseID}/course-detail` });
+    }
   },
   computed: {
-    ...mapState('adminAcademy', ['listStudents'])
+    ...mapState('adminAcademy', ['listStudents', 'classesOfStudent', 'coursesOfStudent'])
   },
   async created() {
     let student = await this.getStudent(this.$route.params.id);
-    if (student) {
+    let courses = await this.getCoursesOfStudent(student.Username);
+    let classes = await this.getClassesOfStudent(student.Username);
+
+    if (courses && classes) {
       this.loadingData = false;
     }
   }
