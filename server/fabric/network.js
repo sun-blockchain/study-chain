@@ -864,7 +864,32 @@ exports.addClassToTeacher = async function(networkObj, classId, teacher) {
     await networkObj.contract.submitTransaction('AddClassToTeacher', classId, teacher);
     let response = {
       success: true,
-      msg: 'Create Successfully!'
+      msg: 'Add Successfully!'
+    };
+
+    await networkObj.gateway.disconnect();
+    return response;
+  } catch (error) {
+    let response = {
+      success: false,
+      msg: error
+    };
+    return response;
+  }
+};
+
+exports.removeTeacherFromClass = async function(networkObj, classId) {
+  if (!classId) {
+    let response = {};
+    response.error = 'Error! You need to fill all fields before you can register!';
+    return response;
+  }
+
+  try {
+    await networkObj.contract.submitTransaction('RemoveClassFromTeacher', classId);
+    let response = {
+      success: true,
+      msg: 'Remove Successfully!'
     };
 
     await networkObj.gateway.disconnect();

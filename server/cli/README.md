@@ -183,6 +183,10 @@ node invoke.js --username=adminacademy --func=AddClassToTeacher --classId=xxxx -
 ```
 
 ```bash
+node invoke.js --username=adminacademy --func=RemoveTeacherFromClass --classId=xxxx
+```
+
+```bash
 node invoke.js --username=adminacademy --func=UpdateSubjectInfo --subjectId=xxxx  --subjectCode=BC01 --subjectName=Blockchain --description=Blockchain --shortDescription=Blockchain0001
 ```
 
