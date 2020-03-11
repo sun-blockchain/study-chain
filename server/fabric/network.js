@@ -886,7 +886,7 @@ exports.removeTeacherFromClass = async function(networkObj, classId) {
   }
 
   try {
-    await networkObj.contract.submitTransaction('RemoveClassFromTeacher', classId);
+    await networkObj.contract.submitTransaction('RemoveTeacherFromClass', classId);
     let response = {
       success: true,
       msg: 'Remove Successfully!'
