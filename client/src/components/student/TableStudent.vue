@@ -116,10 +116,7 @@
                     ></el-button>
                   </el-tooltip>
                   <el-tooltip
-                    v-if="
-                      (btnCancel && registeredId && scope.row[attrId] === registeredId) ||
-                        (btnCancel && !btnRegister)
-                    "
+                    v-if="displayBtnCancel(scope.row)"
                     class="item"
                     content="Cancel Enrollment"
                     placement="top"
@@ -208,6 +205,17 @@ export default {
       listPagination: [],
       total: this.listAll ? this.listAll.length : 0
     };
+  },
+  computed: {
+    displayBtnCancel() {
+      return (row) =>
+        (this.btnCancel &&
+          this.registeredId &&
+          row[this.attrId] === this.registeredId &&
+          row.Status &&
+          row.Status === 'Open') ||
+        (this.btnCancel && !this.btnRegister && row.Status && row.Status === 'Open');
+    }
   },
   watch: {
     listAll: function() {
