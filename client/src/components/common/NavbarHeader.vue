@@ -24,31 +24,24 @@
       </button>
       <b-navbar-brand href="/" class="margin-left-15">Study Chain</b-navbar-brand>
 
-      <b-navbar-toggle target="nav-collapse">
-        <em>
-          <img
-            src="@/assets/img/avatar-default.png"
-            srcset="@/assets/img/avatar-default.png"
-            class="avatar avatar--md rounded-circle"
-            aria-describedby="el-popover-8083"
-            tabindex="0"
-          />
-        </em>
-      </b-navbar-toggle>
-
       <b-collapse id="nav-collapse" is-nav>
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
-          <b-nav-form>
-            <div class="input-group input-group-alternative">
-              <b-form-input size="sm" placeholder="Search" class="form-control"></b-form-input>
-            </div>
-          </b-nav-form>
+          <p class="fullname pt-2 pr-2">{{ fullname }}</p>
           <b-nav-item-dropdown right>
             <!-- Using 'button-content' slot -->
             <template v-slot:button-content>
               <em>
                 <img
+                  v-if="avatar"
+                  :src="avatar"
+                  class="avatar avatar--md rounded-circle"
+                  aria-describedby="el-popover-8083"
+                  tabindex="0"
+                  id="avatar-desktop"
+                />
+                <img
+                  v-else
                   src="@/assets/img/avatar-default.png"
                   srcset="@/assets/img/avatar-default.png"
                   class="avatar avatar--md rounded-circle"
@@ -76,12 +69,19 @@ export default {
   },
   data() {
     return {
-      username: 'Ngo Van Nghia'
+      fullname: '',
+      avatar: ''
     };
   },
   methods: {
     ...mapActions(['changeStatusSidebar']),
-    ...mapActions('account', ['logout'])
+    ...mapActions('account', ['logout', 'getProfile'])
+  },
+  async created() {
+    let info = await this.getProfile();
+
+    this.fullname = info.fullname;
+    this.avatar = info.avatar;
   }
 };
 </script>

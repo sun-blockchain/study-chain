@@ -19,6 +19,11 @@
   height: 37px;
 }
 
+p.fullname {
+  color: #fff;
+  font-size: 18px;
+}
+
 .sidebar {
   position: fixed;
   top: 0;
