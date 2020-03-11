@@ -8,9 +8,11 @@ const state = {
   listStudents: [],
   listClasses: [],
   studentsOfSubject: [],
-  classessOfTeacher: [],
+  classesOfTeacher: [],
   subjectOfStudent: [],
-  subjectsOfCourse: []
+  subjectsOfCourse: [],
+  classesOfStudent: [],
+  coursesOfStudent: []
 };
 
 const actions = {
@@ -399,6 +401,30 @@ const actions = {
         router.push('/403');
       }
     }
+  },
+  async getClassesOfStudent({ commit }, Username) {
+    try {
+      let data = await adminService.getClassesOfStudent(Username);
+      commit('getClassesOfStudent', data.classes);
+      return data.classes;
+    } catch (error) {
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+      return error.response.data;
+    }
+  },
+  async getCoursesOfStudent({ commit }, Username) {
+    try {
+      let data = await adminService.getCoursesOfStudent(Username);
+      commit('getCoursesOfStudent', data.courses);
+      return data.courses;
+    } catch (error) {
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+      return error.response.data;
+    }
   }
 };
 
@@ -479,13 +505,13 @@ const mutations = {
 
   //  Subjects of Teacher
   getClassesOfTeacher(state, classes) {
-    state.classessOfTeacher = classes;
+    state.classesOfTeacher = classes;
   },
   deleteSubjectOfTeacher(state, listStudents) {
-    state.classessOfTeacher = listStudents;
+    state.classesOfTeacher = listStudents;
   },
   addClassToTeacher(state, classes) {
-    state.classessOfTeacher = classes;
+    state.classesOfTeacher = classes;
   },
 
   // Students Manager
@@ -494,7 +520,7 @@ const mutations = {
   },
 
   getClassesOfStudent(state, classes) {
-    state.classessOfStudent = classes;
+    state.classesOfStudent = classes;
   },
   getCoursesOfStudent(state, courses) {
     state.coursesOfStudent = courses;

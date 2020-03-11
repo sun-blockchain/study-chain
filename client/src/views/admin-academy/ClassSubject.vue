@@ -15,13 +15,22 @@
           <h2 class="h4 mb-2 text-gray-800">About this classs</h2>
           <div class="row">
             <div class="col">
-              <p>Time: {{ listClasses.Time }}</p>
-              <p>Start Date: {{ listClasses.StartDate }}</p>
-              <p>End Date: {{ listClasses.EndDate }}</p>
-              <p>Repeat: {{ listClasses.Repeat }}</p>
+              <p>
+                Time: <b>{{ listClasses.Time }}</b>
+              </p>
+              <p>
+                Start -> End:
+                <b>{{ listClasses.StartDate }} <strong>-></strong> {{ listClasses.EndDate }}</b>
+              </p>
+              <p>
+                Repeat: <b>{{ listClasses.Repeat }}</b>
+              </p>
             </div>
             <div class="col">
-              <p>Capacity: {{ listClasses.Capacity }}</p>
+              <p>
+                Capacity:
+                <b> {{ listClasses.Capacity }}</b>
+              </p>
               <p>
                 Status:
                 <b-badge :variant="listClasses.Status === 'Open' ? 'success' : 'primary'">{{
