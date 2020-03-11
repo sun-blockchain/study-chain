@@ -179,11 +179,11 @@ node invoke.js --username=adminacademy --func=CreateClass --classCode=ETH101 --r
 ```
 
 ```bash
-node invoke.js --username=adminacademy --func=AddClassToTeacher --classId=xxxx --teacher=xxxx
+node invoke.js --username=adminacademy --func=AssignTeacherToClass --classId=xxxx --teacher=xxxx
 ```
 
 ```bash
-node invoke.js --username=adminacademy --func=RemoveTeacherFromClass --classId=xxxx
+node invoke.js --username=adminacademy --func=UnassignTeacherFromClass --classId=xxxx
 ```
 
 ```bash

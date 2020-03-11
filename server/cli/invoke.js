@@ -324,7 +324,10 @@ async function main() {
           await conn.createClass(networkObj, _class);
           console.log('Transaction has been submitted');
           process.exit(0);
-        } else if (functionName === 'AddClassToTeacher' && user.role === USER_ROLES.ADMIN_ACADEMY) {
+        } else if (
+          functionName === 'AssignTeacherToClass' &&
+          user.role === USER_ROLES.ADMIN_ACADEMY
+        ) {
           /**
            * Create Score
            * @param  {String} classId
@@ -333,11 +336,11 @@ async function main() {
           let classId = argv.classId.toString();
           let teacher = argv.teacher.toString();
 
-          await conn.addClassToTeacher(networkObj, classId, teacher);
+          await conn.assignTeacherToClass(networkObj, classId, teacher);
           console.log('Transaction has been submitted');
           process.exit(0);
         } else if (
-          functionName === 'RemoveTeacherFromClass' &&
+          functionName === 'UnassignTeacherFromClass' &&
           user.role === USER_ROLES.ADMIN_ACADEMY
         ) {
           /**
@@ -346,7 +349,7 @@ async function main() {
            */
           let classId = argv.classId.toString();
 
-          await conn.removeTeacherFromClass(networkObj, classId);
+          await conn.unassignTeacherFromClass(networkObj, classId);
           console.log('Transaction has been submitted');
           process.exit(0);
         } else if (functionName === 'UpdateClassInfo' && user.role === USER_ROLES.ADMIN_ACADEMY) {

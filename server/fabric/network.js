@@ -853,7 +853,7 @@ exports.createCertificate = async function(networkObj, certificate) {
   }
 };
 
-exports.addClassToTeacher = async function(networkObj, classId, teacher) {
+exports.assignTeacherToClass = async function(networkObj, classId, teacher) {
   if (!classId || !teacher) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can register!';
@@ -861,10 +861,10 @@ exports.addClassToTeacher = async function(networkObj, classId, teacher) {
   }
 
   try {
-    await networkObj.contract.submitTransaction('AddClassToTeacher', classId, teacher);
+    await networkObj.contract.submitTransaction('AssignTeacherToClass', classId, teacher);
     let response = {
       success: true,
-      msg: 'Add Successfully!'
+      msg: 'Assign Successfully!'
     };
 
     await networkObj.gateway.disconnect();
@@ -878,7 +878,7 @@ exports.addClassToTeacher = async function(networkObj, classId, teacher) {
   }
 };
 
-exports.removeTeacherFromClass = async function(networkObj, classId) {
+exports.unassignTeacherFromClass = async function(networkObj, classId) {
   if (!classId) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can register!';
@@ -886,10 +886,10 @@ exports.removeTeacherFromClass = async function(networkObj, classId) {
   }
 
   try {
-    await networkObj.contract.submitTransaction('RemoveClassFromTeacher', classId);
+    await networkObj.contract.submitTransaction('UnassignTeacherFromClass', classId);
     let response = {
       success: true,
-      msg: 'Remove Successfully!'
+      msg: 'Unassign Successfully!'
     };
 
     await networkObj.gateway.disconnect();

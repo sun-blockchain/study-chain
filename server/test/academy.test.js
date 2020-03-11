@@ -3045,26 +3045,26 @@ describe('#GET /academy/student/:username', () => {
   });
 });
 
-describe('#POST /academy/addClassToTeacher', () => {
+describe('#POST /academy/assignTeacherToClass', () => {
   let connect;
   let query;
-  let addClassToTeacher;
+  let assignTeacherToClass;
 
   beforeEach(() => {
     connect = sinon.stub(network, 'connectToNetwork');
     query = sinon.stub(network, 'query');
-    addClassToTeacher = sinon.stub(network, 'addClassToTeacher');
+    assignTeacherToClass = sinon.stub(network, 'assignTeacherToClass');
   });
 
   afterEach(() => {
     connect.restore();
     query.restore();
-    addClassToTeacher.restore();
+    assignTeacherToClass.restore();
   });
 
   it('param username empty', (done) => {
     request(app)
-      .post('/academy/addClassToTeacher')
+      .post('/academy/assignTeacherToClass')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         username: '',
@@ -3079,7 +3079,7 @@ describe('#POST /academy/addClassToTeacher', () => {
 
   it('param classId empty', (done) => {
     request(app)
-      .post('/academy/addClassToTeacher')
+      .post('/academy/assignTeacherToClass')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         username: 'teacher',
@@ -3094,7 +3094,7 @@ describe('#POST /academy/addClassToTeacher', () => {
 
   it('permission denied when access routes with student', (done) => {
     request(app)
-      .post('/academy/addClassToTeacher')
+      .post('/academy/assignTeacherToClass')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         username: 'teacher01',
@@ -3109,7 +3109,7 @@ describe('#POST /academy/addClassToTeacher', () => {
 
   it('permission denied when access routes with teacher', (done) => {
     request(app)
-      .post('/academy/addClassToTeacher')
+      .post('/academy/assignTeacherToClass')
       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
       .send({
         username: 'teacher01',
@@ -3124,7 +3124,7 @@ describe('#POST /academy/addClassToTeacher', () => {
 
   it('permission denied when access routes with admin student', (done) => {
     request(app)
-      .post('/academy/addClassToTeacher')
+      .post('/academy/assignTeacherToClass')
       .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
       .send({
         username: 'teacher01',
@@ -3140,7 +3140,7 @@ describe('#POST /academy/addClassToTeacher', () => {
   it('Can not connect to network', (done) => {
     connect.returns(null);
     request(app)
-      .post('/academy/addClassToTeacher')
+      .post('/academy/assignTeacherToClass')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
         username: 'teacher01',
@@ -3157,7 +3157,7 @@ describe('#POST /academy/addClassToTeacher', () => {
   it('Can not query classes by teacher - query 1', (done) => {
     query.onFirstCall().returns({ success: false, msg: "Can't query classes by teacher" });
     request(app)
-      .post('/academy/addClassToTeacher')
+      .post('/academy/assignTeacherToClass')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
         username: 'teacher01',
@@ -3207,7 +3207,7 @@ describe('#POST /academy/addClassToTeacher', () => {
     query.onFirstCall().returns({ success: true, msg: JSON.stringify(data) });
 
     request(app)
-      .post('/academy/addClassToTeacher')
+      .post('/academy/assignTeacherToClass')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
         username: 'teacher01',
@@ -3255,13 +3255,13 @@ describe('#POST /academy/addClassToTeacher', () => {
 
     query.onFirstCall().returns({ success: true, msg: JSON.stringify(data) });
 
-    addClassToTeacher.returns({
+    assignTeacherToClass.returns({
       success: false,
       msg: 'add class to teacher error!'
     });
 
     request(app)
-      .post('/academy/addClassToTeacher')
+      .post('/academy/assignTeacherToClass')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
         username: 'teacher01',
@@ -3310,7 +3310,7 @@ describe('#POST /academy/addClassToTeacher', () => {
 
     query.onFirstCall().returns({ success: true, msg: JSON.stringify(data) });
 
-    addClassToTeacher.returns({
+    assignTeacherToClass.returns({
       success: true,
       msg: 'add class to teacher success!'
     });
@@ -3318,7 +3318,7 @@ describe('#POST /academy/addClassToTeacher', () => {
     query.onFirstCall().returns({ success: false, msg: "Can't query classes by teacher" });
 
     request(app)
-      .post('/academy/addClassToTeacher')
+      .post('/academy/assignTeacherToClass')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
         username: 'teacher01',
@@ -3403,7 +3403,7 @@ describe('#POST /academy/addClassToTeacher', () => {
 
     query.onFirstCall().returns({ success: true, msg: JSON.stringify(data) });
 
-    addClassToTeacher.returns({
+    assignTeacherToClass.returns({
       success: true,
       msg: 'add class to teacher success!'
     });
@@ -3411,7 +3411,7 @@ describe('#POST /academy/addClassToTeacher', () => {
     query.onSecondCall().returns({ success: false, msg: JSON.stringify(data1) });
 
     request(app)
-      .post('/academy/addClassToTeacher')
+      .post('/academy/assignTeacherToClass')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
         username: 'teacher01',
@@ -3426,6 +3426,197 @@ describe('#POST /academy/addClassToTeacher', () => {
       });
   });
 });
+
+describe('#POST /academy/unassignTeacherFromClass', () => {
+  let connect;
+  let query;
+  let unassignTeacherFromClass;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+    unassignTeacherFromClass = sinon.stub(network, 'unassignTeacherFromClass');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+    unassignTeacherFromClass.restore();
+  });
+
+  it('Permission Denied!', (done) => {
+    request(app)
+      .post('/academy/unassignTeacherFromClass')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Permission Denied!');
+        done();
+      });
+  });
+
+  it('Invalid body!', (done) => {
+    request(app)
+      .post('/academy/unassignTeacherFromClass')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: ''
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('Failed connect to blockchain!', (done) => {
+    connect.returns(null);
+    request(app)
+      .post('/academy/unassignTeacherFromClass')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain!');
+        done();
+      });
+  });
+
+  it('Can not query chaincode!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    query.returns({
+      success: false
+    });
+
+    request(app)
+      .post('/academy/unassignTeacherFromClass')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not query chaincode!');
+        done();
+      });
+  });
+
+  it('This class does not belong to any teacher!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let data = JSON.stringify({
+      ClassID: '123456',
+      TeacherUsername: ''
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .post('/academy/unassignTeacherFromClass')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('This class does not belong to any teacher!');
+        done();
+      });
+  });
+
+  it('Can not invoke chaincode!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let data = JSON.stringify({
+      ClassID: '123456',
+      TeacherUsername: 'tc01'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    unassignTeacherFromClass.returns({
+      success: false
+    });
+
+    request(app)
+      .post('/academy/unassignTeacherFromClass')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not invoke chaincode!');
+        done();
+      });
+  });
+
+  it('Remove Successfully!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let data = JSON.stringify({
+      ClassID: '123456',
+      TeacherUsername: 'tc01'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    unassignTeacherFromClass.returns({
+      success: true
+    });
+
+    request(app)
+      .post('/academy/unassignTeacherFromClass')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        expect(res.body.msg).equal('Unassign Successfully!');
+        done();
+      });
+  });
+});
+
 describe('#GET /academy/teacher/:username', () => {
   let connect;
   let query;
