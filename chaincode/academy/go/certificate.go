@@ -184,10 +184,10 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return UpdateSubjectInfo(stub, args)
 	} else if function == "AddSubjectToCourse" {
 		return AddSubjectToCourse(stub, args)
-	} else if function == "AddClassToTeacher" {
-		return AddClassToTeacher(stub, args)
-	} else if function == "RemoveTeacherFromClass" {
-		return RemoveTeacherFromClass(stub, args)
+	} else if function == "AssignTeacherToClass" {
+		return AssignTeacherToClass(stub, args)
+	} else if function == "UnassignTeacherFromClass" {
+		return UnassignTeacherFromClass(stub, args)
 	} else if function == "RemoveSubjectFromCourse" {
 		return RemoveSubjectFromCourse(stub, args)
 	} else if function == "DeleteSubject" {
@@ -480,7 +480,7 @@ func AddSubjectToCourse(stub shim.ChaincodeStubInterface, args []string) sc.Resp
 	return shim.Success(nil)
 }
 
-func AddClassToTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+func AssignTeacherToClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	MSPID, err := cid.GetMSPID(stub)
 
@@ -533,7 +533,7 @@ func AddClassToTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 	return shim.Success(nil)
 }
 
-func RemoveTeacherFromClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+func UnassignTeacherFromClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	MSPID, err := cid.GetMSPID(stub)
 

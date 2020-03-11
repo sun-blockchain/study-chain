@@ -1168,7 +1168,7 @@ router.post(
 
 // assign class for teacher
 router.post(
-  '/addClassToTeacher',
+  '/assignTeacherToClass',
   checkJWT,
   [
     body('username')
@@ -1228,7 +1228,7 @@ router.post(
     }
 
     networkObj = await network.connectToNetwork(req.decoded.user);
-    const response = await network.addClassToTeacher(
+    const response = await network.assignTeacherToClass(
       networkObj,
       req.body.classId,
       req.body.username
@@ -1255,6 +1255,72 @@ router.post(
   }
 );
 // ----------------------------------------------- End -----------------------------------------------------
+
+router.post(
+  '/unassignTeacherFromClass',
+  checkJWT,
+  [
+    body('classId')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape()
+  ],
+  async (req, res, next) => {
+    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied!'
+      });
+    }
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, msg: errors.array() });
+    }
+
+    let classId = req.body.classId;
+    let admin = req.decoded.user;
+
+    let networkObj = await network.connectToNetwork(admin);
+    if (!networkObj) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Failed connect to blockchain!'
+      });
+    }
+
+    let classInfo = await network.query(networkObj, 'GetClass', classId);
+    if (!classInfo.success) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Can not query chaincode!'
+      });
+    }
+
+    classInfo = JSON.parse(classInfo.msg);
+
+    if (classInfo.TeacherUsername === '') {
+      return res.status(500).json({
+        success: false,
+        msg: 'This class does not belong to any teacher!'
+      });
+    }
+
+    networkObj = await network.connectToNetwork(admin);
+    let response = await network.unassignTeacherFromClass(networkObj, classId);
+    if (!response.success) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Can not invoke chaincode!'
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      msg: 'Unassign Successfully!'
+    });
+  }
+);
 
 //get Student by Id
 router.get(

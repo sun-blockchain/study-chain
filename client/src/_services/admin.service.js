@@ -456,7 +456,7 @@ async function deleteSubjectOfTeacher(Username, subjectId) {
 async function addClassToTeacher(username, classId) {
   try {
     let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/academy/addClassToTeacher`,
+      `${process.env.VUE_APP_API_BACKEND}/academy/assignTeacherToClass`,
       { username: username, classId: classId },
       {
         headers: authHeader()
