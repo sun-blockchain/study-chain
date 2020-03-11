@@ -336,6 +336,19 @@ async function main() {
           await conn.addClassToTeacher(networkObj, classId, teacher);
           console.log('Transaction has been submitted');
           process.exit(0);
+        } else if (
+          functionName === 'RemoveTeacherFromClass' &&
+          user.role === USER_ROLES.ADMIN_ACADEMY
+        ) {
+          /**
+           * Create Score
+           * @param  {String} classId
+           */
+          let classId = argv.classId.toString();
+
+          await conn.removeTeacherFromClass(networkObj, classId);
+          console.log('Transaction has been submitted');
+          process.exit(0);
         } else if (functionName === 'UpdateClassInfo' && user.role === USER_ROLES.ADMIN_ACADEMY) {
           /**
            * Create Score

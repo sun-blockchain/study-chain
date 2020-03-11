@@ -186,6 +186,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return AddSubjectToCourse(stub, args)
 	} else if function == "AddClassToTeacher" {
 		return AddClassToTeacher(stub, args)
+	} else if function == "RemoveTeacherFromClass" {
+		return RemoveTeacherFromClass(stub, args)
 	} else if function == "RemoveSubjectFromCourse" {
 		return RemoveSubjectFromCourse(stub, args)
 	} else if function == "DeleteSubject" {
@@ -526,6 +528,72 @@ func AddClassToTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 		return shim.Error("Cannot json encode add class to teacher")
 	}
 	stub.PutState(keyUser, userAsBytes)
+	stub.PutState(keyClass, classAsBytes)
+
+	return shim.Success(nil)
+}
+
+func RemoveTeacherFromClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		return shim.Error("Error - cid.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		return shim.Error("Permission Denied!")
+	}
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	ClassID := args[0]
+
+	keyClass := "Class-" + ClassID
+	class, err := getClass(stub, keyClass)
+
+	if err != nil {
+		return shim.Error("Class does not exist!")
+	}
+
+	keyTeacher := "Teacher-" + class.TeacherUsername
+	teacher, err := getTeacher(stub, keyTeacher)
+
+	if err != nil {
+		return shim.Error("Teacher does not exist!")
+	}
+
+	var i int
+	var lenClasses = len(teacher.Classes)
+	for i = 0; i < lenClasses; i++ {
+		if teacher.Classes[i] == ClassID {
+			break
+		}
+	}
+
+	if i == lenClasses {
+		return shim.Error("This class does not belong to any teacher!")
+	}
+
+	copy(teacher.Classes[i:], teacher.Classes[i+1:])
+	teacher.Classes[lenClasses-1] = ""
+	teacher.Classes = teacher.Classes[:lenClasses-1]
+
+	class.TeacherUsername = ""
+
+	teacherAsBytes, err := json.Marshal(teacher)
+	if err != nil {
+		return shim.Error("Cannot convert data to bytes!")
+	}
+
+	classAsBytes, err := json.Marshal(class)
+	if err != nil {
+		return shim.Error("Cannot convert data to bytes!")
+	}
+
+	stub.PutState(keyTeacher, teacherAsBytes)
 	stub.PutState(keyClass, classAsBytes)
 
 	return shim.Success(nil)
