@@ -309,6 +309,18 @@ const actions = {
       return error.response.data;
     }
   },
+  async unassignTeacherFromClass({ commit }, classId) {
+    try {
+      let data = await adminService.unassignTeacherFromClass(classId);
+      commit('unassignTeacherFromClass', data);
+      return data;
+    } catch (error) {
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+      return error.response.data;
+    }
+  },
   async getClassesNoTeacher() {
     try {
       let data = await adminService.getClassesNoTeacher();
@@ -513,7 +525,9 @@ const mutations = {
   addClassToTeacher(state, classes) {
     state.classesOfTeacher = classes;
   },
-
+  unassignTeacherFromClass(state, classes) {
+    state.classesOfTeacher = classes;
+  },
   // Students Manager
   getAllStudents(state, listStudents) {
     state.listStudents = listStudents;

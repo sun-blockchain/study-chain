@@ -108,7 +108,16 @@
                       size="mini"
                       icon="fas fa-graduation-cap"
                       round
-                      @click="callFunctionCert(scope.row)"
+                      @click.stop="callFunctionCert(scope.row)"
+                    ></el-button>
+                  </el-tooltip>
+                  <el-tooltip v-if="btnRemove" class="item" content="Remove" placement="top">
+                    <el-button
+                      type="danger"
+                      size="mini"
+                      icon="el-icon-circle-close"
+                      round
+                      @click.stop="callFunctionRemove(scope.row)"
                     ></el-button>
                   </el-tooltip>
                 </template>
@@ -172,7 +181,9 @@ export default {
     nameFunctionCert: String,
     loadingData: Boolean,
     listProperties: Array,
-    statusCol: Boolean
+    statusCol: Boolean,
+    btnRemove: Boolean,
+    nameFunctionRemove: String
   },
   data() {
     return {
@@ -235,6 +246,9 @@ export default {
     },
     callFunctionCert(row) {
       this.$emit(this.nameFunctionCert, row);
+    },
+    callFunctionRemove(row) {
+      this.$emit(this.nameFunctionRemove, row);
     },
     filterTag(value, row) {
       return row.Status === value;

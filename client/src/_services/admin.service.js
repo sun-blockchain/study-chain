@@ -37,7 +37,8 @@ export const adminService = {
   getStudent,
   getTeacher,
   getClassesOfStudent,
-  getCoursesOfStudent
+  getCoursesOfStudent,
+  unassignTeacherFromClass
 };
 
 // Courses Manager
@@ -462,6 +463,21 @@ async function addClassToTeacher(username, classId) {
         headers: authHeader()
       }
     );
+    return respone.data;
+  } catch (error) {
+    throw error;
+  }
+}
+async function unassignTeacherFromClass(classId) {
+  try {
+    let respone = await axios.post(
+      `${process.env.VUE_APP_API_BACKEND}/academy/unassignTeacherFromClass`,
+      { classId: classId },
+      {
+        headers: authHeader()
+      }
+    );
+
     return respone.data;
   } catch (error) {
     throw error;
