@@ -451,6 +451,206 @@ describe('#POST /academy/closeCourse', () => {
   });
 });
 
+describe('#POST /academy/openCourse', () => {
+  let connect;
+  let query;
+  let openCourse;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+    openCourse = sinon.stub(network, 'openCourse');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+    openCourse.restore();
+  });
+
+  it('permission denied when access routes with student', (done) => {
+    request(app)
+      .post('/academy/openCourse')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('permission denied when access routes with teacher', (done) => {
+    request(app)
+      .post('/academy/openCourse')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('invalid body', (done) => {
+    request(app)
+      .post('/academy/openCourse')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: ''
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
+  it('Failed connect to blockchain!', (done) => {
+    connect.returns(null);
+    request(app)
+      .post('/academy/openCourse')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain!');
+        done();
+      });
+  });
+
+  it('Can not query chaincode!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    query.returns({
+      success: false
+    });
+
+    request(app)
+      .post('/academy/openCourse')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not query chaincode!');
+        done();
+      });
+  });
+
+  it('This course is open!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let data = JSON.stringify({
+      CourseID: '123456',
+      Status: 'Open'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .post('/academy/openCourse')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('This course is open!');
+        done();
+      });
+  });
+
+  it('Can not invoke chaincode!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let data = JSON.stringify({
+      CourseID: '123456',
+      Status: 'Closed'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    openCourse.returns({
+      success: false
+    });
+
+    request(app)
+      .post('/academy/openCourse')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not invoke chaincode!');
+        done();
+      });
+  });
+
+  it('Close Successfully!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let data = JSON.stringify({
+      CourseID: '123456',
+      Status: 'Closed'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    openCourse.returns({
+      success: true
+    });
+
+    request(app)
+      .post('/academy/openCourse')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        expect(res.body.msg).equal('Open Successfully!');
+        done();
+      });
+  });
+});
+
 describe('#GET /academy/coursesOfStudent/:username', () => {
   let queryCourses;
   let connect;

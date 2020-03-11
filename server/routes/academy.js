@@ -400,6 +400,74 @@ router.post(
   }
 );
 
+router.post(
+  '/openCourse',
+  checkJWT,
+  body('courseId')
+    .not()
+    .isEmpty()
+    .trim()
+    .escape(),
+  async (req, res) => {
+    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied'
+      });
+    }
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(422).json({
+        success: false,
+        errors: errors.array()
+      });
+    }
+
+    let user = req.decoded.user;
+    let networkObj = await network.connectToNetwork(user);
+    if (!networkObj) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Failed connect to blockchain!'
+      });
+    }
+
+    let { courseId } = req.body;
+    let query = await network.query(networkObj, 'GetCourse', courseId);
+    if (!query.success) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Can not query chaincode!'
+      });
+    }
+
+    courseInfo = JSON.parse(query.msg);
+    if (courseInfo.Status === 'Open') {
+      return res.status(500).json({
+        success: false,
+        msg: 'This course is open!'
+      });
+    }
+
+    networkObj = await network.connectToNetwork(user);
+
+    let response = await network.openCourse(networkObj, courseId);
+
+    if (!response.success) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Can not invoke chaincode!'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      msg: 'Open Successfully!'
+    });
+  }
+);
+
 router.get(
   '/coursesOfStudent/:username',
   checkJWT,
