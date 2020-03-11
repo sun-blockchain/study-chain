@@ -1010,6 +1010,10 @@ router.get('/courses', async (req, res) => {
     }
   }
 
+  for (let i = 0; i < courses.length; i++) {
+    courses[i]['getCert'] = courses[i].Subjects && courses[i].Subjects.length > 0;
+  }
+
   return res.json({
     success: true,
     courses
@@ -1092,17 +1096,15 @@ router.get('/scores/:courseId', async (req, res) => {
       msg: 'query chaincode error!'
     });
   }
-  let listSubjects = JSON.parse(resSubjects.msg);
-  let listScores = JSON.parse(resScores.msg);
+  let listSubjects = JSON.parse(resSubjects.msg) ? JSON.parse(resSubjects.msg) : [];
+  let listScores = JSON.parse(resScores.msg) ? JSON.parse(resScores.msg) : [];
 
-  if (listScores && listSubjects) {
-    for (let i = 0; i < listScores.length; i++) {
-      for (let j = 0; j < listSubjects.length; j++) {
-        if (listScores[i].SubjectID === listSubjects[j].SubjectID) {
-          let subject = listSubjects[j];
-          subject['score'] = listScores[i].ScoreValue;
-          listSubjects[j] = subject;
-        }
+  for (let i = 0; i < listScores.length; i++) {
+    for (let j = 0; j < listSubjects.length; j++) {
+      if (listScores[i].SubjectID === listSubjects[j].SubjectID) {
+        let subject = listSubjects[j];
+        subject['score'] = listScores[i].ScoreValue;
+        listSubjects[j] = subject;
       }
     }
   }

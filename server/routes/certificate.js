@@ -43,11 +43,20 @@ router.post(
       });
     }
 
+    const courseQuery = await network.query(networkObj, 'GetCourse', req.body.courseId);
     let query = await network.query(networkObj, 'GetCertificatesOfStudent', user.username);
-    if (!query.success) {
+    if (!query.success || !courseQuery.success) {
       return res.status(500).json({
         success: false,
         msg: 'Can not query chaincode!'
+      });
+    }
+
+    let course = JSON.parse(courseQuery.msg);
+    if (!course.Subjects || course.Subjects.length < 1) {
+      return res.status(500).json({
+        success: false,
+        msg: 'This course has no subject!'
       });
     }
 
