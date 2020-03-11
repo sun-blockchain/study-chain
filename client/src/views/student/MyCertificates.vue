@@ -45,6 +45,7 @@ export default {
   },
   async created() {
     let response = await this.getMyCertificates();
+
     if (response) {
       this.loadingData = false;
     }

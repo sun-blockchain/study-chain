@@ -6,8 +6,10 @@
       :loadingData="loadingData"
       :inProgress="true"
       :btnGetCert="true"
+      :linkCert="true"
       :nameFunctionDetail="`detailCourses`"
       :nameFunctionGetCert="`getCert`"
+      :nameFunctionLinkCert="`linkToCert`"
       :attrGetCert="`getCert`"
       :listProperties="[
         { prop: 'CourseCode', label: 'CourseCode' },
@@ -16,6 +18,7 @@
       ]"
       @detailCourses="detailCourse($event)"
       @getCert="getCertificate($event)"
+      @linkToCert="linkToCert($event)"
     ></table-student>
   </div>
 </template>
@@ -39,7 +42,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions('student', ['getMyCourses', 'claimCertificate']),
+    ...mapActions('student', ['getMyCourses', 'claimCertificate', 'getCertificateByCourseId']),
     detailCourse(row) {
       this.$router.push({ path: `myCourses/${row.CourseID}` });
     },
@@ -50,12 +53,18 @@ export default {
         Message.error('fail to get certificate!');
       } else if (data.success) {
         Message.success('Get certificate successfully!');
+        let response = await this.getMyCourses();
       }
       this.fullscreenLoading = false;
+    },
+    async linkToCert(row) {
+      let certId = await this.getCertificateByCourseId(row.CourseID);
+
+      this.$router.push({ path: `cert/${certId}` });
     }
   },
   computed: {
-    ...mapState('student', ['listMyCourses'])
+    ...mapState('student', ['listMyCourses', 'myCertificates'])
   },
   async created() {
     let response = await this.getMyCourses();
