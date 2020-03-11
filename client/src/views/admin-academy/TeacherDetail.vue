@@ -74,7 +74,7 @@
     </div>
     <table-admin
       :title="`List Classes Of Teacher`"
-      :listAll="classessOfTeacher"
+      :listAll="classesOfTeacher"
       :loadingData="loadingData"
       :btnDelete="true"
       :nameFunctionDelete="`delSubject`"
@@ -159,7 +159,7 @@ export default {
     };
   },
   computed: {
-    ...mapState('adminAcademy', ['classessOfTeacher', 'subjectsNoTeacher', 'listTeachers'])
+    ...mapState('adminAcademy', ['classesOfTeacher', 'subjectsNoTeacher', 'listTeachers'])
   },
   methods: {
     ...mapActions('adminAcademy', [

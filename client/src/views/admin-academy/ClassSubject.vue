@@ -19,8 +19,12 @@
                 Time: <b>{{ listClasses.Time }}</b>
               </p>
               <p>
-                Start -> End:
-                <b>{{ listClasses.StartDate }} <strong>-></strong> {{ listClasses.EndDate }}</b>
+                Start:
+                <b>{{ convertDate(listClasses.StartDate) }} </b>
+              </p>
+              <p>
+                End:
+                <b> {{ convertDate(listClasses.EndDate) }}</b>
               </p>
               <p>
                 Repeat: <b>{{ listClasses.Repeat }}</b>
@@ -146,10 +150,14 @@ import { Button, Select, Option, Dialog, Form, FormItem, Message, MessageBox } f
 export default {
   data() {
     return {
+      daysInWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+      startDate: '',
+      endDate: '',
       loadingData: false,
       fullscreenLoading: false,
       showInfo: false,
       infoStudent: {
+        Fullname: '',
         PhoneNumber: '',
         Email: '',
         Address: '',
@@ -203,6 +211,8 @@ export default {
     },
     showInfoStudent(row) {
       this.showInfo = true;
+
+      this.infoStudent.Fullname = row.Fullname;
       this.infoStudent.PhoneNumber = row.Info.PhoneNumber;
       this.infoStudent.Email = row.Info.Email;
       this.infoStudent.Address = row.Info.Address;
@@ -213,6 +223,11 @@ export default {
     },
     resetForm() {
       this.showInfo = false;
+    },
+    convertDate(timestamp) {
+      let date = new Date(parseInt(timestamp));
+
+      return date.toDateString();
     }
   },
   computed: {

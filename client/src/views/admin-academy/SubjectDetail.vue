@@ -77,7 +77,7 @@
             type="date"
             placeholder="Start Date"
             format="dd/MM/yyyy"
-            value-format="dd-MM-yyyy"
+            value-format="timestamp"
           >
           </el-date-picker>
         </el-form-item>
@@ -88,7 +88,7 @@
             type="date"
             placeholder="End Date"
             format="dd/MM/yyyy"
-            value-format="dd-MM-yyyy"
+            value-format="timestamp"
           >
           </el-date-picker>
         </el-form-item>
@@ -139,7 +139,7 @@
             type="date"
             placeholder="Start Date"
             format="dd/MM/yyyy"
-            value-format="dd-MM-yyyy"
+            value-format="timestamp"
           >
           </el-date-picker>
         </el-form-item>
@@ -150,7 +150,7 @@
             type="date"
             placeholder="End Date"
             format="dd/MM/yyyy"
-            value-format="dd-MM-yyyy"
+            value-format="timestamp"
           >
           </el-date-picker>
         </el-form-item>
@@ -190,7 +190,9 @@ import {
   Select,
   Option,
   DatePicker,
-  TimePicker
+  TimePicker,
+  RadioButton,
+  RadioGroup
 } from 'element-ui';
 
 export default {
@@ -206,21 +208,19 @@ export default {
     'el-select': Select,
     'el-option': Option,
     'el-date-picker': DatePicker,
-    'el-time-picker': TimePicker
+    'el-time-picker': TimePicker,
+    'el-radio-button': RadioButton,
+    'el-radio-group': RadioGroup
   },
   data() {
     return {
-      pickerOptions: {
-        disabledDate(time) {
-          return time.getTime() < Date.now();
-        }
-      },
       repeatOptions: [
         { value: 'Weekly' },
         { value: 'Monthly' },
         { value: 'Two times a week' },
         { value: 'Two times a month' }
       ],
+      daysInWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
       capacityOptions: [{ value: 10 }, { value: 20 }, { value: 50 }, { value: 100 }],
       editClass: {
         ClassID: '',
@@ -304,6 +304,11 @@ export default {
             trigger: 'blur'
           }
         ]
+      },
+      pickerOptions: {
+        disabledDate(time) {
+          return time.getTime() < Date.now();
+        }
       }
     };
   },
