@@ -13,12 +13,13 @@ import (
 type SmartContract struct {
 }
 
-type ClassStatus string
+type Status string
 
 const (
-	Open      ClassStatus = "Open"
-	InProgress    ClassStatus = "InProgress"
-	Completed ClassStatus = "Completed"
+	Open       Status = "Open"
+	Closed     Status = "Closed"
+	InProgress Status = "InProgress"
+	Completed  Status = "Completed"
 )
 
 type Course struct {
@@ -29,6 +30,7 @@ type Course struct {
 	Description      string
 	Subjects         []string
 	Students         []string
+	Status           Status
 }
 
 type Subject struct {
@@ -46,7 +48,7 @@ type Class struct {
 	ClassCode       string
 	Room            string
 	Time            string
-	Status          ClassStatus
+	Status          Status
 	StartDate       string
 	EndDate         string
 	Repeat          string
@@ -164,12 +166,14 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return GetCourse(stub, args)
 	} else if function == "GetAllCourses" {
 		return GetAllCourses(stub)
+	} else if function == "GetOpenCourses" {
+		return GetOpenCourses(stub)
 	} else if function == "UpdateCourseInfo" {
 		return UpdateCourseInfo(stub, args)
 	} else if function == "UpdateClassInfo" {
 		return UpdateClassInfo(stub, args)
-	} else if function == "DeleteCourse" {
-		return DeleteCourse(stub, args)
+	} else if function == "CloseCourse" {
+		return CloseCourse(stub, args)
 	} else if function == "UpdateUserInfo" {
 		return UpdateUserInfo(stub, args)
 	} else if function == "UpdateUserAvatar" {
@@ -390,6 +394,10 @@ func StudentRegisterCourse(stub shim.ChaincodeStubInterface, args []string) sc.R
 		return shim.Error("Course does not exist!")
 	}
 
+	if course.Status == Closed {
+		return shim.Error("This course was closed!")
+	}
+
 	var i int
 	for i = 0; i < len(student.Courses); i++ {
 		if CourseID == student.Courses[i] {
@@ -444,6 +452,10 @@ func AddSubjectToCourse(stub shim.ChaincodeStubInterface, args []string) sc.Resp
 
 	}
 
+	if course.Status == Closed {
+		return shim.Error("This course was closed!")
+	}
+
 	keySubject := "Subject-" + SubjectID
 	_, err = getSubject(stub, keySubject)
 
@@ -453,7 +465,11 @@ func AddSubjectToCourse(stub shim.ChaincodeStubInterface, args []string) sc.Resp
 
 	course.Subjects = append(course.Subjects, SubjectID)
 
-	courseAsBytes, _ := json.Marshal(course)
+	courseAsBytes, err := json.Marshal(course)
+
+	if err != nil {
+		return shim.Error("Can not convert data to bytes!")
+	}
 
 	stub.PutState(keyCourse, courseAsBytes)
 
@@ -983,7 +999,7 @@ func UpdateUserAvatar(stub shim.ChaincodeStubInterface, args []string) sc.Respon
 	}
 }
 
-func DeleteCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+func CloseCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	MSPID, err := cid.GetMSPID(stub)
 
 	if err != nil {
@@ -1001,7 +1017,7 @@ func DeleteCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	CourseID := args[0]
 
 	keyCourse := "Course-" + CourseID
-	_, err = getCourse(stub, keyCourse)
+	course, err := getCourse(stub, keyCourse)
 
 	if err != nil {
 
@@ -1009,7 +1025,19 @@ func DeleteCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	}
 
-	stub.DelState(keyCourse)
+	if course.Status == Closed {
+		return shim.Error("This course was closed!")
+	}
+
+	course.Status = Closed
+
+	courseAsBytes, err := json.Marshal(course)
+
+	if err != nil {
+		return shim.Error("Can not convert data to bytes!")
+	}
+
+	stub.PutState(keyCourse, courseAsBytes)
 
 	return shim.Success(nil)
 }
@@ -1520,16 +1548,6 @@ func GetStudentsOfClass(stub shim.ChaincodeStubInterface, args []string) sc.Resp
 
 func GetAllCourses(stub shim.ChaincodeStubInterface) sc.Response {
 
-	// MSPID, err := cid.GetMSPID(stub)
-
-	// if err != nil {
-	// 	fmt.Println("Error - cid.GetMSPID()")
-	// }
-
-	// if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
-	// 	shim.Error("Permission Denied!")
-	// }
-
 	allCourses, _ := getListCourses(stub)
 
 	defer allCourses.Close()
@@ -1553,7 +1571,41 @@ func GetAllCourses(stub shim.ChaincodeStubInterface) sc.Response {
 	jsonRow, err := json.Marshal(tlist)
 
 	if err != nil {
-		return shim.Error("Failed")
+		return shim.Error("Can not convert data to bytes!")
+	}
+
+	return shim.Success(jsonRow)
+}
+
+func GetOpenCourses(stub shim.ChaincodeStubInterface) sc.Response {
+
+	allCourses, _ := getListCourses(stub)
+
+	defer allCourses.Close()
+
+	var tlist []Course
+	var i int
+
+	for i = 0; allCourses.HasNext(); i++ {
+
+		record, err := allCourses.Next()
+
+		if err != nil {
+			return shim.Success(nil)
+		}
+
+		course := Course{}
+		json.Unmarshal(record.Value, &course)
+
+		if course.Status == Open {
+			tlist = append(tlist, course)
+		}
+	}
+
+	jsonRow, err := json.Marshal(tlist)
+
+	if err != nil {
+		return shim.Error("Can not conver data to bytes!")
 	}
 
 	return shim.Success(jsonRow)
@@ -1894,10 +1946,10 @@ func GetScoresOfClass(stub shim.ChaincodeStubInterface, args []string) sc.Respon
 	if MSPID != "AcademyMSP" {
 		shim.Error("Permission Denied!")
 	}
-	
+
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
-	}	
+	}
 
 	ClassID := args[0]
 
@@ -1923,7 +1975,7 @@ func GetScoresOfClass(stub shim.ChaincodeStubInterface, args []string) sc.Respon
 		return shim.Error("Can not convert data to bytes!")
 	}
 
-	return shim.Success(jsonRow)	
+	return shim.Success(jsonRow)
 }
 
 func GetClassesByTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response {

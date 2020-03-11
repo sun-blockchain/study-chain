@@ -1035,7 +1035,7 @@ router.get('/notRegisterCourses', async (req, res) => {
     });
   }
 
-  let allCourses = await network.query(networkObj, 'GetAllCourses');
+  let allCourses = await network.query(networkObj, 'GetOpenCourses');
   let myCourses = await network.query(networkObj, 'GetCoursesOfStudent', user.username);
 
   if (!allCourses.success || !myCourses.success) {

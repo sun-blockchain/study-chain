@@ -105,14 +105,14 @@ async function main() {
           await conn.updateCourseInfo(networkObj, course);
           console.log('Transaction has been submitted');
           process.exit(0);
-        } else if (functionName === 'DeleteCourse' && user.role === USER_ROLES.ADMIN_ACADEMY) {
+        } else if (functionName === 'CloseCourse' && user.role === USER_ROLES.ADMIN_ACADEMY) {
           /**
-           * Delete Course
+           * Close Course
            * @param  {String} courseId course Id (required)
            */
 
           let courseId = argv.courseId.toString();
-          await conn.deleteCourse(networkObj, courseId);
+          await conn.closeCourse(networkObj, courseId);
           console.log('Transaction has been submitted');
           process.exit(0);
         } else if (
