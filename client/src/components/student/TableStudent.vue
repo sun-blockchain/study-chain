@@ -42,7 +42,7 @@
                 </template>
               </el-table-column>
               <el-table-column
-                v-if="Progressing"
+                v-if="inProgress"
                 sortable
                 label="Progressing"
                 :filters="[
@@ -85,7 +85,12 @@
                       @click.stop="callFunctionRegister(scope.row)"
                     ></el-button>
                   </el-tooltip>
-                  <el-tooltip v-if="btnGetCert" class="item" content="GetCert" placement="top">
+                  <el-tooltip
+                    v-if="btnGetCert && scope.row[attrGetCert]"
+                    class="item"
+                    content="GetCert"
+                    placement="top"
+                  >
                     <el-button
                       icon="el-icon-postcard"
                       type="primary"
@@ -171,7 +176,8 @@ export default {
     registeredId: String,
     attrId: String,
     statusCol: Boolean,
-    Progressing: Boolean
+    inProgress: Boolean,
+    attrGetCert: String
   },
   data() {
     return {

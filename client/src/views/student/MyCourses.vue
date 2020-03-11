@@ -4,10 +4,11 @@
       :title="`My Courses`"
       :listAll="listMyCourses"
       :loadingData="loadingData"
-      :Progressing="true"
+      :inProgress="true"
       :btnGetCert="true"
       :nameFunctionDetail="`detailCourses`"
       :nameFunctionGetCert="`getCert`"
+      :attrGetCert="`getCert`"
       :listProperties="[
         { prop: 'CourseCode', label: 'CourseCode' },
         { prop: 'CourseName', label: 'CourseName' },

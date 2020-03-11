@@ -89,7 +89,7 @@ describe('#POST /certificate ', () => {
       });
   });
 
-  it('Can not get certificates of student', (done) => {
+  it('Can not get course in chaincode', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -97,30 +97,8 @@ describe('#POST /certificate ', () => {
       user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
     });
 
-    query.returns({
+    query.onFirstCall().returns({
       success: false
-    });
-
-    request(app)
-      .post('/certificate')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        courseId: '123456'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Can not query chaincode!');
-        done();
-      });
-  });
-
-  it('Certificate already exists!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
     });
 
     let certificates = JSON.stringify([
@@ -134,15 +112,152 @@ describe('#POST /certificate ', () => {
       }
     ]);
 
-    query.returns({
-      success: true,
+    query.onSecondCall().returns({
+      success: false,
       msg: certificates
     });
     request(app)
       .post('/certificate')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        courseId: '123456'
+        courseId: '1fe9f48b-6c41-488d-9085-011f05a24603'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not query chaincode!');
+        done();
+      });
+  });
+
+  it('Can not get certificates of student', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    let course = {
+      CourseID: '1fe9f48b-6c41-488d-9085-011f05a24603',
+      CourseCode: 'BC02',
+      CourseName: 'Blockchain',
+      ShortDescription: 'Blockchain',
+      Description: 'Blockchain',
+      Subjects: null,
+      Students: ['st01']
+    };
+
+    query.onFirstCall().returns({
+      success: true,
+      msg: JSON.stringify(course)
+    });
+
+    query.onSecondCall().returns({
+      success: false
+    });
+
+    request(app)
+      .post('/certificate')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        courseId: '1fe9f48b-6c41-488d-9085-011f05a24603'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not query chaincode!');
+        done();
+      });
+  });
+
+  it('This course has no subject!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    query.onFirstCall().returns({
+      success: true,
+      msg: JSON.stringify({
+        CourseID: '1fe9f48b-6c41-488d-9085-011f05a24603',
+        CourseCode: 'BC02',
+        CourseName: 'Blockchain',
+        ShortDescription: 'Blockchain',
+        Description: 'Blockchain',
+        Subjects: null,
+        Students: ['st01']
+      })
+    });
+
+    query.onSecondCall().returns({
+      success: true,
+      msg: JSON.stringify([
+        {
+          CourseID: '14245245456',
+          StudentUsername: 'hoangdd'
+        },
+        {
+          CourseID: '123457',
+          StudentUsername: 'hoangdd'
+        }
+      ])
+    });
+    request(app)
+      .post('/certificate')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        courseId: '1fe9f48b-6c41-488d-9085-011f05a24603'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('This course has no subject!');
+        done();
+      });
+  });
+
+  it('Certificate already exists!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    query.onFirstCall().returns({
+      success: true,
+      msg: JSON.stringify({
+        CourseID: '1fe9f48b-6c41-488d-9085-011f05a24603',
+        CourseCode: 'BC02',
+        CourseName: 'Blockchain',
+        ShortDescription: 'Blockchain',
+        Description: 'Blockchain',
+        Subjects: ['f8ce73e3-056e-4e69-99fe-76bbeeaf4650'],
+        Students: ['st01']
+      })
+    });
+
+    query.onSecondCall().returns({
+      success: true,
+      msg: JSON.stringify([
+        {
+          CourseID: '1fe9f48b-6c41-488d-9085-011f05a24603',
+          StudentUsername: 'hoangdd'
+        },
+        {
+          CourseID: '123457',
+          StudentUsername: 'hoangdd'
+        }
+      ])
+    });
+    request(app)
+      .post('/certificate')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        courseId: '1fe9f48b-6c41-488d-9085-011f05a24603'
       })
       .then((res) => {
         expect(res.status).equal(500);
@@ -160,23 +275,34 @@ describe('#POST /certificate ', () => {
       user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
     });
 
-    let certificates = JSON.stringify([
-      {
-        CourseID: '123457',
-        StudentUsername: 'hoangdd'
-      },
-      {
-        CourseID: '123458',
-        StudentUsername: 'hoangdd'
-      }
-    ]);
-
     query.onFirstCall().returns({
       success: true,
-      msg: certificates
+      msg: JSON.stringify({
+        CourseID: '1fe9f48b-6c41-488d-9085-011f05a24603',
+        CourseCode: 'BC02',
+        CourseName: 'Blockchain',
+        ShortDescription: 'Blockchain',
+        Description: 'Blockchain',
+        Subjects: ['f8ce73e3-056e-4e69-99fe-76bbeeaf4650'],
+        Students: ['st01']
+      })
     });
 
     query.onSecondCall().returns({
+      success: true,
+      msg: JSON.stringify([
+        {
+          CourseID: '123412412',
+          StudentUsername: 'hoangdd'
+        },
+        {
+          CourseID: '123457',
+          StudentUsername: 'hoangdd'
+        }
+      ])
+    });
+
+    query.onThirdCall().returns({
       success: false
     });
 
@@ -202,30 +328,39 @@ describe('#POST /certificate ', () => {
       user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
     });
 
-    let certificates = JSON.stringify([
-      {
-        CourseID: '123457',
-        StudentUsername: 'hoangdd'
-      },
-      {
-        CourseID: '123458',
-        StudentUsername: 'hoangdd'
-      }
-    ]);
-
     query.onFirstCall().returns({
       success: true,
-      msg: certificates
-    });
-
-    let studentInfo = JSON.stringify({
-      Username: 'hoangdd',
-      Courses: []
+      msg: JSON.stringify({
+        CourseID: '1fe9f48b-6c41-488d-9085-011f05a24603',
+        CourseCode: 'BC02',
+        CourseName: 'Blockchain',
+        ShortDescription: 'Blockchain',
+        Description: 'Blockchain',
+        Subjects: ['f8ce73e3-056e-4e69-99fe-76bbeeaf4650'],
+        Students: ['st01']
+      })
     });
 
     query.onSecondCall().returns({
       success: true,
-      msg: studentInfo
+      msg: JSON.stringify([
+        {
+          CourseID: '123412412',
+          StudentUsername: 'hoangdd'
+        },
+        {
+          CourseID: '123457',
+          StudentUsername: 'hoangdd'
+        }
+      ])
+    });
+
+    query.onThirdCall().returns({
+      success: true,
+      msg: JSON.stringify({
+        Username: 'hoangdd',
+        Courses: []
+      })
     });
 
     request(app)
@@ -250,30 +385,39 @@ describe('#POST /certificate ', () => {
       user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
     });
 
-    let certificates = JSON.stringify([
-      {
-        CourseID: '123457',
-        StudentUsername: 'hoangdd'
-      },
-      {
-        CourseID: '123458',
-        StudentUsername: 'hoangdd'
-      }
-    ]);
-
     query.onFirstCall().returns({
       success: true,
-      msg: certificates
-    });
-
-    let studentInfo = JSON.stringify({
-      Username: 'hoangdd',
-      Courses: ['123456']
+      msg: JSON.stringify({
+        CourseID: '1fe9f48b-6c41-488d-9085-011f05a24603',
+        CourseCode: 'BC02',
+        CourseName: 'Blockchain',
+        ShortDescription: 'Blockchain',
+        Description: 'Blockchain',
+        Subjects: ['f8ce73e3-056e-4e69-99fe-76bbeeaf4650'],
+        Students: ['st01']
+      })
     });
 
     query.onSecondCall().returns({
       success: true,
-      msg: studentInfo
+      msg: JSON.stringify([
+        {
+          CourseID: '123412412',
+          StudentUsername: 'hoangdd'
+        },
+        {
+          CourseID: '123457',
+          StudentUsername: 'hoangdd'
+        }
+      ])
+    });
+
+    query.onThirdCall().returns({
+      success: true,
+      msg: JSON.stringify({
+        Username: 'hoangdd',
+        Courses: ['123456']
+      })
     });
 
     createCertificate.returns({
@@ -302,30 +446,39 @@ describe('#POST /certificate ', () => {
       user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
     });
 
-    let certificates = JSON.stringify([
-      {
-        CourseID: '123457',
-        StudentUsername: 'hoangdd'
-      },
-      {
-        CourseID: '123458',
-        StudentUsername: 'hoangdd'
-      }
-    ]);
-
     query.onFirstCall().returns({
       success: true,
-      msg: certificates
-    });
-
-    let studentInfo = JSON.stringify({
-      Username: 'hoangdd',
-      Courses: ['123456']
+      msg: JSON.stringify({
+        CourseID: '1fe9f48b-6c41-488d-9085-011f05a24603',
+        CourseCode: 'BC02',
+        CourseName: 'Blockchain',
+        ShortDescription: 'Blockchain',
+        Description: 'Blockchain',
+        Subjects: ['f8ce73e3-056e-4e69-99fe-76bbeeaf4650'],
+        Students: ['st01']
+      })
     });
 
     query.onSecondCall().returns({
       success: true,
-      msg: studentInfo
+      msg: JSON.stringify([
+        {
+          CourseID: '123412412',
+          StudentUsername: 'hoangdd'
+        },
+        {
+          CourseID: '123457',
+          StudentUsername: 'hoangdd'
+        }
+      ])
+    });
+
+    query.onThirdCall().returns({
+      success: true,
+      msg: JSON.stringify({
+        Username: 'hoangdd',
+        Courses: ['123456']
+      })
     });
 
     createCertificate.returns({
