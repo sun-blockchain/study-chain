@@ -50,7 +50,7 @@
               <p>
                 Subject:
                 <router-link :to="`/academy/subjects/${listClasses.SubjectID}`">
-                  {{ listClasses.SubjectID }}
+                  {{ listClasses.SubjectName }}
                 </router-link>
               </p>
             </div>

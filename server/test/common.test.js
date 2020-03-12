@@ -333,7 +333,7 @@ describe('#GET /common/class/:classId', () => {
       });
   });
 
-  it('Can not query chaincode', (done) => {
+  it('Can not query class in chaincode', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -342,8 +342,7 @@ describe('#GET /common/class/:classId', () => {
     });
 
     query.returns({
-      success: false,
-      msg: 'Can not query chaincode!'
+      success: false
     });
 
     request(app)
@@ -357,7 +356,7 @@ describe('#GET /common/class/:classId', () => {
       });
   });
 
-  it('success query subject with admin', (done) => {
+  it('can not query subject in chaincode', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -373,26 +372,31 @@ describe('#GET /common/class/:classId', () => {
       Status: 'Register Open',
       ShortDescription: 'aaaa',
       Description: 'bbbb',
+      SubjectID: '123456',
       Students: ['student1', 'student2']
     });
 
-    query.returns({
+    query.onFirstCall().returns({
       success: true,
       msg: data
+    });
+
+    query.onSecondCall().returns({
+      success: false
     });
 
     request(app)
       .get(`/common/class/${classId}`)
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .then((res) => {
-        expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
-        expect(res.body.class.Students.length).equal(2);
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not query chaincode!');
         done();
       });
   });
 
-  it('success query class with student', (done) => {
+  it('success query class and subject in chaincode', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -408,12 +412,23 @@ describe('#GET /common/class/:classId', () => {
       Status: 'Register Open',
       ShortDescription: 'aaaa',
       Description: 'bbbb',
+      SubjectID: '123456',
       Students: ['student1', 'student2']
     });
 
-    query.returns({
+    let subject = JSON.stringify({
+      SubjectID: '123456',
+      SubjectName: 'Ethereum'
+    });
+
+    query.onFirstCall().returns({
       success: true,
       msg: data
+    });
+
+    query.onSecondCall().returns({
+      success: true,
+      msg: subject
     });
 
     request(app)
