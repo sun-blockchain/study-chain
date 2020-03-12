@@ -19,6 +19,7 @@
       :title="`Classes list`"
       :listAll="listClasses"
       :loadingData="loadingData"
+      :statusCol="true"
       :btnRegister="true"
       :nameFunctionRegister="`enrollClass`"
       :nameFunctionDetail="`detailClass`"
