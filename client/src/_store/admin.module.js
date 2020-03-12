@@ -120,10 +120,10 @@ const actions = {
       dispatch('alert/alertError', error, { root: true });
     }
   },
-  async deleteCourse({ commit, dispatch }, courseId) {
+  async changeCourseStatus({ commit, dispatch }, { courseId, status }) {
     try {
-      let data = await adminService.deleteCourse(courseId);
-      commit('deleteCourse', data.courses);
+      let data = await adminService.changeCourseStatus(courseId, status);
+      commit('changeCourseStatus', data.courses);
       return data;
     } catch (error) {
       dispatch('alert/alertError', error, { root: true });
@@ -471,7 +471,7 @@ const mutations = {
   updateCourse(state, listCourses) {
     state.listCourses = listCourses;
   },
-  deleteCourse(state, listCourses) {
+  changeCourseStatus(state, listCourses) {
     state.listCourses = listCourses;
   },
   getStudentsOfCourse(state, listStudents) {

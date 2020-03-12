@@ -7,8 +7,11 @@
       :nameFunctionDetail="`detailCourses`"
       :btnEdit="true"
       :nameFunctionEdit="`modalEdit`"
-      :nameFunctionDelete="`delCourse`"
-      :btnDelete="true"
+      :statusCol="true"
+      :filter="[
+        { text: 'Open', value: 'Open' },
+        { text: 'Closed', value: 'Closed' }
+      ]"
       :listProperties="[
         { prop: 'CourseCode', label: 'CourseCode' },
         { prop: 'CourseName', label: 'CourseName' },
@@ -16,7 +19,6 @@
       ]"
       @detailCourses="detailCourse($event)"
       @modalEdit="modalEdit($event)"
-      @delCourse="delCourse($event)"
     >
       <template v-slot:btn-create>
         <el-button
@@ -201,12 +203,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions('adminAcademy', [
-      'getAllCourses',
-      'createCourse',
-      'updateCourse',
-      'deleteCourse'
-    ]),
+    ...mapActions('adminAcademy', ['getAllCourses', 'createCourse', 'updateCourse']),
     detailCourse(row) {
       this.$router.push({ path: `courses/${row.CourseID}/course-detail` });
     },
@@ -264,30 +261,7 @@ export default {
         this.$refs.observer.reset();
       });
     },
-    async delCourse(row) {
-      MessageBox.confirm(`You won't be able to revert this!`, 'Delete', {
-        confirmButtonText: 'OK',
-        cancelButtonText: 'Cancel',
-        type: 'warning',
-        center: true
-      })
-        .then(async () => {
-          this.fullscreenLoading = true;
-          let data = await await this.deleteCourse(row.CourseID);
-          if (data) {
-            if (data.success) {
-              await this.getAllCourses();
-              Message.success('Delete completed!');
-            } else {
-              Message.error(data.msg);
-            }
-          }
-          this.fullscreenLoading = false;
-        })
-        .catch(() => {
-          Message.info('Delete canceled');
-        });
-    },
+
     btnCreate(item, button) {
       this.$root.$emit('bv::show::modal', button);
     }

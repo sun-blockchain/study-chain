@@ -11,7 +11,7 @@ export const adminService = {
   getCourse,
   createCourse,
   updateCourse,
-  deleteCourse,
+  changeCourseStatus,
   getAllCourses,
   getStudentsOfCourse,
   getAllSubjects,
@@ -85,10 +85,10 @@ async function updateCourse(course) {
   }
 }
 
-async function deleteCourse(courseId) {
+async function changeCourseStatus(courseId, status) {
   try {
     let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/academy/closeCourse`,
+      `${process.env.VUE_APP_API_BACKEND}/academy/${status}`,
       { courseId: courseId },
       {
         headers: authHeader()
