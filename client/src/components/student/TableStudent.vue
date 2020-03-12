@@ -72,7 +72,7 @@
                 </template>
                 <template slot-scope="scope">
                   <el-tooltip
-                    v-if="btnRegister && !registeredId"
+                    v-if="displayEnroll(scope.row)"
                     class="item"
                     content="Enroll"
                     placement="top"
@@ -215,6 +215,9 @@ export default {
           row.Status &&
           row.Status === 'Open') ||
         (this.btnCancel && !this.btnRegister && row.Status && row.Status === 'Open');
+    },
+    displayEnroll() {
+      return (row) => this.btnRegister && !this.registeredId && row.Status && row.Status === 'Open';
     }
   },
   watch: {
