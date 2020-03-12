@@ -81,6 +81,7 @@
       :nameFunctionDetail="`detailClass`"
       :listProperties="[
         { prop: 'ClassCode', label: 'Class Code' },
+        { prop: 'SubjectName', label: 'Subject' },
         { prop: 'Time', label: 'Time' },
         { prop: 'StartDate', label: 'Start Date' },
         { prop: 'EndDate', label: 'End Date' },
