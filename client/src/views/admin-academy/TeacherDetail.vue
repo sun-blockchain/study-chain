@@ -74,10 +74,10 @@
     </div>
     <table-admin
       :title="`List Classes Of Teacher`"
-      :listAll="classessOfTeacher"
+      :listAll="classesOfTeacher"
       :loadingData="loadingData"
-      :btnDelete="true"
-      :nameFunctionDelete="`delSubject`"
+      :btnRemove="true"
+      :nameFunctionRemove="`removeClass`"
       :nameFunctionDetail="`detailClass`"
       :listProperties="[
         { prop: 'ClassCode', label: 'Class Code' },
@@ -87,7 +87,7 @@
         { prop: 'Capacity', label: 'Capacity' }
       ]"
       :statusCol="true"
-      @delSubject="delSubject($event)"
+      @removeClass="removeClass($event)"
       @detailClass="detailClass($event)"
     >
       <template v-slot:btn-create>
@@ -159,12 +159,12 @@ export default {
     };
   },
   computed: {
-    ...mapState('adminAcademy', ['classessOfTeacher', 'subjectsNoTeacher', 'listTeachers'])
+    ...mapState('adminAcademy', ['classesOfTeacher', 'subjectsNoTeacher', 'listTeachers'])
   },
   methods: {
     ...mapActions('adminAcademy', [
       'getClassesOfTeacher',
-      'deleteSubjectOfTeacher',
+      'unassignTeacherFromClass',
       'addClassToTeacher',
       'getClassesNoTeacher',
       'getTeacher'
@@ -212,8 +212,8 @@ export default {
       this.$refs[formName].resetFields();
       this.dialogForm.addClass = false;
     },
-    delSubject(subject) {
-      MessageBox.confirm(`You won't be able to revert this!`, 'Remove', {
+    removeClass(row) {
+      MessageBox.confirm(`You won't be able to revert this!`, 'Unassign', {
         confirmButtonText: 'OK',
         cancelButtonText: 'Cancel',
         type: 'warning',
@@ -222,14 +222,11 @@ export default {
         .then(async () => {
           this.fullscreenLoading = true;
           //sua chaincode sau
-          let data = await this.deleteSubjectOfTeacher({
-            Username: Username,
-            subjectId: subject.SubjectID
-          });
+          let data = await this.unassignTeacherFromClass(row.ClassID);
           if (data.success) {
             await this.getClassesOfTeacher(this.$route.params.id);
 
-            Message.success('Remove completed!');
+            Message.success('Unassign completed!');
           } else {
             if (data.data.msg) {
               Message.error(data.data.msg);
@@ -240,7 +237,7 @@ export default {
           this.fullscreenLoading = false;
         })
         .catch(() => {
-          Message.info('Remove canceled');
+          Message.info('Unassign canceled');
         });
     },
     addSubject(item, button) {
