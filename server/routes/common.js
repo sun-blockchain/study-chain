@@ -132,12 +132,26 @@ router.get(
     if (!response.success) {
       return res.status(500).send({
         success: false,
-        msg: response.msg.toString()
+        msg: 'Can not query chaincode!'
       });
     }
 
     let classInfo = JSON.parse(response.msg);
 
+    let subjectId = classInfo.SubjectID;
+
+    let subjectInfo = await network.query(networkObj, 'GetSubject', subjectId);
+
+    if (!subjectInfo.success) {
+      return res.status(500).send({
+        success: false,
+        msg: 'Can not query chaincode!'
+      });
+    }
+
+    subjectInfo = JSON.parse(subjectInfo.msg);
+
+    classInfo.SubjectName = subjectInfo.SubjectName;
     if (user.role === USER_ROLES.STUDENT) {
       delete classInfo.Students;
     }
