@@ -184,7 +184,9 @@ router.put(
     if (!errors.isEmpty()) {
       return res.status(422).json({ success: false, msg: errors.array().toString() });
     }
+
     const user = req.decoded.user;
+
     let networkObj = await network.connectToNetwork(user);
     if (!networkObj) {
       return res.status(500).json({
@@ -192,20 +194,30 @@ router.put(
         msg: 'Failed connect to blockchain'
       });
     }
+
     let identity = user.username;
     let response;
+
     if (user.role === USER_ROLES.STUDENT) {
       response = await network.query(networkObj, 'GetStudent', identity);
     }
+
     if (user.role === USER_ROLES.TEACHER) {
       response = await network.query(networkObj, 'GetTeacher', identity);
     }
+
     if (!response.success) {
       return res.status(500).json({
         success: false,
         msg: response.msg.toString()
       });
     }
+
+    let today = new Date();
+    let thisYear = today.getFullYear();
+    let thisMonth = today.getMonth();
+    let thisDate = today.getDate();
+
     let userInfo = JSON.parse(response.msg);
     let fullName = req.body.fullName ? req.body.fullName : '';
     let phoneNumber = req.body.phoneNumber.value ? req.body.phoneNumber.value : '';
@@ -213,6 +225,26 @@ router.put(
     let address = req.body.address ? req.body.address : '';
     let sex = req.body.sex ? req.body.sex : '';
     let birthday = req.body.birthday ? req.body.birthday : '';
+
+    if (birthday !== '') {
+      let birthYear = parseInt(birthday.slice(-4));
+      let birthMonth = parseInt(birthday.slice(3, 5));
+      let birthDate = parseInt(birthday.slice(0, 2));
+
+      let age = thisYear - birthYear;
+      let month = thisMonth + 1 - birthMonth;
+
+      if (month < 0 || (month === 0 && thisDate < birthDate)) {
+        age--;
+      }
+
+      if (age < 6 && user.role === USER_ROLES.STUDENT) {
+        return res.status(422).json({ msg: 'You must be 6 years or older.' });
+      } else if (age < 18 && user.role === USER_ROLES.TEACHER) {
+        return res.status(422).json({ msg: 'You must be 18 years or older.' });
+      }
+    }
+
     let country = req.body.phoneNumber.country ? req.body.phoneNumber.country : '';
 
     if (
