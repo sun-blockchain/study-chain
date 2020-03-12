@@ -21,6 +21,7 @@
       :title="`Classes list`"
       :listAll="listClasses"
       :loadingData="loadingData"
+      :statusCol="true"
       :btnRegister="true"
       :nameFunctionRegister="`enrollClass`"
       :nameFunctionDetail="`detailClass`"
@@ -30,7 +31,6 @@
         { prop: 'ClassCode', label: 'Class Code' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
-        { prop: 'Status', label: 'Status' },
         { prop: 'Capacity', label: 'Capacity' }
       ]"
       :registeredId="subject && subject.classRegistered ? subject.classRegistered : ''"

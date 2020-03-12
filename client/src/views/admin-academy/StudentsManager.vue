@@ -5,13 +5,10 @@
       :listAll="listStudents"
       :loadingData="loadingData"
       :nameFunctionDetail="`detailStudent`"
-      :btnInfo="true"
-      :nameFunctionInfo="`info`"
       :listProperties="[
         { prop: 'Fullname', label: 'Fullname' },
         { prop: 'Username', label: 'Username' }
       ]"
-      @info="info($event)"
       @detailStudent="detailStudent($event)"
     ></table-admin>
 
@@ -69,11 +66,6 @@ export default {
   },
   methods: {
     ...mapActions('adminAcademy', ['getAllStudents']),
-    info(item) {
-      this.student.Fullname = item.Fullname;
-      this.student.Username = item.Username;
-      this.$root.$emit('bv::show::modal', 'info-modal');
-    },
     resetInfoModalDetail() {
       this.student.Fullname = '';
     },
