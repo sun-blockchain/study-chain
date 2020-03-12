@@ -228,6 +228,10 @@ ul.social-network li {
   cursor: pointer;
 }
 
+.cursor-pointer {
+  cursor: pointer;
+}
+
 @media (max-width: 768px) {
   .table-responsive {
     overflow-x: auto;

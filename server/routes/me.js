@@ -107,11 +107,13 @@ router.get('/summary', async (req, res) => {
 
     let courseCount = data.Courses ? data.Courses.length : 0;
     let classCount = data.Classes ? data.Classes.length : 0;
+    let certCount = data.Certificates ? data.Certificates.length : 0;
 
     return res.json({
       success: true,
       courseCount,
-      classCount
+      classCount,
+      certCount
     });
   } else if (user.role === USER_ROLES.TEACHER) {
     const networkObj = await network.connectToNetwork(user);
