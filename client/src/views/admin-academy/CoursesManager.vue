@@ -26,177 +26,168 @@
           icon="fas fa-plus"
           size="medium"
           round
-          v-b-modal.modal-create
+          @click="dialogForm.newCourse = true"
         ></el-button>
         <!-- <div class="box-defaul-header"></div> -->
       </template>
     </table-admin>
 
-    <ValidationObserver ref="observer" v-slot="{ passes }">
-      <b-modal
-        id="modal-edit"
-        ref="modal-edit"
-        ok-title="Update"
-        @ok.prevent="passes(handleUpdate)"
-        title="Cập Nhật Khóa Học"
-      >
-        <b-form>
-          <ValidationProvider rules="required" name="Course Code" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="text"
-                v-model="editCourse.CourseCode"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Course Code"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <ValidationProvider rules="required" name="Course Name" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="text"
-                v-model="editCourse.CourseName"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Course Name"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <ValidationProvider
-            rules="required"
-            name="Course Short Description"
-            v-slot="{ valid, errors }"
-          >
-            <b-form-group>
-              <b-form-textarea
-                type="text"
-                v-model="editCourse.ShortDescription"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Course Short Description"
-              ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <ValidationProvider rules="required" name="Course Description" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-textarea
-                type="text"
-                v-model="editCourse.Description"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Course Description"
-              ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-        </b-form>
-      </b-modal>
-    </ValidationObserver>
+    <el-dialog
+      title="Edit Course"
+      :visible.sync="dialogForm.editCourse"
+      class="modal-with-create"
+      v-loading.fullscreen.lock="fullscreenLoading"
+    >
+      <el-form :model="editCourse" :rules="ruleCourse" ref="editCourse">
+        <el-form-item prop="CourseName">
+          <el-input
+            v-model="editCourse.CourseName"
+            autocomplete="off"
+            placeholder="Course Name"
+          ></el-input>
+        </el-form-item>
+        <el-form-item prop="CourseCode">
+          <el-input
+            v-model="editCourse.CourseCode"
+            autocomplete="off"
+            placeholder="Course Code"
+          ></el-input>
+        </el-form-item>
+        <el-form-item prop="ShortDescription">
+          <el-input
+            v-model="editCourse.ShortDescription"
+            autocomplete="off"
+            placeholder="Course Short Description"
+            type="textarea"
+            :rows="2"
+          ></el-input>
+        </el-form-item>
+        <el-form-item prop="Description">
+          <el-input
+            v-model="editCourse.Description"
+            autocomplete="off"
+            placeholder="Course Description"
+            type="textarea"
+            :rows="2"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="resetForm('editCourse')">Cancel</el-button>
+        <el-button type="primary" @click="handleUpdate('editCourse')">Confirm</el-button>
+      </span>
+    </el-dialog>
 
-    <ValidationObserver ref="observer" v-slot="{ passes }">
-      <b-modal
-        id="modal-create"
-        ref="modal-create"
-        title="Tạo Mới Khóa Học"
-        @ok.prevent="passes(handleCreate)"
-        @cancel="resetInfoModalCreate"
-        v-loading.fullscreen.lock="fullscreenLoading"
-      >
-        <b-form>
-          <ValidationProvider rules="required" name="Course Code" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="text"
-                v-model="newCourse.CourseCode"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Course Code"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <ValidationProvider rules="required" name="Course Name" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-input
-                type="text"
-                v-model="newCourse.CourseName"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Course Name"
-              ></b-form-input>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <ValidationProvider
-            rules="required"
-            name="Course Short Description"
-            v-slot="{ valid, errors }"
-          >
-            <b-form-group>
-              <b-form-textarea
-                v-model="newCourse.ShortDescription"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Course Short Description"
-              ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-          <ValidationProvider rules="required" name="Course Description" v-slot="{ valid, errors }">
-            <b-form-group>
-              <b-form-textarea
-                v-model="newCourse.Description"
-                :state="errors[0] ? false : valid ? true : null"
-                placeholder="Course Description"
-              ></b-form-textarea>
-              <b-form-invalid-feedback id="inputLiveFeedback">{{
-                errors[0]
-              }}</b-form-invalid-feedback>
-            </b-form-group>
-          </ValidationProvider>
-        </b-form>
-      </b-modal>
-    </ValidationObserver>
+    <el-dialog
+      title="Create Course"
+      :visible.sync="dialogForm.newCourse"
+      class="modal-with-create"
+      v-loading.fullscreen.lock="fullscreenLoading"
+    >
+      <el-form :model="newCourse" :rules="ruleCourse" ref="newCourse">
+        <el-form-item prop="CourseName">
+          <el-input
+            v-model="newCourse.CourseName"
+            autocomplete="off"
+            placeholder="Course Name"
+          ></el-input>
+        </el-form-item>
+        <el-form-item prop="CourseCode">
+          <el-input
+            v-model="newCourse.CourseCode"
+            autocomplete="off"
+            placeholder="Course Code"
+          ></el-input>
+        </el-form-item>
+        <el-form-item prop="ShortDescription">
+          <el-input
+            v-model="newCourse.ShortDescription"
+            autocomplete="off"
+            placeholder="Course Short Description"
+            type="textarea"
+            :rows="2"
+          ></el-input>
+        </el-form-item>
+        <el-form-item prop="Description">
+          <el-input
+            v-model="newCourse.Description"
+            autocomplete="off"
+            placeholder="Course Description"
+            type="textarea"
+            :rows="2"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="resetForm('newCourse')">Cancel</el-button>
+        <el-button type="primary" @click="handleCreate('newCourse')">Confirm</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { mapState, mapActions } from 'vuex';
-import { ValidationObserver, ValidationProvider } from 'vee-validate';
 import TableAdmin from '@/components/admin-academy/TableAdmin';
-import { Button, Message, MessageBox } from 'element-ui';
+import { Dialog, Form, FormItem, Input, Button, Message, MessageBox } from 'element-ui';
 export default {
   components: {
-    ValidationObserver,
-    ValidationProvider,
     TableAdmin,
+    'el-button': Button,
+    'el-dialog': Dialog,
+    'el-form': Form,
+    'el-form-item': FormItem,
+    'el-input': Input,
     'el-button': Button
   },
   data() {
     return {
-      editCourse: {
-        CourseID: '',
-        CourseCode: '',
+      newCourse: {
         CourseName: '',
+        CourseCode: '',
         ShortDescription: '',
         Description: ''
       },
-      newCourse: {
-        CourseCode: '',
+      editCourse: {
+        CourseID: '',
         CourseName: '',
+        CourseCode: '',
         ShortDescription: '',
         Description: ''
+      },
+      ruleCourse: {
+        CourseName: [
+          {
+            required: true,
+            message: 'Course name is required',
+            trigger: 'blur'
+          }
+        ],
+        CourseCode: [
+          {
+            required: true,
+            message: 'Course code is required',
+            trigger: 'blur'
+          }
+        ],
+        ShortDescription: [
+          {
+            required: true,
+            message: 'short Description is required',
+            trigger: 'blur'
+          }
+        ],
+        Description: [
+          {
+            required: true,
+            message: 'Description is required',
+            trigger: 'blur'
+          }
+        ]
+      },
+      dialogForm: {
+        newCourse: false,
+        editCourse: false
       },
       fullscreenLoading: false,
       loadingData: false
@@ -205,7 +196,7 @@ export default {
   methods: {
     ...mapActions('adminAcademy', ['getAllCourses', 'createCourse', 'updateCourse']),
     detailCourse(row) {
-      this.$router.push({ path: `courses/${row.CourseID}/course-detail` });
+      this.$router.push({ path: `Courses/${row.CourseID}/Course-detail` });
     },
     modalEdit(row) {
       this.editCourse.CourseID = row.CourseID;
@@ -214,56 +205,57 @@ export default {
       this.editCourse.ShortDescription = row.ShortDescription;
       this.editCourse.Description = row.Description;
 
-      this.$root.$emit('bv::show::modal', 'modal-edit');
+      this.dialogForm.editCourse = true;
     },
-    async handleCreate() {
-      this.fullscreenLoading = true;
-      let data = await this.createCourse(this.newCourse);
-      if (data) {
-        if (data.success) {
-          this.$refs['modal-create'].hide();
-          await this.resetInfoModalCreate();
+    async handleCreate(formName) {
+      let self = this;
+      this.$refs[formName].validate(async (valid) => {
+        if (valid) {
+          this.fullscreenLoading = true;
+          let data = await this.createCourse(this.newCourse);
+          if (data) {
+            if (data.success) {
+              await this.resetForm('newCourse');
+              Message.success('create success!');
+            } else {
+              Message.error(data.msg);
+            }
+          }
+          this.dialogForm.newCourse = false;
           await this.getAllCourses();
-          Message.success('Create success!');
-        } else {
-          Message.error(data.msg);
+
+          this.fullscreenLoading = false;
         }
-      }
-      this.fullscreenLoading = false;
-    },
-    async handleUpdate() {
-      this.fullscreenLoading = true;
-      let data = await this.updateCourse(this.editCourse);
-      if (data) {
-        if (data.success) {
-          this.$refs['modal-create'].hide();
-          await this.resetInfoModalEdit();
-          await this.getAllCourses();
-          Message.success('Update success!');
-        } else {
-          Message.error(data.msg);
-        }
-      }
-      this.fullscreenLoading = false;
-    },
-    resetInfoModalEdit() {
-      this.editCourse.CourseCode = '';
-      this.editCourse.CourseName = '';
-      this.editCourse.ShortDescription = '';
-      this.editCourse.Description = '';
-    },
-    resetInfoModalCreate() {
-      this.newCourse.CourseCode = '';
-      this.newCourse.CourseName = '';
-      this.newCourse.ShortDescription = '';
-      this.newCourse.Description = '';
-      requestAnimationFrame(() => {
-        this.$refs.observer.reset();
       });
     },
-
-    btnCreate(item, button) {
-      this.$root.$emit('bv::show::modal', button);
+    async handleUpdate(formName) {
+      let self = this;
+      this.$refs[formName].validate(async (valid) => {
+        if (valid) {
+          this.fullscreenLoading = true;
+          let data = await this.updateCourse(this.editCourse);
+          if (data) {
+            if (data.success) {
+              await this.resetForm('editCourse');
+              Message.success('update success!');
+            } else {
+              Message.error(data.msg);
+            }
+          }
+          this.dialogForm.editCourse = false;
+          await this.getAllCourses();
+          this.fullscreenLoading = false;
+        }
+      });
+    },
+    resetForm(formName) {
+      this[formName].CourseID = '';
+      this[formName].CourseName = '';
+      this[formName].CourseCode = '';
+      this[formName].ShortDescription = '';
+      this[formName].Description = '';
+      this.$refs[formName].resetFields();
+      this.dialogForm[formName] = false;
     }
   },
   computed: {

@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid">
+  <div class="container-fluid" v-loading.fullscreen.lock="fullscreenLoading">
     <div class="mb-5">
       <div></div>
     </div>
@@ -31,7 +31,7 @@
 import { mapState, mapActions } from 'vuex';
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 import TableStudent from '@/components/student/TableStudent';
-import { Button } from 'element-ui';
+import { Button, Message, MessageBox } from 'element-ui';
 export default {
   components: {
     ValidationObserver,
@@ -54,28 +54,32 @@ export default {
     },
 
     async cancelClass(row) {
-      this.$swal({
-        text: 'Are you sure to cancel enrollment this class ?',
-        type: 'success',
-        showCancelButton: true,
-        cancelButtonColor: '#d33',
-        confirmButtonColor: '#28a745',
-        confirmButtonText: 'Confirm',
-        reverseButtons: true
-      }).then(async (result) => {
-        if (result.value) {
+      MessageBox.confirm(`Are you sure to unenroll this class?`, {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+        center: true
+      })
+        .then(async () => {
           this.fullscreenLoading = true;
-          let response = await this.cancelRegisteredClass(row.ClassID);
-          if (!response) {
-            this.fullscreenLoading = false;
-            this.$swal('Failed!', 'Failed to cancel this class.', 'error');
-          } else if (response.status === 200) {
-            this.fullscreenLoading = false;
-            this.$swal('Canceled!', 'Successfully canceled enrollment.', 'success');
-            await this.getMyClasses();
+
+          let data = await this.cancelRegisteredClass(row.ClassID);
+
+          if (data) {
+            if (data.success) {
+              this.status = false;
+              Message.success('Unenroll successfully!');
+            } else {
+              Message.error(data.msg);
+            }
           }
-        }
-      });
+          await this.getMyClasses();
+
+          this.fullscreenLoading = false;
+        })
+        .catch(() => {
+          Message.info('Canceled');
+        });
     }
   },
   computed: {

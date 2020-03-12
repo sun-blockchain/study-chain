@@ -195,7 +195,6 @@ export default {
 
           if (data) {
             if (data.success) {
-              await this.getClass();
               this.status = false;
               Message.success('This class has been started!');
             } else {

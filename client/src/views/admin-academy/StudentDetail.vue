@@ -33,7 +33,7 @@
       <el-tab-pane label="Classes">
         <table-admin
           :title="`Class List`"
-          :listAll="classesOfStudent ? classesOfStudent :[] "
+          :listAll="classesOfStudent ? classesOfStudent : []"
           :loadingData="loadingData"
           :nameFunctionDetail="`detailClass`"
           :listProperties="[
