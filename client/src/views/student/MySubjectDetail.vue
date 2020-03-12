@@ -3,9 +3,7 @@
     <h1 class="bannerTitle_1wzmt7u mt-4">{{ subjects.SubjectName }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item to="/"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-      <b-breadcrumb-item :to="`/student/courses/${this.$route.params.id}`"
-        >Course Detail</b-breadcrumb-item
-      >
+      <b-breadcrumb-item @click="handleBack">Course Detail</b-breadcrumb-item>
       <b-breadcrumb-item active>Subject Detail</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">
@@ -26,11 +24,11 @@
       :nameFunctionDetail="`detailClass`"
       :btnCancel="true"
       :nameFunctionCancelRegistered="`cancelClass`"
+      :statusCol="true"
       :listProperties="[
         { prop: 'ClassCode', label: 'Class Code' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
-        { prop: 'Status', label: 'Status' },
         { prop: 'Capacity', label: 'Capacity' }
       ]"
       :registeredId="subject && subject.classRegistered ? subject.classRegistered : ''"
@@ -69,7 +67,7 @@ export default {
     ]),
     detailClass(row) {
       this.$router.push({
-        path: `/student/subjects/${this.$route.subjectId}/class/${row.ClassID}`
+        path: `/student/subjects/${this.$route.params.subjectId}/class/${row.ClassID}`
       });
     },
     enrollClass(row) {
@@ -115,6 +113,9 @@ export default {
           this.fullscreenLoading = false;
         })
         .catch(() => {});
+    },
+    handleBack() {
+      this.$router.push({ path: `/myCourses/${this.$route.params.id}` });
     }
   },
   computed: {

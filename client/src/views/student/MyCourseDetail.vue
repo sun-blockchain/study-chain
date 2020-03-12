@@ -3,7 +3,7 @@
     <h1 class="bannerTitle_1wzmt7u">{{ listCourses.CourseName }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item to="/student"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-      <b-breadcrumb-item to="/student/courses">Course</b-breadcrumb-item>
+      <b-breadcrumb-item to="/myCourses">My Courses</b-breadcrumb-item>
       <b-breadcrumb-item active>Course Detail</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">

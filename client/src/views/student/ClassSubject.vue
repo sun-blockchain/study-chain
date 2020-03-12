@@ -3,7 +3,7 @@
     <h1 class="bannerTitle_1wzmt7u">ClassRoom: {{ listClasses.Room }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item to="/"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-      <b-breadcrumb-item to="/myCourses"> Courses</b-breadcrumb-item>
+      <b-breadcrumb-item @click="handleBack"> Subject Detail</b-breadcrumb-item>
 
       <b-breadcrumb-item active>Class Detail</b-breadcrumb-item>
     </b-breadcrumb>
@@ -76,8 +76,20 @@ export default {
     'el-form': Form,
     'el-form-item': FormItem
   },
+  beforeRouteEnter(to, from, next) {
+    next((vm) => {
+      vm.fromRoute = from;
+    });
+  },
   methods: {
-    ...mapActions('adminAcademy', ['getClass'])
+    ...mapActions('adminAcademy', ['getClass']),
+    handleBack() {
+      if (!this.fromRoute.name) {
+        this.$router.push({ path: '/myCourses' });
+      } else {
+        this.$router.back();
+      }
+    }
   },
   computed: {
     ...mapState('adminAcademy', ['listClasses'])
