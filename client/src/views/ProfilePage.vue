@@ -55,12 +55,6 @@
                                   <i class="el-icon-upload" />
                                 </div>
                               </el-upload>
-                              <!-- <el-button
-                                size="small"
-                                type="primary"
-                                class="btn-upload-server"
-                                @click="submitUploadAvatar"
-                              >upload to server</el-button>-->
                             </div>
                           </div>
                         </div>
@@ -133,6 +127,7 @@
                                       placeholder="Birthday"
                                       format="dd-MM-yyyy"
                                       value-format="dd-MM-yyyy"
+                                      :default-value="defaultDate()"
                                       :picker-options="pickerOptions"
                                     ></el-date-picker>
                                   </el-form-item>
@@ -357,7 +352,14 @@ export default {
       },
       pickerOptions: {
         disabledDate(time) {
-          return time.getTime() > Date.now();
+          let user = localStorage.getItem('user');
+          user = JSON.parse(user);
+
+          if (user.role === 2) {
+            return time.getTime() > Date.now() - 3600 * 1000 * 24 * 365 * 18;
+          } else {
+            return time.getTime() > Date.now() - 3600 * 1000 * 24 * 365 * 6;
+          }
         }
       }
     };
@@ -366,6 +368,16 @@ export default {
     ...mapActions('account', ['getProfile', 'pushProfile', 'changePass']),
     countryChanged(country) {
       this.ruleForm.country = country.iso2;
+    },
+    defaultDate() {
+      let user = localStorage.getItem('user');
+      user = JSON.parse(user);
+
+      if (user.role === 2) {
+        return Date.now() - 3600 * 1000 * 24 * 365 * 18;
+      } else {
+        return Date.now() - 3600 * 1000 * 24 * 365 * 6;
+      }
     },
     inputNumberPhone(number) {
       this.ruleForm.country = number.regionCode;
