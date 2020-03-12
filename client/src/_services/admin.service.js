@@ -79,7 +79,7 @@ async function updateCourse(course) {
         headers: authHeader()
       }
     );
-    return respone.data.courses;
+    return respone.data;
   } catch (error) {
     throw error;
   }

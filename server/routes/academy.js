@@ -57,7 +57,7 @@ router.put(
       const { courseId, courseCode, courseName, shortDescription, description } = req.body;
 
       let course = {
-        courseID: courseId,
+        courseId: courseId,
         courseCode: courseCode,
         courseName: courseName,
         shortDescription: shortDescription,
