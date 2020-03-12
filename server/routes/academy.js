@@ -168,7 +168,7 @@ router.post(
     if (!response.success) {
       return res.status(500).json({
         success: false,
-        msg: response.msg
+        msg: 'This course was closed!'
       });
     }
 
