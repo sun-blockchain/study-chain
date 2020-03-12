@@ -9,7 +9,7 @@
     <div class="mb-5">
       <div>
         <div class="card-body">
-          <h1 class="h3 mb-2 text-gray-800">About this subject</h1>
+          <h1 class="h3 mb-2 text-gray-800">{{ subject.SubjectName }}</h1>
           <p>{{ subjects.Description }}</p>
         </div>
       </div>
@@ -26,10 +26,12 @@
       :btnCancel="true"
       :nameFunctionCancelRegistered="`cancelClass`"
       :listProperties="[
-        { prop: 'ClassCode', label: 'Class Code' },
+        { prop: 'ClassCode', label: 'Class' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
-        { prop: 'Capacity', label: 'Capacity' }
+        { prop: 'StartDate', label: 'Start' },
+        { prop: 'EndDate', label: 'End' },
+        { prop: 'Repeat', label: 'Repeat' }
       ]"
       :registeredId="subject && subject.classRegistered ? subject.classRegistered : ''"
       :attrId="`ClassID`"

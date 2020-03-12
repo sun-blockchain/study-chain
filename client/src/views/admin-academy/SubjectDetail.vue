@@ -31,9 +31,12 @@
         { text: 'In Progress', value: 'InProgress' }
       ]"
       :listProperties="[
-        { prop: 'ClassCode', label: 'Class Code' },
+        { prop: 'ClassCode', label: 'Class' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
+        { prop: 'StartDate', label: 'Start' },
+        { prop: 'EndDate', label: 'End' },
+        { prop: 'Repeat', label: 'Repeat' },
         { prop: 'Capacity', label: 'Capacity' }
       ]"
       @detailClass="detailClass($event)"

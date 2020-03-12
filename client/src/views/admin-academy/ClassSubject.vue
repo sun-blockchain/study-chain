@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid" v-loading.fullscreen.lock="fullscreenLoading">
-    <h1 class="bannerTitle_1wzmt7u">ClassRoom: {{ listClasses.Room }}</h1>
+    <h1 class="bannerTitle_1wzmt7u">Class Code: {{ listClasses.ClassCode }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item to="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
       <b-breadcrumb-item to="/academy/subjects"> Subject</b-breadcrumb-item>
@@ -12,7 +12,7 @@
     <div class="mb-5">
       <div>
         <div class="card-body">
-          <h2 class="h4 mb-2 text-gray-800">About this classs</h2>
+          <h2 class="h4 mb-2 text-gray-800">About this class</h2>
           <div class="row">
             <div class="col">
               <p>
@@ -31,6 +31,10 @@
               </p>
             </div>
             <div class="col">
+              <p>
+                Room:
+                <b> {{ listClasses.Room }}</b>
+              </p>
               <p>
                 Capacity:
                 <b> {{ listClasses.Capacity }}</b>
@@ -226,7 +230,6 @@ export default {
     },
     convertDate(timestamp) {
       let date = new Date(parseInt(timestamp));
-
       return date.toDateString();
     }
   },

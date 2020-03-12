@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid">
-    <h1 class="bannerTitle_1wzmt7u">ClassRoom: {{ listClasses.Room }}</h1>
+    <h1 class="bannerTitle_1wzmt7u">Class Code: {{ listClasses.ClassCode }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item to="/"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
       <b-breadcrumb-item @click="handleBack"> Subject Detail</b-breadcrumb-item>
@@ -10,18 +10,30 @@
     <div class="mb-5">
       <div>
         <div class="card-body">
-          <h2 class="h4 mb-2 text-gray-800">About this classs</h2>
+          <h2 class="h4 mb-2 text-gray-800">About this class</h2>
           <div class="row">
             <div class="col">
               <p>
                 Time: <b>{{ listClasses.Time }}</b>
               </p>
               <p>
-                Start -> End:
-                <b>{{ listClasses.StartDate }} <strong>-></strong> {{ listClasses.EndDate }}</b>
+                Start:
+                <b>
+                  {{ convertDate(listClasses.StartDate) }}
+                </b>
+              </p>
+
+              <p>
+                End:
+                <b>
+                  {{ convertDate(listClasses.EndDate) }}
+                </b>
               </p>
               <p>
                 Repeat: <b>{{ listClasses.Repeat }}</b>
+              </p>
+              <p>
+                Room: <b>{{ listClasses.Room }}</b>
               </p>
             </div>
             <div class="col">
@@ -89,6 +101,10 @@ export default {
       } else {
         this.$router.back();
       }
+    },
+    convertDate(timestamp) {
+      let date = new Date(parseInt(timestamp));
+      return date.toDateString();
     }
   },
   computed: {

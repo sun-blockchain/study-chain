@@ -1,7 +1,7 @@
 <template>
   <div v-loading.fullscreen.lock="fullscreenLoading">
     <div class="container-fluid">
-      <h1 class="bannerTitle_1wzmt7u">ClassRoom: {{ listClasses.Room }}</h1>
+      <h1 class="bannerTitle_1wzmt7u">Class Code: {{ listClasses.ClassCode }}</h1>
       <b-breadcrumb>
         <b-breadcrumb-item to="/"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
         <b-breadcrumb-item active>Class Detail</b-breadcrumb-item>
@@ -9,12 +9,13 @@
       <div class="mb-5">
         <div>
           <div class="card-body">
-            <h2 class="h4 mb-2 text-gray-800">About this classs</h2>
+            <h2 class="h4 mb-2 text-gray-800">About this class</h2>
             <p>Subject Name: {{ subjectName }}</p>
             <p>Time: {{ listClasses.Time }}</p>
-            <p>Start Date: {{ listClasses.StartDate }}</p>
-            <p>End Date: {{ listClasses.EndDate }}</p>
+            <p>Start Date: {{ convertDate(listClasses.StartDate) }}</p>
+            <p>End Date: {{ convertDate(listClasses.EndDate) }}</p>
             <p>Repeat: {{ listClasses.Repeat }}</p>
+            <p>Room: {{ listClasses.Room }}</p>
             <p>Capacity: {{ listClasses.Capacity }}</p>
             <p>
               Status:
@@ -149,6 +150,10 @@ export default {
     },
     resetForm() {
       this.showInfo = false;
+    },
+    convertDate(timestamp) {
+      let date = new Date(parseInt(timestamp));
+      return date.toDateString();
     }
   },
   computed: {

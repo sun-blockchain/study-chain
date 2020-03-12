@@ -1,18 +1,19 @@
 <template>
   <div>
     <table-teacher
-      :title="`List Classes Of Teacher`"
+      :title="`Classes List Of Teacher`"
       :listAll="listClasses ? listClasses : []"
       :nameFunctionDetail="`detailClass`"
       :loadingData="loadingData"
       :statusCol="true"
       :listProperties="[
-        { prop: 'ClassCode', label: 'Class Code' },
+        { prop: 'ClassCode', label: 'Class' },
         { prop: 'SubjectName', label: 'Subject' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
-        { prop: 'Repeat', label: 'Repeat' },
-        { prop: 'Capacity', label: 'Capacity' }
+        { prop: 'StartDate', label: 'Start' },
+        { prop: 'EndDate', label: 'End' },
+        { prop: 'Repeat', label: 'Repeat' }
       ]"
       @detailClass="detailClass($event)"
     >

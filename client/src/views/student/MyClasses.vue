@@ -13,12 +13,13 @@
       :nameFunctionDetail="`detailClass`"
       :statusCol="true"
       :listProperties="[
-        { prop: 'ClassCode', label: 'Class Code' },
-        { prop: 'SubjectName', label: 'Subject Name' },
+        { prop: 'ClassCode', label: 'Class' },
+        { prop: 'SubjectName', label: 'Subject' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
-        { prop: 'Status', label: 'Status' },
-        { prop: 'Capacity', label: 'Capacity' }
+        { prop: 'StartDate', label: 'Start' },
+        { prop: 'EndDate', label: 'End' },
+        { prop: 'Repeat', label: 'Repeat' }
       ]"
       @modalInfo="modalInfo($event)"
       @cancelClass="cancelClass($event)"
