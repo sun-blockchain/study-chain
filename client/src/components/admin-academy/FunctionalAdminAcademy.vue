@@ -30,17 +30,17 @@
         Student
       </router-link>
     </li>
-    <li class="nav-item">
+    <!-- <li class="nav-item">
       <router-link class="nav-link color-black" to="/academy/certificates">
         <i class="color-999 fas fa-award"></i>
         Certificates
       </router-link>
-    </li>
+    </li> -->
   </ul>
 </template>
 
 <script>
 export default {
-  name: "functionalAdminAcademy"
+  name: 'functionalAdminAcademy'
 };
 </script>

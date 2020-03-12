@@ -37,10 +37,11 @@
           :loadingData="loadingData"
           :nameFunctionDetail="`detailClass`"
           :listProperties="[
-            { prop: 'ClassCode', label: 'Class Code' },
+            { prop: 'ClassCode', label: 'Class' },
             { prop: 'Time', label: 'Time' },
-            { prop: 'StartDate', label: 'Start Date' },
-            { prop: 'EndDate', label: 'End Date' },
+            { prop: 'StartDate', label: 'Start' },
+            { prop: 'EndDate', label: 'End' },
+            { prop: 'Repeat', label: 'Repeat' },
             { prop: 'Capacity', label: 'Capacity' }
           ]"
           :statusCol="true"
