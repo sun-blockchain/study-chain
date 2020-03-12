@@ -30,10 +30,7 @@
                 v-if="statusCol"
                 sortable
                 label="Status"
-                :filters="[
-                  { text: 'Open', value: 'Open' },
-                  { text: 'In Progress', value: 'InProgress' }
-                ]"
+                :filters="filter"
                 :filter-method="filterTag"
                 filter-placement="bottom-end"
               >
@@ -41,13 +38,13 @@
                   <el-tag
                     align="center"
                     size="medium"
-                    :type="scope.row.Status === 'Open' ? 'success' : 'primary'"
+                    :type="scope.row.Status === 'Open' ? 'success' : 'danger'"
                     >{{ scope.row.Status }}</el-tag
                   >
                 </template>
               </el-table-column>
               <el-table-column align="center">
-                <template slot="header" slot-scope="scope">
+                <template slot="header">
                   <el-input
                     v-model="search"
                     size="mini"
@@ -183,7 +180,8 @@ export default {
     listProperties: Array,
     statusCol: Boolean,
     btnRemove: Boolean,
-    nameFunctionRemove: String
+    nameFunctionRemove: String,
+    filter: Array
   },
   data() {
     return {

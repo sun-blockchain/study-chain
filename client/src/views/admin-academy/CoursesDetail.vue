@@ -9,9 +9,27 @@
     <div class="mb-5">
       <div>
         <div class="card-body">
-          <h1 class="h3 mb-2 text-gray-800">About this course</h1>
+          <div>
+            <h1 class="h3 mb-2 text-gray-800">About this course</h1>
 
-          <p>{{ listCourses.Description }}</p>
+            <p>{{ listCourses.Description }}</p>
+            <p>
+              Status :
+              <b-badge :variant="listCourses.Status === 'Open' ? 'success' : 'danger'">{{
+                listCourses.Status
+              }}</b-badge>
+            </p>
+          </div>
+
+          <div class="mt-3">
+            <el-button
+              :type="listCourses.Status === 'Open' ? 'danger' : 'success'"
+              round
+              size="mini"
+              @click="changeStatus()"
+              >{{ listCourses.Status === 'Open' ? 'Close' : 'Open' }}</el-button
+            >
+          </div>
         </div>
       </div>
     </div>
@@ -220,11 +238,55 @@ export default {
   methods: {
     ...mapActions('adminAcademy', [
       'getCourse',
+      'changeCourseStatus',
       'getSubjectsNoCourse',
       'addSubjectToCourse',
       'deleteSubjectFromCourse',
       'getStudentsOfCourse'
     ]),
+    changeStatus() {
+      var warning;
+      var responseMessage;
+      var status;
+
+      if (this.listCourses.Status === 'Open') {
+        warning = 'close this course';
+        status = 'closeCourse';
+        responseMessage = 'closed';
+      } else {
+        warning = 'open this course';
+        status = 'openCourse';
+        responseMessage = 'opened ';
+      }
+      MessageBox.confirm(`Are you sure to ${warning}?`, {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+        center: true
+      })
+        .then(async () => {
+          this.fullscreenLoading = true;
+
+          let data = await this.changeCourseStatus({
+            courseId: this.$route.params.id,
+            status: status
+          });
+
+          if (data) {
+            if (data.success) {
+              this.status = false;
+              Message.success(`This class has been ${responseMessage}!`);
+            } else {
+              Message.error(data.msg);
+            }
+          }
+          await this.getCourse(this.$route.params.id);
+          this.fullscreenLoading = false;
+        })
+        .catch(() => {
+          Message.info('Canceled');
+        });
+    },
     detailSubject(row) {
       this.$router.push({ path: `/academy/subjects/${row.SubjectID}` });
     },

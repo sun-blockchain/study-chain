@@ -26,6 +26,10 @@
       :nameFunctionDelete="`delClass`"
       :btnDelete="true"
       :statusCol="true"
+      :filter="[
+        { text: 'Open', value: 'Open' },
+        { text: 'In Progress', value: 'InProgress' }
+      ]"
       :listProperties="[
         { prop: 'ClassCode', label: 'Class Code' },
         { prop: 'Room', label: 'Room' },
