@@ -86,7 +86,9 @@
                     ></el-button>
                   </el-tooltip>
                   <el-tooltip
-                    v-if="btnGetCert && scope.row[attrGetCert]"
+                    v-if="
+                      scope.row.Progressing === 'Completed' ? false : true && scope.row[attrGetCert]
+                    "
                     class="item"
                     content="GetCert"
                     placement="top"
@@ -97,6 +99,20 @@
                       round
                       size="mini"
                       @click.stop="callFunctionGetCert(scope.row)"
+                    ></el-button>
+                  </el-tooltip>
+                  <el-tooltip
+                    v-if="scope.row.Progressing === 'Completed' ? true : false"
+                    class="item"
+                    content="Link Certificate"
+                    placement="top"
+                  >
+                    <el-button
+                      icon="fas fa-link"
+                      type="success"
+                      round
+                      size="mini"
+                      @click.stop="callFunctionLinkCert(scope.row)"
                     ></el-button>
                   </el-tooltip>
                   <el-tooltip
@@ -169,6 +185,7 @@ export default {
     btnCancel: Boolean,
     nameFunctionDetail: String,
     nameFunctionGetCert: String,
+    nameFunctionLinkCert: String,
     nameFunctionRegister: String,
     nameFunctionCancelRegistered: String,
     loadingData: Boolean,
@@ -240,6 +257,9 @@ export default {
     },
     callFunctionCancelRegistered(row) {
       this.$emit(this.nameFunctionCancelRegistered, row);
+    },
+    callFunctionLinkCert(row) {
+      this.$emit(this.nameFunctionLinkCert, row);
     },
     filterTag(value, row) {
       return row.Status === value;

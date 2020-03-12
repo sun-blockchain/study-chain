@@ -399,8 +399,8 @@ router.get('/certificates', async (req, res) => {
     });
   }
 
-  certs = JSON.parse(certs.msg);
-  courses = JSON.parse(courses.msg);
+  certs = JSON.parse(certs.msg) ? JSON.parse(certs.msg) : [];
+  courses = JSON.parse(courses.msg) ? JSON.parse(courses.msg) : [];
 
   for (let i = 0; i < certs.length; i++) {
     for (let k = 0; k < courses.length; k++) {
@@ -416,6 +416,55 @@ router.get('/certificates', async (req, res) => {
     certificates: certs
   });
 });
+
+router.get(
+  '/certificate/:courseId',
+  check('courseId')
+    .trim()
+    .escape(),
+  async (req, res) => {
+    const user = req.decoded.user;
+
+    if (user.role !== USER_ROLES.STUDENT) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied'
+      });
+    }
+    const networkObj = await network.connectToNetwork(user);
+
+    if (!networkObj) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Failed connect to blockchain'
+      });
+    }
+
+    let courseId = req.params.courseId;
+    let certs = await network.query(networkObj, 'GetCertificatesOfStudent', user.username);
+    let certificateId;
+
+    if (!certs.success) {
+      return res.status(500).json({
+        success: false,
+        msg: certs.msg.toString()
+      });
+    }
+
+    certs = JSON.parse(certs.msg) ? JSON.parse(certs.msg) : [];
+
+    for (let i = 0; i < certs.length; i++) {
+      if (courseId === certs[i].CourseID && user.username === certs[i].StudentUsername) {
+        certificateId = certs[i].CertificateID;
+      }
+    }
+
+    return res.json({
+      success: true,
+      certificateId
+    });
+  }
+);
 
 router.get('/scores', async (req, res) => {
   const user = req.decoded.user;

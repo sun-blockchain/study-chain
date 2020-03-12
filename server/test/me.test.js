@@ -897,6 +897,95 @@ describe('GET /account/me/certificates', () => {
   });
 });
 
+describe('GET /account/me/certificate/:courseId', () => {
+  let connect;
+  let query;
+  const courseId = '3611523c-876c-48f6-8c2a-d7685881d914';
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+  });
+
+  it('success query certificate', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    let data = JSON.stringify({
+      CertificateID: 'A354',
+      CourseID: 'INT-2019',
+      StudentUsername: 'hoangdd',
+      IssueDate: '10-10-2019'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .get(`/account/me/certificate/${courseId}`)
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        done();
+      });
+  });
+
+  it('Failed to connect blockchain', (done) => {
+    connect.returns(null);
+
+    request(app)
+      .get(`/account/me/certificate/${courseId}`)
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        done();
+      });
+  });
+
+  it('query chaincode error', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    query.returns({
+      success: false,
+      msg: 'err'
+    });
+
+    request(app)
+      .get(`/account/me/certificate/${courseId}`)
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        done();
+      });
+  });
+
+  it('permission denied', (done) => {
+    request(app)
+      .get(`/account/me/certificate/${courseId}`)
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(403);
+        done();
+      });
+  });
+});
+
 describe('GET /account/me/:subjectId/students', () => {
   let connect;
   let query;
