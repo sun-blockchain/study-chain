@@ -8,10 +8,10 @@
       :statusCol="true"
       :listProperties="[
         { prop: 'ClassCode', label: 'Class Code' },
+        { prop: 'SubjectName', label: 'Subject' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
         { prop: 'Repeat', label: 'Repeat' },
-        { prop: 'Status', label: 'Status' },
         { prop: 'Capacity', label: 'Capacity' }
       ]"
       @detailClass="detailClass($event)"
