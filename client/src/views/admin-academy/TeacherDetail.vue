@@ -83,11 +83,10 @@
         { prop: 'ClassCode', label: 'Class' },
         { prop: 'SubjectName', label: 'Subject' },
         { prop: 'Time', label: 'Time' },
-        { prop: 'StartDate', label: 'Start' },
-        { prop: 'EndDate', label: 'End' },
         { prop: 'Repeat', label: 'Repeat' },
         { prop: 'Capacity', label: 'Capacity' }
       ]"
+      :date="true"
       :statusCol="true"
       @removeClass="removeClass($event)"
       @detailClass="detailClass($event)"

@@ -154,7 +154,6 @@ import { Button, Select, Option, Dialog, Form, FormItem, Message, MessageBox } f
 export default {
   data() {
     return {
-      daysInWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
       startDate: '',
       endDate: '',
       loadingData: false,

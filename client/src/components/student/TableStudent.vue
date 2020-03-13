@@ -21,6 +21,18 @@
                 :prop="attibute.prop"
                 :key="index"
               ></el-table-column>
+              <el-table-column v-if="date" sortable label="Start Date">
+                <template slot-scope="scope">
+                  <i class="el-icon-time"></i>
+                  <span>{{ convertDate(scope.row.StartDate) }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column v-if="date" sortable label="End Date">
+                <template slot-scope="scope">
+                  <i class="el-icon-time"></i>
+                  <span>{{ convertDate(scope.row.EndDate) }}</span>
+                </template>
+              </el-table-column>
               <el-table-column
                 v-if="statusCol"
                 sortable
@@ -41,6 +53,7 @@
                   >
                 </template>
               </el-table-column>
+
               <el-table-column
                 v-if="inProgress"
                 sortable
@@ -62,7 +75,7 @@
                 </template>
               </el-table-column>
               <el-table-column align="center">
-                <template slot="header" slot-scope="scope">
+                <template slot="header">
                   <el-input
                     v-model="search"
                     size="mini"
@@ -191,7 +204,8 @@ export default {
     attrId: String,
     statusCol: Boolean,
     inProgress: Boolean,
-    attrGetCert: String
+    attrGetCert: String,
+    date: Boolean
   },
   data() {
     return {
@@ -277,6 +291,10 @@ export default {
     },
     filterProgress(value, row) {
       return row.Progressing === value;
+    },
+    convertDate(timestamp) {
+      let date = new Date(parseInt(timestamp));
+      return date.toLocaleDateString();
     }
   }
 };

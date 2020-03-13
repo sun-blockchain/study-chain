@@ -29,10 +29,9 @@
         { prop: 'ClassCode', label: 'Class' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
-        { prop: 'StartDate', label: 'Start' },
-        { prop: 'EndDate', label: 'End' },
         { prop: 'Repeat', label: 'Repeat' }
       ]"
+      :date="true"
       :registeredId="subject && subject.classRegistered ? subject.classRegistered : ''"
       :attrId="`ClassID`"
       @enrollClass="enrollClass($event)"

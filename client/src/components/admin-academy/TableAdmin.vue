@@ -26,6 +26,18 @@
                 :prop="attibute.prop"
                 :key="index"
               ></el-table-column>
+              <el-table-column v-if="date" sortable label="Start Date">
+                <template slot-scope="scope">
+                  <i class="el-icon-time"></i>
+                  <span>{{ convertDate(scope.row.StartDate) }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column v-if="date" sortable label="End Date">
+                <template slot-scope="scope">
+                  <i class="el-icon-time"></i>
+                  <span>{{ convertDate(scope.row.EndDate) }}</span>
+                </template>
+              </el-table-column>
               <el-table-column
                 v-if="statusCol"
                 sortable
@@ -181,7 +193,8 @@ export default {
     statusCol: Boolean,
     btnRemove: Boolean,
     nameFunctionRemove: String,
-    filter: Array
+    filter: Array,
+    date: Boolean
   },
   data() {
     return {
@@ -250,6 +263,10 @@ export default {
     },
     filterTag(value, row) {
       return row.Status === value;
+    },
+    convertDate(timestamp) {
+      let date = new Date(parseInt(timestamp));
+      return date.toLocaleDateString();
     }
   }
 };

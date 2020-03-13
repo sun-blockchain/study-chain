@@ -11,10 +11,9 @@
         { prop: 'SubjectName', label: 'Subject' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
-        { prop: 'StartDate', label: 'Start' },
-        { prop: 'EndDate', label: 'End' },
         { prop: 'Repeat', label: 'Repeat' }
       ]"
+      :date="true"
       @detailClass="detailClass($event)"
     >
     </table-teacher>
