@@ -32,8 +32,9 @@ const actions = {
   async getCourse({ commit }, courseId) {
     try {
       let data = await studentService.getCourse(courseId);
-      commit('getCourse', data);
-      return data;
+
+      commit('getCourse', data.course);
+      return data.course;
     } catch (error) {
       if (error.response.status === 403) {
         router.push('/403');

@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid" v-loading.fullscreen.lock="fullscreenLoading">
-    <h1 class="bannerTitle_1wzmt7u mt-4">{{ subjects.SubjectName }}</h1>
+    <h1 class="bannerTitle_1wzmt7u mt-4">{{ subject.SubjectName }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item to="/"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
       <b-breadcrumb-item @click="handleBack">Course Detail</b-breadcrumb-item>
@@ -10,7 +10,7 @@
       <div>
         <div class="card-body">
           <h1 class="h3 mb-2 text-gray-800">{{ subject.SubjectName }}</h1>
-          <p>{{ subjects.Description }}</p>
+          <p>{{ subject.Description }}</p>
         </div>
       </div>
     </div>
