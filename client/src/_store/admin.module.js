@@ -12,10 +12,22 @@ const state = {
   subjectOfStudent: [],
   subjectsOfCourse: [],
   classesOfStudent: [],
-  coursesOfStudent: []
+  coursesOfStudent: [],
+  summaryInfo: []
 };
 
 const actions = {
+  async getSummaryInfo({ commit }) {
+    try {
+      let summaryInfo = await adminService.getSummaryInfo();
+      commit('getSummaryInfo', summaryInfo);
+      return summaryInfo;
+    } catch (error) {
+      if (error.response.status === 403) {
+        router.push('/403');
+      }
+    }
+  },
   async createClass({ commit, dispatch }, _class) {
     try {
       let data = await adminService.createClass(_class);
@@ -441,6 +453,9 @@ const actions = {
 };
 
 const mutations = {
+  getSummaryInfo(state, summaryInfo) {
+    state.summaryInfo = summaryInfo;
+  },
   createClass(state, listClasses) {
     state.listClasses = listClasses;
   },
