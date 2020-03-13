@@ -4,6 +4,7 @@
       :title="`List Not Register Courses`"
       :listAll="listNotRegisterCourses"
       :loadingData="loadingData"
+      :statusCol="true"
       :btnRegister="true"
       :nameFunctionRegister="`enrollCourse`"
       :nameFunctionDetail="`detailCourses`"
