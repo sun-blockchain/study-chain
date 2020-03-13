@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid" v-loading.fullscreen.lock="fullscreenLoading">
-    <h1 class="bannerTitle_1wzmt7u mt-4">{{ subject.SubjectName }}</h1>
+    <h1 class="bannerTitle_1wzmt7u mt-4">{{ subject ? subject.SubjectName : '' }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item to="/"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
       <b-breadcrumb-item @click="handleBack">Course Detail</b-breadcrumb-item>
@@ -9,8 +9,8 @@
     <div class="mb-5">
       <div>
         <div class="card-body">
-          <h1 class="h3 mb-2 text-gray-800">{{ subject.SubjectName }}</h1>
-          <p>{{ subject.Description }}</p>
+          <h1 class="h3 mb-2 text-gray-800">{{ subject ? subject.SubjectName : '' }}</h1>
+          <p>{{ subject ? subject.Description : '' }}</p>
         </div>
       </div>
     </div>
@@ -20,10 +20,10 @@
       :listAll="listClasses"
       :loadingData="loadingData"
       :statusCol="true"
-      :btnRegister="true"
+      :btnRegister="checkStatusCourse"
       :nameFunctionRegister="`enrollClass`"
       :nameFunctionDetail="`detailClass`"
-      :btnCancel="true"
+      :btnCancel="checkStatusCourse"
       :nameFunctionCancelRegistered="`cancelClass`"
       :listProperties="[
         { prop: 'ClassCode', label: 'Class' },
@@ -64,7 +64,8 @@ export default {
       'getClassesOfSubject',
       'getSubject',
       'registerClass',
-      'cancelRegisteredClass'
+      'cancelRegisteredClass',
+      'getCourse'
     ]),
     detailClass(row) {
       this.$router.push({
@@ -80,7 +81,10 @@ export default {
       })
         .then(async () => {
           this.fullscreenLoading = true;
-          let data = await this.registerClass(row.ClassID);
+          let data = await this.registerClass({
+            classId: row.ClassID,
+            courseId: this.courseInfo.course.CourseID
+          });
           if (data) {
             if (data.success) {
               Message.success('Successfully enrolled this class!');
@@ -102,7 +106,10 @@ export default {
       })
         .then(async () => {
           this.fullscreenLoading = true;
-          let data = await this.cancelRegisteredClass(row.ClassID);
+          let data = await this.cancelRegisteredClass({
+            classId: row.ClassID,
+            courseId: this.courseInfo.course.CourseID
+          });
           if (data) {
             if (data.success) {
               Message.success('Successfully canceled enrollment!');
@@ -120,9 +127,13 @@ export default {
     }
   },
   computed: {
-    ...mapState('student', ['listClasses', 'subjects', 'subject'])
+    ...mapState('student', ['listClasses', 'subjects', 'subject', 'courseInfo']),
+    checkStatusCourse() {
+      return this.courseInfo.course.Status === 'Open' ? true : false;
+    }
   },
   async created() {
+    await this.getCourse(this.$route.params.id);
     await this.getSubject(this.$route.params.subjectId);
     await this.getClassesOfSubject(this.$route.params.subjectId);
     this.loadingData = false;

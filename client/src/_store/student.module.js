@@ -41,9 +41,9 @@ const actions = {
       }
     }
   },
-  async cancelRegisteredClass({ commit }, classId) {
+  async cancelRegisteredClass({ commit }, { classId, courseId }) {
     try {
-      let data = await studentService.cancelRegisteredClass(classId);
+      let data = await studentService.cancelRegisteredClass(classId, courseId);
       return data;
     } catch (error) {
       if (error.response.status === 403) {
@@ -137,9 +137,9 @@ const actions = {
       }
     }
   },
-  async registerClass({ commit }, classId) {
+  async registerClass({ commit }, { classId, courseId }) {
     try {
-      let data = await studentService.registerClass(classId);
+      let data = await studentService.registerClass(classId, courseId);
       return data;
     } catch (error) {
       if (error.response.status === 403) {
