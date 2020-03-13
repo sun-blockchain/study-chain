@@ -33,8 +33,8 @@ const actions = {
     try {
       let data = await studentService.getCourse(courseId);
 
-      commit('getCourse', data.course);
-      return data.course;
+      commit('getCourse', data);
+      return data;
     } catch (error) {
       if (error.response.status === 403) {
         router.push('/403');
