@@ -38,8 +38,20 @@ export const adminService = {
   getTeacher,
   getClassesOfStudent,
   getCoursesOfStudent,
-  unassignTeacherFromClass
+  unassignTeacherFromClass,
+  getSummaryInfo
 };
+
+async function getSummaryInfo() {
+  try {
+    let response = await axios.get(`${process.env.VUE_APP_API_BACKEND}/academy/summary`, {
+      headers: authHeader()
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
 
 // Courses Manager
 async function getAllCourses() {

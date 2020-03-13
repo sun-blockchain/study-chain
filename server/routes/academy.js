@@ -7,6 +7,51 @@ const uuidv4 = require('uuid/v4');
 const Status = { Open: 'Open', InProgress: 'InProgress', Completed: 'Completed' };
 const User = require('../models/User');
 
+router.get('/summary', async (req, res) => {
+  if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
+    return res.status(403).json({
+      success: false,
+      msg: 'Permission Denied'
+    });
+  }
+
+  const user = req.decoded.user;
+  const networkObj = await network.connectToNetwork(user);
+
+  let courses = await network.query(networkObj, 'GetAllCourses');
+  let subjects = await network.query(networkObj, 'GetAllSubjects');
+  let classes = await network.query(networkObj, 'GetAllClasses');
+  let teachers = await network.query(networkObj, 'GetAllTeachers');
+  let students = await network.query(networkObj, 'GetAllStudents');
+
+  if (
+    !courses.success ||
+    !subjects.success ||
+    !classes.success ||
+    !teachers.success ||
+    !students.success
+  ) {
+    return res.status(500).json({
+      success: false,
+      msg: 'Failed to get info'
+    });
+  }
+
+  courses = JSON.parse(courses.msg) ? JSON.parse(courses.msg) : [];
+  subjects = JSON.parse(subjects.msg) ? JSON.parse(subjects.msg) : [];
+  classes = JSON.parse(classes.msg) ? JSON.parse(classes.msg) : [];
+  teachers = JSON.parse(teachers.msg) ? JSON.parse(teachers.msg) : [];
+  students = JSON.parse(students.msg) ? JSON.parse(students.msg) : [];
+
+  let courseCount = courses.length;
+  let subjectCount = subjects.length;
+  let classCount = classes.length;
+  let teacherCount = teachers.length;
+  let studentCount = students.length;
+
+  return res.json({ courseCount, subjectCount, classCount, teacherCount, studentCount });
+});
+
 // Edit course info
 router.put(
   '/course',
