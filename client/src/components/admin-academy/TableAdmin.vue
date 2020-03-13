@@ -26,13 +26,13 @@
                 :prop="attibute.prop"
                 :key="index"
               ></el-table-column>
-              <el-table-column v-if="date" sortable label="Start Date">
+              <el-table-column v-if="date" sortable label="Start">
                 <template slot-scope="scope">
                   <i class="el-icon-time"></i>
                   <span>{{ convertDate(scope.row.StartDate) }}</span>
                 </template>
               </el-table-column>
-              <el-table-column v-if="date" sortable label="End Date">
+              <el-table-column v-if="date" sortable label="End">
                 <template slot-scope="scope">
                   <i class="el-icon-time"></i>
                   <span>{{ convertDate(scope.row.EndDate) }}</span>

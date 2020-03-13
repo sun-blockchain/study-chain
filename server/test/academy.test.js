@@ -795,6 +795,66 @@ describe('#POST /academy/:subjectId/class', () => {
       });
   });
 
+  it('do not success create class because req.body invalid', (done) => {
+    request(app)
+      .post(`/academy/subject/${subjectId}/class`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classCode: '',
+        room: 'Blockchain101',
+        time: '12122020'
+      })
+      .then((res) => {
+        expect(res.status).equal(422);
+        done();
+      });
+  });
+
+  it('Start date must occur befor End date!', (done) => {
+    request(app)
+      .post(`/academy/subject/${subjectId}/class`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classCode: 'CACLC1',
+        room: 'Blockchain101',
+        time: '12122020',
+        startDate: '2000',
+        endDate: '1999',
+        repeat: 'Weekly Monday',
+        capacity: 77
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.msg).equal('Start date must occur befor End date at least 1 week!');
+        done();
+      });
+  });
+
+  it('create class fail when call createClass function', (done) => {
+    createClass.returns({
+      success: false,
+      msg: 'Error'
+    });
+
+    request(app)
+      .post(`/academy/subject/${subjectId}/class`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classCode: 'CACLC1',
+        room: 'Blockchain101',
+        time: '12122020',
+        startDate: '604800',
+        endDate: '1604800',
+        repeat: 'Weekly Monday',
+        capacity: 67
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        done();
+      });
+  });
+
   it('success create class', (done) => {
     let data = JSON.stringify(
       {
@@ -826,8 +886,8 @@ describe('#POST /academy/:subjectId/class', () => {
         classCode: 'CACLC1',
         room: 'Blockchain101',
         time: '12122020',
-        startDate: '24-02-2020',
-        endDate: '29-02-2020',
+        startDate: '604800',
+        endDate: '1604800',
         repeat: 'Weekly Monday',
         capacity: 77
       })
@@ -837,47 +897,8 @@ describe('#POST /academy/:subjectId/class', () => {
         done();
       });
   });
-
-  it('do not success create class because req.body invalid', (done) => {
-    request(app)
-      .post(`/academy/subject/${subjectId}/class`)
-      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-      .send({
-        classCode: '',
-        room: 'Blockchain101',
-        time: '12122020'
-      })
-      .then((res) => {
-        expect(res.status).equal(422);
-        done();
-      });
-  });
-
-  it('create class fail when call createClass function', (done) => {
-    createClass.returns({
-      success: false,
-      msg: 'Error'
-    });
-
-    request(app)
-      .post(`/academy/subject/${subjectId}/class`)
-      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-      .send({
-        classCode: 'CACLC1',
-        room: 'Blockchain101',
-        time: '12122020',
-        startDate: '24-02-2020',
-        endDate: '29-02-2020',
-        repeat: 'Weekly Monday',
-        capacity: 67
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        done();
-      });
-  });
 });
+
 describe('#PUT /class', () => {
   let connect;
   let query;

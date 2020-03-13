@@ -47,10 +47,12 @@
       :btnInfo="true"
       :nameFunctionInfo="`modalInfo`"
       :listProperties="[
-        { prop: 'ClassCode', label: 'Class Code' },
+        { prop: 'ClassCode', label: 'Class' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
-        { prop: 'ShortDescription', label: 'Short Description' },
+        { prop: 'StartDate', label: 'Start' },
+        { prop: 'EndDate', label: 'End' },
+        { prop: 'Repeat', label: 'Repeat' },
         { prop: 'Status', label: 'Status' },
         { prop: 'Capacity', label: 'Capacity' }
       ]"

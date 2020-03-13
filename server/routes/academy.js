@@ -654,53 +654,63 @@ router.post(
         success: false,
         msg: 'Permission Denied'
       });
-    } else {
-      const errors = validationResult(req);
+    }
+    const errors = validationResult(req);
 
-      if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
-      }
-
-      const user = req.decoded.user;
-
-      const { classCode, room, time, startDate, endDate, repeat, capacity } = req.body;
-
-      const subjectId = req.params.subjectId;
-
-      let _class = {
-        classId: uuidv4(),
-        classCode,
-        room,
-        time,
-        startDate,
-        endDate,
-        repeat,
-        subjectId,
-        capacity
-      };
-      let networkObj = await network.connectToNetwork(user);
-
-      const response = await network.createClass(networkObj, _class);
-
-      if (!response.success) {
-        return res.status(500).json({
-          success: false,
-          msg: response.msg
-        });
-      }
-      networkObj = await network.connectToNetwork(user);
-
-      const listNewClasses = await network.query(
-        networkObj,
-        'GetClassesOfSubject',
-        req.params.subjectId
-      );
-
-      return res.json({
-        success: true,
-        classes: JSON.parse(listNewClasses.msg)
+    if (!errors.isEmpty()) {
+      return res.status(422).json({
+        success: false,
+        errors: errors.array()
       });
     }
+
+    const user = req.decoded.user;
+
+    const { classCode, room, time, startDate, endDate, repeat, capacity } = req.body;
+    console.log(endDate);
+    console.log(startDate);
+    if (parseInt(endDate) - parseInt(startDate) < 604800000) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Start date must occur befor End date at least 1 week!'
+      });
+    }
+
+    const subjectId = req.params.subjectId;
+
+    let _class = {
+      classId: uuidv4(),
+      classCode,
+      room,
+      time,
+      startDate,
+      endDate,
+      repeat,
+      subjectId,
+      capacity
+    };
+    let networkObj = await network.connectToNetwork(user);
+
+    const response = await network.createClass(networkObj, _class);
+
+    if (!response.success) {
+      return res.status(500).json({
+        success: false,
+        msg: response.msg
+      });
+    }
+    networkObj = await network.connectToNetwork(user);
+
+    const listNewClasses = await network.query(
+      networkObj,
+      'GetClassesOfSubject',
+      req.params.subjectId
+    );
+
+    return res.json({
+      success: true,
+      classes: JSON.parse(listNewClasses.msg)
+    });
   }
 );
 // Edit class
