@@ -760,7 +760,8 @@ describe('#POST /academy/:subjectId/class', () => {
   let connect;
   let query;
   let createClass;
-  let subjectId = 'sj';
+  let subjectId = '123456';
+
   beforeEach(() => {
     connect = sinon.stub(network, 'connectToNetwork');
     query = sinon.stub(network, 'query');
@@ -795,49 +796,6 @@ describe('#POST /academy/:subjectId/class', () => {
       });
   });
 
-  it('success create class', (done) => {
-    let data = JSON.stringify(
-      {
-        classCode: 'CACLC2',
-        room: 'Blockchain101',
-        time: '12122020'
-      },
-      {
-        classCode: 'CACLC1',
-        room: 'Blockchain101',
-        time: '12122020'
-      }
-    );
-
-    createClass.returns({
-      success: true,
-      msg: 'Create success!'
-    });
-
-    query.returns({
-      success: true,
-      msg: data
-    });
-
-    request(app)
-      .post(`/academy/subject/${subjectId}/class`)
-      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-      .send({
-        classCode: 'CACLC1',
-        room: 'Blockchain101',
-        time: '12122020',
-        startDate: '24-02-2020',
-        endDate: '29-02-2020',
-        repeat: 'Weekly Monday',
-        capacity: 77
-      })
-      .then((res) => {
-        expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
-        done();
-      });
-  });
-
   it('do not success create class because req.body invalid', (done) => {
     request(app)
       .post(`/academy/subject/${subjectId}/class`)
@@ -853,10 +811,63 @@ describe('#POST /academy/:subjectId/class', () => {
       });
   });
 
-  it('create class fail when call createClass function', (done) => {
+  it('Start date must occur befor end date at least 1 week!', (done) => {
+    connect.returns(null);
+
+    request(app)
+      .post(`/academy/subject/${subjectId}/class`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classCode: 'CACLC1',
+        room: 'Blockchain101',
+        time: '12122020',
+        startDate: '604800000',
+        endDate: '604800000',
+        repeat: 'Weekly Monday',
+        capacity: 10
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Start date must occur befor end date at least 1 week!');
+        done();
+      });
+  });
+
+  it('Failed connect to blockchain!', (done) => {
+    connect.returns(null);
+
+    request(app)
+      .post(`/academy/subject/${subjectId}/class`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classCode: 'CACLC1',
+        room: 'Blockchain101',
+        time: '12122020',
+        startDate: '604800000',
+        endDate: '1604800000',
+        repeat: 'Weekly Monday',
+        capacity: 10
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Failed connect to blockchain!');
+        done();
+      });
+  });
+
+  it('Can not invoke chaincode!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
     createClass.returns({
       success: false,
-      msg: 'Error'
+      msg: 'Can not invoke chaincode!'
     });
 
     request(app)
@@ -866,18 +877,52 @@ describe('#POST /academy/:subjectId/class', () => {
         classCode: 'CACLC1',
         room: 'Blockchain101',
         time: '12122020',
-        startDate: '24-02-2020',
-        endDate: '29-02-2020',
+        startDate: '604800000',
+        endDate: '1604800000',
         repeat: 'Weekly Monday',
-        capacity: 67
+        capacity: 10
       })
       .then((res) => {
         expect(res.status).equal(500);
         expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('Can not invoke chaincode!');
+        done();
+      });
+  });
+
+  it('Create Successdfully!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    createClass.returns({
+      success: true
+    });
+
+    request(app)
+      .post(`/academy/subject/${subjectId}/class`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classCode: 'CACLC1',
+        room: 'Blockchain101',
+        time: '12122020',
+        startDate: '604800000',
+        endDate: '1604800000',
+        repeat: 'Weekly Monday',
+        capacity: 10
+      })
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.success).equal(true);
+        expect(res.body.msg).equal('Create Successdfully!');
         done();
       });
   });
 });
+
 describe('#PUT /class', () => {
   let connect;
   let query;

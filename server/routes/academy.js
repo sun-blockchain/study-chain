@@ -661,13 +661,19 @@ router.post(
         return res.status(422).json({ errors: errors.array() });
       }
 
-      const user = req.decoded.user;
+      const admin = req.decoded.user;
 
       const { classCode, room, time, startDate, endDate, repeat, capacity } = req.body;
 
+      if (parseInt(endDate) - parseInt(startDate) < 604800000) {
+        return res.status(500).json({
+          success: false,
+          msg: 'Start date must occur befor end date at least 1 week!'
+        });
+      }
       const subjectId = req.params.subjectId;
 
-      let _class = {
+      let newClass = {
         classId: uuidv4(),
         classCode,
         room,
@@ -678,9 +684,16 @@ router.post(
         subjectId,
         capacity
       };
-      let networkObj = await network.connectToNetwork(user);
 
-      const response = await network.createClass(networkObj, _class);
+      let networkObj = await network.connectToNetwork(admin);
+      if (!networkObj) {
+        return res.status(500).json({
+          success: false,
+          msg: 'Failed connect to blockchain!'
+        });
+      }
+
+      const response = await network.createClass(networkObj, newClass);
 
       if (!response.success) {
         return res.status(500).json({
@@ -688,17 +701,10 @@ router.post(
           msg: response.msg
         });
       }
-      networkObj = await network.connectToNetwork(user);
 
-      const listNewClasses = await network.query(
-        networkObj,
-        'GetClassesOfSubject',
-        req.params.subjectId
-      );
-
-      return res.json({
+      return res.status(200).json({
         success: true,
-        classes: JSON.parse(listNewClasses.msg)
+        msg: 'Create Successdfully!'
       });
     }
   }
