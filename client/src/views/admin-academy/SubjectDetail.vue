@@ -26,6 +26,7 @@
       :nameFunctionDelete="`delClass`"
       :btnDelete="true"
       :statusCol="true"
+      :date="true"
       :filter="[
         { text: 'Open', value: 'Open' },
         { text: 'In Progress', value: 'InProgress' }
@@ -34,15 +35,13 @@
         { prop: 'ClassCode', label: 'Class' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
-        { prop: 'StartDate', label: 'Start' },
-        { prop: 'EndDate', label: 'End' },
         { prop: 'Repeat', label: 'Repeat' },
         { prop: 'Capacity', label: 'Capacity' }
       ]"
-      @detailClass="detailClass($event)"
       @modalEdit="modalEdit($event)"
       @delClass="delClass($event)"
       @modalInfo="modalInfo($event)"
+      @detailClass="detailClass($event)"
     >
       <template v-slot:btn-create>
         <el-button
@@ -227,7 +226,6 @@ export default {
         { value: 'Two times a week' },
         { value: 'Two times a month' }
       ],
-      daysInWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
       capacityOptions: [{ value: 10 }, { value: 20 }, { value: 50 }, { value: 100 }],
       editClass: {
         ClassID: '',
