@@ -1,16 +1,16 @@
 <template>
-  <div class="container-fluid">
-    <h1 class="bannerTitle_1wzmt7u">{{ listCourses.CourseName }}</h1>
+  <div class="container-fluid" v-loading.fullscreen.lock="fullscreenLoading">
+    <h1 class="bannerTitle_1wzmt7u">{{ courseInfo.course.CourseName }}</h1>
     <b-breadcrumb>
-      <b-breadcrumb-item href="/student"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-      <b-breadcrumb-item href="/student/courses">Course</b-breadcrumb-item>
+      <b-breadcrumb-item to="/student"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
+      <b-breadcrumb-item to="/student/courses">Course</b-breadcrumb-item>
       <b-breadcrumb-item active>Course Detail</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">
       <div>
         <div class="card-body">
           <h1 class="h3 mb-2 text-gray-800">About this course</h1>
-          <p>{{ listCourses.Description }}</p>
+          <p>{{ courseInfo.course.Description }}</p>
         </div>
       </div>
     </div>
@@ -93,7 +93,7 @@ export default {
       infoSubject: {
         description: ''
       },
-      fullscreenLoading: false,
+      fullscreenLoading: true,
       loadingData: false
     };
   },
@@ -114,9 +114,8 @@ export default {
   },
   async created() {
     let course = await this.getCourse(this.$route.params.id);
-
     if (course) {
-      this.loadingData = false;
+      this.fullscreenLoading = false;
     }
   }
 };

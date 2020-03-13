@@ -2,8 +2,8 @@
   <div class="container-fluid">
     <h1 class="bannerTitle_1wzmt7u mt-4">{{ subject ? subject.SubjectName : '' }}</h1>
     <b-breadcrumb>
-      <b-breadcrumb-item href="/student"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-      <b-breadcrumb-item :href="`/student/courses/${this.$route.params.id}`"
+      <b-breadcrumb-item to="/student"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
+      <b-breadcrumb-item :to="`/student/courses/${this.$route.params.id}`"
         >Course Detail</b-breadcrumb-item
       >
       <b-breadcrumb-item active>Subject Detail</b-breadcrumb-item>
@@ -50,10 +50,10 @@
         { prop: 'ClassCode', label: 'Class Code' },
         { prop: 'Room', label: 'Room' },
         { prop: 'Time', label: 'Time' },
-        { prop: 'ShortDescription', label: 'Short Description' },
-        { prop: 'Status', label: 'Status' },
         { prop: 'Capacity', label: 'Capacity' }
       ]"
+      :date="true"
+      :statusCol="true"
       @modalInfo="modalInfo($event)"
     ></table-student>
   </div>

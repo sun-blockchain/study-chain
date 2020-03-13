@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid">
-    <h1 class="bannerTitle_1wzmt7u">{{ courseInfo.CourseName }}</h1>
+    <h1 class="bannerTitle_1wzmt7u">{{ courseInfo.course.CourseName }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item to="/student"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
       <b-breadcrumb-item to="/myCourses">My Courses</b-breadcrumb-item>
@@ -10,7 +10,7 @@
       <div>
         <div class="card-body">
           <h1 class="h3 mb-2 text-gray-800">About this course</h1>
-          <p>{{ courseInfo.Description }}</p>
+          <p>{{ courseInfo.course.Description }}</p>
         </div>
       </div>
     </div>
