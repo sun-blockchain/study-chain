@@ -1058,7 +1058,7 @@ router.put(
     if (!classInfo.TeacherUsername || classInfo.TeacherUsername === '') {
       return res.status(500).json({
         success: false,
-        msg: 'There is not teacher assigned to this class!'
+        msg: 'There is no teacher assigned to this class!'
       });
     }
 

@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid">
-    <h1 class="bannerTitle_1wzmt7u">Class Code: {{ listClasses.ClassCode }}</h1>
+    <h1 class="bannerTitle_1wzmt7u">{{ listClasses.ClassCode }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item to="/"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
       <b-breadcrumb-item @click="handleBack"> Subject Detail</b-breadcrumb-item>
