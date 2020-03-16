@@ -13,18 +13,18 @@ require('dotenv').config();
 describe('Route : /score', () => {
   describe('#POST /score', () => {
     let connect;
-    let createScore;
+    let pickScore;
     let query;
 
     beforeEach(() => {
       connect = sinon.stub(network, 'connectToNetwork');
-      createScore = sinon.stub(network, 'createScore');
+      pickScore = sinon.stub(network, 'pickScore');
       query = sinon.stub(network, 'query');
     });
 
     afterEach(() => {
       connect.restore();
-      createScore.restore();
+      pickScore.restore();
       query.restore();
     });
 
@@ -75,7 +75,7 @@ describe('Route : /score', () => {
     it('failed to connect blockchain', (done) => {
       connect.returns(null);
 
-      createScore.returns({ success: true, msg: 'success' });
+      pickScore.returns({ success: true, msg: 'success' });
       request(app)
         .post('/score')
         .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
@@ -277,7 +277,7 @@ describe('Route : /score', () => {
         success: true,
         msg: data
       });
-      createScore.returns({ success: false, msg: 'err' });
+      pickScore.returns({ success: false, msg: 'err' });
 
       request(app)
         .post('/score')
@@ -313,9 +313,9 @@ describe('Route : /score', () => {
         success: true,
         msg: data
       });
-      createScore.returns({ success: false, msg: 'err' });
+      pickScore.returns({ success: false, msg: 'err' });
 
-      createScore.returns({ success: true, msg: 'success' });
+      pickScore.returns({ success: true, msg: 'success' });
       request(app)
         .post('/score')
         .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)

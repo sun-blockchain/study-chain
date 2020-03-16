@@ -786,7 +786,7 @@ exports.deleteSubject = async function(networkObj, subjectId) {
   }
 };
 
-exports.createScore = async function(networkObj, score) {
+exports.pickScore = async function(networkObj, score) {
   if (!score.teacher || !score.studentUsername || !score.scoreValue || !score.classId) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can register!';
@@ -795,7 +795,7 @@ exports.createScore = async function(networkObj, score) {
 
   try {
     await networkObj.contract.submitTransaction(
-      'CreateScore',
+      'PickScore',
       score.teacher,
       score.classId,
       score.studentUsername,

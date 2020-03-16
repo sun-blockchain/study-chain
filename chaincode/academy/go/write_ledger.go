@@ -231,7 +231,7 @@ func CreateClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	return shim.Success(nil)
 }
 
-func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+func PickScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	MSPID, err := cid.GetMSPID(stub)
 
@@ -296,11 +296,20 @@ func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	SubjectID := class.SubjectID
 
 	keyScore := "Score-" + " " + "Subject-" + SubjectID + " " + "Student-" + Student
-	_, err = getScore(stub, keyScore)
+	scoreInfo, err := getScore(stub, keyScore)
 
 	if err == nil {
-		return shim.Error("This score already exists.")
+		scoreInfo.ScoreValue = ScoreValue
+		newScore, err := json.Marshal(scoreInfo)
+
+		if err != nil {
+			return shim.Error("Can not convert data to bytes!")
+		}
+
+		stub.PutState(keyScore, newScore)
+		return shim.Success(nil)
 	}
+
 
 	var score = Score{SubjectID: SubjectID, StudentUsername: Student, ScoreValue: ScoreValue}
 

@@ -736,7 +736,7 @@ router.post(
       .isEmpty()
       .trim()
       .escape(),
-     body('courseId')
+    body('courseId')
       .not()
       .isEmpty()
       .trim()
@@ -764,7 +764,7 @@ router.post(
       });
     }
 
-     let queryCourse = await network.query(networkObj, 'GetCourse', req.body.courseId);
+    let queryCourse = await network.query(networkObj, 'GetCourse', req.body.courseId);
     if (!queryCourse.success) {
       return res.status(500).json({
         success: false,
@@ -817,83 +817,6 @@ router.post(
     return res.json({
       success: true,
       msg: 'Cancel Successfully!'
-    });
-  }
-);
-
-router.get('/createscore', async (req, res) => {
-  if (req.decoded.user.role !== USER_ROLES.TEACHER) {
-    return res.status(403).json({
-      success: false,
-      msg: 'Permission Denied'
-    });
-  }
-  return res.json({
-    success: true
-  });
-});
-
-router.post(
-  '/createscore',
-  [
-    body('subjectId')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape(),
-    body('studentUsername')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape(),
-    body('scoreValue')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape()
-  ],
-  async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
-    }
-
-    if (req.decoded.user.role !== USER_ROLES.TEACHER) {
-      return res.status(403).json({
-        success: false,
-        msg: 'Permission Denied'
-      });
-    }
-
-    let identity = req.body.studentUsername;
-
-    User.findOne({ username: identity, role: USER_ROLES.STUDENT }, async (err, student) => {
-      if (err) {
-        res.status(500).json({
-          success: false,
-          msg: err
-        });
-      }
-      if (student) {
-        let score = {
-          subjectID: req.body.subjectId,
-          studentUsername: identity,
-          scoreValue: req.body.scoreValue
-        };
-        const networkObj = await network.connectToNetwork(req.decoded.user);
-        const response = await network.createScore(networkObj, score);
-
-        if (!response.success) {
-          return res.status(500).json({
-            success: false,
-            msg: response.msg.toString()
-          });
-        }
-        return res.json({
-          success: true,
-          msg: response.msg.toString()
-        });
-      }
     });
   }
 );

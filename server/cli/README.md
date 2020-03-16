@@ -223,7 +223,7 @@ node invoke.js --username=st01 --func=StudentCancelRegisterClass --classId=xxxx
 ```
 
 ```bash
-node invoke.js --username=gv01 --func=CreateScore  --classId= --studentUsername=conglt --scoreValue=10
+node invoke.js --username=gv01 --func=PickScore  --classId= --studentUsername=conglt --scoreValue=10
 ```
 
 ```bash
