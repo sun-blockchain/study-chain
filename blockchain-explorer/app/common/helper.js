@@ -20,10 +20,9 @@
 
 const log4js = require('log4js/lib/log4js');
 
-const appList = [];
-
 const path = require('path');
 const fs = require('fs-extra');
+const yn = require('yn');
 
 exports.getLogger = getLogger;
 exports.readAllFiles = readAllFiles;
@@ -35,14 +34,14 @@ exports.readAllFiles = readAllFiles;
  * @returns
  */
 function readAllFiles(dir) {
-  const files = fs.readdirSync(dir);
-  const certs = [];
-  files.forEach(file_name => {
-    const file_path = path.join(dir, file_name);
-    const data = fs.readFileSync(file_path);
-    certs.push(data);
-  });
-  return certs;
+	const files = fs.readdirSync(dir);
+	const certs = [];
+	files.forEach(file_name => {
+		const file_path = path.join(dir, file_name);
+		const data = fs.readFileSync(file_path);
+		certs.push(data);
+	});
+	return certs;
 }
 
 /*
@@ -64,48 +63,73 @@ function readAllFiles(dir) {
  * @returns
  */
 function getLogger(moduleName) {
-  let logger;
+	const logger = log4js.getLogger(moduleName);
 
-  if (moduleName === 'PgService') {
-    logger = log4js.getLogger('PgService');
-  } else {
-    appList.push(moduleName);
-    logger = log4js.getLogger(moduleName);
-  }
+	let appLog = 'logs/app/app.log';
+	let dbLog = 'logs/db/db.log';
+	let consoleLog = 'logs/console/console.log';
 
-  let appLog = 'logs/app/app.log';
-  let dbLog = 'logs/db/db.log';
+	if (process.env.SYNC_LOG_PATH) {
+		appLog = `${process.env.SYNC_LOG_PATH}/app/app.log`;
+		dbLog = `${process.env.SYNC_LOG_PATH}/db/db.log`;
+		consoleLog = `${process.env.SYNC_LOG_PATH}/console/console.log`;
+	}
 
-  if (process.env.SYNC_LOG_PATH) {
-    appLog = `${process.env.SYNC_LOG_PATH}/app/app.log`;
-    dbLog = `${process.env.SYNC_LOG_PATH}/db/db.log`;
-  }
+	let appLevel = 'debug';
+	let dbLevel = 'debug';
+	let consoleLevel = 'info';
 
-  fs.ensureFileSync(appLog);
-  fs.ensureFileSync(dbLog);
+	if (process.env.LOG_LEVEL_APP) {
+		appLevel = process.env.LOG_LEVEL_APP;
+	}
+	if (process.env.LOG_LEVEL_DB) {
+		dbLevel = process.env.LOG_LEVEL_DB;
+	}
+	if (process.env.LOG_LEVEL_CONSOLE) {
+		consoleLevel = process.env.LOG_LEVEL_CONSOLE;
+	}
 
-  log4js.configure({
-    appenders: [
-      {
-        type: 'dateFile',
-        filename: appLog,
-        // eslint-disable-next-line spellcheck/spell-checker
-        pattern: '-yyyy-MM-dd',
-        category: appList
-      },
-      {
-        type: 'dateFile',
-        filename: dbLog,
-        // eslint-disable-next-line spellcheck/spell-checker
-        pattern: '-yyyy-MM-dd',
-        category: ['PgService']
-      }
-    ]
-  });
+	const logConfig = {
+		appenders: {
+			app: {
+				type: 'dateFile',
+				filename: appLog,
+				maxLogSize: 8 * 1024 * 1024,
+				daysToKeep: 7
+			},
+			db: {
+				type: 'dateFile',
+				filename: dbLog,
+				maxLogSize: 8 * 1024 * 1024,
+				daysToKeep: 7
+			},
+			console: {
+				type: 'dateFile',
+				filename: consoleLog,
+				maxLogSize: 8 * 1024 * 1024,
+				daysToKeep: 7
+			},
+			consoleFilter: {
+				type: 'logLevelFilter',
+				appender: 'console',
+				level: consoleLevel
+			}
+		},
+		categories: {
+			default: { appenders: ['consoleFilter', 'app'], level: appLevel },
+			PgService: { appenders: ['consoleFilter', 'db'], level: dbLevel }
+		}
+	};
 
-  logger.setLevel('DEBUG');
+	if (process.env.LOG_CONSOLE_STDOUT) {
+		if (yn(process.env.LOG_CONSOLE_STDOUT)) {
+			logConfig.appenders.console = { type: 'console' };
+		}
+	}
 
-  return logger;
+	log4js.configure(logConfig);
+
+	return logger;
 }
 
 exports.getLogger = getLogger;
