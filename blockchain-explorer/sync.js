@@ -13,13 +13,11 @@ const args = process.argv.slice(2);
 let synchronizer;
 
 async function start() {
-  logger.debug('Start synchronizer');
-  synchronizer = new Synchronizer(args);
-  await synchronizer.initialize();
+	logger.debug('Start synchronizer');
+	synchronizer = new Synchronizer(args);
+	await synchronizer.initialize();
 
-  console.log('\n');
-  console.log(`Synchronizer pid is ${process.pid}`);
-  console.log('\n');
+	logger.info(`Synchronizer pid is ${process.pid}`);
 }
 
 start();
@@ -30,47 +28,47 @@ start();
  */
 
 const shutDown = function() {
-  console.log(
-    '<<<<<<<<<<<<<<<<<<<<<<<<<< Closing client processor >>>>>>>>>>>>>>>>>>>>>'
-  );
-  if (synchronizer) {
-    synchronizer.close();
-  }
-  setTimeout(() => {
-    process.exit(0);
-    setTimeout(() => {
-      console.error(
-        'Could not close child connections in time, forcefully shutting down'
-      );
-      if (synchronizer) {
-        synchronizer.close();
-      }
-      process.exit(1);
-    }, 5000);
-  }, 2000);
+	logger.info(
+		'<<<<<<<<<<<<<<<<<<<<<<<<<< Closing client processor >>>>>>>>>>>>>>>>>>>>>'
+	);
+	if (synchronizer) {
+		synchronizer.close();
+	}
+	setTimeout(() => {
+		process.exit(0);
+		setTimeout(() => {
+			logger.error(
+				'Could not close child connections in time, forcefully shutting down'
+			);
+			if (synchronizer) {
+				synchronizer.close();
+			}
+			process.exit(1);
+		}, 5000);
+	}, 2000);
 };
 
 process.on('unhandledRejection', up => {
-  console.log(
-    '<<<<<<<<<<<<<<<<<<<<<<<<<< Synchronizer Error >>>>>>>>>>>>>>>>>>>>>'
-  );
-  if (up instanceof ExplorerError) {
-    console.log('Error : ', up.message);
-  } else {
-    console.log(up);
-  }
-  shutDown();
+	logger.error(
+		'<<<<<<<<<<<<<<<<<<<<<<<<<< Synchronizer Error >>>>>>>>>>>>>>>>>>>>>'
+	);
+	if (up instanceof ExplorerError) {
+		logger.error('Error : ', up.message);
+	} else {
+		logger.error(up);
+	}
+	shutDown();
 });
 process.on('uncaughtException', up => {
-  console.log(
-    '<<<<<<<<<<<<<<<<<<<<<<<<<< Synchronizer Error >>>>>>>>>>>>>>>>>>>>>'
-  );
-  if (up instanceof ExplorerError) {
-    console.log('Error : ', up.message);
-  } else {
-    console.log(up);
-  }
-  shutDown();
+	logger.error(
+		'<<<<<<<<<<<<<<<<<<<<<<<<<< Synchronizer Error >>>>>>>>>>>>>>>>>>>>>'
+	);
+	if (up instanceof ExplorerError) {
+		logger.error('Error : ', up.message);
+	} else {
+		logger.error(up);
+	}
+	shutDown();
 });
 
 // Listen for TERM signal .e.g. kill

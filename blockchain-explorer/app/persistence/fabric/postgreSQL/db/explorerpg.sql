@@ -2,8 +2,7 @@
 --    SPDX-License-Identifier: Apache-2.0
 --
 
-CREATE USER :user
-WITH PASSWORD :passwd;
+CREATE USER :user WITH PASSWORD 'password';
 DROP DATABASE IF EXISTS :dbname;
 CREATE DATABASE :dbname owner :user;
 \c :dbname;
@@ -24,7 +23,8 @@ CREATE TABLE blocks
   createdt Timestamp DEFAULT NULL,
   prev_blockhash character varying(256) DEFAULT NULL,
   blockhash character varying(256) DEFAULT NULL,
-  channel_genesis_hash character varying(256) DEFAULT NULL
+  channel_genesis_hash character varying(256) DEFAULT NULL,
+  blksize integer DEFAULT NULL
 );
 
 ALTER table blocks owner to :user;

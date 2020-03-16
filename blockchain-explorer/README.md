@@ -1,32 +1,34 @@
-# Install Postgre
-sudo apt-get update
-sudo apt-get install postgresql postgresql-contrib
+### 1. Set up PostgreSQL
 
-cd blockchain-explorer/app
-
-cd blockchain-explorer/app/persistence/fabric/postgreSQL
-chmod -R 775 db/
-
-# Run create database script.
-
-cd blockchain-explorer/app/persistence/fabric/postgreSQL/db
+```bash
+cd blockchain-explorer/app/persistent/fabric/postgreSQL
+chmod -R 777 db/
+cd db
 ./createdb.sh
-sudo -u postgres psql
+```
 
-# Start
+### 2. Start Explorer
+
+```bash
 cd blockchain-explorer
+rm -r wallet/study-chain/
+rm -f logs/console/console.log
 npm install
-cd blockchain-explorer/app/test
-npm install
-npm run test
-cd client/
-npm install
-npm test -- -u --coverage
-npm run build
-
-cd blockchain-explorer/
 ./start.sh
+```
 
-#Now, you can open Hyperledger Explorer on your browser.
-http://localhost:8080
+### 3. Start Client
 
+```bash
+cd blockchain-explorer/client
+npm run build
+```
+
+Access http://localhost:9000/
+
+### 4. Stop Explorer
+
+```bash
+cd blockchain-explorer
+./stop.sh
+```
