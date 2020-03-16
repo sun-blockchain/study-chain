@@ -118,8 +118,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return CreateSubject(stub, args)
 	} else if function == "CreateClass" {
 		return CreateClass(stub, args)
-	} else if function == "CreateScore" {
-		return CreateScore(stub, args)
+	} else if function == "PickScore" {
+		return PickScore(stub, args)
 	} else if function == "CreateCertificate" {
 		return CreateCertificate(stub, args)
 	} else if function == "CreateTeacher" {
