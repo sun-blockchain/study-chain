@@ -69,11 +69,11 @@ async function getNotRegisterCourses() {
   }
 }
 
-async function cancelRegisteredClass(classId) {
+async function cancelRegisteredClass(classId, courseId) {
   try {
     let respone = await axios.post(
       `${process.env.VUE_APP_API_BACKEND}/account/me/cancelRegisteredClass`,
-      { classId: classId },
+      { classId: classId, courseId: courseId },
       {
         headers: authHeader()
       }
@@ -174,11 +174,11 @@ async function registerCourse(courseId) {
   }
 }
 
-async function registerClass(classId) {
+async function registerClass(classId, courseId) {
   try {
     let response = await axios.post(
       `${process.env.VUE_APP_API_BACKEND}/account/me/registerClass`,
-      { classId: classId },
+      { classId: classId, courseId: courseId },
       {
         headers: authHeader()
       }
