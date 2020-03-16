@@ -308,16 +308,13 @@ const actions = {
       }
     }
   },
-  async addClassToTeacher({ commit }, { username, classId }) {
+  async addClassToTeacher({ commit, dispatch }, { username, classId }) {
     try {
       let data = await adminService.addClassToTeacher(username, classId);
-      commit('addClassToTeacher', data.classes);
+      commit('addClassToTeacher', data);
       return data;
     } catch (error) {
-      if (error.response.status === 403) {
-        router.push('/403');
-      }
-      return error.response.data;
+      dispatch('alert/alertError', error, { root: true });
     }
   },
   async unassignTeacherFromClass({ commit }, classId) {
