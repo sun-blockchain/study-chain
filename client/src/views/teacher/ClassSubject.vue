@@ -23,7 +23,6 @@
                 listClasses.Status
               }}</b-badge>
             </p>
-            <p>{{ listClasses.Description }}</p>
           </div>
         </div>
       </div>
@@ -50,7 +49,7 @@
           <template>
             <el-input-number
               v-model="Score.scoreValue"
-              :step="0.1"
+              :step="1.0"
               :min="0"
               :max="10"
               controls-position="right"
@@ -166,7 +165,6 @@ export default {
     let subjectInfo = await this.getSubject(classInfo.SubjectID);
 
     if (classInfo && student.success && subjectInfo) {
-      this.listClasses = classInfo.class;
       this.subjectName = subjectInfo.subject.SubjectName;
     }
     this.loadingData = false;
