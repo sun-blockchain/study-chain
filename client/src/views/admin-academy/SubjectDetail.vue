@@ -409,12 +409,13 @@ export default {
           });
           if (data) {
             if (data.success) {
-              await this.getClassesOfSubject(this.$route.params.id);
               Message.success('Delete completed!');
             } else {
               Message.error(data.msg);
             }
           }
+          await this.getClassesOfSubject(this.$route.params.id);
+
           this.fullscreenLoading = false;
         })
         .catch(() => {

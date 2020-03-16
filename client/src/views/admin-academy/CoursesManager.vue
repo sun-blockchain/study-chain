@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container-fluid" v-loading.fullscreen.lock="fullscreenLoading">
     <table-admin
       :title="`Courses Manager`"
       :listAll="listCourses ? listCourses : []"
@@ -8,6 +8,8 @@
       :btnEdit="true"
       :nameFunctionEdit="`modalEdit`"
       :statusCol="true"
+      :btnChangeStatus="true"
+      :nameFunctionChangeStatus="`changeStatus`"
       :filter="[
         { text: 'Open', value: 'Open' },
         { text: 'Closed', value: 'Closed' }
@@ -19,6 +21,7 @@
       ]"
       @detailCourses="detailCourse($event)"
       @modalEdit="modalEdit($event)"
+      @changeStatus="changeStatus($event)"
     >
       <template v-slot:btn-create>
         <el-button
@@ -194,7 +197,55 @@ export default {
     };
   },
   methods: {
-    ...mapActions('adminAcademy', ['getAllCourses', 'createCourse', 'updateCourse']),
+    ...mapActions('adminAcademy', [
+      'getAllCourses',
+      'createCourse',
+      'updateCourse',
+      'changeCourseStatus'
+    ]),
+    changeStatus(row) {
+      var warning;
+      var responseMessage;
+      var status;
+
+      if (row.Status === 'Open') {
+        warning = 'close this course';
+        status = 'closeCourse';
+        responseMessage = 'closed';
+      } else {
+        warning = 'open this course';
+        status = 'openCourse';
+        responseMessage = 'opened ';
+      }
+      MessageBox.confirm(`Are you sure to ${warning}?`, {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+        center: true
+      })
+        .then(async () => {
+          this.fullscreenLoading = true;
+
+          let data = await this.changeCourseStatus({
+            courseId: row.CourseID,
+            status: status
+          });
+
+          if (data) {
+            if (data.success) {
+              this.status = false;
+              Message.success(`This class has been ${responseMessage}!`);
+            } else {
+              Message.error(data.msg);
+            }
+          }
+          await this.getAllCourses();
+          this.fullscreenLoading = false;
+        })
+        .catch(() => {
+          Message.info('Canceled');
+        });
+    },
     detailCourse(row) {
       this.$router.push({ path: `Courses/${row.CourseID}/Course-detail` });
     },
