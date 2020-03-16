@@ -51,8 +51,15 @@ export default {
       this.fullscreenLoading = true;
       let data = await this.claimCertificate(row.CourseID);
       if (!data) {
-        Message.error('fail to get certificate!');
+        Message.error('You have not completed this course!');
       } else if (data.success) {
+        let certId = await this.getCertificateByCourseId(row.CourseID);
+        let redirectCert = this.$router.resolve({
+          name: 'certificate',
+          path: `cert/${certId}`
+        });
+
+        window.open(redirectCert.href, '_blank');
         Message.success('Get certificate successfully!');
         let response = await this.getMyCourses();
       }
@@ -61,7 +68,12 @@ export default {
     async linkToCert(row) {
       let certId = await this.getCertificateByCourseId(row.CourseID);
 
-      this.$router.push({ path: `cert/${certId}` });
+      let redirectCert = this.$router.resolve({
+        name: 'certificate',
+        path: `cert/${certId}`
+      });
+
+      window.open(redirectCert.href, '_blank');
     }
   },
   computed: {
