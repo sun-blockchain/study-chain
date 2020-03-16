@@ -350,7 +350,7 @@ async function updateClass(_class) {
 async function closeClass(classId) {
   try {
     let respone = await axios.put(
-      `${process.env.VUE_APP_API_BACKEND}/academy/closeRegisterClass`,
+      `${process.env.VUE_APP_API_BACKEND}/academy/startClass`,
       { classId: classId },
       {
         headers: authHeader()
