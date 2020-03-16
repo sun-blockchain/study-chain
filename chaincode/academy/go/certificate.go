@@ -519,6 +519,10 @@ func AssignTeacherToClass(stub shim.ChaincodeStubInterface, args []string) sc.Re
 		}
 	}
 
+	if class.Status != Open {
+		return shim.Error("This class was started!")
+	}
+
 	user.Classes = append(user.Classes, ClassID)
 	class.TeacherUsername = Username
 
@@ -556,6 +560,10 @@ func UnassignTeacherFromClass(stub shim.ChaincodeStubInterface, args []string) s
 
 	if err != nil {
 		return shim.Error("Class does not exist!")
+	}
+
+	if class.Status != Open {
+		return shim.Error("This class was started!")
 	}
 
 	keyTeacher := "Teacher-" + class.TeacherUsername
