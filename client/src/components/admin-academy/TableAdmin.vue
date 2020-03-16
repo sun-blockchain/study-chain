@@ -83,6 +83,20 @@
                       @click.stop="callFunctionEdit(scope.row)"
                     ></el-button>
                   </el-tooltip>
+                  <el-tooltip
+                    v-if="btnChangeStatus"
+                    class="item"
+                    :content="scope.row.Status == 'Open' ? 'Close' : 'Open'"
+                    placement="top"
+                  >
+                    <el-button
+                      :type="scope.row.Status == 'Open' ? 'danger' : 'success'"
+                      :icon="scope.row.Status == 'Open' ? 'el-icon-open' : 'el-icon-turn-off'"
+                      round
+                      size="mini"
+                      @click.stop="callFunctionChangeStatus(scope.row)"
+                    ></el-button>
+                  </el-tooltip>
                   <el-tooltip v-if="btnDelete" class="item" content="Delete" placement="top">
                     <el-button
                       size="mini"
@@ -120,7 +134,7 @@
                       @click.stop="callFunctionCert(scope.row)"
                     ></el-button>
                   </el-tooltip>
-                  <el-tooltip v-if="btnRemove" class="item" content="Remove" placement="top">
+                  <el-tooltip v-if="btnRemove" class="item" content="Unassign" placement="top">
                     <el-button
                       type="danger"
                       size="mini"
@@ -194,7 +208,9 @@ export default {
     btnRemove: Boolean,
     nameFunctionRemove: String,
     filter: Array,
-    date: Boolean
+    date: Boolean,
+    btnChangeStatus: Boolean,
+    nameFunctionChangeStatus: String
   },
   data() {
     return {
@@ -260,6 +276,9 @@ export default {
     },
     callFunctionRemove(row) {
       this.$emit(this.nameFunctionRemove, row);
+    },
+    callFunctionChangeStatus(row) {
+      this.$emit(this.nameFunctionChangeStatus, row);
     },
     filterTag(value, row) {
       return row.Status === value;
