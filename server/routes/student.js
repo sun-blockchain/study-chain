@@ -178,8 +178,9 @@ router.get(
 
     let students = await network.query(networkObj, 'GetStudentsOfClass', req.params.classId);
     let scores = await network.query(networkObj, 'GetScoresOfClass', req.params.classId);
+    let classInfo = await network.query(networkObj, 'GetClass', req.params.classId);
 
-    if (!students.success || !scores.success) {
+    if (!students.success || !scores.success || !classInfo.success) {
       return res.status(500).send({
         success: false,
         msg: 'Failed to query chaincode'
@@ -188,8 +189,10 @@ router.get(
 
     students = JSON.parse(students.msg) ? JSON.parse(students.msg) : [];
     scores = JSON.parse(scores.msg) ? JSON.parse(scores.msg) : [];
+    classInfo = JSON.parse(classInfo.msg);
 
     for (let i = 0; i < students.length; i++) {
+      students[i].StatusClass = classInfo.Status;
       for (let k = 0; k < scores.length; k++) {
         if (students[i].Username === scores[k].StudentUsername) {
           students[i].Score = scores[k].ScoreValue;

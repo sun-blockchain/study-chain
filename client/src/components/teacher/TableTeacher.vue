@@ -77,7 +77,12 @@
                       @click.stop="callFunctionInfo(scope.row)"
                     ></el-button>
                   </el-tooltip>
-                  <el-tooltip v-if="btnEdit" class="item" content="Edit" placement="top">
+                  <el-tooltip
+                    v-if="scope.row.StatusClass === 'Open' ? false : true"
+                    class="item"
+                    content="Edit"
+                    placement="top"
+                  >
                     <el-button
                       type="primary"
                       icon="el-icon-edit"
