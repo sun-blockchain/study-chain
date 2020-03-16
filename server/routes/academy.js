@@ -1007,7 +1007,7 @@ router.delete(
 
 // Update subject
 router.put(
-  '/closeRegisterClass',
+  '/startClass',
   checkJWT,
   [
     body('classId')
@@ -1051,12 +1051,19 @@ router.put(
     if (classInfo.Status !== Status.Open) {
       return res.status(500).json({
         success: false,
-        msg: 'Can not close register!'
+        msg: 'Can not start this class!'
+      });
+    }
+
+    if (!classInfo.TeacherUsername || classInfo.TeacherUsername === '') {
+      return res.status(500).json({
+        success: false,
+        msg: 'There is not teacher assigned to this class!'
       });
     }
 
     networkObj = await network.connectToNetwork(req.decoded.user);
-    const response = await network.closeRegisterClass(networkObj, classId);
+    const response = await network.startClass(networkObj, classId);
 
     if (!response.success) {
       return res.status(500).json({
@@ -1067,7 +1074,7 @@ router.put(
 
     return res.json({
       success: true,
-      msg: 'Close Successfully!'
+      msg: 'Start Successfully!'
     });
   }
 );

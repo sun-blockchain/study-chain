@@ -192,8 +192,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return RemoveSubjectFromCourse(stub, args)
 	} else if function == "DeleteSubject" {
 		return DeleteSubject(stub, args)
-	} else if function == "CloseRegisterClass" {
-		return CloseRegisterClass(stub, args)
+	} else if function == "StartClass" {
+		return StartClass(stub, args)
 	} else if function == "GetClass" {
 		return GetClass(stub, args)
 	} else if function == "GetClassesOfStudent" {
@@ -1190,7 +1190,7 @@ func DeleteSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 
 }
 
-func CloseRegisterClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+func StartClass(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	MSPID, err := cid.GetMSPID(stub)
 
 	if err != nil {

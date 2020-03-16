@@ -2339,26 +2339,26 @@ describe('#DELETE /academy/subject', () => {
   });
 });
 
-describe('#PUT /academy/closeRegisterClass', () => {
+describe('#PUT /academy/startClass', () => {
   let connect;
   let query;
-  let closeRegisterClass;
+  let startClass;
 
   beforeEach(() => {
     connect = sinon.stub(network, 'connectToNetwork');
     query = sinon.stub(network, 'query');
-    closeRegisterClass = sinon.stub(network, 'closeRegisterClass');
+    startClass = sinon.stub(network, 'startClass');
   });
 
   afterEach(() => {
     connect.restore();
     query.restore();
-    closeRegisterClass.restore();
+    startClass.restore();
   });
 
   it('permission denied when access routes with student', (done) => {
     request(app)
-      .put('/academy/closeRegisterClass')
+      .put('/academy/startClass')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(403);
@@ -2369,7 +2369,7 @@ describe('#PUT /academy/closeRegisterClass', () => {
 
   it('permission denied when access routes with teacher', (done) => {
     request(app)
-      .put('/academy/closeRegisterClass')
+      .put('/academy/startClass')
       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(403);
@@ -2380,7 +2380,7 @@ describe('#PUT /academy/closeRegisterClass', () => {
 
   it('do not success close register because req.body invalid', (done) => {
     request(app)
-      .put('/academy/closeRegisterClass')
+      .put('/academy/startClass')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
         classId: ''
@@ -2395,7 +2395,7 @@ describe('#PUT /academy/closeRegisterClass', () => {
     connect.returns(null);
 
     request(app)
-      .put('/academy/closeRegisterClass')
+      .put('/academy/startClass')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
         classId: 'b2ab2fbd-1053-4848-aac9-2090fee54074'
@@ -2420,7 +2420,7 @@ describe('#PUT /academy/closeRegisterClass', () => {
       msg: 'Can not query in chaincode!'
     });
     request(app)
-      .put('/academy/closeRegisterClass')
+      .put('/academy/startClass')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
         classId: 'b2ab2fbd-1053-4848-aac9-2090fee54074'
@@ -2442,14 +2442,14 @@ describe('#PUT /academy/closeRegisterClass', () => {
     });
     let data = JSON.stringify({
       ClassId: 'b2ab2fbd-1053-4848-aac9-2090fee54074',
-      Status: 'Close Register'
+      Status: 'InProgress'
     });
     query.returns({
       success: true,
       msg: data
     });
     request(app)
-      .put('/academy/closeRegisterClass')
+      .put('/academy/startClass')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
         classId: 'b2ab2fbd-1053-4848-aac9-2090fee54074'
@@ -2457,7 +2457,36 @@ describe('#PUT /academy/closeRegisterClass', () => {
       .then((res) => {
         expect(res.status).equal(500);
         expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Can not close register!');
+        expect(res.body.msg).equal('Can not start this class!');
+        done();
+      });
+  });
+
+  it('There is not teacher assigned to this class!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+    let data = JSON.stringify({
+      ClassId: 'b2ab2fbd-1053-4848-aac9-2090fee54074',
+      Status: 'Open'
+    });
+    query.returns({
+      success: true,
+      msg: data
+    });
+    request(app)
+      .put('/academy/startClass')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: 'b2ab2fbd-1053-4848-aac9-2090fee54074'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.success).equal(false);
+        expect(res.body.msg).equal('There is not teacher assigned to this class!');
         done();
       });
   });
@@ -2472,7 +2501,8 @@ describe('#PUT /academy/closeRegisterClass', () => {
 
     let data = JSON.stringify({
       ClassId: 'b2ab2fbd-1053-4848-aac9-2090fee54074',
-      Status: 'Open'
+      Status: 'Open',
+      TeacherUsername: 'tc01'
     });
 
     query.returns({
@@ -2480,13 +2510,13 @@ describe('#PUT /academy/closeRegisterClass', () => {
       msg: data
     });
 
-    closeRegisterClass.returns({
+    startClass.returns({
       success: false,
-      msg: 'Invoke failed'
+      msg: 'Can not invoke chaincode!'
     });
 
     request(app)
-      .put('/academy/closeRegisterClass')
+      .put('/academy/startClass')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
         classId: 'b2ab2fbd-1053-4848-aac9-2090fee54074'
@@ -2494,12 +2524,12 @@ describe('#PUT /academy/closeRegisterClass', () => {
       .then((res) => {
         expect(res.status).equal(500);
         expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Invoke failed');
+        expect(res.body.msg).equal('Can not invoke chaincode!');
         done();
       });
   });
 
-  it('Close Successfully', (done) => {
+  it('Start Successfully!', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -2509,7 +2539,8 @@ describe('#PUT /academy/closeRegisterClass', () => {
 
     let data = JSON.stringify({
       ClassId: 'b2ab2fbd-1053-4848-aac9-2090fee54074',
-      Status: 'Open'
+      Status: 'Open',
+      TeacherUsername: 'tc01'
     });
 
     query.returns({
@@ -2517,12 +2548,12 @@ describe('#PUT /academy/closeRegisterClass', () => {
       msg: data
     });
 
-    closeRegisterClass.returns({
+    startClass.returns({
       success: true
     });
 
     request(app)
-      .put('/academy/closeRegisterClass')
+      .put('/academy/startClass')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
         classId: 'b2ab2fbd-1053-4848-aac9-2090fee54074'
@@ -2530,7 +2561,7 @@ describe('#PUT /academy/closeRegisterClass', () => {
       .then((res) => {
         expect(res.status).equal(200);
         expect(res.body.success).equal(true);
-        expect(res.body.msg).equal('Close Successfully!');
+        expect(res.body.msg).equal('Start Successfully!');
         done();
       });
   });
