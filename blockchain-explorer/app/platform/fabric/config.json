@@ -1,31 +1,9 @@
 {
-  "network-configs": {
-    "certificate-verify": {
-      "name": "certificate-verify",
-      "profile": "./connection-profile/certificate-verify.json"
-    }
-  },
-  "license": "Apache-2.0",
-  "organizations": {
-    "AcademyMSP": {
-      "mspid": "AcademyMSP",
-      "fullpath": false,
-      "adminPrivateKey": {
-        "path": "../network/crypto-config/peerOrganizations/academy.certificate.com/users/Admin@academy.certificate.com/msp/keystore"
-      },
-      "signedCert": {
-        "path": "../network/crypto-config/peerOrganizations/academy.certificate.com/users/Admin@academy.certificate.com/msp/signcerts"
-      }
-    },
-    "StudentMSP": {
-      "mspid": "StudentMSP",
-      "fullpath": false,
-      "adminPrivateKey": {
-        "path": "../network/crypto-config/peerOrganizations/student.certificate.com/users/Admin@student.certificate.com/msp/keystore"
-      },
-      "signedCert": {
-        "path": "../network/crypto-config/peerOrganizations/student.certificate.com/users/Admin@student.certificate.com/msp/signcerts"
-      }
-    }
-  }
+	"network-configs": {
+		"studychain": {
+			"name": "study-chain",
+			"profile": "./connection-profile/study-chain.json"
+		}
+	},
+	"license": "Apache-2.0"
 }

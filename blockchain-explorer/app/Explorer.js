@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const swaggerUi = require('swagger-ui-express');
 const compression = require('compression');
 const passport = require('passport');
+const RateLimit = require('express-rate-limit');
 const PlatformBuilder = require('./platform/PlatformBuilder');
 const explorerconfig = require('./explorerconfig.json');
 const PersistenceFactory = require('./persistence/PersistenceFactory');
@@ -18,7 +19,7 @@ const dbroutes = require('./rest/dbroutes');
 const platformroutes = require('./rest/platformroutes');
 const adminroutes = require('./platform/fabric/rest/adminroutes');
 
-const authCheckMiddleware = require('./middleware/auth-check');
+// const authCheckMiddleware = require('./middleware/auth-check');
 
 const swaggerDocument = require('../swagger.json');
 
@@ -31,116 +32,126 @@ const explorer_error = require('./common/ExplorerMessage').explorer.error;
  * @class Explorer
  */
 class Explorer {
-  /**
-   * Creates an instance of Explorer.
-   * @memberof Explorer
-   */
-  constructor() {
-    this.app = new Express();
-    this.app.use(bodyParser.json());
-    this.app.use(
-      bodyParser.urlencoded({
-        extended: true
-      })
-    );
-    this.app.use(passport.initialize());
-    if (process.env.NODE_ENV !== 'production') {
-      this.app.use(
-        '/api-docs',
-        swaggerUi.serve,
-        swaggerUi.setup(swaggerDocument)
-      );
-    }
-    this.app.use(compression());
-    this.persistence = null;
-    this.platforms = [];
-  }
+	/**
+	 * Creates an instance of Explorer.
+	 * @memberof Explorer
+	 */
+	constructor() {
+		this.app = new Express();
 
-  /**
-   *
-   *
-   * @returns
-   * @memberof Explorer
-   */
-  getApp() {
-    return this.app;
-  }
+		// set up rate limiter: maximum of 1000 requests per minute
 
-  /**
-   *
-   *
-   * @param {*} broadcaster
-   * @memberof Explorer
-   */
-  async initialize(broadcaster) {
-    if (!explorerconfig[explorer_const.PERSISTENCE]) {
-      throw new ExplorerError(explorer_error.ERROR_1001);
-    }
-    if (!explorerconfig[explorerconfig[explorer_const.PERSISTENCE]]) {
-      throw new ExplorerError(
-        explorer_error.ERROR_1002,
-        explorerconfig[explorer_const.PERSISTENCE]
-      );
-    }
-    this.persistence = await PersistenceFactory.create(
-      explorerconfig[explorer_const.PERSISTENCE],
-      explorerconfig[explorerconfig[explorer_const.PERSISTENCE]]
-    );
+		const limiter = new RateLimit({
+			windowMs: 1 * 60 * 1000, // 1 minute
+			max: 1000
+		});
+		// apply rate limiter to all requests
+		this.app.use(limiter);
 
-    for (const pltfrm of explorerconfig[explorer_const.PLATFORMS]) {
-      const platform = await PlatformBuilder.build(
-        pltfrm,
-        this.persistence,
-        broadcaster
-      );
+		this.app.use(bodyParser.json());
+		this.app.use(
+			bodyParser.urlencoded({
+				extended: true
+			})
+		);
 
-      platform.setPersistenceService();
+		// eslint-disable-next-line spellcheck/spell-checker
+		// handle rate limit, see https://lgtm.com/rules/1506065727959/
 
-      passport.use('local-login', localLoginStrategy(platform));
+		this.app.use(passport.initialize());
+		if (process.env.NODE_ENV !== 'production') {
+			this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+		}
+		this.app.use(compression());
+		this.persistence = null;
+		this.platforms = [];
+	}
 
-      // Initializing the platform
-      await platform.initialize();
+	/**
+	 *
+	 *
+	 * @returns
+	 * @memberof Explorer
+	 */
+	getApp() {
+		return this.app;
+	}
 
-      this.app.use('/api', authCheckMiddleware);
+	/**
+	 *
+	 *
+	 * @param {*} broadcaster
+	 * @memberof Explorer
+	 */
+	async initialize(broadcaster) {
+		if (!explorerconfig[explorer_const.PERSISTENCE]) {
+			throw new ExplorerError(explorer_error.ERROR_1001);
+		}
+		if (!explorerconfig[explorerconfig[explorer_const.PERSISTENCE]]) {
+			throw new ExplorerError(
+				explorer_error.ERROR_1002,
+				explorerconfig[explorer_const.PERSISTENCE]
+			);
+		}
+		this.persistence = await PersistenceFactory.create(
+			explorerconfig[explorer_const.PERSISTENCE],
+			explorerconfig[explorerconfig[explorer_const.PERSISTENCE]]
+		);
 
-      const authrouter = new Express.Router();
+		for (const pltfrm of explorerconfig[explorer_const.PLATFORMS]) {
+			const platform = await PlatformBuilder.build(
+				pltfrm,
+				this.persistence,
+				broadcaster
+			);
 
-      // Initializing the rest app services
-      await authroutes(authrouter, platform);
+			platform.setPersistenceService();
 
-      const apirouter = new Express.Router();
+			passport.use('local-login', localLoginStrategy(platform));
 
-      // Initializing the rest app services
-      await dbroutes(apirouter, platform);
-      await platformroutes(apirouter, platform);
-      await adminroutes(apirouter, platform);
+			// Initializing the platform
+			await platform.initialize();
 
-      this.app.use('/auth', authrouter);
-      this.app.use('/api', apirouter);
+			// this.app.use('/api', authCheckMiddleware);
 
-      // Initializing sync listener
-      platform.initializeListener(explorerconfig.sync);
+			const authrouter = new Express.Router();
 
-      this.platforms.push(platform);
-    }
-  }
+			// Initializing the rest app services
+			await authroutes(authrouter, platform);
 
-  /**
-   *
-   *
-   * @memberof Explorer
-   */
+			const apirouter = new Express.Router();
 
-  close() {
-    if (this.persistence) {
-      this.persistence.closeconnection();
-    }
-    for (const platform of this.platforms) {
-      if (platform) {
-        platform.destroy();
-      }
-    }
-  }
+			// Initializing the rest app services
+			await dbroutes(apirouter, platform);
+			await platformroutes(apirouter, platform);
+			await adminroutes(apirouter, platform);
+
+			this.app.use('/auth', authrouter);
+			this.app.use('/api', apirouter);
+
+			// Initializing sync listener
+			platform.initializeListener(explorerconfig.sync);
+
+			this.platforms.push(platform);
+		}
+	}
+
+	/**
+	 *
+	 *
+	 * @memberof Explorer
+	 */
+
+	close() {
+		if (this.persistence) {
+			this.persistence.closeconnection();
+		}
+		for (const platform of this.platforms) {
+			if (platform) {
+				platform.destroy();
+			}
+		}
+	}
 }
 
 module.exports = Explorer;
