@@ -1,17 +1,19 @@
 <template>
   <div class="container-fluid" v-loading.fullscreen.lock="fullscreenLoading">
-    <h1 class="bannerTitle_1wzmt7u">{{ listSubjects.SubjectName }}</h1>
+    <h1 class="bannerTitle_1wzmt7u">{{ subjectCurent ? subjectCurent.SubjectName : '' }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item to="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-      <b-breadcrumb-item to="/academy/subjects">Subject</b-breadcrumb-item>
-      <b-breadcrumb-item active>Subject Detail</b-breadcrumb-item>
+      <b-breadcrumb-item to="/academy/subjects">Subjects</b-breadcrumb-item>
+      <b-breadcrumb-item active>{{
+        subjectCurent ? subjectCurent.SubjectName : ''
+      }}</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">
       <div>
         <div class="card-body">
           <h1 class="h3 mb-2 text-gray-800">About this subject</h1>
 
-          <p>{{ listSubjects.Description }}</p>
+          <p>{{ subjectCurent ? subjectCurent.Description : '' }}</p>
         </div>
       </div>
     </div>
@@ -404,7 +406,7 @@ export default {
         .then(async () => {
           this.fullscreenLoading = true;
           let data = await this.deleteClass({
-            subjectId: this.listSubjects.SubjectID,
+            subjectId: this.subjectCurent.SubjectID,
             classId: row.ClassID
           });
           if (data) {
@@ -427,7 +429,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('adminAcademy', ['listClasses', 'listSubjects'])
+    ...mapState('adminAcademy', ['listClasses', 'subjectCurent'])
   },
   async created() {
     let classes = await this.getClassesOfSubject(this.$route.params.id);

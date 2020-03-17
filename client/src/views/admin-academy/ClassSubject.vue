@@ -3,11 +3,11 @@
     <h1 class="bannerTitle_1wzmt7u">{{ classInfo.ClassCode }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item to="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-      <b-breadcrumb-item to="/academy/subjects"> Subject</b-breadcrumb-item>
-      <b-breadcrumb-item :to="`/academy/subjects/${this.$route.params.id}`"
-        >Subject Detail</b-breadcrumb-item
-      >
-      <b-breadcrumb-item active>classInfo Detail</b-breadcrumb-item>
+      <b-breadcrumb-item to="/academy/subjects"> Subjects</b-breadcrumb-item>
+      <b-breadcrumb-item :to="`/academy/subjects/${this.$route.params.id}`">{{
+        subjectCurent ? subjectCurent.SubjectName : ''
+      }}</b-breadcrumb-item>
+      <b-breadcrumb-item active>{{ classInfo ? classInfo.ClassCode : '' }}</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">
       <div>
@@ -224,7 +224,8 @@ export default {
       'closeClass',
       'getStudentsOfClass',
       'getAllTeachers',
-      'addClassToTeacher'
+      'addClassToTeacher',
+      'getSubject'
     ]),
     async assignTeacherToClass() {
       this.fullscreenLoading = true;
@@ -307,11 +308,11 @@ export default {
     }
   },
   computed: {
-    ...mapState('adminAcademy', ['classInfo', 'listStudents', 'listTeachers'])
+    ...mapState('adminAcademy', ['classInfo', 'listStudents', 'listTeachers', 'subjectCurent'])
   },
   async created() {
+    await this.getSubject(this.$route.params.id);
     let classObj = await this.getClass(this.$route.params.classId);
-
     let student = await this.getStudentsOfClass(this.$route.params.classId);
     await this.getAllTeachers();
 

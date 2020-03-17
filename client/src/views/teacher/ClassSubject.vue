@@ -4,7 +4,7 @@
       <h1 class="bannerTitle_1wzmt7u">{{ listClasses.ClassCode }}</h1>
       <b-breadcrumb>
         <b-breadcrumb-item to="/"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-        <b-breadcrumb-item active>Class Detail</b-breadcrumb-item>
+        <b-breadcrumb-item active>{{ subjectName }}</b-breadcrumb-item>
       </b-breadcrumb>
       <div class="mb-5">
         <div>
