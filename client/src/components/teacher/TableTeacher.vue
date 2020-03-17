@@ -78,7 +78,7 @@
                     ></el-button>
                   </el-tooltip>
                   <el-tooltip
-                    v-if="scope.row.StatusClass === 'Open' ? false : true"
+                    v-if="btnEdit && scope.row.StatusClass === 'InProgress'"
                     class="item"
                     content="Edit"
                     placement="top"
