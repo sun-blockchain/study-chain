@@ -27,7 +27,7 @@
                 <b> {{ convertDate(classInfo.EndDate) }}</b>
               </p>
               <p>
-                Repeat: <b>{{ classInfo.Repeat }}</b>
+                Repeat: <b>{{ classInfo.Repeat + ' on ' + getDay(classInfo.StartDate) }} </b>
               </p>
             </div>
             <div class="col">
@@ -189,6 +189,15 @@ import { Button, Select, Option, Dialog, Form, FormItem, Message, MessageBox } f
 export default {
   data() {
     return {
+      daysInWeek: [
+        { item: 'Sun', value: 'Sunday' },
+        { item: 'Mon', value: 'Monday' },
+        { item: 'Tue', value: 'Tuesday' },
+        { item: 'Wed', value: 'Wednesday' },
+        { item: 'Thu', value: 'Thursday' },
+        { item: 'Fri', value: 'Friday' },
+        { item: 'Sat', value: 'Saturday' }
+      ],
       startDate: '',
       endDate: '',
       loadingData: false,
@@ -304,6 +313,12 @@ export default {
     convertDate(timestamp) {
       let date = new Date(parseInt(timestamp));
       return date.toDateString();
+    },
+    getDay(timestamp) {
+      let date = new Date(parseInt(timestamp));
+      let day = this.daysInWeek[date.getDay()].value;
+
+      return day.toString();
     }
   },
   computed: {

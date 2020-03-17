@@ -28,13 +28,11 @@
               ></el-table-column>
               <el-table-column v-if="date" sortable label="Start Date">
                 <template slot-scope="scope">
-                  <i class="el-icon-time"></i>
                   <span>{{ convertDate(scope.row.StartDate) }}</span>
                 </template>
               </el-table-column>
               <el-table-column v-if="date" sortable label="End Date">
                 <template slot-scope="scope">
-                  <i class="el-icon-time"></i>
                   <span>{{ convertDate(scope.row.EndDate) }}</span>
                 </template>
               </el-table-column>
