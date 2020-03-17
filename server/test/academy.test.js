@@ -2486,7 +2486,7 @@ describe('#PUT /academy/startClass', () => {
       .then((res) => {
         expect(res.status).equal(500);
         expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('There is not teacher assigned to this class!');
+        expect(res.body.msg).equal('There is no teacher assigned to this class!');
         done();
       });
   });
