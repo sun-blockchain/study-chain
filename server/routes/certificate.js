@@ -5,8 +5,9 @@ const network = require('../fabric/network');
 const { check, body, validationResult } = require('express-validator');
 const checkJWT = require('../middlewares/check-jwt');
 const Certificate = require('../models/Certificate');
-const User = require('../models/User');
 const uuidv4 = require('uuid/v4');
+const axios = require('axios');
+
 require('dotenv').config();
 
 router.post(
@@ -184,6 +185,48 @@ router.get(
     cert.Fullname = student.Fullname;
 
     return res.json({ cert });
+  }
+);
+
+router.get(
+  '/:certId/verify',
+  check('certId')
+    .trim()
+    .escape(),
+  async (req, res) => {
+    let certId = req.params.certId;
+    let adminStudent = { role: USER_ROLES.ADMIN_STUDENT, username: 'adminstudent' };
+    let networkObj = await network.connectToNetwork(adminStudent);
+
+    if (!networkObj) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Failed to connect blockchain'
+      });
+    }
+
+    let certInfo = await network.query(networkObj, 'GetHistoryOfCertificate', certId);
+
+    if (!certInfo.success) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Can not query history of certificate!'
+      });
+    }
+
+    certInfo = JSON.parse(certInfo.msg);
+
+    let response = await axios.get(`http://localhost:9000/api/curChannel`);
+    let channel = response.data.currentChannel;
+    let txId = String(certInfo[0].TxId);
+
+    response = await axios.get(`http://localhost:9000/api/transaction/${channel}/${txId}`);
+
+    return res.status(200).json({
+      success: true,
+      certInfo: certInfo,
+      transactionInfo: response.data
+    });
   }
 );
 
