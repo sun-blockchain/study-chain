@@ -4,6 +4,7 @@
       :title="`My Certificates`"
       :listAll="myCertificates"
       :loadingData="loadingData"
+      :btnDetail="true"
       :nameFunctionDetail="`detailCertificate`"
       :listProperties="[
         { prop: 'CourseName', label: 'CourseName' },

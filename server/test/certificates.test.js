@@ -11,7 +11,7 @@ const app = require('../app');
 
 require('dotenv').config();
 
-describe('#POST /certificate ', () => {
+describe('#POST /certificates ', () => {
   let connect;
   let query;
   let createCertificate;
@@ -28,150 +28,64 @@ describe('#POST /certificate ', () => {
     createCertificate.restore();
   });
 
-  it('Invalid body!', (done) => {
+  it('Request body is invalid', (done) => {
     request(app)
-      .post('/certificate')
-      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .post('/certificates')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         courseId: ''
       })
       .then((res) => {
-        expect(res.status).equal(422);
-        expect(res.body.success).equal(false);
+        expect(res.status).equal(400);
         done();
       });
   });
 
-  it('Permission Denined!', (done) => {
+  it('Permission Denined with teacher', (done) => {
     request(app)
-      .post('/certificate')
+      .post('/certificates')
       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
       .send({
-        courseId: '123456'
+        courseId: '75442486-0878-440c-9db1-a7006c25a39f'
       })
       .then((res) => {
         expect(res.status).equal(403);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Permission Denied!');
+        expect(res.body.msg).equal('Permission Denied');
         done();
       });
   });
 
-  it('Permission Denined!', (done) => {
+  it('Permission Denined with admin', (done) => {
     request(app)
-      .post('/certificate')
+      .post('/certificates')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
-        courseId: '123456'
+        courseId: '75442486-0878-440c-9db1-a7006c25a39f'
       })
       .then((res) => {
         expect(res.status).equal(403);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Permission Denied!');
+        expect(res.body.msg).equal('Permission Denied');
         done();
       });
   });
 
-  it('Failed connect to blockchain!', (done) => {
+  it('Failed connect to blockchain', (done) => {
     connect.returns(null);
 
     request(app)
-      .post('/certificate')
+      .post('/certificates')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        courseId: '123456'
+        courseId: '75442486-0878-440c-9db1-a7006c25a39f'
       })
       .then((res) => {
         expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Failed connect to blockchain!');
+        expect(res.body.msg).equal('Failed connect to blockchain');
         done();
       });
   });
 
-  it('Can not get course in chaincode', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
-    });
-
-    query.onFirstCall().returns({
-      success: false
-    });
-
-    let certificates = JSON.stringify([
-      {
-        CourseID: '123456',
-        StudentUsername: 'hoangdd'
-      },
-      {
-        CourseID: '123457',
-        StudentUsername: 'hoangdd'
-      }
-    ]);
-
-    query.onSecondCall().returns({
-      success: false,
-      msg: certificates
-    });
-    request(app)
-      .post('/certificate')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        courseId: '1fe9f48b-6c41-488d-9085-011f05a24603'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Can not query chaincode!');
-        done();
-      });
-  });
-
-  it('Can not get certificates of student', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
-    });
-
-    let course = {
-      CourseID: '1fe9f48b-6c41-488d-9085-011f05a24603',
-      CourseCode: 'BC02',
-      CourseName: 'Blockchain',
-      ShortDescription: 'Blockchain',
-      Description: 'Blockchain',
-      Subjects: null,
-      Students: ['st01']
-    };
-
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify(course)
-    });
-
-    query.onSecondCall().returns({
-      success: false
-    });
-
-    request(app)
-      .post('/certificate')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        courseId: '1fe9f48b-6c41-488d-9085-011f05a24603'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Can not query chaincode!');
-        done();
-      });
-  });
-
-  it('This course has no subject!', (done) => {
+  it('This course has no subject', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -206,20 +120,19 @@ describe('#POST /certificate ', () => {
       ])
     });
     request(app)
-      .post('/certificate')
+      .post('/certificates')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         courseId: '1fe9f48b-6c41-488d-9085-011f05a24603'
       })
       .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('This course has no subject!');
+        expect(res.status).equal(400);
+        expect(res.body.msg).equal('This course has no subject');
         done();
       });
   });
 
-  it('Certificate already exists!', (done) => {
+  it('Certificate already exists', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -254,73 +167,19 @@ describe('#POST /certificate ', () => {
       ])
     });
     request(app)
-      .post('/certificate')
+      .post('/certificates')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         courseId: '1fe9f48b-6c41-488d-9085-011f05a24603'
       })
       .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Certificate already exists!');
+        expect(res.status).equal(409);
+        expect(res.body.msg).equal('Certificate already exists');
         done();
       });
   });
 
-  it('Cannot get student!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
-    });
-
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1fe9f48b-6c41-488d-9085-011f05a24603',
-        CourseCode: 'BC02',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description: 'Blockchain',
-        Subjects: ['f8ce73e3-056e-4e69-99fe-76bbeeaf4650'],
-        Students: ['st01']
-      })
-    });
-
-    query.onSecondCall().returns({
-      success: true,
-      msg: JSON.stringify([
-        {
-          CourseID: '123412412',
-          StudentUsername: 'hoangdd'
-        },
-        {
-          CourseID: '123457',
-          StudentUsername: 'hoangdd'
-        }
-      ])
-    });
-
-    query.onThirdCall().returns({
-      success: false
-    });
-
-    request(app)
-      .post('/certificate')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        courseId: '123456'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Can not query chaincode!');
-        done();
-      });
-  });
-
-  it('You have not studied this course yet!', (done) => {
+  it('You have not studied this course yet', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -364,20 +223,148 @@ describe('#POST /certificate ', () => {
     });
 
     request(app)
-      .post('/certificate')
+      .post('/certificates')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         courseId: '123456'
       })
       .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('You have not studied this course yet!');
+        expect(res.status).equal(400);
+        expect(res.body.msg).equal('You have not studied this course yet');
         done();
       });
   });
 
-  it('Can not invoke chaincode!', (done) => {
+  it('Failed to query course in chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    query.onFirstCall().returns({
+      success: false,
+      msg: 'Failed to query course in chaincode'
+    });
+
+    query.onSecondCall().returns({
+      success: true,
+      msg: JSON.stringify([
+        {
+          CourseID: '123412412',
+          StudentUsername: 'hoangdd'
+        },
+        {
+          CourseID: '123457',
+          StudentUsername: 'hoangdd'
+        }
+      ])
+    });
+
+    request(app)
+      .post('/certificates')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        courseId: '1fe9f48b-6c41-488d-9085-011f05a24603'
+      })
+      .then((res) => {
+        expect(res.status).equal(404);
+        done();
+      });
+  });
+
+  it('Failed to query certificates of student in chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    query.onFirstCall().returns({
+      success: true,
+      msg: JSON.stringify({
+        CourseID: '1fe9f48b-6c41-488d-9085-011f05a24603',
+        CourseCode: 'BC02',
+        CourseName: 'Blockchain',
+        ShortDescription: 'Blockchain',
+        Description: 'Blockchain',
+        Subjects: ['f8ce73e3-056e-4e69-99fe-76bbeeaf4650'],
+        Students: ['st01']
+      })
+    });
+
+    query.onSecondCall().returns({
+      success: false,
+      msg: 'Failed to query certificates of student in chaincode'
+    });
+
+    request(app)
+      .post('/certificates')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        courseId: '1fe9f48b-6c41-488d-9085-011f05a24603'
+      })
+      .then((res) => {
+        expect(res.status).equal(404);
+        done();
+      });
+  });
+
+  it('Failed to query student in chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    query.onFirstCall().returns({
+      success: true,
+      msg: JSON.stringify({
+        CourseID: '1fe9f48b-6c41-488d-9085-011f05a24603',
+        CourseCode: 'BC02',
+        CourseName: 'Blockchain',
+        ShortDescription: 'Blockchain',
+        Description: 'Blockchain',
+        Subjects: ['f8ce73e3-056e-4e69-99fe-76bbeeaf4650'],
+        Students: ['st01']
+      })
+    });
+
+    query.onSecondCall().returns({
+      success: true,
+      msg: JSON.stringify([
+        {
+          CourseID: '123412412',
+          StudentUsername: 'hoangdd'
+        },
+        {
+          CourseID: '123457',
+          StudentUsername: 'hoangdd'
+        }
+      ])
+    });
+
+    query.onThirdCall().returns({
+      success: false,
+      msg: 'Failed to query student in chaincode'
+    });
+
+    request(app)
+      .post('/certificates')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        courseId: '1fe9f48b-6c41-488d-9085-011f05a24603'
+      })
+      .then((res) => {
+        expect(res.status).equal(404);
+        done();
+      });
+  });
+
+  it('Can not invoke chaincode', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -421,24 +408,23 @@ describe('#POST /certificate ', () => {
     });
 
     createCertificate.returns({
-      success: false
+      success: false,
+      msg: 'Failed to create certificate'
     });
 
     request(app)
-      .post('/certificate')
+      .post('/certificates')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         courseId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Can not invoke chaincode!');
         done();
       });
   });
 
-  it('Create certificate successfully!', (done) => {
+  it('Create certificate successfully', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -486,131 +472,20 @@ describe('#POST /certificate ', () => {
     });
 
     request(app)
-      .post('/certificate')
+      .post('/certificates')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         courseId: '123456'
       })
       .then((res) => {
-        expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
-        expect(res.body.msg).equal('Create certificate successfully!');
+        expect(res.status).equal(201);
+        expect(res.body.msg).equal('Create certificate successfully');
         done();
       });
   });
 });
 
-describe('# GET /certificate/all ', () => {
-  let findOneUserStub;
-  let findOneCertStub;
-
-  beforeEach(() => {
-    findOneUserStub = sinon.stub(User, 'findOne');
-    findOneCertStub = sinon.stub(Cert, 'find');
-  });
-
-  afterEach(() => {
-    findOneUserStub.restore();
-    findOneCertStub.restore();
-  });
-
-  it('success query all certificate', (done) => {
-    findOneUserStub.yields(undefined, { username: 'hoangdd', role: USER_ROLES.ADMIN_STUDENT });
-
-    findOneCertStub.yields(
-      undefined,
-      {
-        certificateID: '5d9ac9e4fc93231bc694cb4c',
-        SubjectID: 'Blockchain',
-        username: 'hoangdd',
-        issueDate: 'Mon Oct 07 2019 00:07:17 GMT+0700 (Indochina Time)'
-      },
-      {
-        certificateID: '5d9ac9e4fc9323134fdcb4c',
-        SubjectID: 'Web',
-        username: 'hoangdd',
-        issueDate: 'Mon Oct 07 2019 10:07:17 GMT+0700 (Indochina Time)'
-      }
-    );
-
-    request(app)
-      .get(`/certificate/all`)
-      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
-        done();
-      });
-  });
-
-  it('do not success query teacher with admin student', (done) => {
-    findOneUserStub.yields(undefined, { username: 'hoangdd', role: USER_ROLES.ADMIN_STUDENT });
-    request(app)
-      .get(`/certificate/all`)
-      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(403);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Permission Denied');
-        done();
-      });
-  });
-
-  it('do not success query teacher with teacher', (done) => {
-    findOneUserStub.yields(undefined, { username: 'hoangdd', role: USER_ROLES.TEACHER });
-    request(app)
-      .get(`/certificate/all`)
-      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(403);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Permission Denied');
-        done();
-      });
-  });
-
-  it('do not success query teacher with student', (done) => {
-    findOneUserStub.yields(undefined, { username: 'hoangdd', role: USER_ROLES.STUDENT });
-    request(app)
-      .get(`/certificate/all`)
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(403);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Permission Denied');
-        done();
-      });
-  });
-
-  it('error query all certificates', (done) => {
-    findOneUserStub.yields(undefined, { username: 'hoangdd', role: USER_ROLES.ADMIN_ACADEMY });
-    findOneCertStub.yields({ error: 'failed query cert' }, null);
-    request(app)
-      .get(`/certificate/all`)
-      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        done();
-      });
-  });
-
-  it('certificates is not exists', (done) => {
-    findOneUserStub.yields(undefined, { username: 'hoangdd', role: USER_ROLES.ADMIN_ACADEMY });
-    findOneCertStub.yields(undefined, null);
-    request(app)
-      .get(`/certificate/all`)
-      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(404);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('do not have certificate');
-        done();
-      });
-  });
-});
-
-describe('# GET /certificate/:certId ', () => {
+describe('# GET /certificates/:certId ', () => {
   let certId = 'cdb63720-9628-5ef6-bbca-2e5ce6094f3c';
   let courseId = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
   let connect;
@@ -626,7 +501,7 @@ describe('# GET /certificate/:certId ', () => {
     query.restore();
   });
 
-  it('should get data success', (done) => {
+  it('should get certificate success', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -669,7 +544,7 @@ describe('# GET /certificate/:certId ', () => {
     });
 
     request(app)
-      .get(`/certificate/${certId}`)
+      .get(`/certificates/${certId}`)
       .then((res) => {
         expect(res.status).equal(200);
         done();
@@ -679,7 +554,7 @@ describe('# GET /certificate/:certId ', () => {
   it('Failed to connect blockchain', (done) => {
     connect.returns(null);
     request(app)
-      .get(`/certificate/${certId}`)
+      .get(`/certificates/${certId}`)
       .then((res) => {
         expect(res.status).equal(500);
         done();
@@ -699,9 +574,9 @@ describe('# GET /certificate/:certId ', () => {
       msg: 'error'
     });
     request(app)
-      .get(`/certificate/${certId}`)
+      .get(`/certificates/${certId}`)
       .then((res) => {
-        expect(res.status).equal(500);
+        expect(res.status).equal(404);
         done();
       });
   });
@@ -734,9 +609,9 @@ describe('# GET /certificate/:certId ', () => {
     });
 
     request(app)
-      .get(`/certificate/${certId}`)
+      .get(`/certificates/${certId}`)
       .then((res) => {
-        expect(res.status).equal(500);
+        expect(res.status).equal(404);
         done();
       });
   });
@@ -779,9 +654,9 @@ describe('# GET /certificate/:certId ', () => {
     });
 
     request(app)
-      .get(`/certificate/${certId}`)
+      .get(`/certificates/${certId}`)
       .then((res) => {
-        expect(res.status).equal(500);
+        expect(res.status).equal(404);
         done();
       });
   });

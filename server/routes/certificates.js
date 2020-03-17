@@ -1,12 +1,10 @@
 const router = require('express').Router();
 const USER_ROLES = require('../configs/constant').USER_ROLES;
-const STATUS_CERT = require('../configs/constant').STATUS_CERT;
 const network = require('../fabric/network');
 const { check, body, validationResult } = require('express-validator');
 const checkJWT = require('../middlewares/check-jwt');
-const Certificate = require('../models/Certificate');
-const User = require('../models/User');
 const uuidv4 = require('uuid/v4');
+
 require('dotenv').config();
 
 router.post(
@@ -23,15 +21,15 @@ router.post(
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
+      return res.status(400).json({ errors: errors.array() });
     }
 
-    let user = req.decoded.user;
+    const user = req.decoded.user;
 
     if (user.role !== USER_ROLES.STUDENT) {
       return res.status(403).json({
         success: false,
-        msg: 'Permission Denied!'
+        msg: 'Permission Denied'
       });
     }
 
@@ -39,52 +37,48 @@ router.post(
     if (!networkObj) {
       return res.status(500).json({
         success: false,
-        msg: 'Failed connect to blockchain!'
+        msg: 'Failed connect to blockchain'
       });
     }
 
-    const courseQuery = await network.query(networkObj, 'GetCourse', req.body.courseId);
-    let query = await network.query(networkObj, 'GetCertificatesOfStudent', user.username);
-    if (!query.success || !courseQuery.success) {
-      return res.status(500).json({
-        success: false,
-        msg: 'Can not query chaincode!'
+    let course = await network.query(networkObj, 'GetCourse', req.body.courseId);
+    let certificates = await network.query(networkObj, 'GetCertificatesOfStudent', user.username);
+
+    if (!certificates.success || !course.success) {
+      return res.status(404).json({
+        msg: 'Query chaincode failed'
       });
     }
 
-    let course = JSON.parse(courseQuery.msg);
+    course = JSON.parse(course.msg);
     if (!course.Subjects || course.Subjects.length < 1) {
-      return res.status(500).json({
-        success: false,
-        msg: 'This course has no subject!'
+      return res.status(400).json({
+        msg: 'This course has no subject'
       });
     }
 
-    let certificates = JSON.parse(query.msg);
+    certificates = JSON.parse(certificates.msg);
     if (certificates) {
       for (let i = 0; i < certificates.length; i++) {
         if (certificates[i].CourseID === req.body.courseId) {
-          return res.status(500).json({
-            success: false,
-            msg: 'Certificate already exists!'
+          return res.status(409).json({
+            msg: 'Certificate already exists'
           });
         }
       }
     }
 
-    query = await network.query(networkObj, 'GetStudent', user.username);
-    if (!query.success) {
-      return res.status(500).json({
-        success: false,
-        msg: 'Can not query chaincode!'
+    let student = await network.query(networkObj, 'GetStudent', user.username);
+    if (!student.success) {
+      return res.status(404).json({
+        msg: 'Query chaincode failed'
       });
     }
 
-    let studentInfo = JSON.parse(query.msg);
-    if (!studentInfo.Courses || !studentInfo.Courses.includes(req.body.courseId)) {
-      return res.status(500).json({
-        success: false,
-        msg: 'You have not studied this course yet!'
+    student = JSON.parse(student.msg);
+    if (!student.Courses || !student.Courses.includes(req.body.courseId)) {
+      return res.status(400).json({
+        msg: 'You have not studied this course yet'
       });
     }
 
@@ -101,45 +95,15 @@ router.post(
     let response = await network.createCertificate(networkObj, certificate);
     if (!response.success) {
       return res.status(500).json({
-        success: false,
-        msg: 'Can not invoke chaincode!'
+        msg: 'Can not create certificate'
       });
     }
 
-    return res.json({
-      success: true,
-      msg: 'Create certificate successfully!'
+    return res.status(201).json({
+      msg: 'Create certificate successfully'
     });
   }
 );
-
-router.get('/all', checkJWT, async (req, res) => {
-  if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
-    return res.status(403).json({
-      success: false,
-      msg: 'Permission Denied'
-    });
-  }
-  await Certificate.find(async (err, ceritificates) => {
-    if (err) {
-      return res.status(500).json({
-        success: false,
-        msg: err
-      });
-    }
-    if (!ceritificates) {
-      return res.status(404).json({
-        success: false,
-        msg: 'do not have certificate'
-      });
-    }
-
-    return res.json({
-      success: true,
-      ceritificates: ceritificates
-    });
-  });
-});
 
 router.get(
   '/:certId',
@@ -158,7 +122,9 @@ router.get(
     let cert = await network.query(networkObj, 'GetCertificate', certId);
 
     if (!cert.success) {
-      return res.status(500).json({ msg: 'Failed to query certificate' });
+      return res.status(404).json({
+        msg: 'Failed to query certificate in chaincode'
+      });
     }
 
     cert = JSON.parse(cert.msg);
@@ -166,7 +132,9 @@ router.get(
     let course = await network.query(networkObj, 'GetCourse', cert.CourseID);
 
     if (!student.success || !course.success) {
-      return res.status(500).json({ msg: 'Failed to query certificate' });
+      return res.status(404).json({
+        msg: 'Failed to query student or course in chaincode'
+      });
     }
 
     student = JSON.parse(student.msg);
