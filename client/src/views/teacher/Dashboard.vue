@@ -5,6 +5,7 @@
       :listAll="listClasses ? listClasses : []"
       :nameFunctionDetail="`detailClass`"
       :loadingData="loadingData"
+      :btnEdit="false"
       :statusCol="true"
       :listProperties="[
         { prop: 'ClassCode', label: 'Class' },
