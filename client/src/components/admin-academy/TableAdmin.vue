@@ -54,12 +54,13 @@
                 </template>
               </el-table-column>
               <el-table-column align="center">
-                <template slot="header">
+                <template slot="header" slot-scope="scope">
                   <el-input
                     v-model="search"
                     size="mini"
                     placeholder=" search"
                     @input="searchHandle"
+                    clearable
                   />
                 </template>
                 <template slot-scope="scope">
@@ -228,7 +229,6 @@ export default {
   },
   watch: {
     listAll: function() {
-      // console.log(typeof this.listAll, ' - ', this.listAll);
       this.searchHandle();
     }
   },
