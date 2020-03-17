@@ -47,7 +47,42 @@
               </p>
               <p>
                 Teacher:
-                <router-link :to="`/academy/teachers/${classInfo.TeacherUsername}`">
+                <el-select
+                  v-if="classInfo.TeacherUsername === ''"
+                  v-model="teacherUsername"
+                  placeholder="Teacher"
+                  size="mini"
+                >
+                  <el-option
+                    :label="teacher.Fullname"
+                    :value="teacher.Username"
+                    v-for="(teacher, index) in listTeachers"
+                    :key="index"
+                  ></el-option>
+                </el-select>
+
+                <el-button
+                  class="ml-3"
+                  v-if="teacherUsername !== ''"
+                  type="success"
+                  icon="el-icon-check"
+                  size="mini"
+                  circle
+                  @click="assignTeacherToClass()"
+                ></el-button>
+                <el-button
+                  v-if="teacherUsername !== ''"
+                  type="danger"
+                  icon="el-icon-close"
+                  size="mini"
+                  circle
+                  @click="cancelAssign()"
+                ></el-button>
+
+                <router-link
+                  v-if="classInfo.TeacherUsername !== ''"
+                  :to="`/academy/teachers/${classInfo.TeacherUsername}`"
+                >
                   {{ classInfo.TeacherUsername }}
                 </router-link>
               </p>
@@ -168,7 +203,8 @@ export default {
         Birthday: '',
         Avatar: '',
         Country: ''
-      }
+      },
+      teacherUsername: ''
     };
   },
   components: {
@@ -183,7 +219,42 @@ export default {
     'el-form-item': FormItem
   },
   methods: {
-    ...mapActions('adminAcademy', ['getClass', 'closeClass', 'getStudentsOfClass']),
+    ...mapActions('adminAcademy', [
+      'getClass',
+      'closeClass',
+      'getStudentsOfClass',
+      'getAllTeachers',
+      'addClassToTeacher'
+    ]),
+    async assignTeacherToClass() {
+      this.fullscreenLoading = true;
+      let data = await this.addClassToTeacher({
+        username: this.teacherUsername,
+        classId: this.$route.params.classId
+      });
+
+      if (data.success) {
+        Message.success('Assign teacher to class successfully!');
+        this.teacherUsername = '';
+      } else {
+        if (data.errors) {
+          data.errors.forEach(async (message) => {
+            setTimeout(() => {
+              Message.error(`${message.param}: ${message.msg}`);
+            }, 1);
+          });
+        } else {
+          Message.error(data.msg);
+        }
+      }
+      await this.getClass(this.$route.params.classId);
+
+      this.fullscreenLoading = false;
+    },
+    cancelAssign() {
+      this.teacherUsername = '';
+      Message.info('Canceled');
+    },
     startClass() {
       MessageBox.confirm(`Are you sure to start this class?`, {
         confirmButtonText: 'OK',
@@ -236,11 +307,14 @@ export default {
     }
   },
   computed: {
-    ...mapState('adminAcademy', ['classInfo', 'listStudents'])
+    ...mapState('adminAcademy', ['classInfo', 'listStudents', 'listTeachers'])
   },
   async created() {
     let classObj = await this.getClass(this.$route.params.classId);
+
     let student = await this.getStudentsOfClass(this.$route.params.classId);
+    await this.getAllTeachers();
+
     if (classObj.success && student) {
       this.classInfo = classObj.class;
     }
@@ -266,5 +340,8 @@ export default {
   display: block;
   margin-left: auto;
   margin-right: auto;
+}
+.el-select {
+  width: 100px;
 }
 </style>
