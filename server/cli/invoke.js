@@ -252,7 +252,7 @@ async function main() {
           await conn.registerStudentForSubject(networkObj, SubjectID, Student);
           console.log('Transaction has been submitted');
           process.exit(0);
-        } else if (functionName === 'CreateScore' && user.role === USER_ROLES.TEACHER) {
+        } else if (functionName === 'PickScore' && user.role === USER_ROLES.TEACHER) {
           /**
            * Create Score
            * @param  {String} classId Class Id (required)
@@ -267,7 +267,7 @@ async function main() {
           let teacher = user.username;
 
           let score = { teacher, classId, studentUsername, scoreValue };
-          await conn.createScore(networkObj, score);
+          await conn.pickScore(networkObj, score);
           console.log('Transaction has been submitted');
           process.exit(0);
         } else if (functionName === 'CreateCertificate' && user.role === USER_ROLES.STUDENT) {

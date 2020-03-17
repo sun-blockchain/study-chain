@@ -89,7 +89,7 @@ router.post(
 
     networkObj = await network.connectToNetwork(teacher);
 
-    const response = await network.createScore(networkObj, score);
+    const response = await network.pickScore(networkObj, score);
 
     if (!response.success) {
       return res.status(500).json({

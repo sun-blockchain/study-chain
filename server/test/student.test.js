@@ -655,6 +655,11 @@ describe('#GET /account/student/:classId', () => {
       }
     ]);
 
+    let classInfo = JSON.stringify({
+      ClassID: 'd23521e0-4358-4f94-ab92-8ae48fd0346b',
+      Status: 'Open'
+    });
+
     query.onFirstCall().returns({
       success: true,
       msg: students
@@ -663,6 +668,11 @@ describe('#GET /account/student/:classId', () => {
     query.onSecondCall().returns({
       success: true,
       msg: scores
+    });
+
+    query.onThirdCall().returns({
+      success: true,
+      msg: classInfo
     });
 
     request(app)
@@ -684,8 +694,8 @@ describe('#GET /account/student/:classId', () => {
     });
 
     let students = null;
-
     let scores = null;
+    let classInfo = null;
 
     query.onFirstCall().returns({
       success: true,
@@ -695,6 +705,11 @@ describe('#GET /account/student/:classId', () => {
     query.onSecondCall().returns({
       success: true,
       msg: scores
+    });
+
+    query.onThirdCall().returns({
+      success: true,
+      msg: classInfo
     });
 
     request(app)
