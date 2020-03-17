@@ -134,7 +134,12 @@
                       @click.stop="callFunctionCert(scope.row)"
                     ></el-button>
                   </el-tooltip>
-                  <el-tooltip v-if="btnRemove" class="item" content="Unassign" placement="top">
+                  <el-tooltip
+                    v-if="btnRemove && scope.row.Status !== 'InProgress'"
+                    class="item"
+                    content="Unassign"
+                    placement="top"
+                  >
                     <el-button
                       type="danger"
                       size="mini"

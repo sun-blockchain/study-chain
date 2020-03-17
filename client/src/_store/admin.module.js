@@ -7,6 +7,7 @@ const state = {
   listTeachers: [],
   listStudents: [],
   listClasses: [],
+  classInfo: {},
   studentsOfSubject: [],
   classesOfTeacher: [],
   subjectOfStudent: [],
@@ -68,16 +69,14 @@ const actions = {
       dispatch('alert/alertError', error, { root: true });
     }
   },
-  async closeClass({ commit }, { classId }) {
+  async closeClass({ commit, dispatch }, { classId }) {
     try {
       let data = await adminService.closeClass(classId);
 
       commit('closeClass', data);
       return data;
     } catch (error) {
-      if (error.response.status === 403) {
-        router.push('/403');
-      }
+      dispatch('alert/alertError', error, { root: true });
     }
   },
   async getStudentsOfClass({ commit }, classId) {
@@ -309,16 +308,13 @@ const actions = {
       }
     }
   },
-  async addClassToTeacher({ commit }, { username, classId }) {
+  async addClassToTeacher({ commit, dispatch }, { username, classId }) {
     try {
       let data = await adminService.addClassToTeacher(username, classId);
-      commit('addClassToTeacher', data.classes);
+      commit('addClassToTeacher', data);
       return data;
     } catch (error) {
-      if (error.response.status === 403) {
-        router.push('/403');
-      }
-      return error.response.data;
+      dispatch('alert/alertError', error, { root: true });
     }
   },
   async unassignTeacherFromClass({ commit }, classId) {
@@ -462,8 +458,8 @@ const mutations = {
   updateClass(state, listClasses) {
     state.listClasses = listClasses;
   },
-  getClass(state, listClasses) {
-    state.listClasses = listClasses;
+  getClass(state, classInfo) {
+    state.classInfo = classInfo;
   },
   deleteClass(state, listClasses) {
     state.listClasses = listClasses;
