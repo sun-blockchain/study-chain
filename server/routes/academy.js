@@ -1263,26 +1263,35 @@ router.post(
       });
     }
 
-    let classesQuery = await network.query(networkObj, 'GetClassesByTeacher', username);
-    if (!classesQuery.success) {
+    let classInfo = await network.query(networkObj, 'GetClass', classId);
+    if (!classInfo.success) {
       return res.status(500).json({
         success: false,
-        msg: "Can't query classes by teacher"
+        msg: "Can't query class in chaincode!"
       });
     }
 
-    let listClasses = JSON.parse(classesQuery.msg);
+    classInfo = JSON.parse(classInfo.msg);
 
-    if (listClasses) {
-      for (let index = 0; index < listClasses.length; index++) {
-        const element = listClasses[index];
-        if (element.ClassID === classId) {
-          return res.status(500).json({
-            success: false,
-            msg: 'The class has been added!'
-          });
-        }
+    if (classInfo.TeacherUsername !== '') {
+      if (classInfo.TeacherUsername === username) {
+        return res.status(500).json({
+          success: false,
+          msg: 'The class was added for this teacher!'
+        });
       }
+
+      return res.status(500).json({
+        success: false,
+        msg: `The class was added for teacher - ${classInfo.TeacherUsername}!`
+      });
+    }
+
+    if (classInfo.Status !== 'Open') {
+      return res.status(500).json({
+        success: false,
+        msg: 'The class was started!'
+      });
     }
 
     networkObj = await network.connectToNetwork(req.decoded.user);
@@ -1298,17 +1307,9 @@ router.post(
       });
     }
 
-    let classes = await network.query(networkObj, 'GetClassesByTeacher', username);
-    if (!classesQuery.success) {
-      return res.status(500).json({
-        success: false,
-        msg: "Can't query classes by teacher"
-      });
-    }
-    return res.json({
+    return res.status(200).json({
       success: true,
-      msg: response.msg,
-      classes: JSON.parse(classes.msg)
+      msg: 'Assign Successfully!'
     });
   }
 );
@@ -1362,6 +1363,13 @@ router.post(
       return res.status(500).json({
         success: false,
         msg: 'This class does not belong to any teacher!'
+      });
+    }
+
+    if (classInfo.Status !== 'Open') {
+      return res.status(500).json({
+        success: false,
+        msg: 'This class was started!'
       });
     }
 
