@@ -3,10 +3,10 @@
     <h1 class="bannerTitle_1wzmt7u mt-4">{{ subject ? subject.SubjectName : '' }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item to="/student"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-      <b-breadcrumb-item :to="`/student/courses/${this.$route.params.id}`"
-        >Course Detail</b-breadcrumb-item
-      >
-      <b-breadcrumb-item active>Subject Detail</b-breadcrumb-item>
+      <b-breadcrumb-item :to="`/student/courses/${this.$route.params.id}`">{{
+        courseInfo.course ? courseInfo.course.CourseName : ''
+      }}</b-breadcrumb-item>
+      <b-breadcrumb-item active>{{ subject ? subject.SubjectName : '' }}</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">
       <div>
@@ -84,7 +84,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions('student', ['getClassesOfSubject', 'getSubject']),
+    ...mapActions('student', ['getClassesOfSubject', 'getSubject', 'getCourse']),
     modalInfo(row) {
       this.infoClass.description = row.Description;
       this.infoClass.startDate = row.StartDate;
@@ -94,9 +94,10 @@ export default {
     }
   },
   computed: {
-    ...mapState('student', ['listClasses', 'subject'])
+    ...mapState('student', ['listClasses', 'subject', 'courseInfo'])
   },
   async created() {
+    await this.getCourse(this.$route.params.id);
     await this.getSubject(this.$route.params.subjectId);
     await this.getClassesOfSubject(this.$route.params.subjectId);
     this.loadingData = false;

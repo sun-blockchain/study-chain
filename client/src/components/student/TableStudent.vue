@@ -193,6 +193,7 @@ export default {
     btnGetCert: Boolean,
     btnRegister: Boolean,
     btnCancel: Boolean,
+    btnDetail: Boolean,
     nameFunctionDetail: String,
     nameFunctionGetCert: String,
     nameFunctionLinkCert: String,
@@ -266,12 +267,14 @@ export default {
       this.setlistPagination();
     },
     callFunctionDetail(row) {
-      if (row.score) {
-        if (row.score < 1) {
+      if (this.btnDetail) {
+        if (row.score) {
+          if (row.score < 1) {
+            this.$emit(this.nameFunctionDetail, row);
+          }
+        } else {
           this.$emit(this.nameFunctionDetail, row);
         }
-      } else {
-        this.$emit(this.nameFunctionDetail, row);
       }
     },
     callFunctionGetCert(row) {

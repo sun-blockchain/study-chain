@@ -28,13 +28,11 @@
               ></el-table-column>
               <el-table-column v-if="date" sortable label="Start Date">
                 <template slot-scope="scope">
-                  <i class="el-icon-time"></i>
                   <span>{{ convertDate(scope.row.StartDate) }}</span>
                 </template>
               </el-table-column>
               <el-table-column v-if="date" sortable label="End Date">
                 <template slot-scope="scope">
-                  <i class="el-icon-time"></i>
                   <span>{{ convertDate(scope.row.EndDate) }}</span>
                 </template>
               </el-table-column>
@@ -134,12 +132,7 @@
                       @click.stop="callFunctionCert(scope.row)"
                     ></el-button>
                   </el-tooltip>
-                  <el-tooltip
-                    v-if="btnRemove && scope.row.Status !== 'InProgress'"
-                    class="item"
-                    content="Unassign"
-                    placement="top"
-                  >
+                  <el-tooltip v-if="btnRemove" class="item" content="Unassign" placement="top">
                     <el-button
                       type="danger"
                       size="mini"
@@ -195,7 +188,10 @@ export default {
   props: {
     title: String,
     btnCreate: Boolean,
-    listAll: Array,
+    listAll: {
+      type: Array,
+      default: []
+    },
     btnInfo: Boolean,
     nameFunctionDetail: String,
     nameFunctionInfo: String,
@@ -232,6 +228,7 @@ export default {
   },
   watch: {
     listAll: function() {
+      // console.log(typeof this.listAll, ' - ', this.listAll);
       this.searchHandle();
     }
   },

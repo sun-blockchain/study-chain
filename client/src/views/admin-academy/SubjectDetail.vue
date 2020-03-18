@@ -1,17 +1,19 @@
 <template>
   <div class="container-fluid" v-loading.fullscreen.lock="fullscreenLoading">
-    <h1 class="bannerTitle_1wzmt7u">{{ listSubjects.SubjectName }}</h1>
+    <h1 class="bannerTitle_1wzmt7u">{{ subjectCurent ? subjectCurent.SubjectName : '' }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item to="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-      <b-breadcrumb-item to="/academy/subjects">Subject</b-breadcrumb-item>
-      <b-breadcrumb-item active>Subject Detail</b-breadcrumb-item>
+      <b-breadcrumb-item to="/academy/subjects">Subjects</b-breadcrumb-item>
+      <b-breadcrumb-item active>{{
+        subjectCurent ? subjectCurent.SubjectName : ''
+      }}</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">
       <div>
         <div class="card-body">
           <h1 class="h3 mb-2 text-gray-800">About this subject</h1>
 
-          <p>{{ listSubjects.Description }}</p>
+          <p>{{ subjectCurent ? subjectCurent.Description : '' }}</p>
         </div>
       </div>
     </div>
@@ -34,9 +36,7 @@
       :listProperties="[
         { prop: 'ClassCode', label: 'Class' },
         { prop: 'Room', label: 'Room' },
-        { prop: 'Time', label: 'Time' },
-        { prop: 'Repeat', label: 'Repeat' },
-        { prop: 'Capacity', label: 'Capacity' }
+        { prop: 'Time', label: 'Time' }
       ]"
       @modalEdit="modalEdit($event)"
       @delClass="delClass($event)"
@@ -99,10 +99,20 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item prop="Repeat">
-          <el-select v-model="editClass.Repeat" placeholder="Repeat">
+          <el-select class="mb-3" v-model="editClass.Repeat" placeholder="Repeat">
             <el-option v-for="item in repeatOptions" :key="item.value" :value="item.value">
             </el-option>
           </el-select>
+          <el-row v-if="editClass.Repeat && editClass.StartDate">
+            <el-button
+              v-for="item in daysInWeek"
+              :key="item.item"
+              size="medium"
+              circle
+              :type="convertDate(editClass.StartDate) === item.item ? 'primary' : ''"
+              >{{ item.item }}</el-button
+            >
+          </el-row>
         </el-form-item>
         <el-form-item prop="Capacity">
           <el-select v-model="editClass.Capacity" placeholder="Capacity">
@@ -161,10 +171,20 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item prop="Repeat">
-          <el-select v-model="newClass.Repeat" placeholder="Repeat">
+          <el-select class="mb-3" v-model="newClass.Repeat" placeholder="Repeat">
             <el-option v-for="item in repeatOptions" :key="item.value" :value="item.value">
             </el-option>
           </el-select>
+          <el-row v-if="newClass.Repeat && newClass.StartDate">
+            <el-button
+              v-for="item in daysInWeek"
+              :key="item.item"
+              size="medium"
+              circle
+              :type="convertDate(newClass.StartDate) === item.item ? 'primary' : ''"
+              >{{ item.item }}</el-button
+            >
+          </el-row>
         </el-form-item>
         <el-form-item prop="Capacity">
           <el-select v-model="newClass.Capacity" placeholder="Capacity">
@@ -198,7 +218,8 @@ import {
   DatePicker,
   TimePicker,
   RadioButton,
-  RadioGroup
+  RadioGroup,
+  Row
 } from 'element-ui';
 
 export default {
@@ -216,10 +237,20 @@ export default {
     'el-date-picker': DatePicker,
     'el-time-picker': TimePicker,
     'el-radio-button': RadioButton,
-    'el-radio-group': RadioGroup
+    'el-radio-group': RadioGroup,
+    'el-row': Row
   },
   data() {
     return {
+      daysInWeek: [
+        { item: 'Sun', value: 'Sunday' },
+        { item: 'Mon', value: 'Monday' },
+        { item: 'Tue', value: 'Tuesday' },
+        { item: 'Wed', value: 'Wednesday' },
+        { item: 'Thu', value: 'Thursday' },
+        { item: 'Fri', value: 'Friday' },
+        { item: 'Sat', value: 'Saturday' }
+      ],
       repeatOptions: [
         { value: 'Weekly' },
         { value: 'Monthly' },
@@ -325,6 +356,12 @@ export default {
       'updateClass',
       'deleteClass'
     ]),
+    convertDate(timestamp) {
+      let date = new Date(parseInt(timestamp));
+      let day = this.daysInWeek[date.getDay()].item;
+
+      return day.toString();
+    },
     detailClass(row) {
       this.$router.push({
         path: `/academy/subjects/${this.$route.params.id}/class/${row.ClassID}`
@@ -404,7 +441,7 @@ export default {
         .then(async () => {
           this.fullscreenLoading = true;
           let data = await this.deleteClass({
-            subjectId: this.listSubjects.SubjectID,
+            subjectId: this.subjectCurent.SubjectID,
             classId: row.ClassID
           });
           if (data) {
@@ -427,7 +464,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('adminAcademy', ['listClasses', 'listSubjects'])
+    ...mapState('adminAcademy', ['listClasses', 'subjectCurent'])
   },
   async created() {
     let classes = await this.getClassesOfSubject(this.$route.params.id);

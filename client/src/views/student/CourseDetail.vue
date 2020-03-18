@@ -1,16 +1,18 @@
 <template>
   <div class="container-fluid" v-loading.fullscreen.lock="fullscreenLoading">
-    <h1 class="bannerTitle_1wzmt7u">{{ courseInfo.course ? courseInfo.course.CourseName : ''}}</h1>
+    <h1 class="bannerTitle_1wzmt7u">{{ courseInfo.course ? courseInfo.course.CourseName : '' }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item to="/student"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-      <b-breadcrumb-item to="/student/courses">Course</b-breadcrumb-item>
-      <b-breadcrumb-item active>Course Detail</b-breadcrumb-item>
+      <b-breadcrumb-item to="/student/courses">Courses</b-breadcrumb-item>
+      <b-breadcrumb-item active>{{
+        courseInfo.course ? courseInfo.course.CourseName : ''
+      }}</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">
       <div>
         <div class="card-body">
           <h1 class="h3 mb-2 text-gray-800">About this course</h1>
-          <p>{{courseInfo.course ? courseInfo.course.Description: '' }}</p>
+          <p>{{ courseInfo.course ? courseInfo.course.Description : '' }}</p>
         </div>
       </div>
     </div>
@@ -29,6 +31,7 @@
       :loadingData="loadingData"
       :btnInfo="true"
       :nameFunctionDetail="`detailSubjects`"
+      :btnDetail="true"
       :nameFunctionInfo="`modalInfo`"
       :listProperties="[
         { prop: 'SubjectCode', label: 'Subject Code' },

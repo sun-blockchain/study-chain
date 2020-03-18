@@ -3,11 +3,11 @@
     <h1 class="bannerTitle_1wzmt7u">{{ classInfo.ClassCode }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item to="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-      <b-breadcrumb-item to="/academy/subjects"> Subject</b-breadcrumb-item>
-      <b-breadcrumb-item :to="`/academy/subjects/${this.$route.params.id}`"
-        >Subject Detail</b-breadcrumb-item
-      >
-      <b-breadcrumb-item active>classInfo Detail</b-breadcrumb-item>
+      <b-breadcrumb-item to="/academy/subjects"> Subjects</b-breadcrumb-item>
+      <b-breadcrumb-item :to="`/academy/subjects/${this.$route.params.id}`">{{
+        subjectCurent ? subjectCurent.SubjectName : ''
+      }}</b-breadcrumb-item>
+      <b-breadcrumb-item active>{{ classInfo ? classInfo.ClassCode : '' }}</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">
       <div>
@@ -27,7 +27,7 @@
                 <b> {{ convertDate(classInfo.EndDate) }}</b>
               </p>
               <p>
-                Repeat: <b>{{ classInfo.Repeat }}</b>
+                Repeat: <b>{{ classInfo.Repeat + ' on ' + getDay(classInfo.StartDate) }} </b>
               </p>
             </div>
             <div class="col">
@@ -189,6 +189,15 @@ import { Button, Select, Option, Dialog, Form, FormItem, Message, MessageBox } f
 export default {
   data() {
     return {
+      daysInWeek: [
+        { item: 'Sun', value: 'Sunday' },
+        { item: 'Mon', value: 'Monday' },
+        { item: 'Tue', value: 'Tuesday' },
+        { item: 'Wed', value: 'Wednesday' },
+        { item: 'Thu', value: 'Thursday' },
+        { item: 'Fri', value: 'Friday' },
+        { item: 'Sat', value: 'Saturday' }
+      ],
       startDate: '',
       endDate: '',
       loadingData: false,
@@ -224,7 +233,8 @@ export default {
       'closeClass',
       'getStudentsOfClass',
       'getAllTeachers',
-      'addClassToTeacher'
+      'addClassToTeacher',
+      'getSubject'
     ]),
     async assignTeacherToClass() {
       this.fullscreenLoading = true;
@@ -304,14 +314,20 @@ export default {
     convertDate(timestamp) {
       let date = new Date(parseInt(timestamp));
       return date.toDateString();
+    },
+    getDay(timestamp) {
+      let date = new Date(parseInt(timestamp));
+      let day = this.daysInWeek[date.getDay()].value;
+
+      return day.toString();
     }
   },
   computed: {
-    ...mapState('adminAcademy', ['classInfo', 'listStudents', 'listTeachers'])
+    ...mapState('adminAcademy', ['classInfo', 'listStudents', 'listTeachers', 'subjectCurent'])
   },
   async created() {
+    await this.getSubject(this.$route.params.id);
     let classObj = await this.getClass(this.$route.params.classId);
-
     let student = await this.getStudentsOfClass(this.$route.params.classId);
     await this.getAllTeachers();
 
