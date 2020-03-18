@@ -176,14 +176,15 @@
             </el-option>
           </el-select>
           <el-row v-if="newClass.Repeat && newClass.StartDate">
-            <el-button
-              v-for="item in daysInWeek"
-              :key="item.item"
-              size="medium"
-              circle
-              :type="convertDate(newClass.StartDate) === item.item ? 'primary' : ''"
-              >{{ item.item }}</el-button
-            >
+            <el-button-group>
+              <el-button
+                v-for="item in daysInWeek"
+                :key="item.item"
+                size="medium"
+                :type="convertDate(newClass.StartDate) === item.item ? 'primary' : ''"
+                >{{ item.item }}</el-button
+              >
+            </el-button-group>
           </el-row>
         </el-form-item>
         <el-form-item prop="Capacity">
@@ -219,7 +220,8 @@ import {
   TimePicker,
   RadioButton,
   RadioGroup,
-  Row
+  Row,
+  ButtonGroup
 } from 'element-ui';
 
 export default {
@@ -238,7 +240,8 @@ export default {
     'el-time-picker': TimePicker,
     'el-radio-button': RadioButton,
     'el-radio-group': RadioGroup,
-    'el-row': Row
+    'el-row': Row,
+    'el-button-group': ButtonGroup
   },
   data() {
     return {

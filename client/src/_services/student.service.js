@@ -17,7 +17,8 @@ export const studentService = {
   getSummaryInfo,
   getCertificate,
   claimCertificate,
-  getCertificateByCourseId
+  getCertificateByCourseId,
+  verifyCertificate
 };
 
 async function getSummaryInfo() {
@@ -215,6 +216,17 @@ async function getCertificateByCourseId(courseId) {
       }
     );
     return response.data.certificateId;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function verifyCertificate(certId) {
+  try {
+    let response = await axios.get(
+      `${process.env.VUE_APP_API_BACKEND}/certificates/${certId}/verify`
+    );
+    return response.data;
   } catch (error) {
     throw error;
   }

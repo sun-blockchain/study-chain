@@ -7,6 +7,7 @@
 
 .Rochester {
   font-family: 'Rochester', cursive !important;
+  cursor: pointer;
 }
 
 .issuer {
@@ -169,4 +170,52 @@
   font-size: 3vw;
   text-align: center;
   color: whitesmoke;
+}
+
+.style-transaction-details .el-dialog__header {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  text-align: center;
+  background-color: #234f80;
+}
+.style-transaction-details .el-dialog__title {
+  font-size: 25px;
+  color: #ffff;
+}
+.style-transaction-details .el-icon-close {
+  color: #fff;
+}
+
+.modal-with-certificate {
+  width: 50%;
+  border-radius: 10px;
+  word-break: normal;
+}
+
+.box-gray,
+.box-white {
+  padding: 10px;
+}
+
+.box-gray {
+  background-color: #b3c0d1;
+  color: #333;
+}
+.box-gray:first-child {
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+.body-modal {
+  border-radius: 5px;
+  border: 1px solid #dcdfe6;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.09), 0 0 6px 0 rgba(0, 0, 0, 0.003);
+}
+.modal-with-certificate .el-dialog__body {
+  padding-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .modal-with-certificate {
+    width: 100%;
+  }
 }
