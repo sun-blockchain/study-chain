@@ -4,13 +4,13 @@
     <b-breadcrumb>
       <b-breadcrumb-item to="/student"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
       <b-breadcrumb-item to="/myCourses">My Courses</b-breadcrumb-item>
-      <b-breadcrumb-item active>Course Detail</b-breadcrumb-item>
+      <b-breadcrumb-item active>{{ courseInfo.course.CourseName }}</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">
       <div>
         <div class="card-body">
           <h1 class="h3 mb-2 text-gray-800">About this course</h1>
-          <p>{{ courseInfo.course ? courseInfo.course.Description : ''}}</p>
+          <p>{{ courseInfo.course ? courseInfo.course.Description : '' }}</p>
         </div>
       </div>
     </div>
@@ -20,6 +20,7 @@
       :listAll="listSubjects"
       :loadingData="loadingData"
       :nameFunctionDetail="`detailSubjects`"
+      :btnDetail="true"
       :listProperties="[
         { prop: 'SubjectCode', label: 'Subject Code' },
         { prop: 'SubjectName', label: 'Subject Name' },

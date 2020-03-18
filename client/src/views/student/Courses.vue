@@ -8,6 +8,7 @@
       :btnRegister="true"
       :nameFunctionRegister="`enrollCourse`"
       :nameFunctionDetail="`detailCourses`"
+      :btnDetail="true"
       :listProperties="[
         { prop: 'CourseCode', label: 'CourseCode' },
         { prop: 'CourseName', label: 'CourseName' },

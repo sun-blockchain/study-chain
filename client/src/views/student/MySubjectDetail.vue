@@ -3,8 +3,10 @@
     <h1 class="bannerTitle_1wzmt7u mt-4">{{ subject ? subject.SubjectName : '' }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item to="/"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-      <b-breadcrumb-item @click="handleBack">Course Detail</b-breadcrumb-item>
-      <b-breadcrumb-item active>Subject Detail</b-breadcrumb-item>
+      <b-breadcrumb-item @click="handleBack">{{
+        courseInfo.course ? courseInfo.course.CourseName : ''
+      }}</b-breadcrumb-item>
+      <b-breadcrumb-item active>{{ subject ? subject.SubjectName : '' }}</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">
       <div>

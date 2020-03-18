@@ -2,7 +2,7 @@
   <div v-loading.fullscreen.lock="fullscreenLoading">
     <table-admin
       :title="`Teachers Manager`"
-      :listAll="listTeachers"
+      :listAll="listTeachers ? listTeachers : []"
       :loadingData="loadingData"
       :nameFunctionDetail="`detailTeacher`"
       :listProperties="[

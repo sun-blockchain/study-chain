@@ -1,10 +1,12 @@
 <template>
   <div v-loading.fullscreen.lock="fullscreenLoading">
-    <h1 class="bannerTitle_1wzmt7u">{{ listTeachers.Fullname }}</h1>
+    <h1 class="bannerTitle_1wzmt7u">{{ teacherCurent ? teacherCurent.Fullname : '' }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item to="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-      <b-breadcrumb-item to="/academy/teachers">Teacher</b-breadcrumb-item>
-      <b-breadcrumb-item active>Teacher Detail</b-breadcrumb-item>
+      <b-breadcrumb-item to="/academy/teachers">Teachers</b-breadcrumb-item>
+      <b-breadcrumb-item active>{{
+        teacherCurent ? teacherCurent.Fullname : ''
+      }}</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">
       <div>
@@ -14,56 +16,50 @@
             <p>
               Date of birth:
               {{
-                listTeachers.Info
-                  ? listTeachers.Info.Birthday
-                    ? listTeachers.Info.Birthday
-                    : ''
+                teacherCurent && teacherCurent.Info && teacherCurent.Info.Birthday
+                  ? teacherCurent.Info.Birthday
                   : ''
               }}
             </p>
             <p>
               Gender:
               {{
-                listTeachers.Info
-                  ? listTeachers.Info.Sex
-                    ? listTeachers.Info.Sex == 0
-                      ? 'Male'
-                      : 'Female'
-                    : ''
+                teacherCurent && teacherCurent.Info && teacherCurent.Info.Sex
+                  ? teacherCurent.Info.Sex == 0
+                    ? 'Male'
+                    : 'Female'
                   : ''
               }}
             </p>
             <p>
               Address:
               {{
-                listTeachers.Info
-                  ? listTeachers.Info.Address
-                    ? listTeachers.Info.Address
-                    : ''
+                teacherCurent && teacherCurent.Info && teacherCurent.Info.Address
+                  ? teacherCurent.Info.Address
                   : ''
               }}
             </p>
             <p>
               Date of birth:
               {{
-                listTeachers.Info ? (listTeachers.Info.Email ? listTeachers.Info.Email : '') : ''
+                teacherCurent && teacherCurent.Info && teacherCurent.Info.Email
+                  ? teacherCurent.Info.Email
+                  : ''
               }}
             </p>
             <p>
               Country:
               {{
-                listTeachers.Info
-                  ? listTeachers.Info.Country
-                    ? listTeachers.Info.Country
-                    : ''
-                  : ''
+                teacherCurent && teacherCurent.Info && teacherCurent.Info.Country
+                  ? teacherCurent.Info.Country
+                  : ' '
               }}
             </p>
           </div>
           <div class="col">
             <img
-              v-if="listTeachers.Info && listTeachers.Info.Avatar"
-              :src="listTeachers.Info.Avatar"
+              v-if="teacherCurent && teacherCurent.Info && teacherCurent.Info.Avatar"
+              :src="teacherCurent.Info.Avatar"
               alt="Avatar"
               class="avatar"
             />
@@ -160,7 +156,7 @@ export default {
     };
   },
   computed: {
-    ...mapState('adminAcademy', ['classesOfTeacher', 'subjectsNoTeacher', 'listTeachers'])
+    ...mapState('adminAcademy', ['classesOfTeacher', 'subjectsNoTeacher', 'teacherCurent'])
   },
   methods: {
     ...mapActions('adminAcademy', [

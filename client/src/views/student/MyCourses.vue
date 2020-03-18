@@ -9,6 +9,7 @@
       :btnGetCert="true"
       :linkCert="true"
       :nameFunctionDetail="`detailCourses`"
+      :btnDetail="true"
       :nameFunctionGetCert="`getCert`"
       :nameFunctionLinkCert="`linkToCert`"
       :attrGetCert="`getCert`"

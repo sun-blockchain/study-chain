@@ -1,10 +1,12 @@
 <template>
   <div class="container-fluid" v-loading.fullscreen.lock="fullscreenLoading">
-    <h1 class="bannerTitle_1wzmt7u">{{ listCourses.CourseName }}</h1>
+    <h1 class="bannerTitle_1wzmt7u">{{ currentCourse ? currentCourse.CourseName : '' }}</h1>
     <b-breadcrumb>
       <b-breadcrumb-item to="/academy"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
-      <b-breadcrumb-item to="/academy/courses">Course</b-breadcrumb-item>
-      <b-breadcrumb-item active>Course Detail</b-breadcrumb-item>
+      <b-breadcrumb-item to="/academy/courses">Courses</b-breadcrumb-item>
+      <b-breadcrumb-item active>{{
+        currentCourse ? currentCourse.CourseName : ''
+      }}</b-breadcrumb-item>
     </b-breadcrumb>
     <div class="mb-5">
       <div>
@@ -12,12 +14,13 @@
           <div>
             <h1 class="h3 mb-2 text-gray-800">About this course</h1>
 
-            <p>{{ listCourses.Description }}</p>
+            <p>{{ currentCourse ? currentCourse.Description : '' }}</p>
             <p>
               Status :
-              <b-badge :variant="listCourses.Status === 'Open' ? 'success' : 'danger'">{{
-                listCourses.Status
-              }}</b-badge>
+              <b-badge
+                :variant="currentCourse && currentCourse.Status === 'Open' ? 'success' : 'danger'"
+                >{{ currentCourse ? currentCourse.Status : '' }}</b-badge
+              >
             </p>
           </div>
         </div>
@@ -331,7 +334,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('adminAcademy', ['subjectsOfCourse', 'listCourses', 'listStudents'])
+    ...mapState('adminAcademy', ['subjectsOfCourse', 'currentCourse', 'listStudents'])
   },
   async created() {
     let course = await this.getCourse(this.$route.params.id);

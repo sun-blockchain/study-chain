@@ -14,7 +14,10 @@ const state = {
   subjectsOfCourse: [],
   classesOfStudent: [],
   coursesOfStudent: [],
-  summaryInfo: []
+  summaryInfo: [],
+  currentCourse: null,
+  subjectCurent: null,
+  teacherCurent: null
 };
 
 const actions = {
@@ -470,8 +473,8 @@ const mutations = {
   getStudentsOfClass(state, listStudents) {
     state.listStudents = listStudents;
   },
-  getCourse(state, listCourses) {
-    state.listCourses = listCourses;
+  getCourse(state, course) {
+    state.currentCourse = course;
   },
   getAllCourses(state, listCourses) {
     state.listCourses = listCourses;
@@ -495,8 +498,8 @@ const mutations = {
   createSubject(state, listSubjects) {
     state.listSubjects = listSubjects;
   },
-  getSubject(state, listSubjects) {
-    state.listSubjects = listSubjects;
+  getSubject(state, subject) {
+    state.subjectCurent = subject;
   },
   updateSubject(state, listSubjects) {
     state.listSubjects = listSubjects;
@@ -559,8 +562,8 @@ const mutations = {
   getStudent(state, listStudents) {
     state.listStudents = listStudents;
   },
-  getTeacher(state, listTeachers) {
-    state.listTeachers = listTeachers;
+  getTeacher(state, teacher) {
+    state.teacherCurent = teacher;
   }
 };
 
