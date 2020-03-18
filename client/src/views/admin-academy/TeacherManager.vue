@@ -156,15 +156,15 @@ export default {
         if (valid) {
           this.fullscreenLoading = true;
           let data = await this.createTeacher(this.newTeacher);
-          if (data) {
-            if (data.success) {
-              this.dialogForm.newTeacher = false;
-              await this.resetForm('newTeacher');
-              Message.success('Create success!');
-            } else {
-              Message.error(data.msg);
-            }
+          if (!data) {
+            this.dialogForm.newTeacher = false;
+            await this.resetForm('newTeacher');
+            Message.error(data.msg);
+          } else if (data) {
+            await this.resetForm('newTeacher');
+            Message.success('Create success!');
           }
+          await this.getAllTeachers();
           this.fullscreenLoading = false;
         }
       });

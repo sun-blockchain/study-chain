@@ -12,10 +12,10 @@ const app = express();
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
-const teacherRoutes = require('./routes/teacher');
 const subjectRoutes = require('./routes/subject');
 const certificateRoutes = require('./routes/certificates');
 const studentRoutes = require('./routes/students');
+const teacherRoutes = require('./routes/teachers');
 const courseRoutes = require('./routes/courses');
 const classRoutes = require('./routes/classes');
 const scoreRoutes = require('./routes/score');
@@ -57,7 +57,7 @@ app.use(
 // Set up routes
 app.use('/auth', authRoutes);
 app.use('/students', checkJWT, studentRoutes);
-app.use('/account/teacher', checkJWT, teacherRoutes);
+app.use('/teachers', checkJWT, teacherRoutes);
 app.use('/subject', checkJWT, subjectRoutes);
 app.use('/score', checkJWT, scoreRoutes);
 app.use('/certificates', certificateRoutes);

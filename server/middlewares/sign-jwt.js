@@ -5,7 +5,7 @@ const USER_ROLES = require('../configs/constant').USER_ROLES;
 exports.signToken = (req, res) => {
   jwt.sign({ user: req.user }, secretJWT, (err, token) => {
     if (err) {
-      return res.status(500).json({
+      return res.status(401).json({
         success: false,
         message: 'Can not sign'
       });
