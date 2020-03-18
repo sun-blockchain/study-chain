@@ -157,26 +157,49 @@ router.post(
       return res.status(422).json({ success: false, errors: errors.array() });
     }
 
-    let user = req.decoded.user;
-    let networkObj = await network.connectToNetwork(user);
+    let admin = req.decoded.user;
+    let networkObj = await network.connectToNetwork(admin);
+    if (!networkObj) {
+      return res.status(500).json({
+        msg: 'Failed connect to blockchain!'
+      });
+    }
 
     let courseId = req.body.courseId;
     let subjectId = req.body.subjectId;
 
-    let response = await network.addSubjectToCourse(networkObj, courseId, subjectId);
+    let course = await network.query(networkObj, 'GetCourse', courseId);
+    if (!course.success) {
+      return res.status(404).json({
+        msg: 'Can not query chaincode!'
+      });
+    }
 
-    if (!response.success) {
-      return res.status(500).json({
-        success: false,
+    course = JSON.parse(course.msg);
+
+    if (course.Status === 'Closed') {
+      return res.status(400).json({
         msg: 'This course was closed!'
       });
     }
 
-    const course = await network.query(networkObj, 'GetCourse', courseId);
+    if (course.Subjects && course.Subjects.includes(subjectId)) {
+      return res.status(409).json({
+        msg: 'This subject already presents in course!'
+      });
+    }
 
-    return res.json({
-      success: true,
-      course: JSON.parse(course.msg)
+    networkObj = await network.connectToNetwork(admin);
+    let response = await network.addSubjectToCourse(networkObj, courseId, subjectId);
+
+    if (!response.success) {
+      return res.status(500).json({
+        msg: 'Can not invoke chaincode!'
+      });
+    }
+
+    return res.status(200).json({
+      msg: 'Add Sucessfully!'
     });
   }
 );
@@ -199,7 +222,6 @@ router.post(
   async (req, res) => {
     if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
       return res.status(403).json({
-        success: false,
         msg: 'Permission Denied'
       });
     }
@@ -211,6 +233,11 @@ router.post(
 
     let user = req.decoded.user;
     let networkObj = await network.connectToNetwork(user);
+    if (!networkObj) {
+      return res.status(500).json({
+        msg: 'Failed connect to blockchain!'
+      });
+    }
 
     let courseId = req.body.courseId;
     let subjectId = req.body.subjectId;
@@ -218,7 +245,7 @@ router.post(
     let query = await network.query(networkObj, 'GetCourse', courseId);
 
     if (!query.success) {
-      return res.status(500).json({
+      return res.status(404).json({
         success: false,
         msg: 'Can not query chaincode!'
       });
@@ -226,9 +253,8 @@ router.post(
 
     let course = JSON.parse(query.msg);
 
-    if (course.Subjects.indexOf(subjectId) === -1) {
-      return res.status(422).json({
-        success: false,
+    if (!course.Subjects || course.Subjects.indexOf(subjectId) === -1) {
+      return res.status(404).json({
         msg: 'This subject does not present in course!'
       });
     }
@@ -237,13 +263,11 @@ router.post(
     let response = await network.removeSubjectFromCourse(networkObj, courseId, subjectId);
     if (!response.success) {
       return res.status(500).json({
-        success: false,
-        msg: response.msg
+        msg: 'Can not invoke chaincode!'
       });
     }
 
     return res.json({
-      success: true,
       msg: 'This subject has been removed from course!'
     });
   }
