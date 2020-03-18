@@ -390,18 +390,6 @@ const actions = {
       commit('getCertificatesOfSubject', res.students);
     }
   },
-  async confirmCertificate({ dispatch, commit }, { studentUsername, subjectId }) {
-    let res = await adminService.confirmCertificate(studentUsername, subjectId);
-    if (!res.success) {
-      dispatch('alert/error', res.msg, { root: true });
-      if ('403'.includes(res.msg)) {
-        router.push('/403');
-      }
-    } else {
-      dispatch('alert/clear', res.success, { root: true });
-      commit('getCertificatesOfSubject', res.students);
-    }
-  },
   async getStudent({ commit }, username) {
     try {
       let data = await adminService.getStudent(username);
@@ -552,9 +540,6 @@ const mutations = {
   },
   getCoursesOfStudent(state, courses) {
     state.coursesOfStudent = courses;
-  },
-  confirmCertificate(state, studentsOfSubject) {
-    state.studentsOfSubject = studentsOfSubject;
   },
   getSubjectsOfCourse(state, listSubjects) {
     state.subjectsOfCourse = listSubjects;

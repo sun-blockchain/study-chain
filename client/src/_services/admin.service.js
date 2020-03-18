@@ -30,7 +30,6 @@ export const adminService = {
   createTeacher,
   getClassesNoTeacher,
   getAllStudents,
-  confirmCertificate,
   getSubjectsNoCourse,
   addSubjectToCourse,
   deleteSubjectFromCourse,
@@ -547,20 +546,7 @@ async function getCoursesOfStudent(username) {
     throw error;
   }
 }
-async function confirmCertificate(studentUsername, subjectId) {
-  try {
-    let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/certificate/create`,
-      { studentUsername: studentUsername, subjectId: subjectId },
-      {
-        headers: authHeader()
-      }
-    );
-    return respone.data;
-  } catch (error) {
-    throw error;
-  }
-}
+
 // Get subject by id
 async function getSubject(subjectId) {
   try {

@@ -214,7 +214,7 @@ async function getMyCertificates() {
 async function claimCertificate(courseId) {
   try {
     let response = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/certificate`,
+      `${process.env.VUE_APP_API_BACKEND}/certificates`,
       { courseId: courseId },
       {
         headers: authHeader()
@@ -229,7 +229,7 @@ async function claimCertificate(courseId) {
 
 async function getCertificate(certId) {
   try {
-    let response = await axios.get(`${process.env.VUE_APP_API_BACKEND}/certificate/${certId}`);
+    let response = await axios.get(`${process.env.VUE_APP_API_BACKEND}/certificates/${certId}`);
     return response.data.cert;
   } catch (error) {
     throw error;

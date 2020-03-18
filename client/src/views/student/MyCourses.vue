@@ -53,7 +53,7 @@ export default {
       let data = await this.claimCertificate(row.CourseID);
       if (!data) {
         Message.error('You have not completed this course!');
-      } else if (data.success) {
+      } else if (data) {
         let certId = await this.getCertificateByCourseId(row.CourseID);
         let redirectCert = this.$router.resolve({
           name: 'certificate',
