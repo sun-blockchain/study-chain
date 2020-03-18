@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -208,6 +210,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return GetCertificatesOfStudent(stub, args)
 	} else if function == "GetScoresOfClass" {
 		return GetScoresOfClass(stub, args)
+	} else if function == "GetHistoryOfCertificate" {
+		return GetHistoryOfCertificate(stub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name!")
@@ -2145,6 +2149,67 @@ func GetClassesByTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Res
 	}
 
 	return shim.Success(jsonRow)
+}
+
+func GetHistoryOfCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	CertificateID := args[0]
+
+	keyCertificate := "Certificate-" + CertificateID
+	resultsIterator, err := stub.GetHistoryForKey(keyCertificate)
+	if err != nil {
+		return shim.Error("Can not get history of certificate - " + CertificateID)
+	}
+
+	defer resultsIterator.Close()
+
+	var buffer bytes.Buffer
+	buffer.WriteString("[")
+
+	notFirst := false
+	for resultsIterator.HasNext() {
+		response, err := resultsIterator.Next()
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+
+		if notFirst == true {
+			buffer.WriteString(",")
+		}
+		buffer.WriteString("{\"TxId\":")
+		buffer.WriteString("\"")
+		buffer.WriteString(response.TxId)
+		buffer.WriteString("\"")
+
+		buffer.WriteString(", \"Value\":")
+
+		if response.IsDelete {
+			buffer.WriteString("null")
+		} else {
+			buffer.WriteString(string(response.Value))
+		}
+
+		buffer.WriteString(", \"Timestamp\":")
+		buffer.WriteString("\"")
+		buffer.WriteString(time.Unix(response.Timestamp.Seconds, int64(response.Timestamp.Nanos)).String())
+		buffer.WriteString("\"")
+
+		buffer.WriteString(", \"IsDelete\":")
+		buffer.WriteString("\"")
+		buffer.WriteString(strconv.FormatBool(response.IsDelete))
+		buffer.WriteString("\"")
+
+		buffer.WriteString("}")
+		notFirst = true
+	}
+
+	buffer.WriteString("]")
+
+	return shim.Success(buffer.Bytes())
 }
 
 func main() {

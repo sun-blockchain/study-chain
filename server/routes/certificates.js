@@ -3,6 +3,7 @@ const USER_ROLES = require('../configs/constant').USER_ROLES;
 const network = require('../fabric/network');
 const { check, body, validationResult } = require('express-validator');
 const checkJWT = require('../middlewares/check-jwt');
+const axios = require('axios');
 const uuidv4 = require('uuid/v4');
 
 require('dotenv').config();
@@ -112,8 +113,8 @@ router.get(
     .escape(),
   async (req, res) => {
     const certId = req.params.certId;
-    const adminStudent = { role: USER_ROLES.ADMIN_STUDENT, username: 'adminstudent' };
-    const networkObj = await network.connectToNetwork(adminStudent);
+    let guest = { role: USER_ROLES.STUDENT, username: 'guest' };
+    const networkObj = await network.connectToNetwork(guest);
 
     if (!networkObj) {
       return res.status(500).json({ msg: 'Failed to connect blockchain' });
@@ -152,6 +153,47 @@ router.get(
     cert.Fullname = student.Fullname;
 
     return res.json({ cert });
+  }
+);
+
+router.get(
+  '/:certId/verify',
+  check('certId')
+    .trim()
+    .escape(),
+  async (req, res) => {
+    let certId = req.params.certId;
+    let guest = { role: USER_ROLES.STUDENT, username: 'guest' };
+    let networkObj = await network.connectToNetwork(guest);
+
+    if (!networkObj) {
+      return res.status(500).json({
+        msg: 'Failed to connect blockchain'
+      });
+    }
+
+    let certInfo = await network.query(networkObj, 'GetHistoryOfCertificate', certId);
+
+    if (!certInfo.success) {
+      return res.status(404).json({
+        msg: 'Can not query history of certificate!'
+      });
+    }
+
+    certInfo = JSON.parse(certInfo.msg);
+
+    let explorerHost = process.env.EXPLORER_HOST;
+
+    let response = await axios.get(`${explorerHost}/api/curChannel`);
+    let channel = response.data.currentChannel;
+    let txId = String(certInfo[0].TxId);
+
+    response = await axios.get(`${explorerHost}/api/transaction/${channel}/${txId}`);
+
+    return res.status(200).json({
+      certInfo: certInfo,
+      transactionInfo: response.data
+    });
   }
 );
 
