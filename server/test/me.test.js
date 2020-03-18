@@ -552,6 +552,28 @@ describe('GET /account/me/classes', () => {
       });
   });
 
+  it('failed to query classes of teacher in chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'conglt', role: USER_ROLES.TEACHER }
+    });
+
+    queryClasses.returns({
+      success: false,
+      msg: 'Query chaincode has failed'
+    });
+
+    request(app)
+      .get('/account/me/classes')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(404);
+        done();
+      });
+  });
+
   it('success query classes of user student', (done) => {
     connect.returns({
       contract: 'academy',
@@ -588,6 +610,45 @@ describe('GET /account/me/classes', () => {
       .then((res) => {
         expect(res.status).equal(200);
         expect(res.body.success).equal(true);
+        done();
+      });
+  });
+
+  it('success query classes of teacher', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.TEACHER }
+    });
+
+    let data = JSON.stringify([
+      {
+        ClassID: '1234-456-789-123a',
+        ClassCode: 'ETH101',
+        Room: 'F13',
+        Time: '7:45',
+        Status: 'Open',
+        ShortDescription: 'Ethereum',
+        Description: 'Ethereum101',
+        StartDate: '25-2-2020',
+        EndDate: '25-4-2020',
+        Repeat: 'Weekly Monday',
+        Students: [],
+        Capacity: '75'
+      }
+    ]);
+
+    queryClasses.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .get('/account/me/classes')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
         done();
       });
   });
@@ -687,7 +748,6 @@ describe('GET /account/me/courses', () => {
       });
   });
 });
-
 
 describe('GET /account/me/certificates', () => {
   let connect;
@@ -2340,7 +2400,7 @@ describe('POST /account/me/cancelRegisteredClass', () => {
       user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
     });
 
-     query.onFirstCall().returns({
+    query.onFirstCall().returns({
       success: true,
       msg: JSON.stringify({
         CourseID: '1123132465',

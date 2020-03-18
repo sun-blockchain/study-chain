@@ -968,7 +968,7 @@ router.post(
 router.get('/classes', async (req, res) => {
   const user = req.decoded.user;
 
-  if (user.role !== USER_ROLES.STUDENT) {
+  if (user.role !== USER_ROLES.STUDENT && user.role !== USER_ROLES.TEACHER) {
     return res.status(403).json({
       success: false,
       msg: 'Permission Denied'
@@ -984,24 +984,49 @@ router.get('/classes', async (req, res) => {
     });
   }
 
-  let classes = await network.query(networkObj, 'GetClassesOfStudent', user.username);
-  let subjects = await network.query(networkObj, 'GetAllSubjects');
+  let classes = [];
 
-  if (!classes.success || !subjects.success) {
-    return res.status(500).json({
-      success: false,
-      msg: 'Query chaincode failed'
-    });
-  }
+  if (user.role === USER_ROLES.STUDENT) {
+    classes = await network.query(networkObj, 'GetClassesOfStudent', user.username);
+    let subjects = await network.query(networkObj, 'GetAllSubjects');
 
-  classes = JSON.parse(classes.msg) ? JSON.parse(classes.msg) : [];
-  subjects = JSON.parse(subjects.msg) ? JSON.parse(subjects.msg) : [];
+    if (!classes.success || !subjects.success) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Query chaincode failed'
+      });
+    }
 
-  for (let i = 0; i < classes.length; i++) {
-    for (let k = 0; k < subjects.length; k++) {
-      if (classes[i].SubjectID === subjects[k].SubjectID) {
-        classes[i].SubjectName = subjects[k].SubjectName;
-        break;
+    classes = JSON.parse(classes.msg) ? JSON.parse(classes.msg) : [];
+    subjects = JSON.parse(subjects.msg) ? JSON.parse(subjects.msg) : [];
+
+    for (let i = 0; i < classes.length; i++) {
+      for (let k = 0; k < subjects.length; k++) {
+        if (classes[i].SubjectID === subjects[k].SubjectID) {
+          classes[i].SubjectName = subjects[k].SubjectName;
+          break;
+        }
+      }
+    }
+  } else if (user.role === USER_ROLES.TEACHER) {
+    classes = await network.query(networkObj, 'GetClassesByTeacher', user.username);
+    let subjects = await network.query(networkObj, 'GetAllSubjects');
+
+    if (!classes.success || !subjects.success) {
+      return res.status(404).json({
+        msg: 'Failed to query chaincode'
+      });
+    }
+
+    classes = JSON.parse(classes.msg) ? JSON.parse(classes.msg) : [];
+    subjects = JSON.parse(subjects.msg) ? JSON.parse(subjects.msg) : [];
+
+    for (let i = 0; i < classes.length; i++) {
+      for (let k = 0; k < subjects.length; k++) {
+        if (classes[i].SubjectID === subjects[k].SubjectID) {
+          classes[i].SubjectName = subjects[k].SubjectName;
+          break;
+        }
       }
     }
   }

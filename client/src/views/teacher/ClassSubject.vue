@@ -11,16 +11,16 @@
           <div class="card-body">
             <h2 class="h4 mb-2 text-gray-800">About this class</h2>
             <p>Subject Name: {{ subjectName }}</p>
-            <p>Time: {{ listClasses.Time }}</p>
-            <p>Start Date: {{ convertDate(listClasses.StartDate) }}</p>
-            <p>End Date: {{ convertDate(listClasses.EndDate) }}</p>
-            <p>Repeat: {{ listClasses.Repeat }}</p>
-            <p>Room: {{ listClasses.Room }}</p>
-            <p>Capacity: {{ listClasses.Capacity }}</p>
+            <p>Time: {{ classInfo.Time }}</p>
+            <p>Start Date: {{ convertDate(classInfo.StartDate) }}</p>
+            <p>End Date: {{ convertDate(classInfo.EndDate) }}</p>
+            <p>Repeat: {{ classInfo.Repeat }}</p>
+            <p>Room: {{ classInfo.Room }}</p>
+            <p>Capacity: {{ classInfo.Capacity }}</p>
             <p>
               Status:
-              <b-badge :variant="listClasses.Status === 'Open' ? 'success' : 'primary'">{{
-                listClasses.Status
+              <b-badge :variant="classInfo.Status === 'Open' ? 'success' : 'primary'">{{
+                classInfo.Status
               }}</b-badge>
             </p>
           </div>
@@ -156,7 +156,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('adminAcademy', ['listClasses', 'listStudents']),
+    ...mapState('adminAcademy', ['listClasses', 'listStudents', 'classInfo']),
     ...mapState('teacher', ['scores'])
   },
   async created() {

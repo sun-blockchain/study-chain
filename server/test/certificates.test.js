@@ -6,7 +6,6 @@ const Cert = require('../models/Certificate');
 const sinon = require('sinon');
 const network = require('../fabric/network');
 const USER_ROLES = require('../configs/constant').USER_ROLES;
-const User = require('../models/User');
 const app = require('../app');
 
 require('dotenv').config();
@@ -655,6 +654,54 @@ describe('# GET /certificates/:certId ', () => {
 
     request(app)
       .get(`/certificates/${certId}`)
+      .then((res) => {
+        expect(res.status).equal(404);
+        done();
+      });
+  });
+});
+
+describe('# GET /certificates/:certId/verify ', () => {
+  let certId = 'cdb63720-9628-5ef6-bbca-2e5ce6094f3c';
+  let courseId = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
+  let connect;
+  let query;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+  });
+
+  it('Failed to connect blockchain', (done) => {
+    connect.returns(null);
+    request(app)
+      .get(`/certificates/${certId}/verify`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        done();
+      });
+  });
+
+  it('Error chaincode when query certificate', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.ADMIN_STUDENT }
+    });
+
+    query.returns({
+      success: false,
+      msg: 'error'
+    });
+
+    request(app)
+      .get(`/certificates/${certId}/verify`)
       .then((res) => {
         expect(res.status).equal(404);
         done();

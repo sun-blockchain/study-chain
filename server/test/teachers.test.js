@@ -10,281 +10,195 @@ const app = require('../app');
 
 require('dotenv').config();
 
-describe('Route /account/teacher', () => {
-  describe('#GET /all', () => {
+describe('Route /teachers', () => {
+  describe('GET /teachers', () => {
     let connect;
     let query;
-    let findOneStub;
 
     beforeEach(() => {
       connect = sinon.stub(network, 'connectToNetwork');
       query = sinon.stub(network, 'query');
-      findOneStub = sinon.stub(User, 'findOne');
     });
 
     afterEach(() => {
       connect.restore();
       query.restore();
-      findOneStub.restore();
     });
 
-    it('do not success query all teacher with admin student', (done) => {
-      findOneStub.returns({ username: 'hoangdd', role: USER_ROLES.ADMIN_STUDENT });
-
+    it('Permission Denied with role student ', (done) => {
       request(app)
-        .get('/account/teacher/all')
-        .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+        .get('/teachers')
+        .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
         .then((res) => {
-          expect(res.body.success).equal(false);
           expect(res.body.msg).equal('Permission Denied');
           expect(res.status).equal(403);
+          done();
+        });
+    });
+
+    it('Permission Denied with role teachers ', (done) => {
+      request(app)
+        .get('/teachers')
+        .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+        .then((res) => {
+          expect(res.body.msg).equal('Permission Denied');
+          expect(res.status).equal(403);
+          done();
+        });
+    });
+
+    it('Failed to connect blockchain ', (done) => {
+      connect.returns(null);
+      request(app)
+        .get('/teachers')
+        .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+        .then((res) => {
+          expect(res.status).equal(500);
+          done();
+        });
+    });
+
+    it('query teachers in chaincode has failed', (done) => {
+      connect.returns({
+        contract: 'academy',
+        network: 'certificatechannel',
+        gateway: 'gateway',
+        user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+      });
+
+      query.returns({
+        success: false,
+        msg: 'Query chaincode has failed'
+      });
+
+      request(app)
+        .get('/teachers')
+        .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+        .then((res) => {
+          expect(res.status).equal(404);
           done();
         });
     });
 
     it('success query all teacher with admin academy', (done) => {
-      findOneStub.returns({ username: 'hoangdd', role: USER_ROLES.ADMIN_ACADEMY });
-      connect.returns({ error: null });
-      let data = JSON.stringify({ username: 'tantv' }, { username: 'nghianv' });
+      connect.returns({
+        contract: 'academy',
+        network: 'certificatechannel',
+        gateway: 'gateway',
+        user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+      });
+
+      let data = JSON.stringify(
+        { Username: 'tantv', Fullname: 'Trinh Van Tan' },
+        { Username: 'nghianv', Fullname: 'Ngo Van Nghia' }
+      );
 
       query.returns({
         success: true,
         msg: data
       });
+
       request(app)
-        .get('/account/teacher/all')
+        .get('/teachers')
         .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
         .then((res) => {
           expect(res.status).equal(200);
-          expect(res.body.success).equal(true);
-          done();
-        });
-    });
-
-    it('do not success query all teacher with teacher', (done) => {
-      findOneStub.returns({ username: 'hoangdd', role: USER_ROLES.TEACHER });
-      request(app)
-        .get('/account/teacher/all')
-        .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
-        .then((res) => {
-          expect(res.body.success).equal(false);
-          expect(res.body.msg).equal('Permission Denied');
-          expect(res.status).equal(403);
-          done();
-        });
-    });
-
-    it('do not success query all teacher with student', (done) => {
-      findOneStub.returns({ username: 'hoangdd', role: USER_ROLES.STUDENT });
-      request(app)
-        .get('/account/teacher/all')
-        .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-        .then((res) => {
-          expect(res.body.success).equal(false);
-          expect(res.body.msg).equal('Permission Denied');
-          expect(res.status).equal(403);
           done();
         });
     });
   });
 
-  describe('#GET /account/teacher/:username', () => {
-    let findOneStub;
+  describe('#GET /teachers/:username', () => {
     let query;
     let connect;
     let username = 'tantrinh';
 
     beforeEach(() => {
       connect = sinon.stub(network, 'connectToNetwork');
-      findOneStub = sinon.stub(User, 'findOne');
+
       query = sinon.stub(network, 'query');
     });
 
     afterEach(() => {
       connect.restore();
-      findOneStub.restore();
+
       query.restore();
     });
 
-    it('do not success query teacher with admin student', (done) => {
-      findOneStub.returns({ username: 'hoangdd', role: USER_ROLES.ADMIN_STUDENT });
+    it('Permission Denied with student role', (done) => {
       request(app)
-        .get(`/account/teacher/${username}`)
-        .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
-        .then((res) => {
-          expect(res.status).equal(403);
-          expect(res.body.success).equal(false);
-          expect(res.body.msg).equal('Permission Denied');
-          done();
-        });
-    });
-
-    it('do not success query teacher with teacher', (done) => {
-      findOneStub.returns({ username: 'hoangdd', role: USER_ROLES.TEACHER });
-      request(app)
-        .get(`/account/teacher/${username}`)
-        .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
-        .then((res) => {
-          expect(res.status).equal(403);
-          expect(res.body.success).equal(false);
-          expect(res.body.msg).equal('Permission Denied');
-          done();
-        });
-    });
-
-    it('do not success query teacher with student', (done) => {
-      findOneStub.returns({ username: 'hoangdd', role: USER_ROLES.STUDENT });
-      request(app)
-        .get(`/account/teacher/${username}`)
+        .get(`/teachers/${username}`)
         .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
         .then((res) => {
           expect(res.status).equal(403);
-          expect(res.body.success).equal(false);
           expect(res.body.msg).equal('Permission Denied');
           done();
         });
     });
 
-    it('error when query teacher', (done) => {
-      findOneStub.throws();
-      connect.returns({ error: null });
+    it('Permission Denied with teacher role', (done) => {
       request(app)
-        .get(`/account/teacher/${username}`)
-        .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+        .get(`/teachers/${username}`)
+        .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
         .then((res) => {
-          expect(res.status).equal(500);
-          expect(res.body.success).equal(false);
+          expect(res.status).equal(403);
+          expect(res.body.msg).equal('Permission Denied');
           done();
         });
     });
-
-    // it.only('teacher username is not exists', (done) => {
-    //   findOneStub.returns(null);
-
-    //   connect.returns({ error: null });
-
-    //   request(app)
-    //     .get(`/account/teacher/${username}`)
-    //     .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-    //     .then((res) => {
-    //       expect(res.status).equal(404);
-    //       expect(res.body.success).equal(false);
-    //       expect(res.body.msg).equal('teacher is not exists');
-    //       done();
-    //     });
-    // });
 
     it('error when call function GetTeacher', (done) => {
-      findOneStub.onFirstCall().yields(undefined, {
-        username: 'hoangdd',
-        role: USER_ROLES.ADMIN_ACADEMY
+      connect.returns({
+        contract: 'academy',
+        network: 'certificatechannel',
+        gateway: 'gateway',
+        user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
       });
 
-      findOneStub
-        .onSecondCall()
-        .yields(undefined, { username: 'tantrinh', role: USER_ROLES.TEACHER });
-
-      connect.returns({ error: null });
-
-      query.onFirstCall().returns({
+      query.returns({
         success: false,
-        msg: 'cannot call function GetTeacher'
-      });
-
-      let subjectOfTeacher = JSON.stringify({
-        SubjectID: '00',
-        Name: 'Blockchain',
-        TeacherUsername: 'GV00',
-        Students: ['Hoang', 'Nghia']
-      });
-
-      query.onSecondCall().returns({
-        success: true,
-        msg: subjectOfTeacher
+        msg: 'query teacher has failed'
       });
 
       request(app)
-        .get(`/account/teacher/${username}`)
+        .get(`/teachers/${username}`)
         .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
         .then((res) => {
-          expect(res.status).equal(500);
-          expect(res.body.success).equal(false);
-          done();
-        });
-    });
-
-    it('error when query subject of teacher', (done) => {
-      findOneStub.onFirstCall().yields(undefined, {
-        username: 'hoangdd',
-        role: USER_ROLES.ADMIN_ACADEMY
-      });
-
-      findOneStub
-        .onSecondCall()
-        .yields(undefined, { username: 'tantrinh', role: USER_ROLES.TEACHER });
-
-      connect.returns({ error: null });
-
-      let infoTeacher = JSON.stringify({ username: 'tantrinh', fullname: 'Trinh Van Tan' });
-
-      query.onFirstCall().returns({
-        success: true,
-        msg: infoTeacher
-      });
-
-      query.onSecondCall().returns({
-        success: false,
-        msg: 'error query subjects of teacher'
-      });
-
-      request(app)
-        .get(`/account/teacher/${username}`)
-        .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-        .then((res) => {
-          expect(res.status).equal(500);
-          expect(res.body.success).equal(false);
+          expect(res.status).equal(404);
           done();
         });
     });
 
     it('success query subject of teacher', (done) => {
-      findOneStub.returns({ username: 'tantrinh', role: USER_ROLES.TEACHER });
-
-      connect.returns({ error: null });
-
-      let infoTeacher = JSON.stringify({ username: 'tantrinh', fullname: 'Trinh Van Tan' });
-      let subjectOfTeacher = JSON.stringify({
-        SubjectID: '00',
-        Name: 'Blockchain',
-        TeacherUsername: 'GV00',
-        Students: ['Hoang', 'Nghia']
+      connect.returns({
+        contract: 'academy',
+        network: 'certificatechannel',
+        gateway: 'gateway',
+        user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
       });
 
-      query.onFirstCall().returns({
+      let infoTeacher = JSON.stringify({ Username: 'tantrinh', Fullname: 'Trinh Van Tan' });
+
+      query.returns({
         success: true,
         msg: infoTeacher
       });
 
-      query.onSecondCall().returns({
-        success: true,
-        msg: subjectOfTeacher
-      });
-
       request(app)
-        .get(`/account/teacher/${username}`)
+        .get(`/teachers/${username}`)
         .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
         .then((res) => {
           expect(res.status).equal(200);
-          expect(res.body.success).equal(true);
           done();
         });
     });
   });
 });
 
-describe('#GET /account/teacher/classesOfTeacher', () => {
+describe('#GET /teachers/:username/classes', () => {
   let connect;
   let query;
+  let username = 'st01';
 
   beforeEach(() => {
     connect = sinon.stub(network, 'connectToNetwork');
@@ -296,27 +210,25 @@ describe('#GET /account/teacher/classesOfTeacher', () => {
     query.restore();
   });
 
-  it('Can not get class of teacher with role studnet', (done) => {
+  it('Permission Denied with student role', (done) => {
     request(app)
-      .get(`/account/teacher/classesOfTeacher`)
-      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+      .get(`/teachers/${username}/classes`)
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(403);
-        expect(res.body.success).equal(false);
         expect(res.body.msg).equal('Permission Denied');
         done();
       });
   });
 
-  it('Can not connect to network', (done) => {
+  it('Failed connect to blockchain', (done) => {
     connect.returns(null);
     request(app)
-      .get(`/account/teacher/classesOfTeacher`)
+      .get(`/teachers/${username}/classes`)
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Failed connect to blockchain!');
+        expect(res.body.msg).equal('Failed connect to blockchain');
         done();
       });
   });
@@ -348,10 +260,10 @@ describe('#GET /account/teacher/classesOfTeacher', () => {
     query.onSecondCall().returns({ success: true, msg: subjects });
 
     request(app)
-      .get(`/account/teacher/classesOfTeacher`)
+      .get(`/teachers/${username}/classes`)
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .then((res) => {
-        expect(res.status).equal(500);
+        expect(res.status).equal(404);
         done();
       });
   });
@@ -401,10 +313,10 @@ describe('#GET /account/teacher/classesOfTeacher', () => {
     query.onSecondCall().returns({ success: false, msg: 'error' });
 
     request(app)
-      .get(`/account/teacher/classesOfTeacher`)
+      .get(`/teachers/${username}/classes`)
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .then((res) => {
-        expect(res.status).equal(500);
+        expect(res.status).equal(404);
         done();
       });
   });
@@ -442,15 +354,13 @@ describe('#GET /account/teacher/classesOfTeacher', () => {
       }
     ];
 
-    query.returns({ success: true, msg: JSON.stringify([data[1]]) });
+    query.returns({ success: true, msg: JSON.stringify(data) });
 
     request(app)
-      .get(`/account/teacher/classesOfTeacher`)
+      .get(`/teachers/${username}/classes`)
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
-        expect(res.body.classes.length).equal(1);
         done();
       });
   });
@@ -507,11 +417,10 @@ describe('#GET /account/teacher/classesOfTeacher', () => {
     query.onSecondCall().returns({ success: true, msg: subjects });
 
     request(app)
-      .get(`/account/teacher/classesOfTeacher`)
+      .get(`/teachers/${username}/classes`)
       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
         done();
       });
   });
@@ -528,10 +437,143 @@ describe('#GET /account/teacher/classesOfTeacher', () => {
     query.onSecondCall().returns({ success: true, msg: null });
 
     request(app)
-      .get(`/account/teacher/classesOfTeacher`)
+      .get(`/teachers/${username}/classes`)
       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(200);
+        done();
+      });
+  });
+});
+
+describe('#POST /teachers', () => {
+  let findOneStub;
+
+  let registerTeacherStub;
+  let connect;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    findOneStub = sinon.stub(User, 'findOne');
+    registerTeacherStub = sinon.stub(network, 'registerTeacherOnBlockchain');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    findOneStub.restore();
+    registerTeacherStub.restore();
+  });
+
+  it('should fail because the username already exists.', (done) => {
+    findOneStub.returns({
+      username: 'thienthangaycanh',
+      fullname: 'Tan Trinh'
+    });
+
+    request(app)
+      .post('/teachers')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'thienthangaycanh',
+        fullname: 'Tan Trinh'
+      })
+      .then((res) => {
+        expect(res.status).equal(409);
+        expect(res.body.msg).equal('Teacher already exists');
+        done();
+      });
+  });
+
+  it('Permission Denied with student role', (done) => {
+    request(app)
+      .post('/teachers')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        username: 'thienthangaycanh',
+        fullname: 'Tan Trinh'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('Permission Denied with teacher role', (done) => {
+    request(app)
+      .post('/teachers')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .send({
+        username: 'thienthangaycanh',
+        fullname: 'Tan Trinh'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('do not success becuse req.body empty', (done) => {
+    request(app)
+      .post('/teachers')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: '',
+        fullname: 'Do Duc Hoang'
+      })
+      .then((res) => {
+        expect(res.status).equal(400);
+        done();
+      });
+  });
+
+  it('success create teacher with admin academy', (done) => {
+    findOneStub.returns(null);
+    connect.returns({ error: null });
+
+    registerTeacherStub.returns({
+      success: true,
+      msg: 'Register success!'
+    });
+
+    request(app)
+      .post('/teachers')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'hoangdd',
+        fullname: 'Do Duc Hoang'
+      })
+      .then((res) => {
+        expect(res.status).equal(201);
+        done();
+      });
+  });
+
+  it('error when call function registerTeacherOnBlockchain', (done) => {
+    findOneStub.returns(null);
+
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    registerTeacherStub.returns({
+      success: false,
+      msg: 'Register has failed'
+    });
+
+    request(app)
+      .post('/teachers')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        username: 'thienthangaycanh',
+        fullname: 'Tan Trinh'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
         done();
       });
   });
