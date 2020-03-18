@@ -15,7 +15,9 @@ const authRoutes = require('./routes/auth');
 const teacherRoutes = require('./routes/teacher');
 const subjectRoutes = require('./routes/subject');
 const certificateRoutes = require('./routes/certificates');
-const studentRoutes = require('./routes/student');
+const studentRoutes = require('./routes/students');
+const courseRoutes = require('./routes/courses');
+const classRoutes = require('./routes/classes');
 const scoreRoutes = require('./routes/score');
 const meRoutes = require('./routes/me');
 const academyRoutes = require('./routes/academy');
@@ -54,11 +56,13 @@ app.use(
 
 // Set up routes
 app.use('/auth', authRoutes);
-app.use('/account/student', checkJWT, studentRoutes);
+app.use('/students', checkJWT, studentRoutes);
 app.use('/account/teacher', checkJWT, teacherRoutes);
 app.use('/subject', checkJWT, subjectRoutes);
 app.use('/score', checkJWT, scoreRoutes);
 app.use('/certificates', certificateRoutes);
+app.use('/courses', checkJWT, courseRoutes);
+app.use('/classes', checkJWT, classRoutes);
 app.use('/account/me', checkJWT, meRoutes);
 app.use('/academy', checkJWT, academyRoutes);
 app.use('/common', checkJWT, commonRoutes);

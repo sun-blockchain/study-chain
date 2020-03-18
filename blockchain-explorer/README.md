@@ -1,7 +1,7 @@
 ### 1. Set up PostgreSQL
 
 ```bash
-cd blockchain-explorer/app/persistent/fabric/postgreSQL
+cd blockchain-explorer/app/persistence/fabric/postgreSQL
 chmod -R 777 db/
 cd db
 ./createdb.sh

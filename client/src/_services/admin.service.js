@@ -134,7 +134,7 @@ async function createCourse(course) {
 async function getStudentsOfCourse(courseId) {
   try {
     let respone = await axios.get(
-      `${process.env.VUE_APP_API_BACKEND}/account/student/course/${courseId}`,
+      `${process.env.VUE_APP_API_BACKEND}/courses/${courseId}/students`,
       {
         headers: authHeader()
       }
@@ -389,9 +389,12 @@ async function deleteClass(classId) {
 
 async function getStudentsOfClass(classId) {
   try {
-    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/student/${classId}`, {
-      headers: authHeader()
-    });
+    let respone = await axios.get(
+      `${process.env.VUE_APP_API_BACKEND}/classes/${classId}/students`,
+      {
+        headers: authHeader()
+      }
+    );
     return respone.data;
   } catch (error) {
     throw error;
@@ -511,7 +514,7 @@ async function getClassesNoTeacher() {
 //  Students Manager
 async function getAllStudents() {
   try {
-    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/student/all`, {
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/students`, {
       headers: authHeader()
     });
     return respone.data.students;
@@ -523,7 +526,7 @@ async function getAllStudents() {
 async function getClassesOfStudent(username) {
   try {
     let respone = await axios.get(
-      `${process.env.VUE_APP_API_BACKEND}/academy/classesOfStudent/${username}`,
+      `${process.env.VUE_APP_API_BACKEND}/students/${username}/classes`,
       {
         headers: authHeader()
       }
@@ -536,7 +539,7 @@ async function getClassesOfStudent(username) {
 async function getCoursesOfStudent(username) {
   try {
     let respone = await axios.get(
-      `${process.env.VUE_APP_API_BACKEND}/academy/coursesOfStudent/${username}`,
+      `${process.env.VUE_APP_API_BACKEND}/students/${username}/courses`,
       {
         headers: authHeader()
       }
@@ -564,12 +567,9 @@ async function getSubject(subjectId) {
 //get student
 async function getStudent(username) {
   try {
-    let respone = await axios.get(
-      `${process.env.VUE_APP_API_BACKEND}/academy/student/${username}`,
-      {
-        headers: authHeader()
-      }
-    );
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/students/${username}`, {
+      headers: authHeader()
+    });
     return respone.data;
   } catch (error) {
     throw error;
