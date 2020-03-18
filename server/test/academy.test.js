@@ -1756,7 +1756,7 @@ describe('#POST /academy/removeSubjectFromCourse', () => {
         subjectId: 'baa7df8c-8aa1-4ce0-9a26-6439ab11b8ef'
       })
       .then((res) => {
-        expect(res.status).equal(422);
+        expect(res.status).equal(404);
         expect(res.body.msg).equal('This subject does not present in course!');
         done();
       });

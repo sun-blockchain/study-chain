@@ -254,7 +254,7 @@ router.post(
     let course = JSON.parse(query.msg);
 
     if (!course.Subjects || course.Subjects.indexOf(subjectId) === -1) {
-      return res.status(422).json({
+      return res.status(404).json({
         msg: 'This subject does not present in course!'
       });
     }
