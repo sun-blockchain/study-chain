@@ -2,6 +2,7 @@
 
 node enrollAdmin.js --orgMSP=academy
 node enrollAdmin.js
+node registerGuest.js
 
 sleep 3
 
