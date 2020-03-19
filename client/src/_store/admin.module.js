@@ -312,17 +312,10 @@ const actions = {
       }
     }
   },
-  async addClassToTeacher({ commit, dispatch }, { username, classId }) {
+  async changeTeacherOfClass({ commit, dispatch }, { username, classId }) {
     try {
-      let data = await adminService.addClassToTeacher(username, classId);
-      return data;
-    } catch (error) {
-      dispatch('alert/alertError', error, { root: true });
-    }
-  },
-  async unassignTeacherFromClass({ commit, dispatch }, classId) {
-    try {
-      let data = await adminService.unassignTeacherFromClass(classId);
+      let data = await adminService.changeTeacherOfClass(username, classId);
+      commit('changeTeacherOfClass', data);
       return data;
     } catch (error) {
       dispatch('alert/alertError', error, { root: true });

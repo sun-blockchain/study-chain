@@ -161,8 +161,7 @@ export default {
   methods: {
     ...mapActions('adminAcademy', [
       'getClassesOfTeacher',
-      'unassignTeacherFromClass',
-      'addClassToTeacher',
+      'changeTeacherOfClass',
       'getClassesNoTeacher',
       'getTeacher'
     ]),
@@ -176,29 +175,25 @@ export default {
       this.$refs[formName].validate(async (valid) => {
         if (valid) {
           self.fullscreenLoading = true;
-          let data = await self.addClassToTeacher({
+          let response = await self.changeTeacherOfClass({
             username: self.$route.params.id,
             classId: self.formAdd.classId
           });
-          if (data.success) {
+
+          if (!response) {
             await self.getClassesOfTeacher(self.$route.params.id);
             let data = await self.getClassesNoTeacher();
-            if (data.success) {
-              self.classesNoTeacher = data.classesNoTeacher;
-            }
+            self.classesNoTeacher = data.classesNoTeacher;
             self.resetForm('formAdd');
-            Message.success('Add class to teacher success!');
-          } else {
-            if (data.errors) {
-              data.errors.forEach(async (message) => {
-                setTimeout(() => {
-                  Message.error(`${message.param}: ${message.msg}`);
-                }, 1);
-              });
-            } else {
-              Message.error(data.msg);
-            }
+            self.fullscreenLoading = false;
+            return Message.error('Assign teacher to class has failed!');
           }
+
+          await self.getClassesOfTeacher(self.$route.params.id);
+          let data = await self.getClassesNoTeacher();
+          self.classesNoTeacher = data.classesNoTeacher;
+          self.resetForm('formAdd');
+
           self.fullscreenLoading = false;
         } else {
           return false;
@@ -219,21 +214,20 @@ export default {
       })
         .then(async () => {
           this.fullscreenLoading = true;
-          //sua chaincode sau
-          let data = await this.unassignTeacherFromClass(row.ClassID);
-          if (data) {
-            if (data.success) {
-              let data = await self.getClassesNoTeacher();
-              if (data.success) {
-                self.classesNoTeacher = data.classesNoTeacher;
-              }
-              Message.success('Unassign completed!');
-            } else {
-              Message.error(data.msg);
-            }
-          }
-          await this.getClassesOfTeacher(this.$route.params.id);
 
+          let response = await this.changeTeacherOfClass({
+            classId: row.ClassID,
+            username: row.TeacherUsername
+          });
+
+          if (!response) {
+            await this.getClassesOfTeacher(this.$route.params.id);
+            this.fullscreenLoading = false;
+            return Message.error('Unassign teacher to class has failed!');
+          }
+
+          await this.getClassesOfTeacher(this.$route.params.id);
+          Message.success('Unassign teacher to class successfully!');
           this.fullscreenLoading = false;
         })
         .catch(() => {

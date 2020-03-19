@@ -22,7 +22,7 @@ export const adminService = {
   getAllTeachers,
   getSubject,
   getClassesOfTeacher,
-  addClassToTeacher,
+  changeTeacherOfClass,
   createTeacher,
   getClassesNoTeacher,
   getAllStudents,
@@ -33,7 +33,6 @@ export const adminService = {
   getTeacher,
   getClassesOfStudent,
   getCoursesOfStudent,
-  unassignTeacherFromClass,
   getSummaryInfo
 };
 
@@ -261,62 +260,63 @@ async function getClassesOfSubject(subjectId) {
   }
 }
 
-async function createClass(_class) {
+async function createClass(classInfo) {
   try {
-    let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/academy/subject/${_class.SubjectId}/class`,
+    let response = await axios.post(
+      `${process.env.VUE_APP_API_BACKEND}/classes`,
       {
-        classCode: _class.ClassCode,
-        room: _class.Room,
-        time: _class.Time,
-        startDate: _class.StartDate,
-        endDate: _class.EndDate,
-        repeat: _class.Repeat,
-        capacity: _class.Capacity
+        subjectId: classInfo.SubjectId,
+        classCode: classInfo.ClassCode,
+        room: classInfo.Room,
+        time: classInfo.Time,
+        startDate: classInfo.StartDate,
+        endDate: classInfo.EndDate,
+        repeat: classInfo.Repeat,
+        capacity: classInfo.Capacity
       },
       {
         headers: authHeader()
       }
     );
-    return respone.data;
+    return response;
   } catch (error) {
     throw error;
   }
 }
-async function updateClass(_class) {
+
+async function updateClass(classInfo) {
   try {
-    let respone = await axios.put(
-      `${process.env.VUE_APP_API_BACKEND}/academy/class`,
+    let response = await axios.put(
+      `${process.env.VUE_APP_API_BACKEND}/classes/${classInfo.ClassID}`,
       {
-        classId: _class.ClassID,
-        classCode: _class.ClassCode,
-        room: _class.Room,
-        time: _class.Time,
-        startDate: _class.StartDate,
-        endDate: _class.EndDate,
-        repeat: _class.Repeat,
-        subjectId: _class.SubjectId,
-        capacity: _class.Capacity
+        classCode: classInfo.ClassCode,
+        room: classInfo.Room,
+        time: classInfo.Time,
+        startDate: classInfo.StartDate,
+        endDate: classInfo.EndDate,
+        repeat: classInfo.Repeat,
+        subjectId: classInfo.SubjectId,
+        capacity: classInfo.Capacity
       },
       {
         headers: authHeader()
       }
     );
-    return respone.data;
+    return response;
   } catch (error) {
     throw error;
   }
 }
 async function closeClass(classId) {
   try {
-    let respone = await axios.put(
-      `${process.env.VUE_APP_API_BACKEND}/academy/startClass`,
-      { classId: classId },
+    let response = await axios.put(
+      `${process.env.VUE_APP_API_BACKEND}/classes/${classId}/status`,
+      {},
       {
         headers: authHeader()
       }
     );
-    return respone.data;
+    return response;
   } catch (error) {
     throw error;
   }
@@ -324,7 +324,7 @@ async function closeClass(classId) {
 //get class by id
 async function getClass(classId) {
   try {
-    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/common/class/${classId}`, {
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/classes/${classId}`, {
       headers: authHeader()
     });
     return respone.data.class;
@@ -404,30 +404,15 @@ async function getClassesOfTeacher(username) {
   }
 }
 
-async function addClassToTeacher(username, classId) {
+async function changeTeacherOfClass(username, classId) {
   try {
-    let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/academy/assignTeacherToClass`,
-      { username: username, classId: classId },
+    let respone = await axios.put(
+      `${process.env.VUE_APP_API_BACKEND}/classes/${classId}/teacher`,
+      { username: username },
       {
         headers: authHeader()
       }
     );
-    return respone.data;
-  } catch (error) {
-    throw error;
-  }
-}
-async function unassignTeacherFromClass(classId) {
-  try {
-    let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/academy/unassignTeacherFromClass`,
-      { classId: classId },
-      {
-        headers: authHeader()
-      }
-    );
-
     return respone.data;
   } catch (error) {
     throw error;
@@ -436,12 +421,10 @@ async function unassignTeacherFromClass(classId) {
 
 async function getClassesNoTeacher() {
   try {
-    let respone = await axios({
-      method: 'get',
-      url: `${process.env.VUE_APP_API_BACKEND}/common/classesNoTeacher`,
+    let response = await axios.get(`${process.env.VUE_APP_API_BACKEND}/classes/no-teacher`, {
       headers: authHeader()
     });
-    return respone.data;
+    return response.data;
   } catch (error) {
     throw error;
   }

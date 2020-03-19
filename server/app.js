@@ -18,10 +18,7 @@ const studentRoutes = require('./routes/students');
 const teacherRoutes = require('./routes/teachers');
 const courseRoutes = require('./routes/courses');
 const classRoutes = require('./routes/classes');
-const scoreRoutes = require('./routes/score');
 const meRoutes = require('./routes/me');
-const academyRoutes = require('./routes/academy');
-const commonRoutes = require('./routes/common');
 
 // Connect database
 mongoose.connect(
@@ -59,13 +56,10 @@ app.use('/auth', authRoutes);
 app.use('/students', checkJWT, studentRoutes);
 app.use('/teachers', checkJWT, teacherRoutes);
 app.use('/subjects', checkJWT, subjectRoutes);
-app.use('/score', checkJWT, scoreRoutes);
 app.use('/certificates', certificateRoutes);
 app.use('/courses', checkJWT, courseRoutes);
 app.use('/classes', checkJWT, classRoutes);
 app.use('/me', checkJWT, meRoutes);
-app.use('/academy', checkJWT, academyRoutes);
-app.use('/common', checkJWT, commonRoutes);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
