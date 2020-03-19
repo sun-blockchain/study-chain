@@ -248,8 +248,39 @@ describe('POST /courses/enroll', () => {
     });
 
     let data = JSON.stringify({
-      Username: 'st01',
-      Courses: ['123456']
+      CourseID: '123456',
+      Students: ['hoangdd']
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .post('/courses/enroll')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        courseId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(400);
+        done();
+      });
+  });
+
+  it('This course was closed!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    let data = JSON.stringify({
+      CourseID: '123456',
+      Students: null,
+      Status: 'Closed'
     });
 
     query.returns({
@@ -276,10 +307,10 @@ describe('POST /courses/enroll', () => {
       gateway: 'gateway',
       user: { username: 'st01', role: USER_ROLES.STUDENT }
     });
-
     let data = JSON.stringify({
-      Username: 'st01',
-      Courses: ['aaaaa']
+      CourseID: '123456',
+      Students: null,
+      Status: 'Open'
     });
 
     query.returns({
@@ -313,8 +344,9 @@ describe('POST /courses/enroll', () => {
     });
 
     let data = JSON.stringify({
-      Username: 'st01',
-      Courses: ['aaaaa']
+      CourseID: '123456',
+      Students: null,
+      Status: 'Open'
     });
 
     query.returns({

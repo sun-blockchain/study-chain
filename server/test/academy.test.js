@@ -2066,8 +2066,7 @@ describe('#DELETE /academy/subject', () => {
       .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
       .send({})
       .then((res) => {
-        expect(res.status).equal(422);
-        expect(res.body.success).equal(false);
+        expect(res.status).equal(400);
         done();
       });
   });
@@ -2080,8 +2079,7 @@ describe('#DELETE /academy/subject', () => {
         subjectId: ''
       })
       .then((res) => {
-        expect(res.status).equal(422);
-        expect(res.body.success).equal(false);
+        expect(res.status).equal(400);
         done();
       });
   });
@@ -2095,7 +2093,6 @@ describe('#DELETE /academy/subject', () => {
       })
       .then((res) => {
         expect(res.status).equal(403);
-        expect(res.body.success).equal(false);
         expect(res.body.msg).equal('Permission Denied');
         done();
       });
@@ -2110,7 +2107,6 @@ describe('#DELETE /academy/subject', () => {
       })
       .then((res) => {
         expect(res.status).equal(403);
-        expect(res.body.success).equal(false);
         expect(res.body.msg).equal('Permission Denied');
         done();
       });
@@ -2125,39 +2121,28 @@ describe('#DELETE /academy/subject', () => {
       })
       .then((res) => {
         expect(res.status).equal(403);
-        expect(res.body.success).equal(false);
         expect(res.body.msg).equal('Permission Denied');
         done();
       });
   });
 
-  it('cannot be deleted!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
-    });
-
-    deleteSubjectStub.returns({
-      success: false,
-      msg: 'Can not delete subject - a98f2f4e-6ef9-492b-96a6-c6f01364fecb'
-    });
+  it('Failed connect to blockchain', (done) => {
+    connect.returns(null);
 
     request(app)
       .delete('/academy/subject')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
-        subjectId: 'a98f2f4e-6ef9-492b-96a6-c6f01364fecb'
+        subjectId: 'subject01'
       })
       .then((res) => {
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Can not delete subject - a98f2f4e-6ef9-492b-96a6-c6f01364fecb');
+        expect(res.status).equal(500);
+        expect(res.body.msg).equal('Failed connect to blockchain');
         done();
       });
   });
 
-  it('error chain code', (done) => {
+  it('Can not query chaincode!', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -2165,25 +2150,22 @@ describe('#DELETE /academy/subject', () => {
       user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
     });
 
-    deleteSubjectStub.returns({
-      success: false,
-      msg: 'error'
-    });
+    query.returns({ success: false });
 
     request(app)
       .delete('/academy/subject')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
-        subjectId: 'a98f2f4e-6ef9-492b-96a6-c6f01364fecb'
+        subjectId: 'subject01'
       })
       .then((res) => {
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('error');
+        expect(res.status).equal(404);
+        expect(res.body.msg).equal('Can not query chaincode!');
         done();
       });
   });
 
-  it('delete success subject with admin academy', (done) => {
+  it('Can not delete this subject now!', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -2191,33 +2173,82 @@ describe('#DELETE /academy/subject', () => {
       user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
     });
 
-    deleteSubjectStub.returns({
-      success: true,
-      msg: 'deleted!'
+    let subject = JSON.stringify({
+      SubjectID: 'subject01',
+      Classes: ['class01']
     });
 
-    let data = JSON.stringify({
-      SubjectID: 'a98f2f4e-6ef9-492b-96a6-c6f01364fecb',
-      SubjectName: 'abcc',
-      SubjectCode: 'abc',
-      ShortDescription: 'abc',
-      Description: 'abc'
-    });
-
-    query.returns({
-      success: true,
-      msg: data
-    });
+    query.returns({ success: true, msg: subject });
 
     request(app)
       .delete('/academy/subject')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
-        subjectId: 'a98f2f4e-6ef9-492b-96a6-c6f01364fecb'
+        subjectId: 'subject01'
+      })
+      .then((res) => {
+        expect(res.status).equal(400);
+        expect(res.body.msg).equal('Can not delete this subject now!');
+        done();
+      });
+  });
+
+  it('Can not invoke chaincode!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let subject = JSON.stringify({
+      SubjectID: 'subject01',
+      Classes: null
+    });
+
+    query.returns({ success: true, msg: subject });
+
+    deleteSubjectStub.returns({ success: false });
+
+    request(app)
+      .delete('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        subjectId: 'subject01'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.msg).equal('Can not invoke chaincode!');
+        done();
+      });
+  });
+
+  it('Delete Successfully!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let subject = JSON.stringify({
+      SubjectID: 'subject01',
+      Classes: null
+    });
+
+    query.returns({ success: true, msg: subject });
+
+    deleteSubjectStub.returns({ success: true });
+
+    request(app)
+      .delete('/academy/subject')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        subjectId: 'subject01'
       })
       .then((res) => {
         expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
+        expect(res.body.msg).equal('Delete Successfully!');
         done();
       });
   });
