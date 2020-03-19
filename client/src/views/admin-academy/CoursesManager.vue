@@ -231,14 +231,15 @@ export default {
             status: status
           });
 
-          if (data) {
-            if (data.success) {
-              this.status = false;
-              Message.success(`This class has been ${responseMessage}!`);
-            } else {
-              Message.error(data.msg);
-            }
+          if (!data) {
+            this.fullscreenLoading = false;
+            await this.getAllCourses();
+            return Message.error('Change status of course has failed');
           }
+
+          this.status = false;
+          Message.success('Change status of course successfully');
+
           await this.getAllCourses();
           this.fullscreenLoading = false;
         })
@@ -264,14 +265,17 @@ export default {
         if (valid) {
           this.fullscreenLoading = true;
           let data = await this.createCourse(this.newCourse);
-          if (data) {
-            if (data.success) {
-              await this.resetForm('newCourse');
-              Message.success('create success!');
-            } else {
-              Message.error(data.msg);
-            }
+
+          if (!data) {
+            this.dialogForm.newCourse = false;
+            await this.resetForm('newCourse');
+            await this.getAllCourses();
+            return Message.error('Create course has failed!');
           }
+
+          await this.resetForm('newCourse');
+          Message.success('Create course successfully!');
+
           this.dialogForm.newCourse = false;
           await this.getAllCourses();
 
@@ -285,14 +289,18 @@ export default {
         if (valid) {
           this.fullscreenLoading = true;
           let data = await this.updateCourse(this.editCourse);
-          if (data) {
-            if (data.success) {
-              await this.resetForm('editCourse');
-              Message.success('update success!');
-            } else {
-              Message.error(data.msg);
-            }
+
+          if (!data) {
+            this.dialogForm.newCourse = false;
+            await this.resetForm('editCourse');
+            await this.getAllCourses();
+            this.fullscreenLoading = false;
+            return Message.error('Edit info of course has failed!');
           }
+
+          await this.resetForm('editCourse');
+          Message.success('Edit info of course successfully!');
+
           this.dialogForm.editCourse = false;
           await this.getAllCourses();
           this.fullscreenLoading = false;

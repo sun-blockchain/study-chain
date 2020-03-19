@@ -466,7 +466,8 @@ export default {
         if (valid) {
           this.fullscreenLoading = true;
           let data = await this.changePass(self.changePassword);
-          if (!data) {
+
+          if (!data || data.msg !== 'Change password successfully') {
             self.fullscreenLoading = false;
             return Message.error(data.msg);
           }

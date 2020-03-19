@@ -5,53 +5,6 @@ const { validationResult, check } = require('express-validator');
 const USER_ROLES = require('../configs/constant').USER_ROLES;
 const User = require('../models/User');
 
-router.get('/courses', checkJWT, async (req, res) => {
-  const user = req.decoded.user;
-  const networkObj = await network.connectToNetwork(user);
-  const response = await network.query(networkObj, 'GetAllCourses');
-
-  if (!response.success) {
-    res.status(500).send({
-      success: false,
-      msg: response.msg.toString()
-    });
-    return;
-  }
-  return res.json({
-    success: true,
-    courses: JSON.parse(response.msg)
-  });
-});
-
-router.get(
-  '/course/:courseId',
-  checkJWT,
-  check('courseId')
-    .trim()
-    .escape(),
-  async (req, res) => {
-    const courseId = req.params.courseId;
-
-    const user = req.decoded.user;
-    const networkObj = await network.connectToNetwork(user);
-    const response = await network.query(networkObj, 'GetCourse', courseId);
-    const listSubjects = await network.query(networkObj, 'GetSubjectsOfCourse', courseId);
-
-    if (!response.success || !listSubjects.success) {
-      return res.status(500).send({
-        success: false,
-        msg: 'Query course failed'
-      });
-    }
-
-    return res.json({
-      success: true,
-      course: JSON.parse(response.msg),
-      listSubjects: JSON.parse(listSubjects.msg)
-    });
-  }
-);
-
 router.get(
   '/subject/:subjectId',
   check('subjectId')

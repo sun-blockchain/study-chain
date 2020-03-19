@@ -53,7 +53,7 @@ async function getSummaryInfo() {
 // Courses Manager
 async function getAllCourses() {
   try {
-    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/common/courses`, {
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/courses`, {
       headers: authHeader()
     });
     return respone.data.courses;
@@ -64,7 +64,7 @@ async function getAllCourses() {
 
 async function getCourse(courseId) {
   try {
-    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/common/course/${courseId}`, {
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/courses/${courseId}`, {
       headers: authHeader()
     });
     return respone.data;
@@ -76,7 +76,7 @@ async function getCourse(courseId) {
 async function updateCourse(course) {
   try {
     let respone = await axios.put(
-      `${process.env.VUE_APP_API_BACKEND}/academy/course`,
+      `${process.env.VUE_APP_API_BACKEND}/courses/${course.CourseID}`,
       {
         courseId: course.CourseID,
         courseCode: course.CourseCode,
@@ -96,8 +96,8 @@ async function updateCourse(course) {
 
 async function changeCourseStatus(courseId, status) {
   try {
-    let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/academy/${status}`,
+    let respone = await axios.put(
+      `${process.env.VUE_APP_API_BACKEND}/courses/${courseId}/status`,
       { courseId: courseId },
       {
         headers: authHeader()
@@ -113,7 +113,7 @@ async function changeCourseStatus(courseId, status) {
 async function createCourse(course) {
   try {
     let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/academy/course`,
+      `${process.env.VUE_APP_API_BACKEND}/courses`,
       {
         courseCode: course.CourseCode,
         courseName: course.CourseName,
@@ -147,7 +147,7 @@ async function getStudentsOfCourse(courseId) {
 async function getSubjectsNoCourse(courseId) {
   try {
     let respone = await axios.get(
-      `${process.env.VUE_APP_API_BACKEND}/academy/subjectNoCourse/${courseId}`,
+      `${process.env.VUE_APP_API_BACKEND}/courses/${courseId}/subjects/not-in`,
       {
         headers: authHeader()
       }
@@ -161,9 +161,8 @@ async function getSubjectsNoCourse(courseId) {
 async function addSubjectToCourse(courseId, subjectId) {
   try {
     let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/academy/addSubjectToCourse`,
+      `${process.env.VUE_APP_API_BACKEND}/courses/${courseId}/subjects`,
       {
-        courseId: courseId,
         subjectId: subjectId
       },
       {
@@ -178,12 +177,8 @@ async function addSubjectToCourse(courseId, subjectId) {
 
 async function deleteSubjectFromCourse(courseId, subjectId) {
   try {
-    let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/academy/removeSubjectFromCourse`,
-      {
-        courseId: courseId,
-        subjectId: subjectId
-      },
+    let respone = await axios.delete(
+      `${process.env.VUE_APP_API_BACKEND}/courses/${courseId}/subjects/${subjectId}`,
       {
         headers: authHeader()
       }
