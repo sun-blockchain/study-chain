@@ -137,10 +137,6 @@ Query all Subject of Course by CourseID
 node query.js --username=adminacademy --func=GetSubjectsOfCourse --args=xxx
 ```
 
-```bash
-node query.js --username=adminacademy --func=GetSubjectsNotInCourse --args=xxx
-```
-
 ## Invoke Ledger
 
 - orgMSP {String} (default: student)

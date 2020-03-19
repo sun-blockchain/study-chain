@@ -39,10 +39,11 @@
           :listProperties="[
             { prop: 'ClassCode', label: 'Class' },
             { prop: 'Time', label: 'Time' },
+            { prop: 'StartDate', label: 'Start' },
+            { prop: 'EndDate', label: 'End' },
             { prop: 'Repeat', label: 'Repeat' },
             { prop: 'Capacity', label: 'Capacity' }
           ]"
-          :date="true"
           :statusCol="true"
           @detailClass="detailClass($event)"
         >

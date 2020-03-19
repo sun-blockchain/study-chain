@@ -63,7 +63,7 @@ app.use('/score', checkJWT, scoreRoutes);
 app.use('/certificates', certificateRoutes);
 app.use('/courses', checkJWT, courseRoutes);
 app.use('/classes', checkJWT, classRoutes);
-app.use('/account/me', checkJWT, meRoutes);
+app.use('/me', checkJWT, meRoutes);
 app.use('/academy', checkJWT, academyRoutes);
 app.use('/common', checkJWT, commonRoutes);
 

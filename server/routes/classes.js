@@ -54,4 +54,206 @@ router.get(
   }
 );
 
+router.post(
+  '/enroll',
+  [
+    body('classId')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('courseId')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape()
+  ],
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    if (req.decoded.user.role !== USER_ROLES.STUDENT) {
+      return res.status(403).json({
+        msg: 'Permission Denied'
+      });
+    }
+    let user = req.decoded.user;
+    let networkObj = await network.connectToNetwork(user);
+
+    if (!networkObj) {
+      return res.status(500).json({
+        msg: 'Failed connect to blockchain'
+      });
+    }
+
+    let queryCourse = await network.query(networkObj, 'GetCourse', req.body.courseId);
+    if (!queryCourse.success) {
+      return res.status(404).json({
+        msg: 'query course in chaincode error'
+      });
+    }
+
+    const course = JSON.parse(queryCourse.msg);
+    if (course && course.Status !== 'Open') {
+      return res.status(400).json({
+        msg: 'The course has closed!'
+      });
+    }
+
+    let query = await network.query(networkObj, 'GetStudent', user.username);
+    if (!query.success) {
+      return res.status(404).json({
+        msg: 'Can not query chaincode'
+      });
+    }
+
+    let classId = req.body.classId;
+    let student = JSON.parse(query.msg);
+
+    if (student.Classes && student.Classes.includes(classId)) {
+      return res.status(400).json({
+        msg: 'You studied this class'
+      });
+    }
+
+    query = await network.query(networkObj, 'GetClass', classId);
+    if (!query.success) {
+      return res.status(404).json({
+        msg: 'Can not query chaincode'
+      });
+    }
+    let classInfo = JSON.parse(query.msg);
+
+    query = await network.query(networkObj, 'GetClassesOfStudent', user.username);
+    if (!query.success) {
+      return res.status(404).json({
+        msg: 'Can not query chaincode'
+      });
+    }
+
+    let classes = JSON.parse(query.msg);
+
+    if (classes) {
+      for (let i = 0; i < classes.length; i++) {
+        if (classes[i].SubjectID === classInfo.SubjectID) {
+          return res.status(400).json({
+            msg: 'You studied this subject'
+          });
+        }
+      }
+    }
+
+    if (classInfo.Status === 'InProgress') {
+      return res.status(400).json({
+        msg: 'Class register closed'
+      });
+    }
+
+    if (classInfo.Status === 'Completed') {
+      return res.status(400).json({
+        msg: 'Class was completed'
+      });
+    }
+
+    networkObj = await network.connectToNetwork(user);
+
+    let response = await network.studentRegisterClass(networkObj, user.username, classId);
+    if (!response.success) {
+      return res.status(500).json({
+        msg: response.msg
+      });
+    }
+
+    return res.status(201).json({
+      msg: 'Enroll Successfully'
+    });
+  }
+);
+
+router.post(
+  '/unenroll',
+  [
+    body('classId')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+    body('courseId')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape()
+  ],
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    if (req.decoded.user.role !== USER_ROLES.STUDENT) {
+      return res.status(403).json({
+        msg: 'Permission Denied'
+      });
+    }
+    let user = req.decoded.user;
+    let networkObj = await network.connectToNetwork(user);
+
+    if (!networkObj) {
+      return res.status(500).json({
+        msg: 'Failed connect to blockchain'
+      });
+    }
+
+    let queryCourse = await network.query(networkObj, 'GetCourse', req.body.courseId);
+    if (!queryCourse.success) {
+      return res.status(404).json({
+        msg: 'query course in chaincode error'
+      });
+    }
+
+    const course = JSON.parse(queryCourse.msg);
+    if (course && course.Status !== 'Open') {
+      return res.status(400).json({
+        msg: 'The course has closed!'
+      });
+    }
+
+    let classId = req.body.classId;
+    query = await network.query(networkObj, 'GetClass', classId);
+    if (!query.success) {
+      return res.status(404).json({
+        msg: 'Can not query chaincode'
+      });
+    }
+    let classInfo = JSON.parse(query.msg);
+
+    if (!classInfo.Students || !classInfo.Students.includes(user.username)) {
+      return res.status(400).json({
+        msg: 'You have not register this class yet'
+      });
+    }
+
+    if (classInfo.Status !== 'Open') {
+      return res.status(400).json({
+        msg: `Class is ${classInfo.Status}!`
+      });
+    }
+
+    networkObj = await network.connectToNetwork(user);
+
+    let response = await network.studentCancelRegisterClass(networkObj, user.username, classId);
+    if (!response.success) {
+      return res.status(500).json({
+        msg: response.msg
+      });
+    }
+
+    return res.status(201).json({
+      msg: 'Unenroll Successfully'
+    });
+  }
+);
+
 module.exports = router;

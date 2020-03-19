@@ -10,7 +10,6 @@ const multipart = require('connect-multiparty');
 const multipartMiddleware = multipart();
 const bcrypt = require('bcryptjs');
 const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
-const phone = require('phone');
 
 router.get('/', async (req, res) => {
   const user = req.decoded.user;
@@ -20,21 +19,21 @@ router.get('/', async (req, res) => {
 
     if (!networkObj) {
       return res.status(500).json({
-        success: false,
         msg: 'Failed connect to blockchain'
       });
     }
+
     let identity = user.username;
     const response = await network.query(networkObj, 'GetStudent', identity);
+
     if (!response.success) {
-      return res.status(500).json({
-        success: false,
-        msg: response.msg.toString()
+      return res.status(404).json({
+        msg: 'Query student has failed'
       });
     }
+
     let student = JSON.parse(response.msg);
     return res.json({
-      success: true,
       username: student.Username,
       fullname: student.Fullname,
       phonenumber: student.Info.PhoneNumber,
@@ -50,7 +49,6 @@ router.get('/', async (req, res) => {
 
     if (!networkObj) {
       return res.status(500).json({
-        success: false,
         msg: 'Failed connect to blockchain'
       });
     }
@@ -58,14 +56,14 @@ router.get('/', async (req, res) => {
     const response = await network.query(networkObj, 'GetTeacher', user.username);
 
     if (!response.success) {
-      return res.status(500).json({
-        success: false,
-        msg: response.msg.toString()
+      return res.status(404).json({
+        msg: 'Query teacher has failed'
       });
     }
+
     let teacher = JSON.parse(response.msg);
+
     return res.json({
-      success: true,
       username: teacher.Username,
       fullname: teacher.Fullname,
       phonenumber: teacher.Info.PhoneNumber,
@@ -77,7 +75,7 @@ router.get('/', async (req, res) => {
       country: teacher.Info.Country
     });
   } else if (user.role === USER_ROLES.ADMIN_ACADEMY || user.role === USER_ROLES.ADMIN_STUDENT) {
-    return res.json({ success: true, username: user.username, role: user.role });
+    return res.json({ username: user.username, role: user.role });
   }
 });
 
@@ -89,7 +87,6 @@ router.get('/summary', async (req, res) => {
 
     if (!networkObj) {
       return res.status(500).json({
-        success: false,
         msg: 'Failed connect to blockchain'
       });
     }
@@ -97,9 +94,8 @@ router.get('/summary', async (req, res) => {
     const response = await network.query(networkObj, 'GetStudent', user.username);
 
     if (!response.success) {
-      return res.status(500).json({
-        success: false,
-        msg: response.msg.toString()
+      return res.status(404).json({
+        msg: 'Query chaincode has failed'
       });
     }
 
@@ -110,7 +106,6 @@ router.get('/summary', async (req, res) => {
     let certCount = data.Certificates ? data.Certificates.length : 0;
 
     return res.json({
-      success: true,
       courseCount,
       classCount,
       certCount
@@ -120,7 +115,6 @@ router.get('/summary', async (req, res) => {
 
     if (!networkObj) {
       return res.status(500).json({
-        success: false,
         msg: 'Failed connect to blockchain'
       });
     }
@@ -128,9 +122,8 @@ router.get('/summary', async (req, res) => {
     const response = await network.query(networkObj, 'GetTeacher', user.username);
 
     if (!response.success) {
-      return res.status(500).json({
-        success: false,
-        msg: response.msg.toString()
+      return res.status(404).json({
+        msg: 'Query chaincode has failed'
       });
     }
 
@@ -141,16 +134,51 @@ router.get('/summary', async (req, res) => {
       success: true,
       classCount
     });
-  } else {
-    return res.status(404).json({
-      success: false,
-      msg: 'Not Found'
-    });
+  } else if (user.role === USER_ROLES.ADMIN_ACADEMY) {
+    const networkObj = await network.connectToNetwork(user);
+
+    if (!networkObj) {
+      return res.status(500).json({
+        msg: 'Failed connect to blockchain'
+      });
+    }
+
+    let courses = await network.query(networkObj, 'GetAllCourses');
+    let subjects = await network.query(networkObj, 'GetAllSubjects');
+    let classes = await network.query(networkObj, 'GetAllClasses');
+    let teachers = await network.query(networkObj, 'GetAllTeachers');
+    let students = await network.query(networkObj, 'GetAllStudents');
+
+    if (
+      !courses.success ||
+      !subjects.success ||
+      !classes.success ||
+      !teachers.success ||
+      !students.success
+    ) {
+      return res.status(404).json({
+        msg: 'Query chaincode has failed'
+      });
+    }
+
+    courses = JSON.parse(courses.msg) ? JSON.parse(courses.msg) : [];
+    subjects = JSON.parse(subjects.msg) ? JSON.parse(subjects.msg) : [];
+    classes = JSON.parse(classes.msg) ? JSON.parse(classes.msg) : [];
+    teachers = JSON.parse(teachers.msg) ? JSON.parse(teachers.msg) : [];
+    students = JSON.parse(students.msg) ? JSON.parse(students.msg) : [];
+
+    let courseCount = courses.length;
+    let subjectCount = subjects.length;
+    let classCount = classes.length;
+    let teacherCount = teachers.length;
+    let studentCount = students.length;
+
+    return res.json({ courseCount, subjectCount, classCount, teacherCount, studentCount });
   }
 });
 
 router.put(
-  '/info',
+  '/',
   [
     body('fullName')
       .not()
@@ -184,7 +212,7 @@ router.put(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, msg: errors.array().toString() });
+      return res.status(400).json({ msg: errors.array().toString() });
     }
 
     const user = req.decoded.user;
@@ -192,7 +220,6 @@ router.put(
     let networkObj = await network.connectToNetwork(user);
     if (!networkObj) {
       return res.status(500).json({
-        success: false,
         msg: 'Failed connect to blockchain'
       });
     }
@@ -209,9 +236,8 @@ router.put(
     }
 
     if (!response.success) {
-      return res.status(500).json({
-        success: false,
-        msg: response.msg.toString()
+      return res.status(404).json({
+        msg: 'Query chaincode has failed'
       });
     }
 
@@ -241,9 +267,9 @@ router.put(
       }
 
       if (age < 6 && user.role === USER_ROLES.STUDENT) {
-        return res.status(422).json({ msg: 'You must be 6 years or older.' });
+        return res.status(400).json({ msg: 'You must be 6 years or older' });
       } else if (age < 18 && user.role === USER_ROLES.TEACHER) {
-        return res.status(422).json({ msg: 'You must be 18 years or older.' });
+        return res.status(400).json({ msg: 'You must be 18 years or older' });
       }
     }
 
@@ -258,10 +284,7 @@ router.put(
       birthday === userInfo.Info.Birthday &&
       country === userInfo.Info.Country
     ) {
-      return res.status(500).json({
-        success: false,
-        msg: 'No changes!'
-      });
+      return res.status(304).end();
     }
 
     let updatedUser = {
@@ -280,128 +303,81 @@ router.put(
 
     if (!response.success) {
       return res.status(500).json({
-        success: false,
         msg: response.msg
       });
     }
 
     return res.json({
-      success: true,
       msg: response.msg
     });
   }
 );
 
-router.get('/myClasses', async (req, res) => {
+router.get('/classes', async (req, res) => {
   const user = req.decoded.user;
 
-  if (user.role !== USER_ROLES.STUDENT) {
+  if (user.role !== USER_ROLES.STUDENT && user.role !== USER_ROLES.TEACHER) {
     return res.status(403).json({
-      success: false,
       msg: 'Permission Denied'
     });
   }
-  const networkObj = await network.connectToNetwork(user);
-
-  if (!networkObj) {
-    return res.status(500).json({
-      success: false,
-      msg: 'Connect to blockchain failed'
-    });
-  }
-
-  const response = await network.query(networkObj, 'GetClassesOfStudent', user.username);
-
-  if (!response.success) {
-    return res.status(500).json({
-      success: false,
-      msg: 'Query chaincode failed'
-    });
-  }
-
-  return res.json({
-    success: true,
-    classes: JSON.parse(response.msg)
-  });
-});
-
-router.get('/subjects', async (req, res) => {
-  const user = req.decoded.user;
 
   const networkObj = await network.connectToNetwork(user);
 
   if (!networkObj) {
     return res.status(500).json({
-      success: false,
-      msg: 'Failed connect to blockchain'
+      msg: 'Failed to connect blockchain'
     });
   }
 
-  const response = await network.query(networkObj, 'GetAllSubjects');
-  const certs = await network.query(networkObj, 'GetMyCerts');
+  let classes = [];
 
-  if (!response.success || !certs.success) {
-    return res.status(500).json({
-      success: false,
-      msg: response.msg.toString()
-    });
-  }
-  let subjectStatus = JSON.parse(response.msg);
-  let listCertificates = JSON.parse(certs.msg);
-  subjectStatus.forEach((subject) => {
-    subject['statusConfirm'] = STATUS_REGISTERED.UNREGISTERED;
-    if (subject.Students) {
-      if (subject.Students.includes(user.username)) {
-        subject['statusConfirm'] = STATUS_REGISTERED.REGISTERED;
-      }
-      if (listCertificates && listCertificates.length !== 0) {
-        listCertificates.forEach((cert) => {
-          if (
-            cert.SubjectID === subject.SubjectID &&
-            cert.StudentUsername === req.decoded.user.username
-          ) {
-            subject['statusConfirm'] = STATUS_REGISTERED.CERTIFICATED;
-          }
-        });
+  if (user.role === USER_ROLES.STUDENT) {
+    classes = await network.query(networkObj, 'GetClassesOfStudent', user.username);
+    let subjects = await network.query(networkObj, 'GetAllSubjects');
+
+    if (!classes.success || !subjects.success) {
+      return res.status(404).json({
+        msg: 'Query chaincode has failed'
+      });
+    }
+
+    classes = JSON.parse(classes.msg) ? JSON.parse(classes.msg) : [];
+    subjects = JSON.parse(subjects.msg) ? JSON.parse(subjects.msg) : [];
+
+    for (let i = 0; i < classes.length; i++) {
+      for (let k = 0; k < subjects.length; k++) {
+        if (classes[i].SubjectID === subjects[k].SubjectID) {
+          classes[i].SubjectName = subjects[k].SubjectName;
+          break;
+        }
       }
     }
-  });
+  } else if (user.role === USER_ROLES.TEACHER) {
+    classes = await network.query(networkObj, 'GetClassesByTeacher', user.username);
+    let subjects = await network.query(networkObj, 'GetAllSubjects');
+
+    if (!classes.success || !subjects.success) {
+      return res.status(404).json({
+        msg: 'Failed to query chaincode'
+      });
+    }
+
+    classes = JSON.parse(classes.msg) ? JSON.parse(classes.msg) : [];
+    subjects = JSON.parse(subjects.msg) ? JSON.parse(subjects.msg) : [];
+
+    for (let i = 0; i < classes.length; i++) {
+      for (let k = 0; k < subjects.length; k++) {
+        if (classes[i].SubjectID === subjects[k].SubjectID) {
+          classes[i].SubjectName = subjects[k].SubjectName;
+          break;
+        }
+      }
+    }
+  }
+
   return res.json({
-    success: true,
-    subjects: subjectStatus
-  });
-});
-
-router.get('/subjects/:subjectId/scores', async (req, res) => {
-  const user = req.decoded.user;
-  if (user.role !== USER_ROLES.TEACHER) {
-    return res.status(403).json({
-      success: false,
-      msg: 'Permission Denied'
-    });
-  }
-
-  const networkObj = await network.connectToNetwork(user);
-  var subjectID = req.params.subjectId;
-
-  if (!networkObj) {
-    return res.status(500).json({
-      success: false,
-      msg: 'Failed connect to blockchain'
-    });
-  }
-
-  const response = await network.query(networkObj, 'GetScoresBySubjectOfTeacher', subjectID);
-
-  if (!response.success) {
-    return res.status(500).json({
-      success: false,
-      subjects: response.msg.toString()
-    });
-  }
-  return res.json({
-    success: true,
-    scores: JSON.parse(response.msg)
+    classes
   });
 });
 
@@ -410,7 +386,6 @@ router.get('/certificates', async (req, res) => {
 
   if (user.role !== USER_ROLES.STUDENT) {
     return res.status(403).json({
-      success: false,
       msg: 'Permission Denied'
     });
   }
@@ -418,7 +393,6 @@ router.get('/certificates', async (req, res) => {
 
   if (!networkObj) {
     return res.status(500).json({
-      success: false,
       msg: 'Failed connect to blockchain'
     });
   }
@@ -426,10 +400,9 @@ router.get('/certificates', async (req, res) => {
   let certs = await network.query(networkObj, 'GetCertificatesOfStudent', user.username);
   let courses = await network.query(networkObj, 'GetCoursesOfStudent', user.username);
 
-  if (!certs.success) {
-    return res.status(500).json({
-      success: false,
-      msg: response.msg.toString()
+  if (!certs.success || !courses.success) {
+    return res.status(404).json({
+      msg: 'Query chaincode has failed'
     });
   }
 
@@ -446,13 +419,12 @@ router.get('/certificates', async (req, res) => {
   }
 
   return res.json({
-    success: true,
     certificates: certs
   });
 });
 
 router.get(
-  '/certificate/:courseId',
+  '/courses/:courseId/certificate',
   check('courseId')
     .trim()
     .escape(),
@@ -461,7 +433,6 @@ router.get(
 
     if (user.role !== USER_ROLES.STUDENT) {
       return res.status(403).json({
-        success: false,
         msg: 'Permission Denied'
       });
     }
@@ -469,7 +440,6 @@ router.get(
 
     if (!networkObj) {
       return res.status(500).json({
-        success: false,
         msg: 'Failed connect to blockchain'
       });
     }
@@ -479,9 +449,8 @@ router.get(
     let certificateId;
 
     if (!certs.success) {
-      return res.status(500).json({
-        success: false,
-        msg: certs.msg.toString()
+      return res.status(404).json({
+        msg: 'Query chaincode has failed'
       });
     }
 
@@ -494,377 +463,12 @@ router.get(
     }
 
     return res.json({
-      success: true,
       certificateId
     });
   }
 );
 
-router.get('/scores', async (req, res) => {
-  const user = req.decoded.user;
-  if (user.role !== USER_ROLES.STUDENT) {
-    return res.status(403).json({
-      success: false,
-      msg: 'Permission Denied'
-    });
-  }
-  const networkObj = await network.connectToNetwork(user);
-
-  if (!networkObj) {
-    return res.status(500).json({
-      success: false,
-      msg: 'Failed connect to blockchain'
-    });
-  }
-
-  const response = await network.query(networkObj, 'GetMyScores');
-
-  if (!response.success) {
-    return res.status(500).json({
-      success: false,
-      msg: response.msg
-    });
-  }
-  return res.json({
-    success: true,
-    scores: JSON.parse(response.msg)
-  });
-});
-
-router.post(
-  '/registerCourse',
-  [
-    body('courseId')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape()
-  ],
-  async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
-    }
-
-    if (req.decoded.user.role !== USER_ROLES.STUDENT) {
-      return res.status(403).json({
-        success: false,
-        msg: 'Permission Denied!'
-      });
-    }
-    let user = req.decoded.user;
-    let networkObj = await network.connectToNetwork(user);
-
-    if (!networkObj) {
-      return res.status(500).json({
-        success: false,
-        msg: 'Failed connect to blockchain!'
-      });
-    }
-
-    let query = await network.query(networkObj, 'GetStudent', user.username);
-    if (!query.success) {
-      return res.status(500).json({
-        success: false,
-        msg: 'Can not query chaincode!'
-      });
-    }
-
-    let courseId = req.body.courseId;
-    let student = JSON.parse(query.msg);
-
-    if (student.Courses && student.Courses.includes(courseId)) {
-      return res.status(500).json({
-        success: false,
-        msg: 'You studied this course!'
-      });
-    }
-
-    networkObj = await network.connectToNetwork(user);
-
-    let response = await network.studentRegisterCourse(networkObj, user.username, courseId);
-    if (!response.success) {
-      return res.status(500).json({
-        success: false,
-        msg: response.msg
-      });
-    }
-
-    return res.json({
-      success: true,
-      msg: 'Register Successfully!'
-    });
-  }
-);
-
-router.post(
-  '/registerClass',
-  [
-    body('classId')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape(),
-    body('courseId')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape()
-  ],
-  async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
-    }
-
-    if (req.decoded.user.role !== USER_ROLES.STUDENT) {
-      return res.status(403).json({
-        success: false,
-        msg: 'Permission Denied!'
-      });
-    }
-    let user = req.decoded.user;
-    let networkObj = await network.connectToNetwork(user);
-
-    if (!networkObj) {
-      return res.status(500).json({
-        success: false,
-        msg: 'Failed connect to blockchain!'
-      });
-    }
-
-    let queryCourse = await network.query(networkObj, 'GetCourse', req.body.courseId);
-    if (!queryCourse.success) {
-      return res.status(500).json({
-        success: false,
-        msg: 'query course in chaincode error'
-      });
-    }
-
-    const course = JSON.parse(queryCourse.msg);
-    if (course && course.Status !== 'Open') {
-      return res.status(500).json({
-        success: false,
-        msg: 'The course has closed!'
-      });
-    }
-
-    let query = await network.query(networkObj, 'GetStudent', user.username);
-    if (!query.success) {
-      return res.status(500).json({
-        success: false,
-        msg: 'Can not query chaincode!'
-      });
-    }
-
-    let classId = req.body.classId;
-    let student = JSON.parse(query.msg);
-
-    if (student.Classes && student.Classes.includes(classId)) {
-      return res.status(500).json({
-        success: false,
-        msg: 'You studied this class!'
-      });
-    }
-
-    query = await network.query(networkObj, 'GetClass', classId);
-    if (!query.success) {
-      return res.status(500).json({
-        success: false,
-        msg: 'Can not query chaincode!'
-      });
-    }
-    let classInfo = JSON.parse(query.msg);
-
-    query = await network.query(networkObj, 'GetClassesOfStudent', user.username);
-    if (!query.success) {
-      return res.status(500).json({
-        success: false,
-        msg: 'Can not query chaincode!'
-      });
-    }
-
-    let classes = JSON.parse(query.msg);
-
-    if (classes) {
-      for (let i = 0; i < classes.length; i++) {
-        if (classes[i].SubjectID === classInfo.SubjectID) {
-          return res.status(400).json({
-            success: false,
-            msg: 'You studied this subject!'
-          });
-        }
-      }
-    }
-
-    if (classInfo.Status === 'InProgress') {
-      return res.status(500).json({
-        success: false,
-        msg: 'Class register closed!'
-      });
-    }
-
-    if (classInfo.Status === 'Completed') {
-      return res.status(500).json({
-        success: false,
-        msg: 'Class was completed!'
-      });
-    }
-
-    networkObj = await network.connectToNetwork(user);
-
-    let response = await network.studentRegisterClass(networkObj, user.username, classId);
-    if (!response.success) {
-      return res.status(500).json({
-        success: false,
-        msg: response.msg
-      });
-    }
-
-    return res.json({
-      success: true,
-      msg: 'Register Successfully!'
-    });
-  }
-);
-
-router.post(
-  '/cancelRegisteredClass',
-  [
-    body('classId')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape(),
-    body('courseId')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape()
-  ],
-  async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
-    }
-
-    if (req.decoded.user.role !== USER_ROLES.STUDENT) {
-      return res.status(403).json({
-        success: false,
-        msg: 'Permission Denied!'
-      });
-    }
-    let user = req.decoded.user;
-    let networkObj = await network.connectToNetwork(user);
-
-    if (!networkObj) {
-      return res.status(500).json({
-        success: false,
-        msg: 'Failed connect to blockchain!'
-      });
-    }
-
-    let queryCourse = await network.query(networkObj, 'GetCourse', req.body.courseId);
-    if (!queryCourse.success) {
-      return res.status(500).json({
-        success: false,
-        msg: 'query course in chaincode error'
-      });
-    }
-
-    const course = JSON.parse(queryCourse.msg);
-    if (course && course.Status !== 'Open') {
-      return res.status(500).json({
-        success: false,
-        msg: 'The course has closed!'
-      });
-    }
-
-    let classId = req.body.classId;
-    query = await network.query(networkObj, 'GetClass', classId);
-    if (!query.success) {
-      return res.status(500).json({
-        success: false,
-        msg: 'Can not query chaincode!'
-      });
-    }
-    let classInfo = JSON.parse(query.msg);
-
-    if (!classInfo.Students || !classInfo.Students.includes(user.username)) {
-      return res.status(500).json({
-        success: false,
-        msg: 'You have not register this class yet!'
-      });
-    }
-
-    if (classInfo.Status !== 'Open') {
-      return res.status(500).json({
-        success: false,
-        msg: `Class is ${classInfo.Status}!`
-      });
-    }
-
-    networkObj = await network.connectToNetwork(user);
-
-    let response = await network.studentCancelRegisterClass(networkObj, user.username, classId);
-    if (!response.success) {
-      return res.status(500).json({
-        success: false,
-        msg: response.msg
-      });
-    }
-
-    return res.json({
-      success: true,
-      msg: 'Cancel Successfully!'
-    });
-  }
-);
-
-router.get('/:subjectId/students', checkJWT, async (req, res, next) => {
-  if (
-    req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY &&
-    req.decoded.user.role !== USER_ROLES.TEACHER
-  ) {
-    return res.status(403).json({
-      success: false,
-      msg: 'Permission Denied'
-    });
-  }
-
-  const subjectId = req.params.subjectId;
-  const networkObj = await network.connectToNetwork(req.decoded.user);
-  const queryStudents = await network.query(networkObj, 'GetStudentsBySubject', subjectId);
-  const queryScore = await network.query(networkObj, 'GetScoresBySubject', subjectId);
-
-  if (!queryStudents.success || !queryScore.success) {
-    return res.status(500).json({
-      success: false,
-      msg: 'Error when call chaincode'
-    });
-  }
-
-  let listScore = JSON.parse(queryScore.msg);
-  let listStudents = JSON.parse(queryStudents.msg);
-
-  listStudents.forEach((student) => {
-    if (listScore) {
-      listScore.forEach((score) => {
-        if (score.StudentUsername === student.Username) {
-          student['ScoreValue'] = score.ScoreValue;
-        }
-      });
-    } else {
-      student['ScoreValue'] = null;
-    }
-  });
-  return res.json({
-    success: true,
-    students: listStudents
-  });
-});
-
-router.post('/avatar', checkJWT, multipartMiddleware, async (req, res) => {
+router.put('/avatar', multipartMiddleware, async (req, res) => {
   try {
     const user = req.decoded.user;
     let imageFile = req.files.image.path;
@@ -874,22 +478,20 @@ router.post('/avatar', checkJWT, multipartMiddleware, async (req, res) => {
 
     if (!response.success) {
       return res.status(500).json({
-        success: false,
         msg: response.msg.toString()
       });
     }
 
-    return res.json({ success: true, imageUrl: image.secure_url });
+    return res.json({ imageUrl: image.secure_url });
   } catch (error) {
     return res.status(500).json({
-      success: false,
       msg: error.message
     });
   }
 });
 
-router.post(
-  '/changePassword',
+router.put(
+  '/password',
   [
     body('oldPass')
       .not()
@@ -907,11 +509,10 @@ router.post(
       .trim()
       .isLength({ min: 6 })
   ],
-  checkJWT,
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
+      return res.status(400).json({ errors: errors.array() });
     }
 
     try {
@@ -919,12 +520,10 @@ router.post(
 
       if (oldPass === newPass) {
         return res.status(400).json({
-          success: false,
           msg: 'Your new password must be different from your previous password'
         });
       } else if (newPass !== confirmPass) {
         return res.status(400).json({
-          success: false,
           msg: 'Confirm password does not match'
         });
       }
@@ -933,7 +532,6 @@ router.post(
 
       if (!user) {
         return res.status(404).json({
-          success: false,
           msg: 'Account does not exist'
         });
       }
@@ -942,7 +540,6 @@ router.post(
 
       if (!validPassword) {
         return res.status(400).json({
-          success: false,
           msg: 'Old Password incorrect'
         });
       }
@@ -953,12 +550,10 @@ router.post(
       await user.updateOne({ password: hashVal });
 
       return res.status(200).json({
-        success: true,
         msg: 'Change password successfully'
       });
     } catch (error) {
       return res.status(500).json({
-        success: false,
         msg: 'Change password failed'
       });
     }
@@ -1001,8 +596,12 @@ router.get('/classes', async (req, res) => {
     });
   }
 
-  classes = JSON.parse(classes.msg) ? JSON.parse(classes.msg) : [];
-  subjects = JSON.parse(subjects.msg) ? JSON.parse(subjects.msg) : [];
+  if (!classes.success || !subjects.success) {
+    return res.status(500).json({
+      success: false,
+      msg: 'Query chaincode failed'
+    });
+  }
 
   if (user.role === USER_ROLES.STUDENT) {
     for (let i = 0; i < classes.length; i++) {
@@ -1026,7 +625,6 @@ router.get('/courses', async (req, res) => {
 
   if (user.role !== USER_ROLES.STUDENT) {
     return res.status(403).json({
-      success: false,
       msg: 'Permission Denied'
     });
   }
@@ -1035,7 +633,6 @@ router.get('/courses', async (req, res) => {
 
   if (!networkObj) {
     return res.status(500).json({
-      success: false,
       msg: 'Connect to blockchain failed'
     });
   }
@@ -1044,9 +641,8 @@ router.get('/courses', async (req, res) => {
   let certs = await network.query(networkObj, 'GetCertificatesOfStudent', user.username);
 
   if (!courses.success || !certs.success) {
-    return res.status(500).json({
-      success: false,
-      msg: 'Query chaincode failed'
+    return res.status(404).json({
+      msg: 'Query chaincode has failed'
     });
   }
 
@@ -1072,17 +668,15 @@ router.get('/courses', async (req, res) => {
   }
 
   return res.json({
-    success: true,
     courses
   });
 });
 
-router.get('/notRegisterCourses', async (req, res) => {
+router.get('/courses/not-enroll', async (req, res) => {
   const user = req.decoded.user;
 
   if (user.role !== USER_ROLES.STUDENT) {
     return res.status(403).json({
-      success: false,
       msg: 'Permission Denied'
     });
   }
@@ -1091,8 +685,7 @@ router.get('/notRegisterCourses', async (req, res) => {
 
   if (!networkObj) {
     return res.status(500).json({
-      success: false,
-      msg: 'Failed connect to blockchain!'
+      msg: 'Failed connect to blockchain'
     });
   }
 
@@ -1100,9 +693,8 @@ router.get('/notRegisterCourses', async (req, res) => {
   let myCourses = await network.query(networkObj, 'GetCoursesOfStudent', user.username);
 
   if (!allCourses.success || !myCourses.success) {
-    return res.status(500).json({
-      success: false,
-      msg: 'Query chaincode failed'
+    return res.status(404).json({
+      msg: 'Query chaincode has failed'
     });
   }
 
@@ -1111,7 +703,6 @@ router.get('/notRegisterCourses', async (req, res) => {
 
   if (!myCourses) {
     return res.json({
-      success: true,
       courses: allCourses
     });
   }
@@ -1121,76 +712,76 @@ router.get('/notRegisterCourses', async (req, res) => {
   );
 
   return res.json({
-    success: true,
     courses: notRegisterCourses
   });
 });
 
-router.get('/scores/:courseId', async (req, res) => {
-  const user = req.decoded.user;
-  if (user.role !== USER_ROLES.STUDENT) {
-    return res.status(403).json({
-      success: false,
-      msg: 'Permission Denied'
-    });
-  }
+router.get(
+  '/courses/:courseId/scores',
+  check('courseId')
+    .trim()
+    .escape(),
+  async (req, res) => {
+    const user = req.decoded.user;
+    if (user.role !== USER_ROLES.STUDENT) {
+      return res.status(403).json({
+        msg: 'Permission Denied'
+      });
+    }
 
-  var courseId = req.params.courseId;
-  var username = user.username;
+    let courseId = req.params.courseId;
+    let username = user.username;
 
-  const networkObj = await network.connectToNetwork(user);
-  if (!networkObj) {
-    return res.status(500).json({
-      success: false,
-      msg: 'Failed connect to blockchain'
-    });
-  }
-  const resSubjects = await network.query(networkObj, 'GetSubjectsOfCourse', courseId);
-  const resScores = await network.query(networkObj, 'GetScoresOfStudent', [username, courseId]);
-  if (!resSubjects.success || !resScores.success) {
-    return res.status(500).json({
-      success: false,
-      msg: 'query chaincode error!'
-    });
-  }
-  let listSubjects = JSON.parse(resSubjects.msg) ? JSON.parse(resSubjects.msg) : [];
-  let listScores = JSON.parse(resScores.msg) ? JSON.parse(resScores.msg) : [];
+    const networkObj = await network.connectToNetwork(user);
+    if (!networkObj) {
+      return res.status(500).json({
+        msg: 'Failed connect to blockchain'
+      });
+    }
 
-  for (let i = 0; i < listScores.length; i++) {
-    for (let j = 0; j < listSubjects.length; j++) {
-      if (listScores[i].SubjectID === listSubjects[j].SubjectID) {
-        let subject = listSubjects[j];
-        subject['score'] = listScores[i].ScoreValue;
-        listSubjects[j] = subject;
+    const resSubjects = await network.query(networkObj, 'GetSubjectsOfCourse', courseId);
+    const resScores = await network.query(networkObj, 'GetScoresOfStudent', [username, courseId]);
+    if (!resSubjects.success || !resScores.success) {
+      return res.status(404).json({
+        msg: 'Query chaincode has failed'
+      });
+    }
+
+    let listSubjects = JSON.parse(resSubjects.msg) ? JSON.parse(resSubjects.msg) : [];
+    let listScores = JSON.parse(resScores.msg) ? JSON.parse(resScores.msg) : [];
+
+    for (let i = 0; i < listScores.length; i++) {
+      for (let j = 0; j < listSubjects.length; j++) {
+        if (listScores[i].SubjectID === listSubjects[j].SubjectID) {
+          let subject = listSubjects[j];
+          subject['score'] = listScores[i].ScoreValue;
+          listSubjects[j] = subject;
+        }
       }
     }
-  }
 
-  return res.json({
-    success: true,
-    subjects: listSubjects
-  });
-});
+    return res.json({
+      subjects: listSubjects
+    });
+  }
+);
 
 router.get(
   '/subject/:subjectId',
   check('subjectId')
     .trim()
     .escape(),
-  checkJWT,
   async (req, res) => {
     const user = req.decoded.user;
     if (req.decoded.user.role !== USER_ROLES.STUDENT) {
       return res.status(403).json({
-        success: false,
         msg: 'Permission Denied'
       });
     }
     const networkObj = await network.connectToNetwork(user);
     if (!networkObj) {
       return res.status(500).json({
-        success: false,
-        msg: 'Failed connect to blockchain!'
+        msg: 'Failed connect to blockchain'
       });
     }
     const querySubject = await network.query(networkObj, 'GetSubject', req.params.subjectId);
@@ -1201,9 +792,8 @@ router.get(
     );
 
     if (!querySubject.success || !queryClassesOfSubject.success) {
-      res.status(500).send({
-        success: false,
-        msg: 'Query chaincode error!'
+      res.status(404).json({
+        msg: 'Query chaincode has failed'
       });
       return;
     }
@@ -1221,7 +811,6 @@ router.get(
       }
     }
     return res.json({
-      success: true,
       subject: subject
     });
   }

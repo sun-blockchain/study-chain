@@ -41,7 +41,7 @@ export const adminService = {
 
 async function getSummaryInfo() {
   try {
-    let response = await axios.get(`${process.env.VUE_APP_API_BACKEND}/academy/summary`, {
+    let response = await axios.get(`${process.env.VUE_APP_API_BACKEND}/me/summary`, {
       headers: authHeader()
     });
     return response.data;
@@ -251,7 +251,7 @@ async function deleteSubject(subjectId) {
       }
     });
 
-    return respone;
+    return respone.data;
   } catch (error) {
     throw error;
   }

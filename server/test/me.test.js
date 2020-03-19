@@ -11,156 +11,7 @@ const app = require('../app');
 
 require('dotenv').config();
 
-describe('GET /account/me/', () => {
-  let connect;
-  let query;
-  let findOneUserStub;
-
-  beforeEach(() => {
-    connect = sinon.stub(network, 'connectToNetwork');
-    query = sinon.stub(network, 'query');
-    findOneUserStub = sinon.stub(User, 'findOne');
-  });
-
-  afterEach(() => {
-    connect.restore();
-    query.restore();
-    findOneUserStub.restore();
-  });
-
-  it('failed connect to blockchain', (done) => {
-    connect.returns(null);
-
-    request(app)
-      .get('/account/me')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Failed connect to blockchain');
-        done();
-      });
-  });
-
-  it('failed to query info student in chaincode', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'hoangdd', role: USER_ROLES.TEACHER }
-    });
-
-    query.returns({ success: false, msg: 'Error' });
-
-    request(app)
-      .get('/account/me')
-      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Error');
-        done();
-      });
-  });
-
-  it('failed to query info student in chaincode', (done) => {
-    connect.returns(null);
-
-    query.returns({ success: false, msg: 'Error' });
-
-    request(app)
-      .get('/account/me')
-      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Failed connect to blockchain');
-        done();
-      });
-  });
-
-  it('success query info of user student', (done) => {
-    connect.returns({ error: null });
-
-    let data = JSON.stringify({
-      Username: 'hoangdd',
-      Fullname: 'Do Hoang',
-      Info: { Avatar: 'https://google.com', Sex: 'Male', Phone: '123456789' },
-      Courses: 'Blockchain101'
-    });
-
-    query.returns({
-      success: true,
-      msg: data
-    });
-
-    request(app)
-      .get('/account/me')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
-        done();
-      });
-  });
-
-  it('success query info of user teacher', (done) => {
-    connect.returns({ error: null });
-
-    let data = JSON.stringify({
-      Username: 'hoangdd',
-      Fullname: 'Do Hoang',
-      Info: { Avatar: 'https://google.com', Sex: 'Male', Phone: '123456789' },
-      Courses: 'Blockchain101'
-    });
-
-    query.returns({
-      success: true,
-      msg: data
-    });
-
-    request(app)
-      .get('/account/me')
-      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
-        done();
-      });
-  });
-
-  it('success query info of admin academy', (done) => {
-    connect.returns({ error: null });
-
-    request(app)
-      .get('/account/me')
-      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
-        expect(res.body.username).equal('hoangdd');
-        expect(res.body.role).equal(1);
-        done();
-      });
-  });
-
-  it('success query info of admin student', (done) => {
-    connect.returns({ error: null });
-
-    request(app)
-      .get('/account/me')
-      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
-        expect(res.body.username).equal('hoangdd');
-        expect(res.body.role).equal(3);
-        done();
-      });
-  });
-});
-
-describe('GET /account/me/summary', () => {
+describe('GET /me', () => {
   let connect;
   let query;
 
@@ -174,35 +25,33 @@ describe('GET /account/me/summary', () => {
     query.restore();
   });
 
-  it('failed connect to blockchain with student', (done) => {
+  it('Failed connect to blockchain with student', (done) => {
     connect.returns(null);
 
     request(app)
-      .get('/account/me/summary')
+      .get('/me')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
         expect(res.body.msg).equal('Failed connect to blockchain');
         done();
       });
   });
 
-  it('failed connect to blockchain with teacher', (done) => {
+  it('Failed connect to blockchain with teacher', (done) => {
     connect.returns(null);
 
     request(app)
-      .get('/account/me/summary')
+      .get('/me')
       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
         expect(res.body.msg).equal('Failed connect to blockchain');
         done();
       });
   });
 
-  it('failed to query summary info teacher in chaincode', (done) => {
+  it('Failed to query info teacher in chaincode', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -213,17 +62,17 @@ describe('GET /account/me/summary', () => {
     query.returns({ success: false, msg: 'Error' });
 
     request(app)
-      .get('/account/me/summary')
+      .get('/me')
       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
       .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Error');
+        expect(res.status).equal(404);
         done();
       });
   });
 
-  it('failed to query summary info student in chaincode', (done) => {
+  it('Failed to query info student in chaincode', (done) => {
+    connect.returns(null);
+
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -234,10 +83,198 @@ describe('GET /account/me/summary', () => {
     query.returns({ success: false, msg: 'Error' });
 
     request(app)
-      .get('/account/me/summary')
+      .get('/me')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(404);
+        done();
+      });
+  });
+
+  it('success query info of user student', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    let data = JSON.stringify({
+      Username: 'hoangdd',
+      Fullname: 'Do Hoang',
+      Info: { Avatar: 'https://google.com', Sex: 'Male', Phone: '123456789' },
+      Courses: 'Blockchain101'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .get('/me')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        done();
+      });
+  });
+
+  it('success query info of user teacher', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.TEACHER }
+    });
+
+    let data = JSON.stringify({
+      Username: 'hoangdd',
+      Fullname: 'Do Hoang',
+      Info: { Avatar: 'https://google.com', Sex: 'Male', Phone: '123456789' },
+      Courses: 'Blockchain101'
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .get('/me')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        done();
+      });
+  });
+
+  it('success query info of admin academy', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    request(app)
+      .get('/me')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
+        expect(res.body.username).equal('hoangdd');
+        expect(res.body.role).equal(1);
+        done();
+      });
+  });
+});
+
+describe('GET /me/summary', () => {
+  let connect;
+  let query;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+  });
+
+  it('Failed connect to blockchain with student', (done) => {
+    connect.returns(null);
+
+    request(app)
+      .get('/me/summary')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(500);
+        expect(res.body.msg).equal('Failed connect to blockchain');
+        done();
+      });
+  });
+
+  it('Failed connect to blockchain with teacher', (done) => {
+    connect.returns(null);
+
+    request(app)
+      .get('/me/summary')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.msg).equal('Failed connect to blockchain');
+        done();
+      });
+  });
+
+  it('Failed connect to blockchain with admin academy', (done) => {
+    connect.returns(null);
+
+    request(app)
+      .get('/me/summary')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.msg).equal('Failed connect to blockchain');
+        done();
+      });
+  });
+
+  it('Failed to query summary info teacher in chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.TEACHER }
+    });
+
+    query.returns({ success: false, msg: 'Error' });
+
+    request(app)
+      .get('/me/summary')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(404);
+        done();
+      });
+  });
+
+  it('Failed to query summary info student in chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    query.returns({ success: false, msg: 'Error' });
+
+    request(app)
+      .get('/me/summary')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(404);
+        done();
+      });
+  });
+
+  it('Failed to query summary info admin academy in chaincode', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    query.returns({ success: false, msg: 'Error' });
+
+    request(app)
+      .get('/me/summary')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(404);
         done();
       });
   });
@@ -256,7 +293,7 @@ describe('GET /account/me/summary', () => {
     });
 
     request(app)
-      .get('/account/me/summary')
+      .get('/me/summary')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(200);
@@ -277,7 +314,7 @@ describe('GET /account/me/summary', () => {
     });
 
     request(app)
-      .get('/account/me/summary')
+      .get('/me/summary')
       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(200);
@@ -285,20 +322,46 @@ describe('GET /account/me/summary', () => {
       });
   });
 
-  it('response 404 with admin academy', (done) => {
+  it('success query summary info of admin academy', (done) => {
     connect.returns({ error: null });
 
+    let data = JSON.stringify({
+      Classes: ['4563', '1234']
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
     request(app)
-      .get('/account/me/summary')
+      .get('/me/summary')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .then((res) => {
-        expect(res.status).equal(404);
+        expect(res.status).equal(200);
+        done();
+      });
+  });
+
+  it('chaincode returns null data for admin academy', (done) => {
+    connect.returns({ error: null });
+
+    query.returns({
+      success: true,
+      msg: null
+    });
+
+    request(app)
+      .get('/me/summary')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(200);
         done();
       });
   });
 });
 
-describe('PUT /account/me/info', () => {
+describe('PUT /me', () => {
   let connect;
   let query;
 
@@ -314,11 +377,11 @@ describe('PUT /account/me/info', () => {
     updateUserInfo.restore();
   });
 
-  it('failed connect to blockchain', (done) => {
+  it('Failed connect to blockchain', (done) => {
     connect.returns(null);
 
     request(app)
-      .put('/account/me/info')
+      .put('/me')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         fullName: 'Trinh Van Tan',
@@ -330,13 +393,12 @@ describe('PUT /account/me/info', () => {
       })
       .then((res) => {
         expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
         expect(res.body.msg).equal('Failed connect to blockchain');
         done();
       });
   });
 
-  it('failed to query info student in chaincode', (done) => {
+  it('Failed to query info student in chaincode', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -347,7 +409,7 @@ describe('PUT /account/me/info', () => {
     query.returns({ success: false, msg: 'Error' });
 
     request(app)
-      .put('/account/me/info')
+      .put('/me')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         fullName: 'Trinh Van Tan',
@@ -358,14 +420,12 @@ describe('PUT /account/me/info', () => {
         birthday: 'ABC'
       })
       .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Error');
+        expect(res.status).equal(404);
         done();
       });
   });
 
-  it('failed to query info teacher in chaincode', (done) => {
+  it('Failed to query info teacher in chaincode', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -376,7 +436,7 @@ describe('PUT /account/me/info', () => {
     query.returns({ success: false, msg: 'Error' });
 
     request(app)
-      .put('/account/me/info')
+      .put('/me')
       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
       .send({
         fullName: 'Trinh Van Tan',
@@ -387,14 +447,125 @@ describe('PUT /account/me/info', () => {
         birthday: 'ABC'
       })
       .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Error');
+        expect(res.status).equal(404);
         done();
       });
   });
 
-  it('No changes', (done) => {
+  it('Request body is invalid', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.TEACHER }
+    });
+
+    request(app)
+      .put('/me')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .send({
+        fullName: '',
+        phoneNumber: { value: '+84 973241005', country: 'VN' },
+        email: 'abc@gmail.com',
+        address: 'KG',
+        sex: 'Male',
+        birthday: '01-01-2000'
+      })
+      .then((res) => {
+        expect(res.status).equal(400);
+        done();
+      });
+  });
+
+  it('Birhday of teacher is invalid', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.TEACHER }
+    });
+
+    let data = JSON.stringify({
+      Username: 'hoangdd',
+      Fullname: 'Trinh Van Tan',
+      Info: {
+        Sex: 'Male',
+        PhoneNumber: '123456789',
+        Email: 'abc',
+        Address: 'KG',
+        Birthday: 'ABC',
+        Country: 'VN'
+      }
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .put('/me')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .send({
+        fullName: 'trinh van tan',
+        phoneNumber: { value: '+84 973241005', country: 'VN' },
+        email: 'abc@gmail.com',
+        address: 'SG',
+        sex: 'Male',
+        birthday: '01-01-2010'
+      })
+      .then((res) => {
+        expect(res.status).equal(400);
+        expect(res.body.msg).equal('You must be 18 years or older');
+        done();
+      });
+  });
+
+  it('Birhday of student is invalid', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    let data = JSON.stringify({
+      Username: 'hoangdd',
+      Fullname: 'Trinh Van Tan',
+      Info: {
+        Sex: 'Male',
+        PhoneNumber: '123456789',
+        Email: 'abc',
+        Address: 'KG',
+        Birthday: 'ABC',
+        Country: 'VN'
+      }
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .put('/me')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        fullName: 'trinh van tan',
+        phoneNumber: { value: '+84 973241005', country: 'VN' },
+        email: 'abc@gmail.com',
+        address: 'HN',
+        sex: 'Male',
+        birthday: '01-01-2020'
+      })
+      .then((res) => {
+        expect(res.status).equal(400);
+        expect(res.body.msg).equal('You must be 6 years or older');
+        done();
+      });
+  });
+
+  it('Not Modified', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -421,7 +592,7 @@ describe('PUT /account/me/info', () => {
     });
 
     request(app)
-      .put('/account/me/info')
+      .put('/me')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         fullName: 'Trinh Van Tan',
@@ -432,14 +603,12 @@ describe('PUT /account/me/info', () => {
         birthday: 'ABC'
       })
       .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('No changes!');
+        expect(res.status).equal(304);
         done();
       });
   });
 
-  it('Success', (done) => {
+  it('Success update info with student', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -471,7 +640,7 @@ describe('PUT /account/me/info', () => {
     });
 
     request(app)
-      .put('/account/me/info')
+      .put('/me')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         username: 'hoangdd',
@@ -483,30 +652,78 @@ describe('PUT /account/me/info', () => {
         birthday: 'ABC'
       })
       .then((res) => {
-        expect(res.body.success).equal(true);
-        expect(res.body.msg).equal('Update success!');
+        expect(res.status).equal(200);
+        done();
+      });
+  });
+
+  it('Success update info with teacher', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.TEACHER }
+    });
+
+    let data = JSON.stringify({
+      Username: 'hoangdd',
+      Fullname: 'Trinh Van Tan',
+      Info: {
+        Sex: 'Male',
+        PhoneNumber: '123456789',
+        Email: 'abc',
+        Address: 'KG',
+        Birthday: 'ABC',
+        Country: 'VN'
+      }
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    updateUserInfo.returns({
+      success: true,
+      msg: 'Update success!'
+    });
+
+    request(app)
+      .put('/me')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .send({
+        username: 'hoangdd',
+        fullName: 'Trinh Van Tan',
+        phoneNumber: { value: '+84 973241005', country: 'VN' },
+        email: 'bcd@gmail.com',
+        address: 'KG',
+        sex: 'Male',
+        birthday: 'ABC'
+      })
+      .then((res) => {
+        expect(res.status).equal(200);
         done();
       });
   });
 });
 
-describe('GET /account/me/classes', () => {
+describe('GET /me/classes', () => {
   let connect;
-  let queryClasses;
+  let query;
 
   beforeEach(() => {
     connect = sinon.stub(network, 'connectToNetwork');
-    queryClasses = sinon.stub(network, 'query');
+    query = sinon.stub(network, 'query');
   });
 
   afterEach(() => {
     connect.restore();
-    queryClasses.restore();
+    query.restore();
   });
 
-  it('permission denied', (done) => {
+  it('Permission denied', (done) => {
     request(app)
-      .get('/account/me/classes')
+      .get('/me/classes')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(403);
@@ -514,11 +731,11 @@ describe('GET /account/me/classes', () => {
       });
   });
 
-  it('failed connect to blockchain', (done) => {
+  it('Failed connect to blockchain with student', (done) => {
     connect.returns(null);
 
     request(app)
-      .get('/account/me/classes')
+      .get('/me/classes')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(500);
@@ -526,7 +743,19 @@ describe('GET /account/me/classes', () => {
       });
   });
 
-  it('failed to query classes of student in chaincode', (done) => {
+  it('Failed connect to blockchain with teacher', (done) => {
+    connect.returns(null);
+
+    request(app)
+      .get('/me/classes')
+      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(500);
+        done();
+      });
+  });
+
+  it('Failed to query classes of student in chaincode', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -534,17 +763,13 @@ describe('GET /account/me/classes', () => {
       user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
     });
 
-    let data = JSON.stringify({
-      error: 'Error Network'
-    });
-
-    queryClasses.returns({
+    query.returns({
       success: false,
-      msg: data
+      msg: 'Query chaincode has failed'
     });
 
     request(app)
-      .get('/account/me/classes')
+      .get('/me/classes')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(404);
@@ -552,7 +777,7 @@ describe('GET /account/me/classes', () => {
       });
   });
 
-  it('failed to query classes of teacher in chaincode', (done) => {
+  it('Failed to query classes of teacher in chaincode', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -560,13 +785,13 @@ describe('GET /account/me/classes', () => {
       user: { username: 'conglt', role: USER_ROLES.TEACHER }
     });
 
-    queryClasses.returns({
+    query.returns({
       success: false,
       msg: 'Query chaincode has failed'
     });
 
     request(app)
-      .get('/account/me/classes')
+      .get('/me/classes')
       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(404);
@@ -599,17 +824,16 @@ describe('GET /account/me/classes', () => {
       }
     ]);
 
-    queryClasses.returns({
+    query.returns({
       success: true,
       msg: data
     });
 
     request(app)
-      .get('/account/me/classes')
+      .get('/me/classes')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
         done();
       });
   });
@@ -639,13 +863,13 @@ describe('GET /account/me/classes', () => {
       }
     ]);
 
-    queryClasses.returns({
+    query.returns({
       success: true,
       msg: data
     });
 
     request(app)
-      .get('/account/me/classes')
+      .get('/me/classes')
       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(200);
@@ -654,7 +878,7 @@ describe('GET /account/me/classes', () => {
   });
 });
 
-describe('GET /account/me/courses', () => {
+describe('GET /me/courses', () => {
   let connect;
   let queryCourses;
 
@@ -670,7 +894,7 @@ describe('GET /account/me/courses', () => {
 
   it('permission denied', (done) => {
     request(app)
-      .get('/account/me/courses')
+      .get('/me/courses')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(403);
@@ -682,7 +906,7 @@ describe('GET /account/me/courses', () => {
     connect.returns(null);
 
     request(app)
-      .get('/account/me/courses')
+      .get('/me/courses')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(500);
@@ -698,20 +922,16 @@ describe('GET /account/me/courses', () => {
       user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
     });
 
-    let data = JSON.stringify({
-      error: 'Error Network'
-    });
-
     queryCourses.returns({
       success: false,
-      msg: data
+      msg: 'Query chaincode has failed'
     });
 
     request(app)
-      .get('/account/me/courses')
+      .get('/me/courses')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
-        expect(res.status).equal(500);
+        expect(res.status).equal(404);
         done();
       });
   });
@@ -739,32 +959,27 @@ describe('GET /account/me/courses', () => {
     });
 
     request(app)
-      .get('/account/me/courses')
+      .get('/me/courses')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
         done();
       });
   });
 });
 
-describe('GET /account/me/certificates', () => {
+describe('GET /me/certificates', () => {
   let connect;
   let query;
-  let findOneUserStub;
 
   beforeEach(() => {
     connect = sinon.stub(network, 'connectToNetwork');
     query = sinon.stub(network, 'query');
-    findOneUserStub = sinon.stub(User, 'findOne');
-    query.withArgs('GetMyCerts');
   });
 
   afterEach(() => {
     connect.restore();
     query.restore();
-    findOneUserStub.restore();
   });
 
   it('success query certificates of user student', (done) => {
@@ -775,78 +990,125 @@ describe('GET /account/me/certificates', () => {
       user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
     });
 
-    let data = JSON.stringify({
+    let cert = JSON.stringify({
       CertificateID: 'A354',
       SubjectID: 'INT-2019',
       StudentUsername: 'tanbongcuoi',
       IssueDate: '10-10-2019'
     });
 
-    query.returns({
-      success: true,
-      msg: data
+    let courses = JSON.stringify({
+      CourseID: 'INT-2019',
+      SubjectID: 'INT-2019-1'
     });
+
+    query.onFirstCall().returns({
+      success: true,
+      msg: cert
+    });
+
+    query.onSecondCall().returns({
+      success: true,
+      msg: courses
+    });
+
     request(app)
-      .get('/account/me/certificates')
+      .get('/me/certificates')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
         done();
       });
   });
 
-  it('alert are not student when user teacher query', (done) => {
-    findOneUserStub.yields(undefined, {
-      username: 'hoangdd',
-      role: USER_ROLES.TEACHER
+  it('Query course has failed', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    let cert = JSON.stringify({
+      CertificateID: 'A354',
+      SubjectID: 'INT-2019',
+      StudentUsername: 'tanbongcuoi',
+      IssueDate: '10-10-2019'
+    });
+
+    query.onFirstCall().returns({
+      success: true,
+      msg: cert
+    });
+
+    query.onSecondCall().returns({
+      success: false,
+      msg: 'Error'
     });
 
     request(app)
-      .get('/account/me/certificates')
+      .get('/me/certificates')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(404);
+        done();
+      });
+  });
+
+  it('Query certificate has failed', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
+    });
+
+    let courses = JSON.stringify({
+      CourseID: 'INT-2019',
+      SubjectID: 'INT-2019-1'
+    });
+
+    query.onFirstCall().returns({
+      success: false,
+      msg: 'Error'
+    });
+
+    query.onSecondCall().returns({
+      success: true,
+      msg: courses
+    });
+
+    request(app)
+      .get('/me/certificates')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .then((res) => {
+        expect(res.status).equal(404);
+        done();
+      });
+  });
+
+  it('Permission Denied with teacher', (done) => {
+    request(app)
+      .get('/me/certificates')
       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
       .then((res) => {
-        // expect(res.status).equal(200);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Permission Denied');
+        expect(res.status).equal(403);
         done();
       });
   });
 
-  it('alert are not student when user admin student', (done) => {
-    findOneUserStub.yields(undefined, {
-      username: 'hoangdd',
-      role: USER_ROLES.ADMIN_STUDENT
-    });
+  it('Permission Denied with admin academy', (done) => {
     request(app)
-      .get('/account/me/certificates')
-      .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
-      .then((res) => {
-        // expect(res.status).equal(200);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Permission Denied');
-        done();
-      });
-  });
-
-  it('alert are not student when user admin academy', (done) => {
-    findOneUserStub.yields(undefined, {
-      username: 'hoangdd',
-      role: USER_ROLES.ADMIN_ACADEMY
-    });
-    request(app)
-      .get('/account/me/certificates')
+      .get('/me/certificates')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .then((res) => {
-        // expect(res.status).equal(200);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Permission Denied');
+        expect(res.status).equal(403);
         done();
       });
   });
 });
 
-describe('GET /account/me/certificate/:courseId', () => {
+describe('GET /me/courses/:courseId/certificate', () => {
   let connect;
   let query;
   const courseId = '3611523c-876c-48f6-8c2a-d7685881d914';
@@ -882,7 +1144,7 @@ describe('GET /account/me/certificate/:courseId', () => {
     });
 
     request(app)
-      .get(`/account/me/certificate/${courseId}`)
+      .get(`/me/courses/${courseId}/certificate`)
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(200);
@@ -894,7 +1156,7 @@ describe('GET /account/me/certificate/:courseId', () => {
     connect.returns(null);
 
     request(app)
-      .get(`/account/me/certificate/${courseId}`)
+      .get(`/me/courses/${courseId}/certificate`)
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(500);
@@ -916,17 +1178,17 @@ describe('GET /account/me/certificate/:courseId', () => {
     });
 
     request(app)
-      .get(`/account/me/certificate/${courseId}`)
+      .get(`/me/courses/${courseId}/certificate`)
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
-        expect(res.status).equal(500);
+        expect(res.status).equal(404);
         done();
       });
   });
 
   it('permission denied', (done) => {
     request(app)
-      .get(`/account/me/certificate/${courseId}`)
+      .get(`/me/courses/${courseId}/certificate`)
       .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(403);
@@ -935,108 +1197,7 @@ describe('GET /account/me/certificate/:courseId', () => {
   });
 });
 
-describe('GET /account/me/:subjectId/students', () => {
-  let connect;
-  let query;
-  let findOneStub;
-  let subjectID = '7';
-
-  beforeEach(() => {
-    connect = sinon.stub(network, 'connectToNetwork');
-    query = sinon.stub(network, 'query');
-    findOneStub = sinon.stub(User, 'findOne');
-  });
-
-  afterEach(() => {
-    connect.restore();
-    query.restore();
-    findOneStub.restore();
-  });
-
-  it('success query students of subject', (done) => {
-    findOneStub.yields(undefined, { username: 'hoangdd', role: USER_ROLES.TEACHER });
-    connect.returns({ error: null });
-    let students = JSON.stringify([{ username: 'tantrinh' }, { username: 'nghianv' }]);
-    let scores = JSON.stringify([
-      {
-        SubjectID: '7',
-        StudentUsername: 'tantrinh',
-        scoreValue: 10.0
-      }
-    ]);
-    query.onFirstCall().returns({ success: true, msg: students });
-    query.onSecondCall().returns({ success: true, msg: scores });
-    request(app)
-      .get(`/account/me/${subjectID}/students`)
-      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
-        done();
-      });
-  });
-
-  it('do not success because failed to call GetStudentsBySubject function', (done) => {
-    findOneStub.yields(undefined, { username: 'hoangdd', role: USER_ROLES.TEACHER });
-    connect.returns({ error: null });
-    let scores = JSON.stringify([
-      {
-        SubjectID: '7',
-        StudentUsername: 'tantrinh',
-        scoreValue: 10.0
-      }
-    ]);
-    query.onFirstCall().returns({ success: false, msg: [] });
-    query.onSecondCall().returns({ success: true, msg: scores });
-    request(app)
-      .get(`/account/me/${subjectID}/students`)
-      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Error when call chaincode');
-        done();
-      });
-  });
-
-  it('do not succes because failed to call GetScoresBySubject function', (done) => {
-    findOneStub.yields(undefined, { username: 'hoangdd', role: USER_ROLES.TEACHER });
-
-    let students = JSON.stringify([{ username: 'tantrinh' }, { username: 'nghianv' }]);
-    query.onFirstCall().returns({ success: true, msg: students });
-    query.onSecondCall().returns({ success: false, msg: [] });
-    request(app)
-      .get(`/account/me/${subjectID}/students`)
-      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Error when call chaincode');
-        done();
-      });
-  });
-
-  it('list students return null', (done) => {
-    findOneStub.yields(undefined, { username: 'hoangdd', role: USER_ROLES.TEACHER });
-
-    let students = JSON.stringify([{ username: 'tantrinh' }, { username: 'nghianv' }]);
-    let scores = JSON.stringify(null);
-
-    query.onFirstCall().returns({ success: true, msg: students });
-    query.onSecondCall().returns({ success: true, msg: scores });
-    request(app)
-      .get(`/account/me/${subjectID}/students`)
-      .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
-      .then((res) => {
-        expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
-
-        done();
-      });
-  });
-});
-
-describe('POST /account/me/changePassword', () => {
+describe('PUT /me/password', () => {
   let findOneUserStub;
   let hashPass;
   let compareHash;
@@ -1055,7 +1216,7 @@ describe('POST /account/me/changePassword', () => {
 
   it('do not success change password because length < 6', (done) => {
     request(app)
-      .post('/account/me/changePassword')
+      .put('/me/password')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         oldPass: '123123',
@@ -1063,14 +1224,14 @@ describe('POST /account/me/changePassword', () => {
         confirmPass: '12345'
       })
       .then((res) => {
-        expect(res.status).equal(422);
+        expect(res.status).equal(400);
         done();
       });
   });
 
   it('do not success change password empty', (done) => {
     request(app)
-      .post('/account/me/changePassword')
+      .put('/me/password')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         oldPass: '',
@@ -1078,7 +1239,7 @@ describe('POST /account/me/changePassword', () => {
         confirmPass: '12345'
       })
       .then((res) => {
-        expect(res.status).equal(422);
+        expect(res.status).equal(400);
         done();
       });
   });
@@ -1087,7 +1248,7 @@ describe('POST /account/me/changePassword', () => {
     findOneUserStub.resolves({ username: 'tantrinh' });
 
     request(app)
-      .post('/account/me/changePassword')
+      .put('/me/password')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         oldPass: '123123',
@@ -1096,7 +1257,6 @@ describe('POST /account/me/changePassword', () => {
       })
       .then((res) => {
         expect(res.status).equal(400);
-        expect(res.body.success).equal(false);
         done();
       });
   });
@@ -1105,7 +1265,7 @@ describe('POST /account/me/changePassword', () => {
     findOneUserStub.resolves({ username: 'tantrinh' });
 
     request(app)
-      .post('/account/me/changePassword')
+      .put('/me/password')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         oldPass: '123123',
@@ -1114,7 +1274,6 @@ describe('POST /account/me/changePassword', () => {
       })
       .then((res) => {
         expect(res.status).equal(400);
-        expect(res.body.success).equal(false);
         done();
       });
   });
@@ -1123,7 +1282,7 @@ describe('POST /account/me/changePassword', () => {
     findOneUserStub.resolves(null);
 
     request(app)
-      .post('/account/me/changePassword')
+      .put('/me/password')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
         oldPass: '123123',
@@ -1132,1321 +1291,12 @@ describe('POST /account/me/changePassword', () => {
       })
       .then((res) => {
         expect(res.status).equal(404);
-        expect(res.body.success).equal(false);
         done();
       });
   });
 });
 
-describe('POST /account/me/registerCourse', () => {
-  let connect;
-  let query;
-  let studentRegisterCourse;
-
-  beforeEach(() => {
-    connect = sinon.stub(network, 'connectToNetwork');
-    query = sinon.stub(network, 'query');
-    studentRegisterCourse = sinon.stub(network, 'studentRegisterCourse');
-  });
-
-  afterEach(() => {
-    connect.restore();
-    query.restore();
-    studentRegisterCourse.restore();
-  });
-
-  it('Validate body fail!', (done) => {
-    request(app)
-      .post('/account/me/registerCourse')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        courseId: ''
-      })
-      .then((res) => {
-        expect(res.status).equal(422);
-        expect(res.body.success).equal(false);
-        done();
-      });
-  });
-
-  it('Permission Denied!', (done) => {
-    request(app)
-      .post('/account/me/registerCourse')
-      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-      .send({
-        courseId: '123456'
-      })
-      .then((res) => {
-        expect(res.status).equal(403);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Permission Denied!');
-        done();
-      });
-  });
-
-  it('Failed to connect to blockchain!', (done) => {
-    connect.returns(null);
-    request(app)
-      .post('/account/me/registerCourse')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        courseId: '123456'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Failed connect to blockchain!');
-        done();
-      });
-  });
-
-  it('Can not query chaincode!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'st01', role: USER_ROLES.STUDENT }
-    });
-
-    query.returns({
-      success: false,
-      msg: 'Error'
-    });
-
-    request(app)
-      .post('/account/me/registerCourse')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        courseId: '123456'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Can not query chaincode!');
-        done();
-      });
-  });
-
-  it('You studied this course!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'st01', role: USER_ROLES.STUDENT }
-    });
-
-    let data = JSON.stringify({
-      Username: 'st01',
-      Courses: ['123456']
-    });
-
-    query.returns({
-      success: true,
-      msg: data
-    });
-
-    request(app)
-      .post('/account/me/registerCourse')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        courseId: '123456'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('You studied this course!');
-        done();
-      });
-  });
-
-  it('Can not invoke chaincode!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'st01', role: USER_ROLES.STUDENT }
-    });
-
-    let data = JSON.stringify({
-      Username: 'st01',
-      Courses: ['aaaaa']
-    });
-
-    query.returns({
-      success: true,
-      msg: data
-    });
-
-    studentRegisterCourse.returns({
-      success: false,
-      msg: 'Can not invoke chaincode!'
-    });
-
-    request(app)
-      .post('/account/me/registerCourse')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        courseId: '123456'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Can not invoke chaincode!');
-        done();
-      });
-  });
-
-  it('Register Successfully!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'st01', role: USER_ROLES.STUDENT }
-    });
-
-    let data = JSON.stringify({
-      Username: 'st01',
-      Courses: ['aaaaa']
-    });
-
-    query.returns({
-      success: true,
-      msg: data
-    });
-
-    studentRegisterCourse.returns({
-      success: true
-    });
-
-    request(app)
-      .post('/account/me/registerCourse')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        courseId: '123456'
-      })
-      .then((res) => {
-        expect(res.body.success).equal(true);
-        expect(res.body.msg).equal('Register Successfully!');
-        done();
-      });
-  });
-});
-
-describe('POST /account/me/registerClass', () => {
-  let connect;
-  let query;
-  let studentRegisterClass;
-
-  beforeEach(() => {
-    connect = sinon.stub(network, 'connectToNetwork');
-    query = sinon.stub(network, 'query');
-    studentRegisterClass = sinon.stub(network, 'studentRegisterClass');
-  });
-
-  afterEach(() => {
-    connect.restore();
-    query.restore();
-    studentRegisterClass.restore();
-  });
-
-  it('Validate body not classId!', (done) => {
-    request(app)
-      .post('/account/me/registerClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(422);
-        expect(res.body.success).equal(false);
-        done();
-      });
-  });
-
-  it('Validate body not courseId!', (done) => {
-    request(app)
-      .post('/account/me/registerClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '465461321',
-        courseId: ''
-      })
-      .then((res) => {
-        expect(res.status).equal(422);
-        expect(res.body.success).equal(false);
-        done();
-      });
-  });
-
-  it('Permission Denied!', (done) => {
-    request(app)
-      .post('/account/me/registerClass')
-      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(403);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Permission Denied!');
-        done();
-      });
-  });
-
-  it('Failed to connect to blockchain!', (done) => {
-    connect.returns(null);
-    request(app)
-      .post('/account/me/registerClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Failed connect to blockchain!');
-        done();
-      });
-  });
-
-  it('query course in chaincode error!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'st01', role: USER_ROLES.STUDENT }
-    });
-
-    query.returns({
-      success: false,
-      msg: 'Error'
-    });
-
-    request(app)
-      .post('/account/me/registerClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('query course in chaincode error');
-        done();
-      });
-  });
-
-  it('The course has closed!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'st01', role: USER_ROLES.STUDENT }
-    });
-
-    query.returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Closed'
-      })
-    });
-
-    request(app)
-      .post('/account/me/registerClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('The course has closed!');
-        done();
-      });
-  });
-
-  it('Can not query student in chaincode!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'st01', role: USER_ROLES.STUDENT }
-    });
-
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
-    query.onSecondCall().returns({
-      success: false,
-      msg: 'Error'
-    });
-
-    request(app)
-      .post('/account/me/registerClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Can not query chaincode!');
-        done();
-      });
-  });
-
-  it('You studied this class!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'st01', role: USER_ROLES.STUDENT }
-    });
-
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
-    query.onSecondCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        Username: 'st01',
-        Classes: ['123456']
-      })
-    });
-
-    request(app)
-      .post('/account/me/registerClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('You studied this class!');
-        done();
-      });
-  });
-
-  it('Can not query class in chaincode!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'st01', role: USER_ROLES.STUDENT }
-    });
-
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
-    query.onSecondCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        Username: 'st01',
-        Classes: ['123457']
-      })
-    });
-
-    query.onThirdCall().returns({
-      success: false,
-      msg: 'Error'
-    });
-
-    request(app)
-      .post('/account/me/registerClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Can not query chaincode!');
-        done();
-      });
-  });
-
-  it('Can not query classes of student in chaincode!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'st01', role: USER_ROLES.STUDENT }
-    });
-
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
-    query.onSecondCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        Username: 'st01',
-        Classes: ['123457']
-      })
-    });
-
-    query.onThirdCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        ClassID: '123456',
-        SubjectID: 'Subject01'
-      })
-    });
-
-    query.returns({
-      success: false,
-      msg: 'Error'
-    });
-
-    request(app)
-      .post('/account/me/registerClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Can not query chaincode!');
-        done();
-      });
-  });
-
-  it('You studied this subject!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'st01', role: USER_ROLES.STUDENT }
-    });
-
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
-    let studentInfo = JSON.stringify({
-      Username: 'st01',
-      Classes: ['123457']
-    });
-
-    query.onSecondCall().returns({
-      success: true,
-      msg: studentInfo
-    });
-
-    let classInfo = JSON.stringify({
-      ClassID: '123456',
-      SubjectID: 'Subject01'
-    });
-
-    query.onThirdCall().returns({
-      success: true,
-      msg: classInfo
-    });
-
-    let classes = JSON.stringify([
-      {
-        ClassID: '123457',
-        SubjectID: 'Subject01'
-      }
-    ]);
-
-    query.returns({
-      success: true,
-      msg: classes
-    });
-
-    request(app)
-      .post('/account/me/registerClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(400);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('You studied this subject!');
-        done();
-      });
-  });
-
-  it('Class register closed!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'st01', role: USER_ROLES.STUDENT }
-    });
-
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
-    let studentInfo = JSON.stringify({
-      Username: 'st01',
-      Classes: ['123457']
-    });
-
-    query.onSecondCall().returns({
-      success: true,
-      msg: studentInfo
-    });
-
-    let classInfo = JSON.stringify({
-      ClassID: '123456',
-      SubjectID: 'Subject01',
-      Status: 'InProgress'
-    });
-
-    query.onThirdCall().returns({
-      success: true,
-      msg: classInfo
-    });
-
-    let classes = JSON.stringify([
-      {
-        ClassID: '123457',
-        SubjectID: 'Subject02'
-      }
-    ]);
-
-    query.returns({
-      success: true,
-      msg: classes
-    });
-
-    request(app)
-      .post('/account/me/registerClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Class register closed!');
-        done();
-      });
-  });
-
-  it('Class register completed', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'st01', role: USER_ROLES.STUDENT }
-    });
-
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
-    let studentInfo = JSON.stringify({
-      Username: 'st01',
-      Classes: ['123457']
-    });
-
-    query.onSecondCall().returns({
-      success: true,
-      msg: studentInfo
-    });
-
-    let classInfo = JSON.stringify({
-      ClassID: '123456',
-      SubjectID: 'Subject01',
-      Status: 'Completed'
-    });
-
-    query.onThirdCall().returns({
-      success: true,
-      msg: classInfo
-    });
-
-    let classes = JSON.stringify([
-      {
-        ClassID: '123457',
-        SubjectID: 'Subject02'
-      }
-    ]);
-
-    query.returns({
-      success: true,
-      msg: classes
-    });
-
-    request(app)
-      .post('/account/me/registerClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Class was completed!');
-        done();
-      });
-  });
-
-  it('Can not invoke chaincode!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'st01', role: USER_ROLES.STUDENT }
-    });
-
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
-    let studentInfo = JSON.stringify({
-      Username: 'st01',
-      Classes: ['123457']
-    });
-
-    query.onSecondCall().returns({
-      success: true,
-      msg: studentInfo
-    });
-
-    let classInfo = JSON.stringify({
-      ClassID: '123456',
-      SubjectID: 'Subject01',
-      Status: 'Open'
-    });
-
-    query.onThirdCall().returns({
-      success: true,
-      msg: classInfo
-    });
-
-    let classes = JSON.stringify([
-      {
-        ClassID: '123457',
-        SubjectID: 'Subject02'
-      }
-    ]);
-
-    query.returns({
-      success: true,
-      msg: classes
-    });
-
-    studentRegisterClass.returns({
-      success: false,
-      msg: 'Can not invoke chaincode!'
-    });
-
-    request(app)
-      .post('/account/me/registerClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Can not invoke chaincode!');
-        done();
-      });
-  });
-
-  it('Register Successfully!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'st01', role: USER_ROLES.STUDENT }
-    });
-
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
-    let studentInfo = JSON.stringify({
-      Username: 'st01',
-      Classes: ['123457']
-    });
-
-    query.onSecondCall().returns({
-      success: true,
-      msg: studentInfo
-    });
-
-    let classInfo = JSON.stringify({
-      ClassID: '123456',
-      SubjectID: 'Subject01',
-      Status: 'Open'
-    });
-
-    query.onThirdCall().returns({
-      success: true,
-      msg: classInfo
-    });
-
-    let classes = JSON.stringify([
-      {
-        ClassID: '123457',
-        SubjectID: 'Subject02'
-      }
-    ]);
-
-    query.returns({
-      success: true,
-      msg: classes
-    });
-
-    studentRegisterClass.returns({
-      success: true
-    });
-
-    request(app)
-      .post('/account/me/registerClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
-        expect(res.body.msg).equal('Register Successfully!');
-        done();
-      });
-  });
-});
-
-describe('POST /account/me/cancelRegisteredClass', () => {
-  let connect;
-  let query;
-  let cancelRegisterClass;
-
-  beforeEach(() => {
-    connect = sinon.stub(network, 'connectToNetwork');
-    query = sinon.stub(network, 'query');
-    cancelRegisterClass = sinon.stub(network, 'studentCancelRegisterClass');
-  });
-
-  afterEach(() => {
-    connect.restore();
-    query.restore();
-    cancelRegisterClass.restore();
-  });
-
-  it('Validate body not classId!', (done) => {
-    request(app)
-      .post('/account/me/cancelRegisteredClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(422);
-        expect(res.body.success).equal(false);
-        done();
-      });
-  });
-
-  it('Validate body not courseId', (done) => {
-    request(app)
-      .post('/account/me/cancelRegisteredClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: ''
-      })
-      .then((res) => {
-        expect(res.status).equal(422);
-        expect(res.body.success).equal(false);
-        done();
-      });
-  });
-
-  it('Permission Denied!', (done) => {
-    request(app)
-      .post('/account/me/cancelRegisteredClass')
-      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(403);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Permission Denied!');
-        done();
-      });
-  });
-
-  it('Failed to connect to blockchain!', (done) => {
-    connect.returns(null);
-    request(app)
-      .post('/account/me/cancelRegisteredClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Failed connect to blockchain!');
-        done();
-      });
-  });
-
-  it('query course in chaincode error', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
-    });
-
-    query.returns({
-      success: false,
-      msg: 'Error'
-    });
-
-    request(app)
-      .post('/account/me/cancelRegisteredClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('query course in chaincode error');
-        done();
-      });
-  });
-
-  it('Can not query class in chaincode!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'st01', role: USER_ROLES.STUDENT }
-    });
-
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
-    query.onSecondCall().returns({
-      success: false,
-      msg: 'Error'
-    });
-
-    request(app)
-      .post('/account/me/cancelRegisteredClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Can not query chaincode!');
-        done();
-      });
-  });
-
-  it('You have not register this class yet!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
-    });
-
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
-    let classInfo = JSON.stringify({
-      ClassID: '123456',
-      Students: ['st02']
-    });
-
-    query.onSecondCall().returns({
-      success: true,
-      msg: classInfo
-    });
-
-    request(app)
-      .post('/account/me/cancelRegisteredClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('You have not register this class yet!');
-        done();
-      });
-  });
-
-  it('Class is InProgress!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
-    });
-
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
-    let classInfo = JSON.stringify({
-      ClassID: '123456',
-      Students: ['hoangdd', 'st02'],
-      Status: 'InProgress'
-    });
-
-    query.onSecondCall().returns({
-      success: true,
-      msg: classInfo
-    });
-
-    request(app)
-      .post('/account/me/cancelRegisteredClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Class is InProgress!');
-        done();
-      });
-  });
-
-  it('Class is InProgress!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
-    });
-
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
-    let classInfo = JSON.stringify({
-      ClassID: '123456',
-      Students: ['hoangdd', 'st02'],
-      Status: 'Completed'
-    });
-
-    query.onSecondCall().returns({
-      success: true,
-      msg: classInfo
-    });
-
-    request(app)
-      .post('/account/me/cancelRegisteredClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Class is Completed!');
-        done();
-      });
-  });
-
-  it('Can not invoke chaincode!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
-    });
-
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
-    let classInfo = JSON.stringify({
-      ClassID: '123456',
-      Students: ['hoangdd', 'st02'],
-      Status: 'Open'
-    });
-
-    query.onSecondCall().returns({
-      success: true,
-      msg: classInfo
-    });
-
-    cancelRegisterClass.returns({
-      success: false,
-      msg: 'Can not invoke chaincode!'
-    });
-
-    request(app)
-      .post('/account/me/cancelRegisteredClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Can not invoke chaincode!');
-        done();
-      });
-  });
-
-  it('Cancel Successfully!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
-    });
-
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
-    let classInfo = JSON.stringify({
-      ClassID: '123456',
-      Students: ['hoangdd', 'st02'],
-      Status: 'Open'
-    });
-
-    query.onSecondCall().returns({
-      success: true,
-      msg: classInfo
-    });
-
-    cancelRegisterClass.returns({
-      success: true
-    });
-
-    request(app)
-      .post('/account/me/cancelRegisteredClass')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
-        expect(res.body.msg).equal('Cancel Successfully!');
-        done();
-      });
-  });
-});
-
-describe('GET /account/me/notRegisterCourses', () => {
+describe('GET /me/courses/not-enroll', () => {
   let connect;
   let query;
 
@@ -2462,11 +1312,10 @@ describe('GET /account/me/notRegisterCourses', () => {
 
   it('Permission Denied!', (done) => {
     request(app)
-      .get('/account/me/notRegisterCourses')
+      .get('/me/courses/not-enroll')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(403);
-
         done();
       });
   });
@@ -2474,12 +1323,11 @@ describe('GET /account/me/notRegisterCourses', () => {
   it('Failed to connect to blockchain!', (done) => {
     connect.returns(null);
     request(app)
-      .get('/account/me/notRegisterCourses')
+      .get('/me/courses/not-enroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Failed connect to blockchain!');
+        expect(res.body.msg).equal('Failed connect to blockchain');
         done();
       });
   });
@@ -2510,10 +1358,10 @@ describe('GET /account/me/notRegisterCourses', () => {
     });
 
     request(app)
-      .get('/account/me/notRegisterCourses')
+      .get('/me/courses/not-enroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
-        expect(res.status).equal(500);
+        expect(res.status).equal(404);
         done();
       });
   });
@@ -2555,7 +1403,7 @@ describe('GET /account/me/notRegisterCourses', () => {
     });
 
     request(app)
-      .get('/account/me/notRegisterCourses')
+      .get('/me/courses/not-enroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(200);
@@ -2564,7 +1412,7 @@ describe('GET /account/me/notRegisterCourses', () => {
   });
 });
 
-describe('#GET /account/me/scores/:courseId', () => {
+describe('#GET /me/courses/:courseId/scores', () => {
   let connect;
   let query;
   let courseId = 'db7e8bd0-df7d-40c7-928b-ca3bfe8e5574';
@@ -2581,11 +1429,10 @@ describe('#GET /account/me/scores/:courseId', () => {
 
   it('not get subjects with role other student', (done) => {
     request(app)
-      .get(`/account/me/scores/${courseId}`)
+      .get(`/me/courses/${courseId}/scores`)
       .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(403);
-        expect(res.body.success).equal(false);
         expect(res.body.msg).equal('Permission Denied');
         done();
       });
@@ -2595,11 +1442,10 @@ describe('#GET /account/me/scores/:courseId', () => {
     connect.returns(null);
 
     request(app)
-      .get(`/account/me/scores/${courseId}`)
+      .get(`/me/courses/${courseId}/scores`)
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
         expect(res.body.msg).equal('Failed connect to blockchain');
         done();
       });
@@ -2616,12 +1462,10 @@ describe('#GET /account/me/scores/:courseId', () => {
     query.onFirstCall().returns({ success: false, msg: 'query subjects error' });
 
     request(app)
-      .get(`/account/me/scores/${courseId}`)
+      .get(`/me/courses/${courseId}/scores`)
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('query chaincode error!');
+        expect(res.status).equal(404);
         done();
       });
   });
@@ -2658,12 +1502,10 @@ describe('#GET /account/me/scores/:courseId', () => {
     query.onSecondCall().returns({ success: false, msg: 'query score error' });
 
     request(app)
-      .get(`/account/me/scores/${courseId}`)
+      .get(`/me/courses/${courseId}/scores`)
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('query chaincode error!');
+        expect(res.status).equal(404);
         done();
       });
   });
@@ -2707,18 +1549,16 @@ describe('#GET /account/me/scores/:courseId', () => {
     query.onSecondCall().returns({ success: true, msg: JSON.stringify(listScores) });
 
     request(app)
-      .get(`/account/me/scores/${courseId}`)
+      .get(`/me/courses/${courseId}/scores`)
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
-        expect(res.body.subjects.length).equal(2);
         done();
       });
   });
 });
 
-describe('#GET /account/me/subject/:subjectId', () => {
+describe('#GET /me/subject/:subjectId', () => {
   let connect;
   let query;
   let subjectId = '0defc52c-6ebb-4373-8971-a36cf789e5d9';
@@ -2735,11 +1575,10 @@ describe('#GET /account/me/subject/:subjectId', () => {
 
   it('permission denied when access routes with role admin', (done) => {
     request(app)
-      .get(`/account/me/subject/${subjectId}`)
+      .get(`/me/subject/${subjectId}`)
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(403);
-        expect(res.body.success).equal(false);
         expect(res.body.msg).equal('Permission Denied');
         done();
       });
@@ -2747,12 +1586,11 @@ describe('#GET /account/me/subject/:subjectId', () => {
   it('failed connect to blockchain', (done) => {
     connect.returns(null);
     request(app)
-      .get(`/account/me/subject/${subjectId}`)
+      .get(`/me/subject/${subjectId}`)
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Failed connect to blockchain!');
+        expect(res.body.msg).equal('Failed connect to blockchain');
         done();
       });
   });
@@ -2767,12 +1605,10 @@ describe('#GET /account/me/subject/:subjectId', () => {
     query.onFirstCall().returns({ success: false, msg: 'query subject error' });
 
     request(app)
-      .get(`/account/me/subject/${subjectId}`)
+      .get(`/me/subject/${subjectId}`)
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Query chaincode error!');
+        expect(res.status).equal(404);
         done();
       });
   });
@@ -2799,12 +1635,10 @@ describe('#GET /account/me/subject/:subjectId', () => {
     query.onSecondCall().returns({ success: false, msg: 'Query classes error' });
 
     request(app)
-      .get(`/account/me/subject/${subjectId}`)
+      .get(`/me/subject/${subjectId}`)
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Query chaincode error!');
+        expect(res.status).equal(404);
         done();
       });
   });
@@ -2861,11 +1695,10 @@ describe('#GET /account/me/subject/:subjectId', () => {
     query.onSecondCall().returns({ success: true, msg: JSON.stringify(classes) });
 
     request(app)
-      .get(`/account/me/subject/${subjectId}`)
+      .get(`/me/subject/${subjectId}`)
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
         expect(res.body.subject.classRegistered).equal('e61bf835-7df3-4448-a488-2e44f872823a');
         done();
       });

@@ -154,3 +154,187 @@ describe('#GET /courses/:username/students', () => {
       });
   });
 });
+
+describe('POST /courses/enroll', () => {
+  let connect;
+  let query;
+  let studentRegisterCourse;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+    studentRegisterCourse = sinon.stub(network, 'studentRegisterCourse');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+    studentRegisterCourse.restore();
+  });
+
+  it('Validate body fail!', (done) => {
+    request(app)
+      .post('/courses/enroll')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        courseId: ''
+      })
+      .then((res) => {
+        expect(res.status).equal(400);
+        done();
+      });
+  });
+
+  it('Permission Denied!', (done) => {
+    request(app)
+      .post('/courses/enroll')
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        courseId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(403);
+        expect(res.body.msg).equal('Permission Denied');
+        done();
+      });
+  });
+
+  it('Failed to connect to blockchain', (done) => {
+    connect.returns(null);
+    request(app)
+      .post('/courses/enroll')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        courseId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        expect(res.body.msg).equal('Failed connect to blockchain');
+        done();
+      });
+  });
+
+  it('Can not query chaincode!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    query.returns({
+      success: false,
+      msg: 'Error'
+    });
+
+    request(app)
+      .post('/courses/enroll')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        courseId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(404);
+        done();
+      });
+  });
+
+  it('You studied this course!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    let data = JSON.stringify({
+      Username: 'st01',
+      Courses: ['123456']
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    request(app)
+      .post('/courses/enroll')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        courseId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(400);
+        done();
+      });
+  });
+
+  it('Can not invoke chaincode!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    let data = JSON.stringify({
+      Username: 'st01',
+      Courses: ['aaaaa']
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    studentRegisterCourse.returns({
+      success: false,
+      msg: 'Can not invoke chaincode!'
+    });
+
+    request(app)
+      .post('/courses/enroll')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        courseId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(500);
+        done();
+      });
+  });
+
+  it('Register Successfully!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'st01', role: USER_ROLES.STUDENT }
+    });
+
+    let data = JSON.stringify({
+      Username: 'st01',
+      Courses: ['aaaaa']
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    studentRegisterCourse.returns({
+      success: true
+    });
+
+    request(app)
+      .post('/courses/enroll')
+      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+      .send({
+        courseId: '123456'
+      })
+      .then((res) => {
+        expect(res.status).equal(201);
+        done();
+      });
+  });
+});

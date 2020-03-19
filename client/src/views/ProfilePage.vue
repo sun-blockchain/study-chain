@@ -402,7 +402,7 @@ export default {
           var formData = new FormData();
           formData.append('image', this.$refs.upload.uploadFiles[0].raw);
           axios
-            .post(`${process.env.VUE_APP_API_BACKEND}/account/me/avatar`, formData, {
+            .put(`${process.env.VUE_APP_API_BACKEND}/me/avatar`, formData, {
               headers: {
                 'authorization': user.token,
                 'Content-Type': 'multipart/form-data'
@@ -446,12 +446,13 @@ export default {
         if (valid) {
           this.fullscreenLoading = true;
           let data = await self.pushProfile(self.ruleForm);
-          if (data.success) {
-            self.ruleForm = await self.getProfile();
-            Message.success('Update Success!');
-          } else {
-            Message.error(data.msg);
+          if (!data) {
+            self.fullscreenLoading = false;
+            return Message.error(data.msg);
           }
+
+          self.ruleForm = await self.getProfile();
+          Message.success('Update Success!');
           self.fullscreenLoading = false;
         } else {
           console.log('error submit!!');
@@ -465,11 +466,12 @@ export default {
         if (valid) {
           this.fullscreenLoading = true;
           let data = await this.changePass(self.changePassword);
-          if (data.success) {
-            Message.success('Your password has been changed successfully!');
-          } else {
-            Message.error(data.msg);
+          if (!data) {
+            self.fullscreenLoading = false;
+            return Message.error(data.msg);
           }
+
+          Message.success('Your password has been changed successfully!');
           self.fullscreenLoading = false;
         } else {
           console.log('Something went wrong, please try again!');

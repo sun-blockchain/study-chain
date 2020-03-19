@@ -2,9 +2,7 @@ import { authHeader } from '../_helpers/auth-header.js';
 import axios from 'axios';
 
 export const studentService = {
-  getAllSubjects,
   registerCourse,
-  getMySubjects,
   getMyCertificates,
   getCourse,
   getAllCourses,
@@ -24,7 +22,7 @@ export const studentService = {
 
 async function getSummaryInfo() {
   try {
-    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/me/summary`, {
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/me/summary`, {
       headers: authHeader()
     });
     return respone.data;
@@ -57,12 +55,9 @@ async function getCourse(courseId) {
 
 async function getNotRegisterCourses() {
   try {
-    let respone = await axios.get(
-      `${process.env.VUE_APP_API_BACKEND}/account/me/notRegisterCourses`,
-      {
-        headers: authHeader()
-      }
-    );
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/me/courses/not-enroll`, {
+      headers: authHeader()
+    });
     return respone.data.courses;
   } catch (error) {
     throw error;
@@ -72,7 +67,7 @@ async function getNotRegisterCourses() {
 async function cancelRegisteredClass(classId, courseId) {
   try {
     let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/account/me/cancelRegisteredClass`,
+      `${process.env.VUE_APP_API_BACKEND}/classes/unenroll`,
       { classId: classId, courseId: courseId },
       {
         headers: authHeader()
@@ -86,12 +81,9 @@ async function cancelRegisteredClass(classId, courseId) {
 
 async function getSubject(subjectId) {
   try {
-    let respone = await axios.get(
-      `${process.env.VUE_APP_API_BACKEND}/account/me/subject/${subjectId}`,
-      {
-        headers: authHeader()
-      }
-    );
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/me/subjects/${subjectId}`, {
+      headers: authHeader()
+    });
     return respone.data;
   } catch (error) {
     throw error;
@@ -101,7 +93,7 @@ async function getSubject(subjectId) {
 async function getSubjectsOfCourse(courseId) {
   try {
     let respone = await axios.get(
-      `${process.env.VUE_APP_API_BACKEND}/account/me/scores/${courseId}`,
+      `${process.env.VUE_APP_API_BACKEND}/me/courses/${courseId}/scores`,
       {
         headers: authHeader()
       }
@@ -126,20 +118,9 @@ async function getClassesOfSubject(subjectId) {
   }
 }
 
-async function getAllSubjects() {
-  try {
-    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/me/subjects`, {
-      headers: authHeader()
-    });
-    return respone.data.subjects;
-  } catch (error) {
-    throw error;
-  }
-}
-
 async function getMyClasses() {
   try {
-    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/me/classes`, {
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/me/classes`, {
       headers: authHeader()
     });
     return respone.data.classes;
@@ -150,7 +131,7 @@ async function getMyClasses() {
 
 async function getMyCourses() {
   try {
-    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/me/courses`, {
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/me/courses`, {
       headers: authHeader()
     });
     return respone.data.courses;
@@ -162,7 +143,7 @@ async function getMyCourses() {
 async function registerCourse(courseId) {
   try {
     let response = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/account/me/registerCourse`,
+      `${process.env.VUE_APP_API_BACKEND}/courses/enroll`,
       { courseId: courseId },
       {
         headers: authHeader()
@@ -177,7 +158,7 @@ async function registerCourse(courseId) {
 async function registerClass(classId, courseId) {
   try {
     let response = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/account/me/registerClass`,
+      `${process.env.VUE_APP_API_BACKEND}/classes/enroll`,
       { classId: classId, courseId: courseId },
       {
         headers: authHeader()
@@ -189,20 +170,9 @@ async function registerClass(classId, courseId) {
   }
 }
 
-async function getMySubjects() {
-  try {
-    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/me/mysubjects`, {
-      headers: authHeader()
-    });
-    return respone.data.subjects;
-  } catch (error) {
-    throw error;
-  }
-}
-
 async function getMyCertificates() {
   try {
-    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/me/certificates`, {
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/me/certificates`, {
       headers: authHeader()
     });
     return respone.data.certificates;
@@ -239,7 +209,7 @@ async function getCertificate(certId) {
 async function getCertificateByCourseId(courseId) {
   try {
     let response = await axios.get(
-      `${process.env.VUE_APP_API_BACKEND}/account/me/certificate/${courseId}`,
+      `${process.env.VUE_APP_API_BACKEND}/me/courses/${courseId}/certificate`,
       {
         headers: authHeader()
       }
