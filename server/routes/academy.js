@@ -283,47 +283,33 @@ router.get(
 
     if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
       return res.status(403).json({
-        success: false,
         msg: 'Permission Denied'
       });
     }
     let errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
+      return res.status(400).json({ errors: errors.array() });
     }
 
     const user = req.decoded.user;
     const networkObj = await network.connectToNetwork(user);
     if (!networkObj) {
       return res.status(500).json({
-        success: false,
         msg: 'Failed connect to blockchain'
       });
     }
-    const courseQuery = await network.query(networkObj, 'GetCourse', courseId);
-    const allSubjecyQuery = await network.query(networkObj, 'GetAllSubjects');
 
-    if (!courseQuery.success || !allSubjecyQuery.success) {
-      return res.status(500).send({
-        success: false,
-        msg: 'Query chaincode failed'
+    const subjectsNotInCourse = await network.query(networkObj, 'GetSubjectsNotInCourse', courseId);
+
+    if (!subjectsNotInCourse.success) {
+      return res.status(404).send({
+        msg: 'Can not query chaincode!'
       });
     }
 
-    let listSubjectIn = JSON.parse(courseQuery.msg).Subjects
-      ? JSON.parse(courseQuery.msg).Subjects
-      : [];
-    let listSubjectAll = JSON.parse(allSubjecyQuery.msg);
-    let listSubjects = listSubjectAll ? listSubjectAll : [];
-
-    let listSubjectOutside = listSubjects.filter(
-      (subject) => !listSubjectIn.includes(subject.SubjectID)
-    );
-
-    return res.json({
-      success: true,
-      subjects: listSubjectOutside
+    return res.status(200).json({
+      subjects: JSON.parse(subjectsNotInCourse.msg)
     });
   }
 );
