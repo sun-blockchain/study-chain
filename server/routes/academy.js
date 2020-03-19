@@ -265,353 +265,6 @@ router.put(
     }
   }
 );
-// Create subject
-router.post(
-  '/subject',
-  checkJWT,
-  [
-    body('subjectName')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape(),
-    body('subjectCode')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape(),
-    body('shortDescription')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape(),
-    body('description')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape()
-  ],
-  async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
-    }
-
-    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
-      return res.status(403).json({
-        success: false,
-        msg: 'Permission Denied'
-      });
-    }
-    let subject = {
-      subjectId: uuidv4(),
-      subjectName: req.body.subjectName,
-      subjectCode: req.body.subjectCode,
-      shortDescription: req.body.shortDescription,
-      description: req.body.description
-    };
-    const networkObj = await network.connectToNetwork(req.decoded.user);
-    const response = await network.createSubject(networkObj, subject);
-    if (!response.success) {
-      return res.status(500).json({
-        success: false,
-        msg: response.msg
-      });
-    }
-    const listSubjects = await network.query(networkObj, 'GetAllSubjects');
-    return res.json({
-      success: true,
-      subjects: JSON.parse(listSubjects.msg)
-    });
-  }
-);
-
-// Update subject
-router.put(
-  '/subject',
-  checkJWT,
-  [
-    body('subject.subjectId')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape(),
-    body('subject.subjectName')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape(),
-    body('subject.subjectCode')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape(),
-    body('subject.shortDescription')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape(),
-    body('subject.description')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape()
-  ],
-  async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
-    }
-
-    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
-      return res.status(403).json({
-        success: false,
-        msg: 'Permission Denied'
-      });
-    }
-    let { subject } = req.body;
-    let networkObj = await network.connectToNetwork(req.decoded.user);
-    const responseQuery = await network.query(networkObj, 'GetSubject', subject.subjectId);
-
-    if (!responseQuery.success) {
-      return res.status(500).json({
-        success: false,
-        msg: responseQuery.msg.toString()
-      });
-    }
-
-    let subjectInfo = JSON.parse(responseQuery.msg);
-    if (
-      subject.subjectCode === subjectInfo.SubjectCode &&
-      subject.subjectName === subjectInfo.SubjectName &&
-      subject.shortDescription === subjectInfo.ShortDescription &&
-      subject.description === subjectInfo.Description
-    ) {
-      return res.status(500).json({
-        success: false,
-        msg: 'No changes!'
-      });
-    }
-
-    networkObj = await network.connectToNetwork(req.decoded.user);
-    const response = await network.updateSubjectInfo(networkObj, subject);
-
-    if (!response.success) {
-      return res.status(500).json({
-        success: false,
-        msg: response.msg
-      });
-    }
-    const listSubjects = await network.query(networkObj, 'GetAllSubjects');
-    return res.json({
-      success: true,
-      subjects: JSON.parse(listSubjects.msg)
-    });
-  }
-);
-
-// Delete subject
-router.delete(
-  '/subject',
-  checkJWT,
-  [
-    body('subjectId')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape()
-  ],
-  async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
-      return res.status(403).json({
-        msg: 'Permission Denied'
-      });
-    }
-    let { subjectId } = req.body;
-    let admin = req.decoded.user;
-
-    let networkObj = await network.connectToNetwork(admin);
-    if (!networkObj) {
-      return res.status(500).json({
-        msg: 'Failed connect to blockchain'
-      });
-    }
-
-    let subject = await network.query(networkObj, 'GetSubject', subjectId);
-    if (!subject.success) {
-      return res.status(404).json({
-        msg: 'Can not query chaincode!'
-      });
-    }
-
-    subject = JSON.parse(subject.msg);
-
-    if (subject.Classes) {
-      return res.status(400).json({
-        msg: 'Can not delete this subject now!'
-      });
-    }
-
-    networkObj = await network.connectToNetwork(admin);
-    const response = await network.deleteSubject(networkObj, subjectId);
-
-    if (!response.success) {
-      return res.status(500).json({
-        msg: 'Can not invoke chaincode!'
-      });
-    }
-
-    return res.status(200).json({
-      msg: 'Delete Successfully!'
-    });
-  }
-);
-
-// Update subject
-router.put(
-  '/startClass',
-  checkJWT,
-  [
-    body('classId')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape()
-  ],
-
-  async (req, res, next) => {
-    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
-      return res.status(403).json({
-        success: false,
-        msg: 'Permission Denied'
-      });
-    }
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
-    }
-
-    let classId = req.body.classId;
-
-    let networkObj = await network.connectToNetwork(req.decoded.user);
-    if (!networkObj) {
-      return res.status(500).json({
-        success: false,
-        msg: 'Failed connect to blockchain!'
-      });
-    }
-    const responseQuery = await network.query(networkObj, 'GetClass', classId);
-
-    if (!responseQuery.success) {
-      return res.status(500).json({
-        success: false,
-        msg: responseQuery.msg.toString()
-      });
-    }
-
-    let classInfo = JSON.parse(responseQuery.msg);
-    if (classInfo.Status !== Status.Open) {
-      return res.status(500).json({
-        success: false,
-        msg: 'Can not start this class!'
-      });
-    }
-
-    if (!classInfo.TeacherUsername || classInfo.TeacherUsername === '') {
-      return res.status(500).json({
-        success: false,
-        msg: 'There is no teacher assigned to this class!'
-      });
-    }
-
-    networkObj = await network.connectToNetwork(req.decoded.user);
-    const response = await network.startClass(networkObj, classId);
-
-    if (!response.success) {
-      return res.status(500).json({
-        success: false,
-        msg: response.msg.toString()
-      });
-    }
-
-    return res.json({
-      success: true,
-      msg: 'Start Successfully!'
-    });
-  }
-);
-
-router.post(
-  '/deleteClass',
-  [
-    body('classId')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape()
-  ],
-  async (req, res) => {
-    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
-      return res.status(403).json({
-        success: false,
-        msg: 'Permission Denied!'
-      });
-    }
-
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
-    }
-
-    const user = req.decoded.user;
-    const { classId } = req.body;
-    let networkObj = await network.connectToNetwork(user);
-
-    if (!networkObj) {
-      return res.status(500).json({
-        success: false,
-        msg: 'Failed connect to blockchain!'
-      });
-    }
-
-    let query = await network.query(networkObj, 'GetClass', classId);
-    if (!query.success) {
-      return res.status(500).json({
-        success: false,
-        msg: 'Can not query chaincode!'
-      });
-    }
-
-    let classInfo = JSON.parse(query.msg);
-    if (classInfo.Status !== 'Open') {
-      return res.status(500).json({
-        success: false,
-        msg: 'Can delete this class now!'
-      });
-    }
-
-    networkObj = await network.connectToNetwork(user);
-    const response = await network.deleteClass(networkObj, classId);
-
-    if (!response.success) {
-      return res.status(500).json({
-        success: false,
-        msg: 'Can not invoke chaincode!'
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      msg: 'Delete Successfully!'
-    });
-  }
-);
 
 // assign class for teacher
 router.post(
@@ -772,6 +425,78 @@ router.post(
     return res.status(200).json({
       success: true,
       msg: 'Unassign Successfully!'
+    });
+  }
+);
+
+router.put(
+  '/startClass',
+  [
+    body('classId')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape()
+  ],
+
+  async (req, res, next) => {
+    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
+      return res.status(403).json({
+        success: false,
+        msg: 'Permission Denied'
+      });
+    }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, errors: errors.array() });
+    }
+
+    let classId = req.body.classId;
+
+    let networkObj = await network.connectToNetwork(req.decoded.user);
+    if (!networkObj) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Failed connect to blockchain!'
+      });
+    }
+    const responseQuery = await network.query(networkObj, 'GetClass', classId);
+
+    if (!responseQuery.success) {
+      return res.status(500).json({
+        success: false,
+        msg: responseQuery.msg.toString()
+      });
+    }
+
+    let classInfo = JSON.parse(responseQuery.msg);
+    if (classInfo.Status !== Status.Open) {
+      return res.status(500).json({
+        success: false,
+        msg: 'Can not start this class!'
+      });
+    }
+
+    if (!classInfo.TeacherUsername || classInfo.TeacherUsername === '') {
+      return res.status(500).json({
+        success: false,
+        msg: 'There is no teacher assigned to this class!'
+      });
+    }
+
+    networkObj = await network.connectToNetwork(req.decoded.user);
+    const response = await network.startClass(networkObj, classId);
+
+    if (!response.success) {
+      return res.status(500).json({
+        success: false,
+        msg: response.msg.toString()
+      });
+    }
+
+    return res.json({
+      success: true,
+      msg: 'Start Successfully!'
     });
   }
 );

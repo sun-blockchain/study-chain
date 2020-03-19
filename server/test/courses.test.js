@@ -652,7 +652,7 @@ describe('#PUT /courses/:courseId/status', () => {
       .put(`/courses/${courseId}/status`)
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
-        courseId: '123456'
+        status: 'Open'
       })
       .then((res) => {
         expect(res.status).equal(500);
@@ -676,7 +676,7 @@ describe('#PUT /courses/:courseId/status', () => {
       .put(`/courses/${courseId}/status`)
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
-        courseId: '123456'
+        status: 'Open'
       })
       .then((res) => {
         expect(res.status).equal(404);
@@ -694,7 +694,7 @@ describe('#PUT /courses/:courseId/status', () => {
 
     let data = JSON.stringify({
       CourseID: '123456',
-      Status: 'Open'
+      Status: 'Closed'
     });
 
     query.returns({
@@ -702,7 +702,7 @@ describe('#PUT /courses/:courseId/status', () => {
       msg: data
     });
 
-    closeCourse.returns({
+    openCourse.returns({
       success: true
     });
 
@@ -710,7 +710,7 @@ describe('#PUT /courses/:courseId/status', () => {
       .put(`/courses/${courseId}/status`)
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
-        courseId: '123456'
+        status: 'Open'
       })
       .then((res) => {
         expect(res.status).equal(200);
@@ -745,11 +745,10 @@ describe('#PUT /courses/:courseId/status', () => {
       .put(`/courses/${courseId}/status`)
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
-        courseId: '123456'
+        status: 'Open'
       })
       .then((res) => {
         expect(res.status).equal(200);
-
         done();
       });
   });
@@ -764,7 +763,7 @@ describe('#PUT /courses/:courseId/status', () => {
 
     let data = JSON.stringify({
       CourseID: '123456',
-      Status: 'Closed'
+      Status: 'Open'
     });
 
     query.returns({
@@ -772,7 +771,7 @@ describe('#PUT /courses/:courseId/status', () => {
       msg: data
     });
 
-    openCourse.returns({
+    closeCourse.returns({
       success: false
     });
 
@@ -780,7 +779,7 @@ describe('#PUT /courses/:courseId/status', () => {
       .put(`/courses/${courseId}/status`)
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
-        courseId: '123456'
+        status: 'Closed'
       })
       .then((res) => {
         expect(res.status).equal(500);

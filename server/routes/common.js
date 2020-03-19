@@ -31,37 +31,6 @@ router.get(
   }
 );
 
-router.get('/subject/:subjectId/classes', checkJWT, async (req, res) => {
-  const user = req.decoded.user;
-  const networkObj = await network.connectToNetwork(user);
-  const response = await network.query(networkObj, 'GetClassesOfSubject', req.params.subjectId);
-  if (!response.success) {
-    res.status(500).send({
-      success: false,
-      msg: response.msg.toString()
-    });
-    return;
-  }
-
-  let classes = JSON.parse(response.msg) ? JSON.parse(response.msg) : [];
-
-  if (user.role === USER_ROLES.STUDENT) {
-    for (let index = 0; index < classes.length; index++) {
-      delete classes[index].Students;
-    }
-
-    return res.json({
-      success: true,
-      class: classes
-    });
-  }
-
-  return res.json({
-    success: true,
-    class: classes
-  });
-});
-
 router.get(
   '/class/:classId',
   check('classId')

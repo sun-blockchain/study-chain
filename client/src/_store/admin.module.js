@@ -64,10 +64,11 @@ const actions = {
       }
     }
   },
-  async deleteClass({ commit, dispatch }, { classId }) {
+  async deleteClass({ commit, dispatch }, { subjectId, classId }) {
     try {
-      let data = await adminService.deleteClass(classId);
+      let data = await adminService.deleteClass(subjectId, classId);
       commit('deleteClass', data.courses);
+      return data;
     } catch (error) {
       dispatch('alert/alertError', error, { root: true });
     }

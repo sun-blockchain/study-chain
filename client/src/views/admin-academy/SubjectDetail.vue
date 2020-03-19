@@ -442,15 +442,15 @@ export default {
             subjectId: this.subjectCurent.SubjectID,
             classId: row.ClassID
           });
-          if (data) {
-            if (data.success) {
-              Message.success('Delete completed!');
-            } else {
-              Message.error(data.msg);
-            }
-          }
-          await this.getClassesOfSubject(this.$route.params.id);
 
+          if (data.status != 200) {
+            await this.getClassesOfSubject(this.$route.params.id);
+            this.fullscreenLoading = false;
+            return Message.error('Delete class has failed');
+          }
+
+          Message.success('Delete completed!');
+          await this.getClassesOfSubject(this.$route.params.id);
           this.fullscreenLoading = false;
         })
         .catch(() => {

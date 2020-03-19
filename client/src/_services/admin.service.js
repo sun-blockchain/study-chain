@@ -18,9 +18,7 @@ export const adminService = {
   createSubject,
   updateSubject,
   deleteSubject,
-  getStudentsOfSubject,
   getClassesOfSubject,
-  deleteStudentOfSubject,
   getAllTeachers,
   getSubject,
   getClassesOfTeacher,
@@ -98,7 +96,7 @@ async function changeCourseStatus(courseId, status) {
   try {
     let respone = await axios.put(
       `${process.env.VUE_APP_API_BACKEND}/courses/${courseId}/status`,
-      { courseId: courseId },
+      { status },
       {
         headers: authHeader()
       }
@@ -193,7 +191,7 @@ async function deleteSubjectFromCourse(courseId, subjectId) {
 // Subjects Manager
 async function getAllSubjects() {
   try {
-    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/subject/all`, {
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/subjects`, {
       headers: authHeader()
     });
     return respone.data.subjects;
@@ -205,7 +203,7 @@ async function getAllSubjects() {
 async function createSubject(subject) {
   try {
     let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/academy/subject`,
+      `${process.env.VUE_APP_API_BACKEND}/subjects`,
       {
         subjectName: subject.subjectName,
         subjectCode: subject.subjectCode,
@@ -225,8 +223,8 @@ async function createSubject(subject) {
 async function updateSubject(subject) {
   try {
     let respone = await axios.put(
-      `${process.env.VUE_APP_API_BACKEND}/academy/subject`,
-      { subject: subject },
+      `${process.env.VUE_APP_API_BACKEND}/subjects/${subject.subjectId}`,
+      { subject },
       {
         headers: authHeader()
       }
@@ -239,11 +237,8 @@ async function updateSubject(subject) {
 
 async function deleteSubject(subjectId) {
   try {
-    let respone = await axios.delete(`${process.env.VUE_APP_API_BACKEND}/academy/subject`, {
-      headers: authHeader(),
-      data: {
-        subjectId: subjectId
-      }
+    let respone = await axios.delete(`${process.env.VUE_APP_API_BACKEND}/subjects/${subjectId}`, {
+      headers: authHeader()
     });
 
     return respone.data;
@@ -252,38 +247,10 @@ async function deleteSubject(subjectId) {
   }
 }
 
-//  Students of subject
-async function getStudentsOfSubject(subjectId) {
-  try {
-    let respone = await axios.get(
-      `${process.env.VUE_APP_API_BACKEND}/subject/${subjectId}/students`,
-      {
-        headers: authHeader()
-      }
-    );
-    return respone.data.students;
-  } catch (error) {
-    throw error;
-  }
-}
-
-async function deleteStudentOfSubject(SubjectID, Username) {
-  try {
-    let respone = await axios.delete(
-      `${process.env.VUE_APP_API_BACKEND}/subject/${SubjectID}/delete/${Username}`,
-      {
-        headers: authHeader()
-      }
-    );
-    return respone.data.students;
-  } catch (error) {
-    throw error;
-  }
-}
 async function getClassesOfSubject(subjectId) {
   try {
     let respone = await axios.get(
-      `${process.env.VUE_APP_API_BACKEND}/common/subject/${subjectId}/classes`,
+      `${process.env.VUE_APP_API_BACKEND}/subjects/${subjectId}/classes`,
       {
         headers: authHeader()
       }
@@ -293,6 +260,7 @@ async function getClassesOfSubject(subjectId) {
     throw error;
   }
 }
+
 async function createClass(_class) {
   try {
     let respone = await axios.post(
@@ -364,17 +332,17 @@ async function getClass(classId) {
     throw error;
   }
 }
-async function deleteClass(classId) {
+
+async function deleteClass(subjectId, classId) {
   try {
-    let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/academy/deleteClass`,
-      { classId: classId },
+    let response = await axios.delete(
+      `${process.env.VUE_APP_API_BACKEND}/subjects/${subjectId}/classes/${classId}`,
       {
         headers: authHeader()
       }
     );
 
-    return respone.data;
+    return response;
   } catch (error) {
     throw error;
   }
@@ -521,12 +489,9 @@ async function getCoursesOfStudent(username) {
 // Get subject by id
 async function getSubject(subjectId) {
   try {
-    let respone = await axios.get(
-      `${process.env.VUE_APP_API_BACKEND}/common/subject/${subjectId}`,
-      {
-        headers: authHeader()
-      }
-    );
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/subjects/${subjectId}`, {
+      headers: authHeader()
+    });
     return respone.data;
   } catch (error) {
     throw error;

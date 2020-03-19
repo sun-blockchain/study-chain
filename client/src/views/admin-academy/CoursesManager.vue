@@ -226,9 +226,11 @@ export default {
         .then(async () => {
           this.fullscreenLoading = true;
 
+          let status = row.Status === 'Open' ? 'Closed' : 'Open';
+
           let data = await this.changeCourseStatus({
             courseId: row.CourseID,
-            status: status
+            status
           });
 
           if (!data) {

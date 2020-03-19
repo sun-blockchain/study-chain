@@ -107,7 +107,7 @@ async function getSubjectsOfCourse(courseId) {
 async function getClassesOfSubject(subjectId) {
   try {
     let respone = await axios.get(
-      `${process.env.VUE_APP_API_BACKEND}/common/subject/${subjectId}/classes`,
+      `${process.env.VUE_APP_API_BACKEND}/subjects/${subjectId}/classes`,
       {
         headers: authHeader()
       }

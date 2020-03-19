@@ -385,6 +385,9 @@ router.put(
   check('courseId')
     .trim()
     .escape(),
+  body('status')
+    .trim()
+    .escape(),
   async (req, res) => {
     if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
       return res.status(403).json({
@@ -392,8 +395,15 @@ router.put(
       });
     }
 
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     const user = req.decoded.user;
-    const courseId = req.params.courseId;
+    const { courseId } = req.params;
+    const { status } = req.body;
 
     let networkObj = await network.connectToNetwork(user);
     if (!networkObj) {
@@ -413,13 +423,17 @@ router.put(
     networkObj = await network.connectToNetwork(user);
     let response;
 
-    if (course.Status === 'Open') {
-      response = await network.closeCourse(networkObj, courseId);
-    } else if (course.Status === 'Closed') {
-      response = await network.openCourse(networkObj, courseId);
+    if (status === course.Status) {
+      return res.status(304).end();
     }
 
-    if (!response.success) {
+    if (status === 'Open') {
+      response = await network.openCourse(networkObj, courseId);
+    } else if (status === 'Closed') {
+      response = await network.closeCourse(networkObj, courseId);
+    }
+
+    if (!response || !response.success) {
       return res.status(500).json({
         msg: 'Can not invoke chaincode!'
       });
