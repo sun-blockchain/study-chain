@@ -2237,6 +2237,31 @@ func GetSubjectsNotInCourse(stub shim.ChaincodeStubInterface, args []string) sc.
 
 	var result []Subject
 	var i int
+
+	if course.Subjects == nil {
+
+		for i = 0; allSubjects.HasNext(); i++ {
+
+			record, err := allSubjects.Next()
+
+			if err != nil {
+				return shim.Success(nil)
+			}
+
+			subject := Subject{}
+			json.Unmarshal(record.Value, &subject)
+			result = append(result, subject)
+		}
+
+		jsonRow, err := json.Marshal(result)
+
+		if err != nil {
+			return shim.Error("Failed")
+		}
+
+		return shim.Success(jsonRow)
+	}
+
 	var subjectsInCourse = course.Subjects
 	sort.Strings(subjectsInCourse)
 	var lenSubjects = len(subjectsInCourse)
