@@ -936,30 +936,50 @@ router.delete(
   async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
+      return res.status(400).json({ errors: errors.array() });
     }
 
     if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
       return res.status(403).json({
-        success: false,
         msg: 'Permission Denied'
       });
     }
     let { subjectId } = req.body;
+    let admin = req.decoded.user;
 
-    let networkObj = await network.connectToNetwork(req.decoded.user);
+    let networkObj = await network.connectToNetwork(admin);
+    if (!networkObj) {
+      return res.status(500).json({
+        msg: 'Failed connect to blockchain'
+      });
+    }
+
+    let subject = await network.query(networkObj, 'GetSubject', subjectId);
+    if (!subject.success) {
+      return res.status(404).json({
+        msg: 'Can not query chaincode!'
+      });
+    }
+
+    subject = JSON.parse(subject.msg);
+
+    if (subject.Classes) {
+      return res.status(400).json({
+        msg: 'Can not delete this subject now!'
+      });
+    }
+
+    networkObj = await network.connectToNetwork(admin);
     const response = await network.deleteSubject(networkObj, subjectId);
 
     if (!response.success) {
       return res.status(500).json({
-        success: false,
-        msg: response.msg
+        msg: 'Can not invoke chaincode!'
       });
     }
-    const listSubjects = await network.query(networkObj, 'GetAllSubjects');
-    return res.json({
-      success: true,
-      subjects: JSON.parse(listSubjects.msg)
+
+    return res.status(200).json({
+      msg: 'Delete Successfully!'
     });
   }
 );

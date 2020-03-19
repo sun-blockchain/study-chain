@@ -65,7 +65,9 @@ router.post(
         msg: 'Permission Denied'
       });
     }
+
     let user = req.decoded.user;
+    let courseId = req.body.courseId;
     let networkObj = await network.connectToNetwork(user);
 
     if (!networkObj) {
@@ -74,19 +76,24 @@ router.post(
       });
     }
 
-    let query = await network.query(networkObj, 'GetStudent', user.username);
-    if (!query.success) {
+    let course = await network.query(networkObj, 'GetCourse', courseId);
+    if (!course.success) {
       return res.status(404).json({
         msg: 'Query chain code has failed'
       });
     }
 
-    let courseId = req.body.courseId;
-    let student = JSON.parse(query.msg);
+    course = JSON.parse(course.msg);
 
-    if (student.Courses && student.Courses.includes(courseId)) {
+    if (course.Students && course.Students.includes(user.username)) {
       return res.status(400).json({
         msg: 'You studied this course!'
+      });
+    }
+
+    if (course.Status !== 'Open') {
+      return res.status(400).json({
+        msg: 'This course was closed!'
       });
     }
 
