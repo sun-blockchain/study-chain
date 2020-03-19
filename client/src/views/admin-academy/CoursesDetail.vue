@@ -253,19 +253,15 @@ export default {
             courseId: this.$route.params.id,
             subjectId: row.SubjectID
           });
-          if (data.success) {
+          if (data) {
             await this.getCourse(this.$route.params.id);
             let subjectsNoCourse = await this.getSubjectsNoCourse(this.$route.params.id);
-            if (subjectsNoCourse.success) {
+            if (subjectsNoCourse) {
               this.subjectsNoCourse = subjectsNoCourse.subjects;
             }
             Message.success('Remove completed!');
           } else {
-            if (data.data.msg) {
-              Message.error(data.data.msg);
-            } else {
-              Message.error(data.statusText);
-            }
+            Message.error(data.msg);
           }
           this.fullscreenLoading = false;
         })
@@ -283,7 +279,7 @@ export default {
             subjectId: self.formAdd.subjectId
           });
           if (data) {
-            if (data.success) {
+            if (data) {
               await self.getCourse(this.$route.params.id);
               let subjectsNoCourse = await self.getSubjectsNoCourse(self.$route.params.id);
               if (subjectsNoCourse.success) {

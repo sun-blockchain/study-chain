@@ -1,7 +1,7 @@
 <template>
   <div v-loading.fullscreen.lock="fullscreenLoading">
     <div class="container-fluid">
-      <h1 class="bannerTitle_1wzmt7u">{{ listClasses.ClassCode }}</h1>
+      <h1 class="bannerTitle_1wzmt7u">{{ classInfo.ClassCode }}</h1>
       <b-breadcrumb>
         <b-breadcrumb-item to="/"> <i class="blue fas fa-home"></i>Home </b-breadcrumb-item>
         <b-breadcrumb-item active>{{ subjectName }}</b-breadcrumb-item>
@@ -10,13 +10,30 @@
         <div>
           <div class="card-body">
             <h2 class="h4 mb-2 text-gray-800">About this class</h2>
-            <p>Subject Name: {{ classInfo.SubjectName }}</p>
-            <p>Time: {{ classInfo.Time }}</p>
-            <p>Start Date: {{ convertDate(classInfo.StartDate) }}</p>
-            <p>End Date: {{ convertDate(classInfo.EndDate) }}</p>
-            <p>Repeat: {{ classInfo.Repeat }}</p>
-            <p>Room: {{ classInfo.Room }}</p>
-            <p>Capacity: {{ classInfo.Capacity }}</p>
+            <p>
+              Time: <b>{{ classInfo.Time }}</b>
+            </p>
+            <p>
+              Start:
+              <b>{{ convertDate(classInfo.StartDate) }} </b>
+            </p>
+            <p>
+              End:
+              <b> {{ convertDate(classInfo.EndDate) }}</b>
+            </p>
+            <p>
+              Repeat: <b>{{ classInfo.Repeat + ' on ' + getDay(classInfo.StartDate) }} </b>
+            </p>
+          </div>
+          <div class="col">
+            <p>
+              Room:
+              <b> {{ classInfo.Room }}</b>
+            </p>
+            <p>
+              Capacity:
+              <b> {{ classInfo.Capacity }}</b>
+            </p>
             <p>
               Status:
               <b-badge :variant="classInfo.Status === 'Open' ? 'success' : 'primary'">{{
@@ -83,6 +100,15 @@ import {
 export default {
   data() {
     return {
+      daysInWeek: [
+        { item: 'Sun', value: 'Sunday' },
+        { item: 'Mon', value: 'Monday' },
+        { item: 'Tue', value: 'Tuesday' },
+        { item: 'Wed', value: 'Wednesday' },
+        { item: 'Thu', value: 'Thursday' },
+        { item: 'Fri', value: 'Friday' },
+        { item: 'Sat', value: 'Saturday' }
+      ],
       Score: {
         scoreValue: '',
         classId: '',
@@ -122,6 +148,7 @@ export default {
 
     editScoreModal(row) {
       this.showEditScore = true;
+      this.Score.scoreValue = row.Score;
       this.Score.studentUsername = row.Username;
       this.Score.classId = this.$route.params.classId;
     },
@@ -136,7 +163,7 @@ export default {
 
       let students = await this.getStudentsOfClass(this.$route.params.classId);
 
-      if (score.success && students.success) {
+      if (score && students) {
         Message.success('Success!');
       } else {
         Message.error('Error!');
@@ -153,10 +180,16 @@ export default {
     convertDate(timestamp) {
       let date = new Date(parseInt(timestamp));
       return date.toDateString();
+    },
+    getDay(timestamp) {
+      let date = new Date(parseInt(timestamp));
+      let day = this.daysInWeek[date.getDay()].value;
+
+      return day.toString();
     }
   },
   computed: {
-    ...mapState('adminAcademy', ['listClasses', 'listStudents', 'classInfo']),
+    ...mapState('adminAcademy', ['classInfo', 'listStudents']),
     ...mapState('teacher', ['scores'])
   },
   async created() {

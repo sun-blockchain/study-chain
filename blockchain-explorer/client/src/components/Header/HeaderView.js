@@ -6,7 +6,6 @@
 import React, { Component } from 'react';
 import compose from 'recompose/compose';
 import { connect } from 'react-redux';
-import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import { Nav, Navbar, NavbarBrand, NavbarToggler, Collapse } from 'reactstrap';
 import { HashRouter as Router, NavLink } from 'react-router-dom';
@@ -24,10 +23,6 @@ import AdminPanel from '../Panels/AdminPanel';
 import { chartOperations, chartSelectors } from '../../state/redux/charts';
 import { tableOperations, tableSelectors } from '../../state/redux/tables';
 import { themeSelectors } from '../../state/redux/theme';
-
-import { authOperations } from '../../state/redux/auth';
-
-import Register from '../Register';
 
 // import Enroll from '../Enroll';
 
@@ -223,7 +218,6 @@ export class HeaderView extends Component {
       notifications: [],
       isLoading: true,
       modalOpen: false,
-      registerOpen: false,
       selectedChannel: {}
     };
   }
@@ -342,18 +336,6 @@ export class HeaderView extends Component {
     this.setState({ modalOpen: false });
   };
 
-  registerOpen = () => {
-    this.setState(() => ({ registerOpen: true }));
-  };
-
-  registerClose = () => {
-    this.setState(() => ({ registerOpen: false }));
-  };
-
-  onRegister = () => {
-    this.registerClose();
-  };
-
   /**enrollOpen = () => {
     this.setState(() => ({ enrollOpen: true }));
   };
@@ -470,7 +452,6 @@ export class HeaderView extends Component {
       notifyDrawer,
       adminDrawer,
       modalOpen,
-      registerOpen,
       notifications
     } = this.state;
 
@@ -568,15 +549,6 @@ export class HeaderView extends Component {
                     />
                     <FontAwesome name="moon-o" className={classes.moonIcon} />
                   </div>
-                  <div
-                    className={classNames(classes.adminButton, classes.user)}
-                  >
-                    <FontAwesome
-                      name="user-plus"
-                      className={classes.userIcon}
-                      onClick={() => this.registerOpen()}
-                    />
-                  </div>
                 </Nav>
               </Collapse>
             </Navbar>
@@ -598,17 +570,6 @@ export class HeaderView extends Component {
                 <AdminPanel />
               </div>
             </Drawer>
-            <Dialog
-              open={registerOpen}
-              onClose={this.registerClose}
-              fullWidth={false}
-              maxWidth="md"
-            >
-              <Register
-                onClose={this.registerClose}
-                onRegister={this.onRegister}
-              />
-            </Dialog>
             <Dialog
               open={modalOpen}
               onClose={this.handleClose}

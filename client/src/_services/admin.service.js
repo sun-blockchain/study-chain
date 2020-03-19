@@ -251,7 +251,7 @@ async function deleteSubject(subjectId) {
       }
     });
 
-    return respone.data;
+    return respone;
   } catch (error) {
     throw error;
   }
