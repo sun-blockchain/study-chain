@@ -189,10 +189,7 @@ export default {
   props: {
     title: String,
     btnCreate: Boolean,
-    listAll: {
-      type: Array,
-      default: []
-    },
+    listAll: Array,
     btnInfo: Boolean,
     nameFunctionDetail: String,
     nameFunctionInfo: String,

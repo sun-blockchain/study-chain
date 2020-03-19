@@ -767,7 +767,7 @@ router.get(
 );
 
 router.get(
-  '/subject/:subjectId',
+  '/subjects/:subjectId',
   check('subjectId')
     .trim()
     .escape(),

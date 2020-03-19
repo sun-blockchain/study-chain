@@ -33,12 +33,16 @@ async function login(username, password) {
 }
 
 async function register(user) {
-  let response = await axios.post(`${process.env.VUE_APP_API_BACKEND}/auth/register`, {
-    username: user.username,
-    fullname: user.fullname,
-    password: user.password
-  });
-  return handleResponse(response);
+  try {
+    let response = await axios.post(`${process.env.VUE_APP_API_BACKEND}/auth/register`, {
+      username: user.username,
+      fullname: user.fullname,
+      password: user.password
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
 async function logout() {
@@ -54,8 +58,7 @@ async function loginGoogle(code) {
     }
   );
 
-  let user = await handleResponse(respone);
-  if (user.token) {
+  if (respone.data.token) {
     localStorage.setItem('user', JSON.stringify(user));
     return user;
   }
@@ -139,26 +142,4 @@ async function changePass(changePass) {
   } catch (error) {
     throw error;
   }
-}
-
-async function handleResponse(response) {
-  return new Promise((resolve, reject) => {
-    let data = response.data;
-    if (response.status === 200) {
-      if (data.success) {
-        resolve(data);
-      } else {
-        reject(data.msg);
-      }
-      if (errors) {
-        reject(errors);
-      }
-    } else if (response.status === 401) {
-      logout();
-      location.reload(true);
-    } else {
-      const error = (data && data.msg) || response.statusText;
-      reject(error);
-    }
-  });
 }
