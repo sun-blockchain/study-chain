@@ -301,7 +301,6 @@ router.get(
     }
 
     const subjectsNotInCourse = await network.query(networkObj, 'GetSubjectsNotInCourse', courseId);
-
     if (!subjectsNotInCourse.success) {
       return res.status(404).send({
         msg: 'Can not query chaincode!'
