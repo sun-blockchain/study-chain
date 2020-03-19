@@ -253,16 +253,19 @@ export default {
             courseId: this.$route.params.id,
             subjectId: row.SubjectID
           });
-          if (data) {
-            await this.getCourse(this.$route.params.id);
-            let subjectsNoCourse = await this.getSubjectsNoCourse(this.$route.params.id);
-            if (subjectsNoCourse) {
-              this.subjectsNoCourse = subjectsNoCourse.subjects;
-            }
-            Message.success('Remove completed!');
-          } else {
-            Message.error(data.msg);
+
+          if (!data) {
+            this.fullscreenLoading = false;
+            return Message.error('Remove subject from this course has failed!');
           }
+
+          await this.getCourse(this.$route.params.id);
+          let subjectsNoCourse = await this.getSubjectsNoCourse(this.$route.params.id);
+          if (subjectsNoCourse) {
+            this.subjectsNoCourse = subjectsNoCourse.subjects;
+          }
+          Message.success('Remove completed!');
+
           this.fullscreenLoading = false;
         })
         .catch(() => {
@@ -278,19 +281,21 @@ export default {
             courseId: self.$route.params.id,
             subjectId: self.formAdd.subjectId
           });
-          if (data) {
-            if (data) {
-              await self.getCourse(this.$route.params.id);
-              let subjectsNoCourse = await self.getSubjectsNoCourse(self.$route.params.id);
-              if (subjectsNoCourse.success) {
-                self.subjectsNoCourse = subjectsNoCourse.subjects;
-              }
-              self.resetAddSubject('formAdd');
-              Message.success('Add subject to course successfully!');
-            } else {
-              Message.error(data.msg);
-            }
+
+          if (!data) {
+            self.resetAddSubject('formAdd');
+            self.fullscreenLoading = false;
+            return Message.error('Add subject to this course has failed!');
           }
+
+          await self.getCourse(this.$route.params.id);
+          let subjectsNoCourse = await self.getSubjectsNoCourse(self.$route.params.id);
+          if (subjectsNoCourse.success) {
+            self.subjectsNoCourse = subjectsNoCourse.subjects;
+          }
+          self.resetAddSubject('formAdd');
+          Message.success('Add subject to course successfully!');
+
           self.fullscreenLoading = false;
         } else {
           return false;

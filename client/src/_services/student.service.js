@@ -33,7 +33,7 @@ async function getSummaryInfo() {
 
 async function getAllCourses() {
   try {
-    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/common/courses`, {
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/courses`, {
       headers: authHeader()
     });
     return respone.data.courses;
@@ -44,7 +44,7 @@ async function getAllCourses() {
 
 async function getCourse(courseId) {
   try {
-    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/common/course/${courseId}`, {
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/courses/${courseId}`, {
       headers: authHeader()
     });
     return respone.data;
