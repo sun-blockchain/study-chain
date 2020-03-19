@@ -3,24 +3,13 @@ import axios from 'axios';
 
 export const teacherService = {
   getClassesOfTeacher,
-  getStudentsOfSubject,
   updateScore
 };
 
 async function getClassesOfTeacher() {
-  let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/me/classes`, {
+  let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/me/classes`, {
     headers: authHeader()
   });
-  return respone.data;
-}
-
-async function getStudentsOfSubject(subjectId) {
-  let respone = await axios.get(
-    `${process.env.VUE_APP_API_BACKEND}/account/me/${subjectId}/students`,
-    {
-      headers: authHeader()
-    }
-  );
   return respone.data;
 }
 

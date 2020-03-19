@@ -45,4 +45,64 @@ router.get(
   }
 );
 
+router.post(
+  '/enroll',
+  [
+    body('courseId')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape()
+  ],
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    if (req.decoded.user.role !== USER_ROLES.STUDENT) {
+      return res.status(403).json({
+        msg: 'Permission Denied'
+      });
+    }
+    let user = req.decoded.user;
+    let networkObj = await network.connectToNetwork(user);
+
+    if (!networkObj) {
+      return res.status(500).json({
+        msg: 'Failed connect to blockchain'
+      });
+    }
+
+    let query = await network.query(networkObj, 'GetStudent', user.username);
+    if (!query.success) {
+      return res.status(404).json({
+        msg: 'Query chain code has failed'
+      });
+    }
+
+    let courseId = req.body.courseId;
+    let student = JSON.parse(query.msg);
+
+    if (student.Courses && student.Courses.includes(courseId)) {
+      return res.status(400).json({
+        msg: 'You studied this course!'
+      });
+    }
+
+    networkObj = await network.connectToNetwork(user);
+
+    let response = await network.studentRegisterCourse(networkObj, user.username, courseId);
+    if (!response.success) {
+      return res.status(500).json({
+        msg: 'Enroll has failed'
+      });
+    }
+
+    return res.status(201).json({
+      msg: 'Enroll Successfully'
+    });
+  }
+);
+
 module.exports = router;

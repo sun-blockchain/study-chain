@@ -66,7 +66,7 @@ async function loginGoogle(code) {
 //  Get Profile
 async function getProfile() {
   try {
-    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/me`, {
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/me`, {
       headers: authHeader()
     });
     let {
@@ -101,7 +101,7 @@ async function getProfile() {
 async function pushProfile(user) {
   try {
     let respone = await axios.put(
-      `${process.env.VUE_APP_API_BACKEND}/account/me/info`,
+      `${process.env.VUE_APP_API_BACKEND}/me`,
       {
         username: user.username,
         fullName: user.fullname,
@@ -124,8 +124,8 @@ async function pushProfile(user) {
 //  change password
 async function changePass(changePass) {
   try {
-    let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/account/me/changePassword`,
+    let respone = await axios.put(
+      `${process.env.VUE_APP_API_BACKEND}/me/password`,
       {
         oldPass: changePass.oldPass,
         newPass: changePass.newPass,
