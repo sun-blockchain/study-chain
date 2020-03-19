@@ -12,6 +12,7 @@ const actions = {
     try {
       let data = await teacherService.getClassesOfTeacher();
       commit('getClassesOfTeacher', data.classes);
+      return data.classes;
     } catch (error) {
       if (error.response.status === 403) {
         router.push('/403');

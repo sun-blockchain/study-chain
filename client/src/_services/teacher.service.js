@@ -8,12 +8,9 @@ export const teacherService = {
 };
 
 async function getClassesOfTeacher() {
-  let respone = await axios.get(
-    `${process.env.VUE_APP_API_BACKEND}/account/teacher/classesOfTeacher`,
-    {
-      headers: authHeader()
-    }
-  );
+  let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/me/classes`, {
+    headers: authHeader()
+  });
   return respone.data;
 }
 
