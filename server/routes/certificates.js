@@ -8,6 +8,8 @@ const uuidv4 = require('uuid/v4');
 
 require('dotenv').config();
 
+require('dotenv').config();
+
 router.post(
   '/',
   checkJWT,
@@ -52,6 +54,13 @@ router.post(
     }
 
     course = JSON.parse(course.msg);
+
+    if (!course.Students || !course.Students.includes(user.username)) {
+      return res.status(400).json({
+        msg: 'You have not studied this course yet'
+      });
+    }
+
     if (!course.Subjects || course.Subjects.length < 1) {
       return res.status(400).json({
         msg: 'This course has no subject'
@@ -67,20 +76,6 @@ router.post(
           });
         }
       }
-    }
-
-    let student = await network.query(networkObj, 'GetStudent', user.username);
-    if (!student.success) {
-      return res.status(404).json({
-        msg: 'Query chaincode failed'
-      });
-    }
-
-    student = JSON.parse(student.msg);
-    if (!student.Courses || !student.Courses.includes(req.body.courseId)) {
-      return res.status(400).json({
-        msg: 'You have not studied this course yet'
-      });
     }
 
     let issueDate = new Date().toJSON().slice(0, 10);

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strconv"
 	"time"
 
@@ -212,6 +213,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return GetScoresOfClass(stub, args)
 	} else if function == "GetHistoryOfCertificate" {
 		return GetHistoryOfCertificate(stub, args)
+	} else if function == "GetSubjectsNotInCourse" {
+		return GetSubjectsNotInCourse(stub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name!")
@@ -2210,6 +2213,65 @@ func GetHistoryOfCertificate(stub shim.ChaincodeStubInterface, args []string) sc
 	buffer.WriteString("]")
 
 	return shim.Success(buffer.Bytes())
+}
+
+func GetSubjectsNotInCourse(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	CourseID := args[0]
+	keyCourse := "Course-" + CourseID
+	course, err := getCourse(stub, keyCourse)
+	if err != nil {
+		return shim.Error("This course does not exist!")
+	}
+
+	allSubjects, err := getListSubjects(stub)
+	if err != nil {
+		return shim.Error("Can not get subjects list!")
+	}
+
+	defer allSubjects.Close()
+
+	var result []Subject
+	var i int
+	var subjectsInCourse = course.Subjects
+	sort.Strings(subjectsInCourse)
+	var lenSubjects = len(subjectsInCourse)
+
+	for i = 0; allSubjects.HasNext(); i++ {
+
+		record, err := allSubjects.Next()
+
+		if err != nil {
+			return shim.Success(nil)
+		}
+
+		subject := Subject{}
+		json.Unmarshal(record.Value, &subject)
+
+		if subject.SubjectID > subjectsInCourse[lenSubjects-1] || subject.SubjectID < subjectsInCourse[0] {
+			result = append(result, subject)
+			continue
+		}
+
+		var j int
+		for j = 0; j < lenSubjects; j++ {
+			if subject.SubjectID == course.Subjects[j] {
+				break
+			}
+		}
+
+		if j == lenSubjects {
+			result = append(result, subject)
+		}
+	}
+
+	jsonRow, err := json.Marshal(result)
+
+	return shim.Success(jsonRow)
 }
 
 func main() {

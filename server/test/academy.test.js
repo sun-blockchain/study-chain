@@ -1631,7 +1631,6 @@ describe('#GET /academy/subjectNoCourse/:courseId', () => {
       })
       .then((res) => {
         expect(res.status).equal(403);
-        expect(res.body.success).equal(false);
         expect(res.body.msg).equal('Permission Denied');
         done();
       });
@@ -1646,7 +1645,6 @@ describe('#GET /academy/subjectNoCourse/:courseId', () => {
       })
       .then((res) => {
         expect(res.status).equal(403);
-        expect(res.body.success).equal(false);
         expect(res.body.msg).equal('Permission Denied');
         done();
       });
@@ -1661,7 +1659,6 @@ describe('#GET /academy/subjectNoCourse/:courseId', () => {
       })
       .then((res) => {
         expect(res.status).equal(403);
-        expect(res.body.success).equal(false);
         expect(res.body.msg).equal('Permission Denied');
         done();
       });
@@ -1677,13 +1674,12 @@ describe('#GET /academy/subjectNoCourse/:courseId', () => {
       })
       .then((res) => {
         expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
         expect(res.body.msg).equal('Failed connect to blockchain');
         done();
       });
   });
 
-  it('error query chaincode detail course', (done) => {
+  it('error query chaincode', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
@@ -1691,8 +1687,7 @@ describe('#GET /academy/subjectNoCourse/:courseId', () => {
       user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
     });
 
-    query.onFirstCall().returns({ success: false });
-    query.onSecondCall().returns({ success: true });
+    query.returns({ success: false });
 
     request(app)
       .get('/academy/subjectNoCourse/:courseId')
@@ -1701,34 +1696,8 @@ describe('#GET /academy/subjectNoCourse/:courseId', () => {
         courseId: '1'
       })
       .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Query chaincode failed');
-        done();
-      });
-  });
-
-  it('error query chaincode all subjects', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
-    });
-
-    query.onFirstCall().returns({ success: true });
-    query.onSecondCall().returns({ success: false });
-
-    request(app)
-      .get('/academy/subjectNoCourse/:courseId')
-      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
-      .send({
-        courseId: '1'
-      })
-      .then((res) => {
-        expect(res.status).equal(500);
-        expect(res.body.success).equal(false);
-        expect(res.body.msg).equal('Query chaincode failed');
+        expect(res.status).equal(404);
+        expect(res.body.msg).equal('Can not query chaincode!');
         done();
       });
   });
@@ -1741,20 +1710,17 @@ describe('#GET /academy/subjectNoCourse/:courseId', () => {
       user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
     });
 
-    let course = JSON.stringify({
-      CourseID: '12312124123421',
-      Subjects: []
-    });
-
     let subjects = JSON.stringify([
       {
-        SubjectID: '1321321'
+        SubjectID: '1321321',
+        SubjectName: 'HF'
       },
-      { SubjectID: '163654654654' }
+      {
+        SubjectID: '163654654654',
+        SubjectName: 'HS'
+      }
     ]);
-
-    query.onFirstCall().returns({ success: true, msg: course });
-    query.onSecondCall().returns({ success: true, msg: subjects });
+    query.returns({ success: true, msg: subjects });
 
     request(app)
       .get('/academy/subjectNoCourse/12312124123421')
@@ -1762,7 +1728,6 @@ describe('#GET /academy/subjectNoCourse/:courseId', () => {
       .send({})
       .then((res) => {
         expect(res.status).equal(200);
-        expect(res.body.success).equal(true);
         expect(res.body.subjects.length).equal(2);
         done();
       });
