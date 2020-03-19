@@ -13,13 +13,11 @@ async function getClassesOfTeacher() {
   return respone.data;
 }
 
-async function updateScore(classId, score, studentUsername) {
-  let respone = await axios.post(
-    `${process.env.VUE_APP_API_BACKEND}/score`,
+async function updateScore(classId, score, username) {
+  let respone = await axios.put(
+    `${process.env.VUE_APP_API_BACKEND}/classes/${classId}/${username}/score`,
     {
-      classId: classId,
-      scoreValue: score,
-      student: studentUsername
+      scoreValue: score
     },
     {
       headers: authHeader()

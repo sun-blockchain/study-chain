@@ -239,32 +239,26 @@ export default {
       'closeClass',
       'getStudentsOfClass',
       'getAllTeachers',
-      'addClassToTeacher',
+      'changeTeacherOfClass',
       'getSubject'
     ]),
     async assignTeacherToClass() {
       this.fullscreenLoading = true;
-      let data = await this.addClassToTeacher({
+      let response = await this.changeTeacherOfClass({
         username: this.teacherUsername,
         classId: this.$route.params.classId
       });
 
-      if (data.success) {
-        Message.success('Assign teacher to class successfully!');
+      if (!response) {
         this.teacherUsername = '';
-      } else {
-        if (data.errors) {
-          data.errors.forEach(async (message) => {
-            setTimeout(() => {
-              Message.error(`${message.param}: ${message.msg}`);
-            }, 1);
-          });
-        } else {
-          Message.error(data.msg);
-        }
+        await this.getClass(this.$route.params.classId);
+        this.fullscreenLoading = false;
+        return Message.error('Assign teacher to class has failed!');
       }
-      await this.getClass(this.$route.params.classId);
 
+      this.teacherUsername = '';
+      Message.success('Assign teacher to class successfully!');
+      await this.getClass(this.$route.params.classId);
       this.fullscreenLoading = false;
     },
     cancelAssign() {
@@ -281,20 +275,17 @@ export default {
         .then(async () => {
           this.fullscreenLoading = true;
 
-          let data = await this.closeClass({ classId: this.$route.params.classId });
+          let response = await this.closeClass({ classId: this.$route.params.classId });
 
-          if (data) {
-            if (data.success) {
-              this.status = false;
-              Message.success('This class has been started!');
-            } else {
-              if (data.data.msg) {
-                Message.error(data.data.msg);
-              } else {
-                Message.error(data.statusText);
-              }
-            }
+          if (!response) {
+            await this.getClass(this.$route.params.classId);
+            this.fullscreenLoading = false;
+            return Message.error('Start class has failed');
           }
+
+          this.status = false;
+          Message.success('This class has been started!');
+
           await this.getClass(this.$route.params.classId);
           this.fullscreenLoading = false;
         })
