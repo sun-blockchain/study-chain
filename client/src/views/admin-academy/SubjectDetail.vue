@@ -407,13 +407,11 @@ export default {
           this.fullscreenLoading = true;
           let data = await this.updateClass(this.editClass);
           if (data) {
-            if (data.success) {
-              this.dialogForm.editClass = false;
-              await this.resetForm('editClass');
-              Message.success('Update success!');
-            } else {
-              Message.error(data.msg);
-            }
+            this.dialogForm.editClass = false;
+            await this.resetForm('editClass');
+            Message.success('Update success!');
+          } else {
+            Message.error(data.msg);
           }
           this.fullscreenLoading = false;
         }

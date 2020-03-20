@@ -319,15 +319,12 @@ const actions = {
       dispatch('alert/alertError', error, { root: true });
     }
   },
-  async unassignTeacherFromClass({ commit }, classId) {
+  async unassignTeacherFromClass({ commit, dispatch }, classId) {
     try {
       let data = await adminService.unassignTeacherFromClass(classId);
       return data;
     } catch (error) {
-      if (error.response.status === 403) {
-        router.push('/403');
-      }
-      return error.response.data;
+      dispatch('alert/alertError', error, { root: true });
     }
   },
   async getClassesNoTeacher() {

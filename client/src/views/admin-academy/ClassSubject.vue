@@ -176,7 +176,7 @@
             >Gender</label
           >
           <div class="col-sm-12">
-            <h4 class="pl-3">{{ infoStudent.Sex }}</h4>
+            <h4 class="pl-3">{{ infoStudent.Sex === '0' ? 'Male' : 'Female' }}</h4>
           </div>
         </div>
       </el-form>

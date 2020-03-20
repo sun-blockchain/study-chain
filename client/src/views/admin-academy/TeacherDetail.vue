@@ -221,20 +221,19 @@ export default {
           this.fullscreenLoading = true;
           //sua chaincode sau
           let data = await this.unassignTeacherFromClass(row.ClassID);
-          if (data.success) {
-            await this.getClassesOfTeacher(this.$route.params.id);
-            let data = await self.getClassesNoTeacher();
+          if (data) {
             if (data.success) {
-              self.classesNoTeacher = data.classesNoTeacher;
-            }
-            Message.success('Unassign completed!');
-          } else {
-            if (data.data.msg) {
-              Message.error(data.data.msg);
+              let data = await self.getClassesNoTeacher();
+              if (data.success) {
+                self.classesNoTeacher = data.classesNoTeacher;
+              }
+              Message.success('Unassign completed!');
             } else {
-              Message.error(data.statusText);
+              Message.error(data.msg);
             }
           }
+          await this.getClassesOfTeacher(this.$route.params.id);
+
           this.fullscreenLoading = false;
         })
         .catch(() => {

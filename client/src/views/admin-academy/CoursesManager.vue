@@ -192,7 +192,7 @@ export default {
         newCourse: false,
         editCourse: false
       },
-      fullscreenLoading: false,
+      fullscreenLoading: true,
       loadingData: false
     };
   },
@@ -315,7 +315,7 @@ export default {
   async created() {
     let response = await this.getAllCourses();
     if (response) {
-      this.loadingData = false;
+      this.fullscreenLoading = false;
     }
   }
 };
