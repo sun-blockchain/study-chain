@@ -280,7 +280,7 @@ export default {
           if (!response) {
             await this.getClass(this.$route.params.classId);
             this.fullscreenLoading = false;
-            return Message.error('Start class has failed');
+            return;
           }
 
           this.status = false;
