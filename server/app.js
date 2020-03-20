@@ -12,7 +12,7 @@ const app = express();
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
-const subjectRoutes = require('./routes/subject');
+const subjectRoutes = require('./routes/subjects');
 const certificateRoutes = require('./routes/certificates');
 const studentRoutes = require('./routes/students');
 const teacherRoutes = require('./routes/teachers');
@@ -58,7 +58,7 @@ app.use(
 app.use('/auth', authRoutes);
 app.use('/students', checkJWT, studentRoutes);
 app.use('/teachers', checkJWT, teacherRoutes);
-app.use('/subject', checkJWT, subjectRoutes);
+app.use('/subjects', checkJWT, subjectRoutes);
 app.use('/score', checkJWT, scoreRoutes);
 app.use('/certificates', certificateRoutes);
 app.use('/courses', checkJWT, courseRoutes);

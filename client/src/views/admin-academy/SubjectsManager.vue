@@ -222,16 +222,22 @@ export default {
         if (valid) {
           this.fullscreenLoading = true;
           let data = await this.createSubject(this.newSubject);
-          if (data) {
-            if (data.success) {
-              this.dialogForm.newSubject = false;
-              await this.resetForm('newSubject');
-              Message.success('create success!');
-            } else {
-              Message.error(data.msg);
-            }
+
+          if (!data) {
+            this.dialogForm.newSubject = false;
+            await this.resetForm('newSubject');
+            await this.getAllSubjects();
+            this.fullscreenLoading = false;
+            return Message.error('Create subject has failed');
           }
+
+          this.dialogForm.newSubject = false;
+          await this.resetForm('newSubject');
+          await this.getAllSubjects();
+          Message.success('Create subject successfully');
           this.fullscreenLoading = false;
+        } else {
+          return false;
         }
       });
     },
@@ -241,15 +247,19 @@ export default {
         if (valid) {
           this.fullscreenLoading = true;
           let data = await this.updateSubject(this.editSubject);
-          if (data) {
-            if (data.success) {
-              this.dialogForm.editSubject = false;
-              await this.resetForm('editSubject');
-              Message.success('update success!');
-            } else {
-              Message.error(data.msg);
-            }
+
+          if (!data) {
+            this.dialogForm.editSubject = false;
+            await this.resetForm('editSubject');
+            await this.getAllSubjects();
+            this.fullscreenLoading = false;
+            return Message.error('Update subject has failed');
           }
+
+          this.dialogForm.editSubject = false;
+          await this.resetForm('editSubject');
+          await this.getAllSubjects();
+          Message.success('Update successfully');
           this.fullscreenLoading = false;
         }
       });
@@ -273,14 +283,16 @@ export default {
         .then(async () => {
           this.fullscreenLoading = true;
           let data = await this.deleteSubject(subject.SubjectID);
-          if (data) {
-            if (data.success) {
-              await this.getAllSubjects();
-              Message.success('Delete completed!');
-            } else {
-              Message.error(data.msg);
-            }
+
+          if (!data) {
+            await this.getAllSubjects();
+            this.fullscreenLoading = false;
+            return Message.error('Update subject has failed');
           }
+
+          await this.getAllSubjects();
+          Message.success('Delete completed!');
+
           this.fullscreenLoading = false;
         })
         .catch(() => {
