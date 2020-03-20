@@ -61,11 +61,6 @@ router.post(
       .not()
       .isEmpty()
       .trim()
-      .escape(),
-    body('courseId')
-      .not()
-      .isEmpty()
-      .trim()
       .escape()
   ],
   async (req, res, next) => {
@@ -85,20 +80,6 @@ router.post(
     if (!networkObj) {
       return res.status(500).json({
         msg: 'Failed connect to blockchain'
-      });
-    }
-
-    let queryCourse = await network.query(networkObj, 'GetCourse', req.body.courseId);
-    if (!queryCourse.success) {
-      return res.status(404).json({
-        msg: 'query course in chaincode error'
-      });
-    }
-
-    const course = JSON.parse(queryCourse.msg);
-    if (course && course.Status !== 'Open') {
-      return res.status(400).json({
-        msg: 'The course has closed!'
       });
     }
 
@@ -179,11 +160,6 @@ router.post(
       .not()
       .isEmpty()
       .trim()
-      .escape(),
-    body('courseId')
-      .not()
-      .isEmpty()
-      .trim()
       .escape()
   ],
   async (req, res, next) => {
@@ -203,20 +179,6 @@ router.post(
     if (!networkObj) {
       return res.status(500).json({
         msg: 'Failed connect to blockchain'
-      });
-    }
-
-    let queryCourse = await network.query(networkObj, 'GetCourse', req.body.courseId);
-    if (!queryCourse.success) {
-      return res.status(404).json({
-        msg: 'query course in chaincode error'
-      });
-    }
-
-    const course = JSON.parse(queryCourse.msg);
-    if (course && course.Status !== 'Open') {
-      return res.status(400).json({
-        msg: 'The course has closed!'
       });
     }
 
