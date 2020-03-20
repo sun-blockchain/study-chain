@@ -22,10 +22,10 @@
       :listAll="listClasses"
       :loadingData="loadingData"
       :statusCol="true"
-      :btnRegister="checkStatusCourse"
+      :btnRegister="true"
       :nameFunctionRegister="`enrollClass`"
       :nameFunctionDetail="`detailClass`"
-      :btnCancel="checkStatusCourse"
+      :btnCancel="true"
       :nameFunctionCancelRegistered="`cancelClass`"
       :listProperties="[
         { prop: 'ClassCode', label: 'Class' },
@@ -109,8 +109,7 @@ export default {
         .then(async () => {
           this.fullscreenLoading = true;
           let data = await this.cancelRegisteredClass({
-            classId: row.ClassID,
-            courseId: this.courseInfo.course.CourseID
+            classId: row.ClassID
           });
 
           if (!data) {
@@ -130,10 +129,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('student', ['listClasses', 'subjects', 'subject', 'courseInfo']),
-    checkStatusCourse() {
-      return this.courseInfo.course.Status === 'Open' ? true : false;
-    }
+    ...mapState('student', ['listClasses', 'subjects', 'subject', 'courseInfo'])
   },
   async created() {
     await this.getCourse(this.$route.params.id);

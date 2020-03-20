@@ -367,22 +367,7 @@ describe('POST /classes/enroll', () => {
       .post('/classes/enroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        classId: '',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(400);
-        done();
-      });
-  });
-
-  it('Validate body not courseId!', (done) => {
-    request(app)
-      .post('/classes/enroll')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '465461321',
-        courseId: ''
+        classId: ''
       })
       .then((res) => {
         expect(res.status).equal(400);
@@ -395,8 +380,7 @@ describe('POST /classes/enroll', () => {
       .post('/classes/enroll')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
-        classId: '123456',
-        courseId: '1123132465'
+        classId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(403);
@@ -411,74 +395,11 @@ describe('POST /classes/enroll', () => {
       .post('/classes/enroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        classId: '123456',
-        courseId: '1123132465'
+        classId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(500);
         expect(res.body.msg).equal('Failed connect to blockchain');
-        done();
-      });
-  });
-
-  it('query course in chaincode error!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'st01', role: USER_ROLES.STUDENT }
-    });
-
-    query.returns({
-      success: false,
-      msg: 'Error'
-    });
-
-    request(app)
-      .post('/classes/enroll')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(404);
-        done();
-      });
-  });
-
-  it('The course has closed!', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'st01', role: USER_ROLES.STUDENT }
-    });
-
-    query.returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Closed'
-      })
-    });
-
-    request(app)
-      .post('/classes/enroll')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(400);
         done();
       });
   });
@@ -491,22 +412,7 @@ describe('POST /classes/enroll', () => {
       user: { username: 'st01', role: USER_ROLES.STUDENT }
     });
 
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
-    query.onSecondCall().returns({
+    query.returns({
       success: false,
       msg: 'Error'
     });
@@ -515,8 +421,7 @@ describe('POST /classes/enroll', () => {
       .post('/classes/enroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        classId: '123456',
-        courseId: '1123132465'
+        classId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(404);
@@ -532,22 +437,7 @@ describe('POST /classes/enroll', () => {
       user: { username: 'st01', role: USER_ROLES.STUDENT }
     });
 
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
-    query.onSecondCall().returns({
+    query.returns({
       success: true,
       msg: JSON.stringify({
         Username: 'st01',
@@ -559,8 +449,7 @@ describe('POST /classes/enroll', () => {
       .post('/classes/enroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        classId: '123456',
-        courseId: '1123132465'
+        classId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(400);
@@ -579,27 +468,12 @@ describe('POST /classes/enroll', () => {
     query.onFirstCall().returns({
       success: true,
       msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
-    query.onSecondCall().returns({
-      success: true,
-      msg: JSON.stringify({
         Username: 'st01',
         Classes: ['123457']
       })
     });
 
-    query.onThirdCall().returns({
+    query.onSecondCall().returns({
       success: false,
       msg: 'Error'
     });
@@ -608,8 +482,7 @@ describe('POST /classes/enroll', () => {
       .post('/classes/enroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        classId: '123456',
-        courseId: '1123132465'
+        classId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(404);
@@ -628,27 +501,12 @@ describe('POST /classes/enroll', () => {
     query.onFirstCall().returns({
       success: true,
       msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
-    query.onSecondCall().returns({
-      success: true,
-      msg: JSON.stringify({
         Username: 'st01',
         Classes: ['123457']
       })
     });
 
-    query.onThirdCall().returns({
+    query.onSecondCall().returns({
       success: true,
       msg: JSON.stringify({
         ClassID: '123456',
@@ -656,7 +514,7 @@ describe('POST /classes/enroll', () => {
       })
     });
 
-    query.returns({
+    query.onFirstCall().returns({
       success: false,
       msg: 'Error'
     });
@@ -665,8 +523,7 @@ describe('POST /classes/enroll', () => {
       .post('/classes/enroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        classId: '123456',
-        courseId: '1123132465'
+        classId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(404);
@@ -682,27 +539,12 @@ describe('POST /classes/enroll', () => {
       user: { username: 'st01', role: USER_ROLES.STUDENT }
     });
 
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
     let studentInfo = JSON.stringify({
       Username: 'st01',
       Classes: ['123457']
     });
 
-    query.onSecondCall().returns({
+    query.onFirstCall().returns({
       success: true,
       msg: studentInfo
     });
@@ -712,7 +554,7 @@ describe('POST /classes/enroll', () => {
       SubjectID: 'Subject01'
     });
 
-    query.onThirdCall().returns({
+    query.onSecondCall().returns({
       success: true,
       msg: classInfo
     });
@@ -724,7 +566,7 @@ describe('POST /classes/enroll', () => {
       }
     ]);
 
-    query.returns({
+    query.onThirdCall().returns({
       success: true,
       msg: classes
     });
@@ -733,8 +575,7 @@ describe('POST /classes/enroll', () => {
       .post('/classes/enroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        classId: '123456',
-        courseId: '1123132465'
+        classId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(400);
@@ -750,27 +591,12 @@ describe('POST /classes/enroll', () => {
       user: { username: 'st01', role: USER_ROLES.STUDENT }
     });
 
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
     let studentInfo = JSON.stringify({
       Username: 'st01',
       Classes: ['123457']
     });
 
-    query.onSecondCall().returns({
+    query.onFirstCall().returns({
       success: true,
       msg: studentInfo
     });
@@ -781,7 +607,7 @@ describe('POST /classes/enroll', () => {
       Status: 'InProgress'
     });
 
-    query.onThirdCall().returns({
+    query.onSecondCall().returns({
       success: true,
       msg: classInfo
     });
@@ -793,7 +619,7 @@ describe('POST /classes/enroll', () => {
       }
     ]);
 
-    query.returns({
+    query.onThirdCall().returns({
       success: true,
       msg: classes
     });
@@ -802,8 +628,7 @@ describe('POST /classes/enroll', () => {
       .post('/classes/enroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        classId: '123456',
-        courseId: '1123132465'
+        classId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(400);
@@ -819,27 +644,12 @@ describe('POST /classes/enroll', () => {
       user: { username: 'st01', role: USER_ROLES.STUDENT }
     });
 
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
     let studentInfo = JSON.stringify({
       Username: 'st01',
       Classes: ['123457']
     });
 
-    query.onSecondCall().returns({
+    query.onFirstCall().returns({
       success: true,
       msg: studentInfo
     });
@@ -850,7 +660,7 @@ describe('POST /classes/enroll', () => {
       Status: 'Completed'
     });
 
-    query.onThirdCall().returns({
+    query.onSecondCall().returns({
       success: true,
       msg: classInfo
     });
@@ -862,7 +672,7 @@ describe('POST /classes/enroll', () => {
       }
     ]);
 
-    query.returns({
+    query.onThirdCall().returns({
       success: true,
       msg: classes
     });
@@ -871,8 +681,7 @@ describe('POST /classes/enroll', () => {
       .post('/classes/enroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        classId: '123456',
-        courseId: '1123132465'
+        classId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(400);
@@ -888,27 +697,12 @@ describe('POST /classes/enroll', () => {
       user: { username: 'st01', role: USER_ROLES.STUDENT }
     });
 
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
     let studentInfo = JSON.stringify({
       Username: 'st01',
       Classes: ['123457']
     });
 
-    query.onSecondCall().returns({
+    query.onFirstCall().returns({
       success: true,
       msg: studentInfo
     });
@@ -919,7 +713,7 @@ describe('POST /classes/enroll', () => {
       Status: 'Open'
     });
 
-    query.onThirdCall().returns({
+    query.onSecondCall().returns({
       success: true,
       msg: classInfo
     });
@@ -931,7 +725,7 @@ describe('POST /classes/enroll', () => {
       }
     ]);
 
-    query.returns({
+    query.onThirdCall().returns({
       success: true,
       msg: classes
     });
@@ -945,8 +739,7 @@ describe('POST /classes/enroll', () => {
       .post('/classes/enroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        classId: '123456',
-        courseId: '1123132465'
+        classId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(500);
@@ -962,27 +755,12 @@ describe('POST /classes/enroll', () => {
       user: { username: 'st01', role: USER_ROLES.STUDENT }
     });
 
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
     let studentInfo = JSON.stringify({
       Username: 'st01',
       Classes: ['123457']
     });
 
-    query.onSecondCall().returns({
+    query.onFirstCall().returns({
       success: true,
       msg: studentInfo
     });
@@ -993,7 +771,7 @@ describe('POST /classes/enroll', () => {
       Status: 'Open'
     });
 
-    query.onThirdCall().returns({
+    query.onSecondCall().returns({
       success: true,
       msg: classInfo
     });
@@ -1005,7 +783,7 @@ describe('POST /classes/enroll', () => {
       }
     ]);
 
-    query.returns({
+    query.onThirdCall().returns({
       success: true,
       msg: classes
     });
@@ -1018,8 +796,7 @@ describe('POST /classes/enroll', () => {
       .post('/classes/enroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        classId: '123456',
-        courseId: '1123132465'
+        classId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(201);
@@ -1050,22 +827,7 @@ describe('POST /classes/unenroll', () => {
       .post('/classes/unenroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        classId: '',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(400);
-        done();
-      });
-  });
-
-  it('Validate body not courseId', (done) => {
-    request(app)
-      .post('/classes/unenroll')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: ''
+        classId: ''
       })
       .then((res) => {
         expect(res.status).equal(400);
@@ -1078,8 +840,7 @@ describe('POST /classes/unenroll', () => {
       .post('/classes/unenroll')
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .send({
-        classId: '123456',
-        courseId: '1123132465'
+        classId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(403);
@@ -1094,38 +855,11 @@ describe('POST /classes/unenroll', () => {
       .post('/classes/unenroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        classId: '123456',
-        courseId: '1123132465'
+        classId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(500);
         expect(res.body.msg).equal('Failed connect to blockchain');
-        done();
-      });
-  });
-
-  it('query course in chaincode error', (done) => {
-    connect.returns({
-      contract: 'academy',
-      network: 'certificatechannel',
-      gateway: 'gateway',
-      user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
-    });
-
-    query.returns({
-      success: false,
-      msg: 'Error'
-    });
-
-    request(app)
-      .post('/classes/unenroll')
-      .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
-      .send({
-        classId: '123456',
-        courseId: '1123132465'
-      })
-      .then((res) => {
-        expect(res.status).equal(404);
         done();
       });
   });
@@ -1138,22 +872,7 @@ describe('POST /classes/unenroll', () => {
       user: { username: 'st01', role: USER_ROLES.STUDENT }
     });
 
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
-    query.onSecondCall().returns({
+    query.returns({
       success: false,
       msg: 'Error'
     });
@@ -1162,8 +881,7 @@ describe('POST /classes/unenroll', () => {
       .post('/classes/unenroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        classId: '123456',
-        courseId: '1123132465'
+        classId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(404);
@@ -1179,27 +897,12 @@ describe('POST /classes/unenroll', () => {
       user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
     });
 
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
     let classInfo = JSON.stringify({
       ClassID: '123456',
       Students: ['st02']
     });
 
-    query.onSecondCall().returns({
+    query.returns({
       success: true,
       msg: classInfo
     });
@@ -1208,8 +911,7 @@ describe('POST /classes/unenroll', () => {
       .post('/classes/unenroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        classId: '123456',
-        courseId: '1123132465'
+        classId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(400);
@@ -1223,21 +925,6 @@ describe('POST /classes/unenroll', () => {
       network: 'certificatechannel',
       gateway: 'gateway',
       user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
-    });
-
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
     });
 
     let classInfo = JSON.stringify({
@@ -1246,7 +933,7 @@ describe('POST /classes/unenroll', () => {
       Status: 'InProgress'
     });
 
-    query.onSecondCall().returns({
+    query.returns({
       success: true,
       msg: classInfo
     });
@@ -1255,8 +942,7 @@ describe('POST /classes/unenroll', () => {
       .post('/classes/unenroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        classId: '123456',
-        courseId: '1123132465'
+        classId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(400);
@@ -1264,27 +950,12 @@ describe('POST /classes/unenroll', () => {
       });
   });
 
-  it('Class is InProgress!', (done) => {
+  it('Class is Completed!', (done) => {
     connect.returns({
       contract: 'academy',
       network: 'certificatechannel',
       gateway: 'gateway',
       user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
-    });
-
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
     });
 
     let classInfo = JSON.stringify({
@@ -1293,7 +964,7 @@ describe('POST /classes/unenroll', () => {
       Status: 'Completed'
     });
 
-    query.onSecondCall().returns({
+    query.returns({
       success: true,
       msg: classInfo
     });
@@ -1302,8 +973,7 @@ describe('POST /classes/unenroll', () => {
       .post('/classes/unenroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        classId: '123456',
-        courseId: '1123132465'
+        classId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(400);
@@ -1319,28 +989,13 @@ describe('POST /classes/unenroll', () => {
       user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
     });
 
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
     let classInfo = JSON.stringify({
       ClassID: '123456',
       Students: ['hoangdd', 'st02'],
       Status: 'Open'
     });
 
-    query.onSecondCall().returns({
+    query.returns({
       success: true,
       msg: classInfo
     });
@@ -1354,8 +1009,7 @@ describe('POST /classes/unenroll', () => {
       .post('/classes/unenroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        classId: '123456',
-        courseId: '1123132465'
+        classId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(500);
@@ -1371,28 +1025,13 @@ describe('POST /classes/unenroll', () => {
       user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
     });
 
-    query.onFirstCall().returns({
-      success: true,
-      msg: JSON.stringify({
-        CourseID: '1123132465',
-        CourseCode: 'BC01',
-        CourseName: 'Blockchain',
-        ShortDescription: 'Blockchain',
-        Description:
-          'Blockchain Basic, you will learn about architech of blockchain, consensus,...',
-        Subjects: ['0eba3d4b-7dce-4e98-8a17-7de5f49a27af', '965af484-0480-4d20-8f49-31fb288526df'],
-        Students: ['st01'],
-        Status: 'Open'
-      })
-    });
-
     let classInfo = JSON.stringify({
       ClassID: '123456',
       Students: ['hoangdd', 'st02'],
       Status: 'Open'
     });
 
-    query.onSecondCall().returns({
+    query.returns({
       success: true,
       msg: classInfo
     });
@@ -1405,8 +1044,7 @@ describe('POST /classes/unenroll', () => {
       .post('/classes/unenroll')
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .send({
-        classId: '123456',
-        courseId: '1123132465'
+        classId: '123456'
       })
       .then((res) => {
         expect(res.status).equal(201);
