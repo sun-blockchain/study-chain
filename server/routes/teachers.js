@@ -149,27 +149,16 @@ router.get('/:username/classes', async (req, res, next) => {
   }
 
   let classes = await network.query(networkObj, 'GetClassesByTeacher', username);
-  let subjects = await network.query(networkObj, 'GetAllSubjects');
 
-  if (!classes.success || !subjects.success) {
+  if (!classes.success) {
     return res.status(404).json({
       msg: 'Failed to query chaincode'
     });
   }
 
   classes = JSON.parse(classes.msg) ? JSON.parse(classes.msg) : [];
-  subjects = JSON.parse(subjects.msg) ? JSON.parse(subjects.msg) : [];
 
-  for (let i = 0; i < classes.length; i++) {
-    for (let k = 0; k < subjects.length; k++) {
-      if (classes[i].SubjectID === subjects[k].SubjectID) {
-        classes[i].SubjectName = subjects[k].SubjectName;
-        break;
-      }
-    }
-  }
-
-  return res.json({
+  return res.status(200).json({
     classes
   });
 });

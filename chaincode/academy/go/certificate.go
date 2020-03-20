@@ -1943,6 +1943,23 @@ func GetAllCertificates(stub shim.ChaincodeStubInterface) sc.Response {
 }
 
 func GetClassesOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	type ClassInfo struct {
+		ClassID         string
+		SubjectID       string
+		SubjectName     string
+		ClassCode       string
+		Room            string
+		Time            string
+		Status          Status
+		StartDate       string
+		EndDate         string
+		Repeat          string
+		Students        []string
+		Capacity        uint64
+		TeacherUsername string
+	}
+
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
@@ -1955,7 +1972,7 @@ func GetClassesOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.Res
 		return shim.Error("Student dose not exist - " + StudentUsername)
 	}
 
-	var tlist []Class
+	var tlist []ClassInfo
 	var i int
 
 	for i = 0; i < len(student.Classes); i++ {
@@ -1964,7 +1981,29 @@ func GetClassesOfStudent(stub shim.ChaincodeStubInterface, args []string) sc.Res
 		if err != nil {
 			return shim.Error("Class does not exist - " + student.Classes[i])
 		}
-		tlist = append(tlist, class)
+
+		subject, err := getSubject(stub, "Subject-"+class.SubjectID)
+		if err != nil {
+			return shim.Error("Subject does not exist - " + class.SubjectID)
+		}
+
+		var classInfo ClassInfo
+
+		classInfo.ClassID = class.ClassID
+		classInfo.SubjectID = class.SubjectID
+		classInfo.SubjectName = subject.SubjectName
+		classInfo.ClassCode = class.ClassCode
+		classInfo.Room = class.Room
+		classInfo.Time = class.Time
+		classInfo.Status = class.Status
+		classInfo.StartDate = class.StartDate
+		classInfo.EndDate = class.EndDate
+		classInfo.Repeat = class.Repeat
+		classInfo.Students = class.Students
+		classInfo.Capacity = class.Capacity
+		classInfo.TeacherUsername = class.TeacherUsername
+
+		tlist = append(tlist, classInfo)
 	}
 
 	jsonRow, err := json.Marshal(tlist)
@@ -2117,38 +2156,72 @@ func GetClassesByTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Res
 		shim.Error("Permission Denied!")
 	}
 
+	type ClassInfo struct {
+		ClassID         string
+		SubjectID       string
+		SubjectName     string
+		ClassCode       string
+		Room            string
+		Time            string
+		Status          Status
+		StartDate       string
+		EndDate         string
+		Repeat          string
+		Students        []string
+		Capacity        uint64
+		TeacherUsername string
+	}
+
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
 
 	TeacherUsername := args[0]
 
-	allClasses, _ := getListClasses(stub)
+	teacher, err := getTeacher(stub, "Teacher-"+TeacherUsername)
 
-	defer allClasses.Close()
+	if err != nil {
+		return shim.Error("Teacher dose not exist - " + TeacherUsername)
+	}
 
-	var tlist []Class
+	var tlist []ClassInfo
 	var i int
 
-	for i = 0; allClasses.HasNext(); i++ {
+	for i = 0; i < len(teacher.Classes); i++ {
 
-		record, err := allClasses.Next()
-
+		class, err := getClass(stub, "Class-"+teacher.Classes[i])
 		if err != nil {
-			return shim.Success(nil)
+			return shim.Error("Class does not exist - " + teacher.Classes[i])
 		}
 
-		class := Class{}
-		json.Unmarshal(record.Value, &class)
-		if class.TeacherUsername == TeacherUsername {
-			tlist = append(tlist, class)
+		subject, err := getSubject(stub, "Subject-"+class.SubjectID)
+		if err != nil {
+			return shim.Error("Subject does not exist - " + class.SubjectID)
 		}
+
+		var classInfo ClassInfo
+
+		classInfo.ClassID = class.ClassID
+		classInfo.SubjectID = class.SubjectID
+		classInfo.SubjectName = subject.SubjectName
+		classInfo.ClassCode = class.ClassCode
+		classInfo.Room = class.Room
+		classInfo.Time = class.Time
+		classInfo.Status = class.Status
+		classInfo.StartDate = class.StartDate
+		classInfo.EndDate = class.EndDate
+		classInfo.Repeat = class.Repeat
+		classInfo.Students = class.Students
+		classInfo.Capacity = class.Capacity
+		classInfo.TeacherUsername = class.TeacherUsername
+
+		tlist = append(tlist, classInfo)
 	}
 
 	jsonRow, err := json.Marshal(tlist)
 
 	if err != nil {
-		return shim.Error("Cannot json encode list class")
+		return shim.Error("Failed")
 	}
 
 	return shim.Success(jsonRow)
