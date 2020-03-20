@@ -70,7 +70,7 @@
     </div>
     <table-admin
       :title="`List Classes Of Teacher`"
-      :listAll="classesOfTeacher"
+      :listAll="classesOfTeacher ? classesOfTeacher : []"
       :loadingData="loadingData"
       :btnRemove="true"
       :nameFunctionRemove="`removeClass`"
@@ -210,6 +210,7 @@ export default {
       this.dialogForm.addClass = false;
     },
     removeClass(row) {
+      let self = this;
       MessageBox.confirm(`You won't be able to revert this!`, 'Unassign', {
         confirmButtonText: 'OK',
         cancelButtonText: 'Cancel',
@@ -222,7 +223,10 @@ export default {
           let data = await this.unassignTeacherFromClass(row.ClassID);
           if (data.success) {
             await this.getClassesOfTeacher(this.$route.params.id);
-
+            let data = await self.getClassesNoTeacher();
+            if (data.success) {
+              self.classesNoTeacher = data.classesNoTeacher;
+            }
             Message.success('Unassign completed!');
           } else {
             if (data.data.msg) {
@@ -245,7 +249,6 @@ export default {
     await this.getTeacher(this.$route.params.id);
     await this.getClassesOfTeacher(this.$route.params.id);
     let res = await this.getClassesNoTeacher();
-
     if (res) {
       this.classesNoTeacher = res.classesNoTeacher;
     }

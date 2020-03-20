@@ -27,7 +27,13 @@
                 <b> {{ convertDate(classInfo.EndDate) }}</b>
               </p>
               <p>
-                Repeat: <b>{{ classInfo.Repeat + ' on ' + getDay(classInfo.StartDate) }} </b>
+                Repeat:
+                <b
+                  >{{
+                    classInfo.Repeat +
+                      (classInfo.StartDate ? ' on ' + getDay(classInfo.StartDate) : '')
+                  }}
+                </b>
               </p>
             </div>
             <div class="col">

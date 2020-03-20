@@ -75,15 +75,12 @@ const actions = {
       }
     }
   },
-  async pushProfile({}, user) {
+  async pushProfile({ dispatch }, user) {
     try {
       let data = await authService.pushProfile(user);
       return data;
     } catch (error) {
-      if (error.response.status === 403) {
-        router.push('/403');
-      }
-      return error.response.data;
+      dispatch('alert/alertError', error, { root: true });
     }
   },
   async changePass({}, changePass) {
@@ -91,9 +88,7 @@ const actions = {
       let data = await authService.changePass(changePass);
       return data;
     } catch (error) {
-      if (error.response.status === 403) {
-        router.push('/403');
-      }
+      dispatch('alert/alertError', error, { root: true });
       return error.response.data;
     }
   }

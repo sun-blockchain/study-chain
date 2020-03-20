@@ -314,7 +314,6 @@ const actions = {
   async addClassToTeacher({ commit, dispatch }, { username, classId }) {
     try {
       let data = await adminService.addClassToTeacher(username, classId);
-      commit('addClassToTeacher', data);
       return data;
     } catch (error) {
       dispatch('alert/alertError', error, { root: true });
@@ -323,7 +322,6 @@ const actions = {
   async unassignTeacherFromClass({ commit }, classId) {
     try {
       let data = await adminService.unassignTeacherFromClass(classId);
-      commit('unassignTeacherFromClass', data);
       return data;
     } catch (error) {
       if (error.response.status === 403) {
@@ -523,12 +521,6 @@ const mutations = {
   },
   deleteSubjectOfTeacher(state, listStudents) {
     state.classesOfTeacher = listStudents;
-  },
-  addClassToTeacher(state, classes) {
-    state.classesOfTeacher = classes;
-  },
-  unassignTeacherFromClass(state, classes) {
-    state.classesOfTeacher = classes;
   },
   // Students Manager
   getAllStudents(state, listStudents) {

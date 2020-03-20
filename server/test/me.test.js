@@ -1558,7 +1558,7 @@ describe('#GET /me/courses/:courseId/scores', () => {
   });
 });
 
-describe('#GET /me/subject/:subjectId', () => {
+describe('#GET /me/subjects/:subjectId', () => {
   let connect;
   let query;
   let subjectId = '0defc52c-6ebb-4373-8971-a36cf789e5d9';
@@ -1575,7 +1575,7 @@ describe('#GET /me/subject/:subjectId', () => {
 
   it('permission denied when access routes with role admin', (done) => {
     request(app)
-      .get(`/me/subject/${subjectId}`)
+      .get(`/me/subjects/${subjectId}`)
       .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(403);
@@ -1586,7 +1586,7 @@ describe('#GET /me/subject/:subjectId', () => {
   it('failed connect to blockchain', (done) => {
     connect.returns(null);
     request(app)
-      .get(`/me/subject/${subjectId}`)
+      .get(`/me/subjects/${subjectId}`)
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(500);
@@ -1605,7 +1605,7 @@ describe('#GET /me/subject/:subjectId', () => {
     query.onFirstCall().returns({ success: false, msg: 'query subject error' });
 
     request(app)
-      .get(`/me/subject/${subjectId}`)
+      .get(`/me/subjects/${subjectId}`)
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(404);
@@ -1635,7 +1635,7 @@ describe('#GET /me/subject/:subjectId', () => {
     query.onSecondCall().returns({ success: false, msg: 'Query classes error' });
 
     request(app)
-      .get(`/me/subject/${subjectId}`)
+      .get(`/me/subjects/${subjectId}`)
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(404);
@@ -1695,7 +1695,7 @@ describe('#GET /me/subject/:subjectId', () => {
     query.onSecondCall().returns({ success: true, msg: JSON.stringify(classes) });
 
     request(app)
-      .get(`/me/subject/${subjectId}`)
+      .get(`/me/subjects/${subjectId}`)
       .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
       .then((res) => {
         expect(res.status).equal(200);
