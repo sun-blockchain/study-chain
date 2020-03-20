@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 import compose from 'recompose/compose';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
-import { HashRouter as Router, Switch } from 'react-router-dom';
+import { HashRouter as Router, Route, Switch } from 'react-router-dom';
 import classnames from 'classnames';
 import Main from '../Main';
 import Header from '../Header';
@@ -15,9 +15,6 @@ import LandingPage from '../View/LandingPage';
 import ErrorMessage from '../ErrorMessage';
 import { chartSelectors } from '../../state/redux/charts';
 import { themeSelectors, themeActions } from '../../state/redux/theme';
-import { authSelectors } from '../../state/redux/auth';
-
-import Private from '../Route';
 
 /* istanbul ignore next */
 const styles = theme => {
@@ -70,7 +67,7 @@ export class App extends Component {
         {error && <ErrorMessage message={error} />}
         <Router>
           <Switch>
-            <Private path="/" render={routeprops => <Main {...routeprops} />} />
+            <Route path="/" render={routeprops => <Main {...routeprops} />} />
           </Switch>
         </Router>
         {<Footer />}
@@ -82,7 +79,6 @@ export class App extends Component {
 const { modeSelector } = themeSelectors;
 const { changeTheme } = themeActions;
 const { errorMessageSelector } = chartSelectors;
-const { authSelector } = authSelectors;
 
 /* istanbul ignore next */
 export default compose(
@@ -90,8 +86,7 @@ export default compose(
   connect(
     state => ({
       error: errorMessageSelector(state),
-      mode: modeSelector(state),
-      auth: authSelector(state)
+      mode: modeSelector(state)
     }),
     { changeTheme }
   )
