@@ -170,9 +170,11 @@ export default {
       let students = await this.getStudentsOfClass(this.$route.params.classId);
 
       if (score && students) {
-        Message.success('Success!');
+        Message.success('Pick score succesfully!');
+      } else if (!students) {
+        Message.error('Loading list student error!');
       } else {
-        Message.error('Error!');
+        Message.error('Pick score has failed!');
       }
       this.fullscreenLoading = false;
       this.showEditScore = false;

@@ -385,18 +385,23 @@ export default {
         if (valid) {
           this.fullscreenLoading = true;
           let data = await this.createClass(this.newClass);
-          if (data) {
-            if (data.success) {
-              this.resetForm('newClass');
-              Message.success('Class has been created!');
-              this.dialogForm.newClass = false;
-            } else {
-              Message.error(data.msg);
-            }
+
+          if (!data) {
+            this.resetForm('newClass');
+            this.dialogForm.newClass = false;
+            this.fullscreenLoading = false;
+            return Message.error('Create class has failed !');
           }
+
+          this.resetForm('newClass');
+          Message.success('Class has been created!');
+          this.dialogForm.newClass = false;
+
           this.fullscreenLoading = false;
 
           await this.getClassesOfSubject(this.$route.params.id);
+        } else {
+          return false;
         }
       });
     },
@@ -406,13 +411,19 @@ export default {
         if (valid) {
           this.fullscreenLoading = true;
           let data = await this.updateClass(this.editClass);
-          if (data) {
+
+          if (!data) {
             this.dialogForm.editClass = false;
             await this.resetForm('editClass');
-            Message.success('Update success!');
-          } else {
-            Message.error(data.msg);
+            await this.getClassesOfSubject(this.$route.params.id);
+            this.fullscreenLoading = false;
+            return Message.error('Update class has failed!');
           }
+
+          this.dialogForm.editClass = false;
+          await this.resetForm('editClass');
+          await this.getClassesOfSubject(this.$route.params.id);
+          Message.success('Update class successfully!');
           this.fullscreenLoading = false;
         }
       });
@@ -443,7 +454,7 @@ export default {
             classId: row.ClassID
           });
 
-          if (data.status != 200) {
+          if (!data) {
             await this.getClassesOfSubject(this.$route.params.id);
             this.fullscreenLoading = false;
             return Message.error('Delete class has failed');
