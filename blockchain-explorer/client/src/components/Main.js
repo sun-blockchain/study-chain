@@ -30,8 +30,6 @@ import {
 } from './types';
 import PageNotFound from './View/PageNotFound';
 
-import Private from './Route';
-
 const {
   currentChannelSelector,
   blockActivitySelector,
@@ -126,42 +124,42 @@ export const Main = props => {
     <Router>
       <div className={classes.main}>
         <Switch>
-          <Private
+          <Route
             exact
             path="/"
             render={routeprops => (
               <DashboardView {...{ ...dashboardViewProps, ...routeprops }} />
             )}
           />
-          <Private
+          <Route
             exact
             path="/blocks"
             render={routeprops => (
               <BlocksView {...{ ...blocksViewProps, ...routeprops }} />
             )}
           />
-          <Private
+          <Route
             exact
             path="/chaincodes"
             render={routeprops => (
               <ChaincodeView {...{ ...chaincodeViewProps, ...routeprops }} />
             )}
           />
-          <Private
+          <Route
             exact
             path="/channels"
             render={routeprops => (
               <ChannelsView {...{ ...channelsViewProps, ...routeprops }} />
             )}
           />
-          <Private
+          <Route
             exact
             path="/network"
             render={routeprops => (
               <NetworkView {...{ ...networkViewProps, ...routeprops }} />
             )}
           />
-          <Private
+          <Route
             exact
             path="/transactions"
             render={routeprops => (
