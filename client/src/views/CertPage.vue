@@ -59,9 +59,7 @@
               </div>
               <div class="col-md-6 text-center" @click="dialogDetails = true">
                 <div class="pm-certificate-name underline margin-0 text-center">
-                  <p class="Rochester">
-                    {{ cert.certificateId }}
-                  </p>
+                  <p class="Rochester">{{ cert.certificateId }}</p>
                 </div>
                 <p>
                   <strong>Certificate ID</strong>
@@ -80,84 +78,100 @@
       <div class="body-modal">
         <div class="box-gray">
           <div class="row">
-            <div class="col-3"><h5>Transaction ID:</h5></div>
-            <div class="col-9">
-              {{ infoTransaction && infoTransaction.row ? infoTransaction.row.txhash : '' }}
+            <div class="col-3">
+              <h5>Transaction ID:</h5>
             </div>
+            <div
+              class="col-9"
+            >{{ infoTransaction && infoTransaction.row ? infoTransaction.row.txhash : '' }}</div>
           </div>
         </div>
         <div class="box-white">
           <div class="row">
-            <div class="col-3"><h5>Validation Code:</h5></div>
+            <div class="col-3">
+              <h5>Validation Code:</h5>
+            </div>
             <div class="col-9">
               {{
-                infoTransaction && infoTransaction.row ? infoTransaction.row.validation_code : ''
+              infoTransaction && infoTransaction.row ? infoTransaction.row.validation_code : ''
               }}
             </div>
           </div>
         </div>
         <div class="box-gray">
           <div class="row">
-            <div class="col-3"><h5>Payload Proposal Hash:</h5></div>
+            <div class="col-3">
+              <h5>Payload Proposal Hash:</h5>
+            </div>
             <div class="col-9">
               {{
-                infoTransaction && infoTransaction.row
-                  ? infoTransaction.row.payload_proposal_hash
-                  : ''
+              infoTransaction && infoTransaction.row
+              ? infoTransaction.row.payload_proposal_hash
+              : ''
               }}
             </div>
           </div>
         </div>
         <div class="box-white">
           <div class="row">
-            <div class="col-3"><h5>Creator MSP:</h5></div>
-            <div class="col-9">
-              {{ infoTransaction && infoTransaction.row ? infoTransaction.row.creator_msp_id : '' }}
+            <div class="col-3">
+              <h5>Creator MSP:</h5>
             </div>
+            <div
+              class="col-9"
+            >{{ infoTransaction && infoTransaction.row ? infoTransaction.row.creator_msp_id : '' }}</div>
           </div>
         </div>
         <div class="box-gray">
           <div class="row">
-            <div class="col-3"><h5>Endoser:</h5></div>
+            <div class="col-3">
+              <h5>Endoser:</h5>
+            </div>
             <div class="col-9">
               {{
-                infoTransaction && infoTransaction.row ? infoTransaction.row.endorser_msp_id : ''
+              infoTransaction && infoTransaction.row ? infoTransaction.row.endorser_msp_id : ''
               }}
             </div>
           </div>
         </div>
         <div class="box-white">
           <div class="row">
-            <div class="col-3"><h5>Chaincode Name:</h5></div>
-            <div class="col-9">
-              {{ infoTransaction && infoTransaction.row ? infoTransaction.row.chaincodename : '' }}
+            <div class="col-3">
+              <h5>Chaincode Name:</h5>
             </div>
+            <div
+              class="col-9"
+            >{{ infoTransaction && infoTransaction.row ? infoTransaction.row.chaincodename : '' }}</div>
           </div>
         </div>
         <div class="box-gray">
           <div class="row">
-            <div class="col-3"><h5>Type:</h5></div>
-            <div class="col-9">
-              {{ infoTransaction && infoTransaction.row ? infoTransaction.row.type : '' }}
+            <div class="col-3">
+              <h5>Type:</h5>
             </div>
+            <div
+              class="col-9"
+            >{{ infoTransaction && infoTransaction.row ? infoTransaction.row.type : '' }}</div>
           </div>
         </div>
         <div class="box-white">
           <div class="row">
-            <div class="col-3"><h5>Time:</h5></div>
-            <div class="col-9">
-              {{ infoTransaction && infoTransaction.row ? infoTransaction.row.createdt : '' }}
+            <div class="col-3">
+              <h5>Time:</h5>
             </div>
+            <div
+              class="col-9"
+            >{{ infoTransaction && infoTransaction.row ? infoTransaction.row.createdt : '' }}</div>
           </div>
         </div>
       </div>
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogDetails = false" size="small">Cancel</el-button>
-        <a :href="`${domainExplorer}/transactions`" target="_blank" class="ml-2">
-          <el-button type="primary" size="small"
-            ><i class="el-icon-link"></i> Scan Explorer</el-button
-          >
+        <a :href="`${domainExplorer}/#/transactions`" target="_blank" class="ml-2">
+          <el-button type="primary" size="small">
+            <i class="el-icon-link"></i> Scan Explorer
+          </el-button>
         </a>
       </span>
     </el-dialog>
@@ -165,10 +179,10 @@
 </template>
 
 <script>
-import axios from 'axios';
-import Vue from 'vue';
-import { mapState, mapActions } from 'vuex';
-import { Dialog, Button } from 'element-ui';
+import axios from "axios";
+import Vue from "vue";
+import { mapState, mapActions } from "vuex";
+import { Dialog, Button } from "element-ui";
 Vue.use(Dialog);
 Vue.use(Button);
 export default {
@@ -176,36 +190,36 @@ export default {
     return {
       success: Boolean,
       cert: {
-        certificateId: '',
-        courseId: '',
-        username: '',
-        issueDate: '',
-        courseName: '',
-        fullname: ''
+        certificateId: "",
+        courseId: "",
+        username: "",
+        issueDate: "",
+        courseName: "",
+        fullname: ""
       },
       msg: String,
       dialogDetails: false,
       infoTransaction: null,
       defaultProps: {
-        label: 'key',
-        children: 'value'
+        label: "key",
+        children: "value"
       },
       domainExplorer: process.env.VUE_APP_API_EXPLORER
     };
   },
   methods: {
-    ...mapActions('student', ['getCertificate', 'verifyCertificate'])
+    ...mapActions("student", ["getCertificate", "verifyCertificate"])
   },
   computed: {
-    ...mapState('student', ['myCertificates'])
+    ...mapState("student", ["myCertificates"])
   },
   created: async function() {
     let cert = await this.getCertificate(this.$route.params.certId);
     let data = await this.verifyCertificate(this.$route.params.certId);
+
     if (data) {
       this.infoTransaction = data.transactionInfo;
     }
-    this.infoTransaction = null;
 
     if (cert) {
       this.cert.certificateId = cert.CertificateID;
@@ -221,5 +235,5 @@ export default {
 </script>
 
 <style scoped>
-@import '../assets/styleCertificate.css';
+@import "../assets/styleCertificate.css";
 </style>
