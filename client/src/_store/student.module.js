@@ -173,6 +173,14 @@ const actions = {
     } catch (error) {
       router.push('/404');
     }
+  },
+  async verifyCertificate({ dispatch, commit }, certId) {
+    try {
+      let data = await studentService.verifyCertificate(certId);
+      return data;
+    } catch (error) {
+      dispatch('alert/alertError', error, { root: true });
+    }
   }
 };
 

@@ -2099,7 +2099,7 @@ ul {
   left: 0;
   top: 0;
   width: 100%;
-  z-index: 999;
+  /* z-index: 999; */
 }
 
 /* line 9, ../../01 cl html template/03_jun 2019/184_SAAS_template/sass/_menu.scss */
@@ -2318,7 +2318,6 @@ ul {
     background-color: #fff;
     text-align: center !important;
   }
-
 
   li.b-nav-dropdown .dropdown-menu.dropdown-menu-right {
     display: block;
