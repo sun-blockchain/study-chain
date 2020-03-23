@@ -307,22 +307,29 @@ router.put(
       });
     }
 
-    const responseQuery = await network.query(networkObj, 'GetClass', classId);
+    let classInfo = await network.query(networkObj, 'GetClass', classId);
 
-    if (!responseQuery.success) {
+    if (!classInfo.success) {
       return res.status(404).json({
         msg: 'Query class has failed'
       });
     }
 
-    let classInfo = JSON.parse(responseQuery.msg);
+    classInfo = JSON.parse(classInfo.msg);
+
+    if (!classInfo.Students) {
+      return res.status(400).json({
+        msg: 'This class does not have student'
+      });
+    }
+
     if (classInfo.Status !== Status.Open) {
       return res.status(400).json({
         msg: 'Can not start this class'
       });
     }
 
-    if (!classInfo.TeacherUsername || classInfo.TeacherUsername === '') {
+    if (!classInfo.TeacherUsername) {
       return res.status(400).json({
         msg: 'There is no teacher assigned to this class'
       });

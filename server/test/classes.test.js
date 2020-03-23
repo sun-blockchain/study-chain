@@ -1459,7 +1459,8 @@ describe('#PUT /classes/:classId/status', () => {
 
     let data = JSON.stringify({
       ClassId: classId,
-      Status: 'InProgress'
+      Status: 'InProgress',
+      Students: ['conglt']
     });
 
     query.returns({
@@ -1487,7 +1488,9 @@ describe('#PUT /classes/:classId/status', () => {
 
     let data = JSON.stringify({
       ClassId: classId,
-      Status: 'Open'
+      Status: 'Open',
+      Students: ['conglt'],
+      TeacherUsername: null
     });
 
     query.returns({
@@ -1516,7 +1519,8 @@ describe('#PUT /classes/:classId/status', () => {
     let data = JSON.stringify({
       ClassId: classId,
       Status: 'Open',
-      TeacherUsername: 'tc01'
+      TeacherUsername: 'tc01',
+      Students: ['conglt']
     });
 
     query.returns({
@@ -1538,6 +1542,42 @@ describe('#PUT /classes/:classId/status', () => {
       });
   });
 
+  it('Start has failed because class does not have student!', (done) => {
+    connect.returns({
+      contract: 'academy',
+      network: 'certificatechannel',
+      gateway: 'gateway',
+      user: { username: 'adminacademy', role: USER_ROLES.ADMIN_ACADEMY }
+    });
+
+    let data = JSON.stringify({
+      ClassId: 'b2ab2fbd-1053-4848-aac9-2090fee54074',
+      Status: 'Open',
+      TeacherUsername: 'tc01',
+      Students: null
+    });
+
+    query.returns({
+      success: true,
+      msg: data
+    });
+
+    startClass.returns({
+      success: true
+    });
+
+    request(app)
+      .put(`/classes/${classId}/status`)
+      .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+      .send({
+        classId: 'b2ab2fbd-1053-4848-aac9-2090fee54074'
+      })
+      .then((res) => {
+        expect(res.status).equal(400);
+        done();
+      });
+  });
+
   it('Start Successfully!', (done) => {
     connect.returns({
       contract: 'academy',
@@ -1549,7 +1589,8 @@ describe('#PUT /classes/:classId/status', () => {
     let data = JSON.stringify({
       ClassId: 'b2ab2fbd-1053-4848-aac9-2090fee54074',
       Status: 'Open',
-      TeacherUsername: 'tc01'
+      TeacherUsername: 'tc01',
+      Students: ['conglt']
     });
 
     query.returns({
